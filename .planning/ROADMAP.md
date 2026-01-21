@@ -42,11 +42,11 @@ Plans:
   2. Manager can select multiple statements under each JD Element using checkboxes
   3. Selected statements show their NOC source attribution
   4. Selections persist as manager moves between JD Element sections
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 02-01: TBD
-- [ ] 02-02: TBD
+- [ ] 02-01-PLAN.md — Page structure, CSS styling, search-to-profile flow
+- [ ] 02-02-PLAN.md — Accordion display, selection system, drag-reorder, filtering, sidebar
 
 ### Phase 3: LLM Integration
 **Goal**: App generates a compliant AI overview based on manager's selections
@@ -86,10 +86,11 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Backend + Scraping | 0/3 | Planned | - |
-| 2. Frontend Core UI | 0/2 | Not started | - |
+| 2. Frontend Core UI | 0/2 | Planned | - |
 | 3. LLM Integration | 0/1 | Not started | - |
 | 4. Output + Compliance | 0/2 | Not started | - |
 
 ---
 *Roadmap created: 2026-01-21*
 *Phase 1 planned: 2026-01-21*
+*Phase 2 planned: 2026-01-21*
