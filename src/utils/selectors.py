@@ -7,12 +7,12 @@ from typing import List
 # They will be refined during live testing in Plan 03.
 SELECTORS = {
     "search_results": {
-        "primary": "table.search-results tbody tr",
-        "fallback": "div.results-list a",
+        "primary": "#OaSISSearchResultsTable tbody tr",
+        "fallback": "table[aria-label*='Search results'] tbody tr",
     },
     "result_link": {
         "primary": "a[href*='OaSISOccProfile']",
-        "fallback": "a.profile-link",
+        "fallback": "a[href*='OccProfile']",
     },
     "profile_title": {
         "primary": "h1",

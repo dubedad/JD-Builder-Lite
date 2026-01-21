@@ -43,7 +43,7 @@ class OASISScraper:
             "version": version
         }
 
-        response = self.session.get(url, params=params, timeout=self.timeout)
+        response = self.session.get(url, params=params, timeout=self.timeout, verify=False)
         response.raise_for_status()
         return response.text
 
@@ -69,7 +69,7 @@ class OASISScraper:
             "version": version
         }
 
-        response = self.session.get(url, params=params, timeout=self.timeout)
+        response = self.session.get(url, params=params, timeout=self.timeout, verify=False)
         response.raise_for_status()
         return response.text
 
