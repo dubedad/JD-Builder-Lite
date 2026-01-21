@@ -26,12 +26,12 @@ JD Builder Lite delivers a compliance-focused job description builder in 4 phase
   2. Manager can select a profile and receive all NOC data (Overview, Work Characteristics, Skills & Abilities, Interests, Employment Requirements, Skills for Success)
   3. Backend returns data with source metadata (NOC code, profile URL, retrieval timestamp)
   4. Data is organized by JD element mapping (Key Activities, Skills, Effort, Responsibility, Working Conditions)
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
-- [ ] 01-03: TBD
+- [ ] 01-01-PLAN.md — Project foundation: dependencies, Pydantic models, OASIS scraper service
+- [ ] 01-02-PLAN.md — HTML parsing: CSS selectors, BeautifulSoup parser, NOC-to-JD mapper
+- [ ] 01-03-PLAN.md — Flask integration: API routes, app entry point, live verification
 
 ### Phase 2: Frontend Core UI
 **Goal**: Manager can view NOC data organized by JD elements and select statements for the job description
@@ -85,10 +85,11 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Backend + Scraping | 0/3 | Not started | - |
+| 1. Backend + Scraping | 0/3 | Planned | - |
 | 2. Frontend Core UI | 0/2 | Not started | - |
 | 3. LLM Integration | 0/1 | Not started | - |
 | 4. Output + Compliance | 0/2 | Not started | - |
 
 ---
 *Roadmap created: 2026-01-21*
+*Phase 1 planned: 2026-01-21*
