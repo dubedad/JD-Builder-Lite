@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/static/css/accordion.css">
     <link rel="stylesheet" href="/static/css/sidebar.css">
     <link rel="stylesheet" href="/static/css/skeleton.css">
+    <link rel="stylesheet" href="/static/css/overview.css">
 </head>
 <body>
     <header class="header">
@@ -60,6 +61,36 @@
         <section class="jd-sections" id="jd-sections">
             <!-- Accordion content will be populated by JavaScript -->
         </section>
+
+        <!-- General Overview Section -->
+        <section id="overview-section" class="overview-section hidden">
+            <header class="overview-header">
+                <h2>General Overview</h2>
+                <span id="ai-badge" class="ai-badge">AI Generated</span>
+            </header>
+
+            <div class="overview-content">
+                <p class="overview-instructions">
+                    This overview is generated based on your selected statements. You can edit it freely.
+                    Click "Regenerate" to create a new version.
+                </p>
+
+                <textarea
+                    id="overview-textarea"
+                    class="overview-textarea"
+                    placeholder="Click 'Generate Overview' to create an AI-powered summary..."
+                    rows="8"
+                ></textarea>
+
+                <div class="overview-actions">
+                    <button id="regenerate-btn" class="btn btn--secondary" disabled>
+                        Regenerate
+                    </button>
+                </div>
+            </div>
+
+            <div id="overview-error" class="overview-error hidden" role="alert"></div>
+        </section>
     </main>
 
     <!-- Collapsible Sidebar -->
@@ -90,6 +121,7 @@
     <script src="/static/js/selection.js"></script>
     <script src="/static/js/search.js"></script>
     <script src="/static/js/sidebar.js"></script>
+    <script src="/static/js/generate.js"></script>
     <script src="/static/js/main.js"></script>
 </body>
 </html>
