@@ -1,0 +1,220 @@
+/* PDF Print Styles for WeasyPrint */
+
+/* Base styles */
+:root {
+  --primary: #26374a;
+  --text: #333333;
+  --text-light: #666666;
+  --border: #cccccc;
+  --accent: #1976d2;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Lato", "Noto Sans", Arial, sans-serif;
+  font-size: 11pt;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+/* Page setup */
+@page {
+  size: letter portrait;
+  margin: 1in 0.75in;
+
+  /* Header on every page */
+  @top-center {
+    content: string(job-title) " (" string(noc-code) ")";
+    font-family: "Lato", Arial, sans-serif;
+    font-size: 10pt;
+    color: #26374a;
+    padding-bottom: 0.25in;
+    border-bottom: 1pt solid #26374a;
+  }
+
+  /* Footer left: compliance reference */
+  @bottom-left {
+    content: "Compliant with TBS Directive 32592";
+    font-size: 8pt;
+    color: #666666;
+  }
+
+  /* Footer right: page numbers */
+  @bottom-right {
+    content: "Page " counter(page) " of " counter(pages);
+    font-size: 8pt;
+    color: #666666;
+  }
+}
+
+/* First page - no header (title page) */
+@page :first {
+  @top-center {
+    content: none;
+  }
+}
+
+/* Appendix pages */
+@page appendix {
+  @top-center {
+    content: "Appendix: Compliance Metadata";
+    font-family: "Lato", Arial, sans-serif;
+    font-size: 10pt;
+    color: #26374a;
+    padding-bottom: 0.25in;
+    border-bottom: 1pt solid #26374a;
+  }
+}
+
+/* Running elements for header content */
+.running-header {
+  position: absolute;
+  visibility: hidden;
+  height: 0;
+}
+
+.job-title-value {
+  string-set: job-title content();
+}
+
+.noc-code-value {
+  string-set: noc-code content();
+}
+
+/* Title section */
+.title-section {
+  text-align: center;
+  padding: 2in 0 1in 0;
+}
+
+.jd-title {
+  font-size: 24pt;
+  color: #26374a;
+  margin-bottom: 0.5em;
+  font-weight: 700;
+}
+
+.jd-noc-code {
+  font-size: 14pt;
+  color: #666666;
+}
+
+/* JD Sections */
+.jd-section {
+  margin-top: 1.5em;
+  page-break-inside: avoid;
+}
+
+.jd-section h2 {
+  font-size: 14pt;
+  color: #26374a;
+  border-bottom: 1pt solid #cccccc;
+  padding-bottom: 0.25em;
+  margin-bottom: 0.75em;
+  page-break-after: avoid;
+}
+
+.jd-statements {
+  list-style-type: disc;
+  margin-left: 1.5em;
+}
+
+.jd-statements li {
+  margin-bottom: 0.5em;
+  page-break-inside: avoid;
+}
+
+/* Overview text */
+.overview-text {
+  text-align: justify;
+}
+
+/* AI indicator */
+.ai-indicator {
+  font-size: 8pt;
+  color: #1976d2;
+  vertical-align: super;
+  margin-left: 0.25em;
+}
+
+/* Compliance Appendix */
+.compliance-appendix {
+  page: appendix;
+  page-break-before: always;
+}
+
+.compliance-appendix h1 {
+  font-size: 18pt;
+  color: #26374a;
+  text-align: center;
+  margin-bottom: 1em;
+  page-break-after: avoid;
+}
+
+.appendix-intro {
+  margin-bottom: 1.5em;
+  font-style: italic;
+}
+
+.compliance-section {
+  margin-top: 1.5em;
+  page-break-inside: avoid;
+}
+
+.compliance-section h2 {
+  font-size: 12pt;
+  color: #26374a;
+  margin-bottom: 0.75em;
+  page-break-after: avoid;
+}
+
+/* Compliance tables */
+.compliance-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0;
+  font-size: 10pt;
+}
+
+.compliance-table th,
+.compliance-table td {
+  padding: 0.5em;
+  border: 1pt solid #cccccc;
+  text-align: left;
+  vertical-align: top;
+}
+
+.compliance-table th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+  width: 30%;
+}
+
+.compliance-table thead th {
+  background-color: #26374a;
+  color: white;
+  width: auto;
+}
+
+.selections-table {
+  font-size: 9pt;
+}
+
+.selections-table th {
+  width: auto;
+}
+
+.selections-table .statement-cell {
+  max-width: 200pt;
+  word-wrap: break-word;
+}
+
+/* Avoid breaks */
+.compliance-table tr {
+  page-break-inside: avoid;
+}

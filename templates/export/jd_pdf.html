@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ job_title }} - Job Description</title>
+  <link rel="stylesheet" href="/static/css/export_print.css">
+</head>
+<body>
+  <!-- Running elements for header (must be early in document) -->
+  <div class="running-header">
+    <span class="job-title-value">{{ job_title }}</span>
+    <span class="noc-code-value">{{ noc_code }}</span>
+  </div>
+
+  <!-- Main Document -->
+  <div class="jd-document">
+    <!-- Cover / Title Section -->
+    <section class="title-section">
+      <h1 class="jd-title">{{ job_title }}</h1>
+      <p class="jd-noc-code">NOC Code: {{ noc_code }}</p>
+    </section>
+
+    <!-- General Overview -->
+    {% if general_overview %}
+    <section class="jd-section">
+      <h2>General Overview</h2>
+      <p class="overview-text">
+        {{ general_overview }}
+        {% if ai_metadata %}
+        <span class="ai-indicator">[AI{% if ai_metadata.modified %}-M{% endif %}]</span>
+        {% endif %}
+      </p>
+    </section>
+    {% endif %}
+
+    <!-- JD Elements -->
+    {% for element in jd_elements %}
+    <section class="jd-section">
+      <h2>{{ element.name }}</h2>
+      <ul class="jd-statements">
+        {% for statement in element.statements %}
+        <li>{{ statement }}</li>
+        {% endfor %}
+      </ul>
+    </section>
+    {% endfor %}
+
+    <!-- Compliance Appendix -->
+    <section class="compliance-appendix">
+      <h1>Appendix A: Compliance Metadata</h1>
+      <p class="appendix-intro">
+        This job description was created in compliance with the Treasury Board of Canada's
+        Directive on Automated Decision-Making (TBS Policy ID 32592).
+      </p>
+
+      {% for section in compliance_sections %}
+      <div class="compliance-section">
+        <h2>{{ section.title }}</h2>
+
+        {% if section.section_id == "6.2.3" %}
+        <table class="compliance-table">
+          <tr><th>Data Steward</th><td>{{ section.content.data_steward }}</td></tr>
+          <tr><th>Authoritative Source</th><td>{{ section.content.authoritative_source }}</td></tr>
+          <tr><th>Access Method</th><td>{{ section.content.access_method }}</td></tr>
+          <tr><th>Source URL</th><td>{{ section.content.source_url }}</td></tr>
+          <tr><th>Retrieval Timestamp</th><td>{{ section.content.retrieval_timestamp }}</td></tr>
+          <tr><th>NOC Version</th><td>{{ section.content.noc_version }}</td></tr>
+        </table>
+
+        {% elif section.section_id == "6.2.7" %}
+        <p>{{ section.content.description }}</p>
+        <p><strong>Total selections:</strong> {{ section.content.total_selections }}</p>
+
+        {% if section.content.selections %}
+        <table class="compliance-table selections-table">
+          <thead>
+            <tr>
+              <th>JD Element</th>
+              <th>Statement</th>
+              <th>Source</th>
+              <th>Selected At</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for sel in section.content.selections %}
+            <tr>
+              <td>{{ sel.jd_element }}</td>
+              <td class="statement-cell">{{ sel.statement[:100] }}{% if sel.statement|length > 100 %}...{% endif %}</td>
+              <td>{{ sel.source_attribute }}</td>
+              <td>{{ sel.selected_at[:19] }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% endif %}
+
+        {% elif section.section_id == "6.3.5" %}
+        <table class="compliance-table">
+          <tr><th>Relevant</th><td>{{ section.content.relevant.how_met }}</td></tr>
+          <tr><th>Accurate</th><td>{{ section.content.accurate.how_met }}</td></tr>
+          <tr><th>Up-to-date</th><td>{{ section.content.up_to_date.how_met }}</td></tr>
+        </table>
+
+        {% elif section.section_id == "ai_disclosure" %}
+        <p>{{ section.content.description }}</p>
+        <table class="compliance-table">
+          <tr><th>Content Type</th><td>{{ section.content.content_type }}</td></tr>
+          <tr><th>Model</th><td>{{ section.content.model }}</td></tr>
+          <tr><th>Generation Timestamp</th><td>{{ section.content.generation_timestamp }}</td></tr>
+          <tr><th>Input Statement Count</th><td>{{ section.content.input_count }}</td></tr>
+          <tr><th>Modified by User</th><td>{{ "Yes" if section.content.modified_by_user else "No" }}</td></tr>
+          <tr><th>Purpose</th><td>{{ section.content.purpose }}</td></tr>
+        </table>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </section>
+  </div>
+</body>
+</html>
