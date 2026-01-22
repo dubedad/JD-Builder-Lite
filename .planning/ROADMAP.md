@@ -57,10 +57,11 @@ Plans:
   2. Generated overview is informed by all selected statements (visible in prompt/input)
   3. AI generation metadata is recorded (model used, timestamp, input statements)
   4. Overview is clearly marked as AI-generated in the UI
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 03-01: TBD
+- [ ] 03-01-PLAN.md — Backend: OpenAI SDK, LLM service, SSE streaming endpoint, provenance tracking
+- [ ] 03-02-PLAN.md — Frontend: overview section, streaming textarea, AI badge, modification tracking
 
 ### Phase 4: Output + Compliance
 **Goal**: Manager can export a complete, audit-ready job description PDF
@@ -87,10 +88,11 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 |-------|----------------|--------|-----------|
 | 1. Backend + Scraping | 3/3 | ✓ Complete | 2026-01-21 |
 | 2. Frontend Core UI | 0/2 | Ready | - |
-| 3. LLM Integration | 0/1 | Not started | - |
+| 3. LLM Integration | 0/2 | Planned | - |
 | 4. Output + Compliance | 0/2 | Not started | - |
 
 ---
 *Roadmap created: 2026-01-21*
 *Phase 1 planned: 2026-01-21*
 *Phase 2 planned: 2026-01-21*
+*Phase 3 planned: 2026-01-21*
