@@ -151,3 +151,216 @@ details.accordion-section[open] summary {
     outline: none;
     border-color: var(--accent);
 }
+
+/* ============================================
+   JD Section Accordion (Plan 02)
+   ============================================ */
+
+details.jd-section {
+    border: 1px solid var(--border);
+    margin-bottom: 0.5rem;
+    border-radius: 4px;
+    background: var(--bg);
+    overflow: hidden;
+}
+
+details.jd-section summary.jd-section__header {
+    padding: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: var(--text);
+    list-style: none;
+    user-select: none;
+    transition: background 0.15s;
+}
+
+/* Remove default marker */
+details.jd-section summary.jd-section__header::-webkit-details-marker {
+    display: none;
+}
+
+details.jd-section summary.jd-section__header::marker {
+    display: none;
+}
+
+details.jd-section summary.jd-section__header:hover {
+    background: #fafafa;
+}
+
+/* Custom expand icon */
+details.jd-section summary.jd-section__header::after {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    border-right: 2px solid var(--text-light);
+    border-bottom: 2px solid var(--text-light);
+    transform: rotate(-45deg);
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+details.jd-section[open] summary.jd-section__header::after {
+    transform: rotate(45deg);
+}
+
+/* Open state border */
+details.jd-section[open] summary.jd-section__header {
+    border-bottom: 1px solid var(--border);
+}
+
+/* Drag handle */
+.jd-section__drag-handle {
+    cursor: grab;
+    padding: 0 0.25rem;
+    color: var(--text-light);
+    font-size: 1rem;
+}
+
+.jd-section__drag-handle:active {
+    cursor: grabbing;
+}
+
+/* Dragging state */
+.jd-section--dragging {
+    opacity: 0.5;
+    background: var(--highlight);
+}
+
+/* Section title and count */
+.jd-section__title {
+    font-weight: 600;
+}
+
+.jd-section__count {
+    color: var(--text-light);
+    font-weight: normal;
+    font-size: 0.875rem;
+}
+
+/* Section content */
+.jd-section__content {
+    padding: 1rem;
+}
+
+/* Section search filter */
+.jd-section__search {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+}
+
+.jd-section__search:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+/* Statement list */
+.jd-section__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Statement styling */
+.statement {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border);
+    transition: background-color 0.2s ease;
+}
+
+.statement:last-child {
+    border-bottom: none;
+}
+
+.statement--selected {
+    background-color: var(--highlight);
+    border-left: 3px solid var(--accent);
+    margin-left: -3px;
+}
+
+.statement__label {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    cursor: pointer;
+    align-items: flex-start;
+}
+
+.statement__checkbox {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+    margin-top: 0.125rem;
+}
+
+.statement__text {
+    flex: 1;
+    min-width: 200px;
+    line-height: 1.5;
+}
+
+.statement__source {
+    width: 100%;
+    color: var(--text-light);
+    font-size: 0.75rem;
+    font-style: italic;
+    padding-left: 26px;
+}
+
+.statement.hidden {
+    display: none;
+}
+
+/* Sidebar styling additions */
+.sidebar__section {
+    margin-bottom: 1.5rem;
+}
+
+.sidebar__section-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.sidebar__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar__item {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.875rem;
+}
+
+.sidebar__item:last-child {
+    border-bottom: none;
+}
+
+.sidebar__item-text {
+    display: block;
+    line-height: 1.4;
+}
+
+.sidebar__item-source {
+    color: var(--text-light);
+    font-size: 0.75rem;
+    font-style: italic;
+}
+
+.sidebar__empty {
+    color: var(--text-light);
+    font-style: italic;
+}
