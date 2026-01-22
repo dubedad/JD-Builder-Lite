@@ -18,6 +18,15 @@
 
 **Goal:** Backend loads guide.csv at startup and enriches all profile responses with category definitions, statement descriptions, proficiency levels with scale meanings, correct Work Context filtering, and reference NOC attributes.
 
+**Plans:** 5 plans
+
+Plans:
+- [ ] 05-01-PLAN.md - CSV loader singleton with guide.csv and scale meanings (Wave 1)
+- [ ] 05-02-PLAN.md - Parser enhancements for proficiency and dimension extraction (Wave 1)
+- [ ] 05-03-PLAN.md - Enrichment service with classification and LLM fallback (Wave 2)
+- [ ] 05-04-PLAN.md - Reference attributes extraction and NOC hierarchy (Wave 2)
+- [ ] 05-05-PLAN.md - Mapper integration and ProfileResponse update (Wave 3)
+
 **Requirements:**
 - DISP-04: Each JD Element section shows category definition at top (from guide.csv)
 - DISP-05: Each statement includes OASIS label description (from guide.csv lookup)
@@ -135,7 +144,7 @@ Plans:
 
 | Phase | Status | Completed |
 |-------|--------|-----------|
-| 5 - Data Enrichment Pipeline | Pending | - |
+| 5 - Data Enrichment Pipeline | Planned | - |
 | 6 - Enhanced UI Display | Planned | - |
 | 7 - Export Extensions | Pending | - |
 
