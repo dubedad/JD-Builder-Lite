@@ -69,7 +69,7 @@ This tool demonstrates compliance with the Treasury Board's Directive on Automat
 
 ## Constraints
 
-- **Tech stack**: Simple — vanilla HTML/CSS/JS frontend, Node.js backend (proxy for OASIS + OpenAI calls)
+- **Tech stack**: Simple — vanilla HTML/CSS/JS frontend, Python/Flask backend (proxy for OASIS + OpenAI calls)
 - **Deployment**: Local only (localhost) — no cloud hosting
 - **Data access**: Live scraping from OASIS (no pre-cached data)
 - **LLM provider**: OpenAI API (requires API key)
@@ -82,7 +82,7 @@ This tool demonstrates compliance with the Treasury Board's Directive on Automat
 |----------|-----------|---------|
 | Vanilla JS over framework | Demo simplicity, no build step, easy to understand | — Pending |
 | Live scraping over cached data | Always shows current NOC data, no sync issues | — Pending |
-| Node.js backend | Required for CORS (scraping) and OpenAI API calls | — Pending |
+| Python/Flask backend | Better scraping ecosystem (BeautifulSoup, lxml), CORS proxy for frontend | Decided 2026-01-21 |
 | Full compliance metadata in output | Core value proposition — demonstrates Directive compliance | — Pending |
 | OpenAI for General Overview | User preference, widely available | — Pending |
 
