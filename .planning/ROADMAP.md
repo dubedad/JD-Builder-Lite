@@ -53,7 +53,13 @@
 
 ### Phase 6: Enhanced UI Display
 
-**Goal:** Frontend renders enriched data with visual enhancements including star ratings, descriptions, scale meanings, NOC codes in search results, and grid view toggle.
+**Goal:** Frontend renders enriched data with visual enhancements including circle ratings, descriptions, scale meanings, NOC codes in search results, and grid view toggle.
+
+**Plans:** 2 plans
+
+Plans:
+- [ ] 06-01-PLAN.md - Search results with NOC codes, grid/card view toggle, localStorage persistence
+- [ ] 06-02-PLAN.md - Proficiency circle rendering, dimension badges, accessibility compliance
 
 **Requirements:**
 - SRCH-04: Search results display grid view toggle (card vs table views)
@@ -70,8 +76,8 @@
 8. Screen reader users hear correct ARIA labels for star ratings without repetition (WCAG 2.1 Level AA compliance)
 
 **Notes:**
-- Use Unicode star characters (U+2605 filled, U+2606 empty) with CSS for zero-dependency rendering
-- CRITICAL: Implement aria-hidden on decorative stars, single aria-label on container for accessibility
+- Use Unicode circle characters (U+25CF filled, U+25CB empty) with CSS for zero-dependency rendering (OASIS style)
+- CRITICAL: Implement aria-hidden on decorative circles, single aria-label on container for accessibility
 - Grid view uses CSS Grid for responsive table layout (browser-native, no framework)
 - Persist grid preference in localStorage with quota check to avoid QuotaExceededError
 - Test star rating accessibility with NVDA/VoiceOver to ensure compliance
@@ -130,7 +136,7 @@
 | Phase | Status | Completed |
 |-------|--------|-----------|
 | 5 - Data Enrichment Pipeline | Pending | - |
-| 6 - Enhanced UI Display | Pending | - |
+| 6 - Enhanced UI Display | Planned | - |
 | 7 - Export Extensions | Pending | - |
 
 ---
