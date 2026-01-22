@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initSidebar();
     initSelection();
     initSectionSearch();
+    initGenerate();
 
     /**
      * Show inline error message
