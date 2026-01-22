@@ -3,6 +3,7 @@
 from flask import Flask, render_template
 from flask_cors import CORS
 from src.routes.api import api_bp
+from src.config import SECRET_KEY
 
 
 def create_app():
@@ -14,6 +15,9 @@ def create_app():
     app = Flask(__name__,
                 template_folder='../templates',
                 static_folder='../static')
+
+    # Add secret key for session support
+    app.secret_key = SECRET_KEY
 
     # Enable CORS for frontend cross-origin requests
     CORS(app)
