@@ -226,10 +226,30 @@ const generation = {
         if (this.hasGenerated) {
             this.elements.badge.textContent = 'AI Generated';
             this.elements.badge.className = 'ai-badge';
+
+            // Fetch and store AI metadata for export compliance appendix
+            this.fetchAIMetadata();
         }
 
         // Trigger store notification to restore button state via selection.js
         store.notify();
+    },
+
+    /**
+     * Fetch AI generation metadata from session for export
+     */
+    async fetchAIMetadata() {
+        try {
+            const response = await fetch('/api/generation-metadata');
+            if (response.ok) {
+                const metadata = await response.json();
+                if (metadata) {
+                    window.aiGenerationMetadata = metadata;
+                }
+            }
+        } catch (error) {
+            console.warn('Failed to fetch AI metadata:', error);
+        }
     },
 
     /**
