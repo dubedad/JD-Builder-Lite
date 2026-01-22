@@ -644,8 +644,15 @@
             currentTab = tab;
             
             // Update tab buttons
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            event?.target?.classList.add('active');
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Find and activate the correct tab button
+            const tabNames = ['Preview', 'OData Schema', 'JSON Export', 'Markdown'];
+            const tabIndex = ['preview', 'odata', 'json', 'markdown'].indexOf(tab);
+            if (tabIndex >= 0 && tabButtons[tabIndex]) {
+                tabButtons[tabIndex].classList.add('active');
+            }
             
             const data = collectJobData();
             let output = '';
@@ -670,6 +677,10 @@
         }
 
         function generatePreview(data) {
+            const salaryLine = (data.basicInfo.salaryRange.min && data.basicInfo.salaryRange.max) 
+                ? `Salary: $${data.basicInfo.salaryRange.min.toLocaleString()} - $${data.basicInfo.salaryRange.max.toLocaleString()}\n`
+                : '';
+            
             return `
 JOB DESCRIPTION PREVIEW
 =======================
@@ -677,8 +688,7 @@ JOB DESCRIPTION PREVIEW
 ${data.basicInfo.title || 'Job Title'} at ${data.basicInfo.company || 'Company Name'}
 Location: ${data.basicInfo.location || 'Not specified'}
 Type: ${data.basicInfo.jobType}
-${data.basicInfo.salaryRange.min ? `Salary: $${data.basicInfo.salaryRange.min.toLocaleString()} - $${data.basicInfo.salaryRange.max.toLocaleString()}` : ''}
-
+${salaryLine}
 DESCRIPTION
 -----------
 ${data.basicInfo.description || 'No description provided'}
@@ -793,13 +803,16 @@ Status: ${data.provenance.status}
         }
 
         function generateMarkdown(data) {
+            const salaryLine = (data.basicInfo.salaryRange.min && data.basicInfo.salaryRange.max)
+                ? `**Salary Range:** $${data.basicInfo.salaryRange.min.toLocaleString()} - $${data.basicInfo.salaryRange.max.toLocaleString()}  \n`
+                : '';
+            
             return `# ${data.basicInfo.title || 'Job Title'}
 
 **Company:** ${data.basicInfo.company || 'Company Name'}  
 **Location:** ${data.basicInfo.location || 'Not specified'}  
 **Type:** ${data.basicInfo.jobType}  
-${data.basicInfo.salaryRange.min ? `**Salary Range:** $${data.basicInfo.salaryRange.min.toLocaleString()} - $${data.basicInfo.salaryRange.max.toLocaleString()}` : ''}
-
+${salaryLine}
 ## Description
 
 ${data.basicInfo.description || 'No description provided'}
