@@ -30,7 +30,33 @@ Every piece of content in the final job description can be traced back to its au
 
 ### Active
 
-(None - all v1 requirements shipped. Define v2 requirements in next milestone.)
+**v1.1 Milestone: Enhanced Data Display + Export Options**
+
+*Search Results Improvements:*
+- [ ] SRCH-04: Search results show grid view toggle (card vs table)
+- [ ] SRCH-05: Search results display NOC code next to profile title
+- [ ] SRCH-06: Grid view shows columns: Broad category, Training/Education, Lead statement
+
+*Statement Display Enhancements:*
+- [ ] DISP-04: Each JD Element tab shows category definition at top (from guide.csv)
+- [ ] DISP-05: Each statement includes OASIS label description (from guide.csv)
+- [ ] DISP-06: Statements show proficiency/complexity level (1-5 stars)
+- [ ] DISP-07: Level display includes scale meaning (e.g., "5 - Highest Level" or "5 - Every day, many times per day")
+- [ ] DISP-08: Work Context statements show appropriate dimension (Frequency, Duration, Degree of responsibility, etc.)
+
+*Data Bug Fixes:*
+- [ ] DATA-03: Responsibilities header populated (filter Work Context for "responsib" / "decision")
+- [ ] DATA-04: Effort header captures all "effort" statements from Work Context
+- [ ] DATA-05: Work Context scraping extracts complete data
+
+*Profile Overview Enhancements:*
+- [ ] DISP-09: Profile page shows NOC code prominently under title
+- [ ] DISP-10: Profile page displays NOC hierarchical breakdown (TEER, broad category, major group)
+- [ ] DISP-11: Reference NOC attributes displayed (job requirements, career mobility, example titles, interests, personal attributes)
+
+*Export Enhancements:*
+- [ ] OUT-06: Manager can export final JD to Word/DOCX
+- [ ] OUT-07: Export includes Annex section with unused NOC attributes
 
 ### Out of Scope
 
@@ -40,7 +66,7 @@ Every piece of content in the final job description can be traced back to its au
 - Production hosting - runs locally only
 - Client Service Results section - requires org-specific business capability data (v2.0 feature)
 - Organizational Context section - requires org-specific mandate/ID data (v2.0 feature)
-- Annex section with excluded NOC attributes - deferred to v1.1
+- Annex section with excluded NOC attributes - now in v1.1 scope
 
 ## Context
 
@@ -57,6 +83,10 @@ This tool demonstrates compliance with the Treasury Board's Directive on Automat
 - OASIS site: https://noc.esdc.gc.ca/OaSIS/OaSISWelcome
 - No public API - requires HTML scraping
 - Profile pages contain multiple tabs: Overview, Work Characteristics, Skills and Abilities, Interests, Employment Requirements, Skills for Success
+- **NEW for v1.1:** Open Canada CSV data at https://open.canada.ca/data/en/dataset/eeb3e442-9f19-4d12-8b38-c488fe4f6e5e
+  - guide.csv: Category definitions, OASIS label descriptions, scale meanings
+  - 20 CSV files covering all OASIS data (Skills, Abilities, Work Context, etc.)
+  - Scale definitions: Proficiency (1-5), Importance (1-5), Complexity (1-5), Frequency (1-5), Duration (1-5), Degree of responsibility (1-5), etc.
 
 ## Constraints
 
@@ -85,5 +115,17 @@ This tool demonstrates compliance with the Treasury Board's Directive on Automat
 | WeasyPrint for PDF | CSS @page rules, professional output | ✓ Good - print-quality PDFs |
 | Directive section references | TBS Directive compliance audit trail | ✓ Good - demonstrable compliance |
 
+## Current Milestone: v1.1 Enhanced Data Display + Export
+
+**Goal:** Enrich statement display with OASIS metadata (definitions, descriptions, proficiency levels with scale meanings), fix data extraction bugs, add Word export and Annex section.
+
+**Target features:**
+- Search results grid view with more data columns
+- Category definitions and statement descriptions from guide.csv
+- Proficiency/complexity levels with scale meaning display
+- Work Context filtering fixes (Responsibilities, Effort)
+- Word/DOCX export option
+- Annex section for reference NOC attributes
+
 ---
-*Last updated: 2026-01-22 after v1.0 milestone*
+*Last updated: 2026-01-22 after v1.1 milestone started*

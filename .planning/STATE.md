@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-22)
 
 **Core value:** Every piece of content in the final job description can be traced back to its authoritative source (NOC/OASIS), with clear documentation of human decisions and AI involvement.
-**Current focus:** v1.0 milestone shipped - Planning next milestone
+**Current focus:** v1.1 Enhanced Data Display + Export
 
 ## Current Position
 
-Milestone: v1.0 (SHIPPED 2026-01-22)
-Phase: Complete (4/4 phases)
-Status: Milestone shipped
-Last activity: 2026-01-22 - v1.0 milestone complete
+Milestone: v1.1 Enhanced Data Display + Export
+Phase: Not started (defining requirements)
+Status: Defining requirements
+Last activity: 2026-01-22 - Milestone v1.1 started
 
-Progress: [##########] 100% v1.0 complete
+Progress: [          ] 0% v1.1 starting
 
 ## Milestone History
 
@@ -58,9 +58,9 @@ Full v1.0 decision history archived in milestones/v1.0-ROADMAP.md.
 ## Session Continuity
 
 Last session: 2026-01-22
-Stopped at: v1.0 milestone shipped
+Stopped at: Defining v1.1 requirements
 Resume file: None
-Next: Run `/gsd:new-milestone` to define v1.1 or v2.0 goals
+Next: Complete requirements definition, then create roadmap
 
 ---
-*Last updated: 2026-01-22 after v1.0 milestone*
+*Last updated: 2026-01-22 after v1.1 milestone started*
