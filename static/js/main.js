@@ -20,6 +20,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Global profile data storage
     window.currentProfile = null;
 
+    // Initialize modules (from Plan 02)
+    initSidebar();
+    initSelection();
+    initSectionSearch();
+
     /**
      * Show inline error message
      * @param {HTMLElement} container - Container to prepend error to
@@ -195,8 +200,17 @@ document.addEventListener('DOMContentLoaded', function() {
             updateProfileInfo(profile);
             profileInfo.classList.remove('hidden');
 
-            // Clear skeletons (accordion rendering handled by Plan 02)
-            jdSections.innerHTML = '';
+            // Reset selections if different profile
+            resetSelectionsForProfile(profile.noc_code);
+
+            // Render accordions with statements
+            renderAccordions(profile);
+
+            // Show action bar
+            actionBar.classList.remove('hidden');
+
+            // Trigger initial state update for sidebar
+            updateSidebar(store.getState());
 
             // Dispatch custom event for other modules
             const event = new CustomEvent('profile-loaded', { detail: profile });
