@@ -31,11 +31,11 @@ Requirements for initial demo release.
 
 ### Output & Compliance
 
-- [ ] **OUT-01**: App displays a preview of the assembled job description
-- [ ] **OUT-02**: Manager can export the final JD to PDF
-- [ ] **OUT-03**: Final JD includes compliance metadata block (NOC code, source URLs, retrieval timestamp, page metadata)
-- [ ] **OUT-04**: Final JD includes full audit trail (manager's selections per JD Element, traced to NOC source)
-- [ ] **OUT-05**: Final JD includes AI disclosure (General Overview marked as AI-generated, inputs listed, model and timestamp documented)
+- [x] **OUT-01**: App displays a preview of the assembled job description
+- [x] **OUT-02**: Manager can export the final JD to PDF
+- [x] **OUT-03**: Final JD includes compliance metadata block (NOC code, source URLs, retrieval timestamp, page metadata)
+- [x] **OUT-04**: Final JD includes full audit trail (manager's selections per JD Element, traced to NOC source)
+- [x] **OUT-05**: Final JD includes AI disclosure (General Overview marked as AI-generated, inputs listed, model and timestamp documented)
 
 ## v2 Requirements
 
@@ -83,11 +83,11 @@ Deferred to future iterations.
 | DISP-03 | Phase 2 | Complete |
 | AI-01 | Phase 3 | Complete |
 | AI-02 | Phase 3 | Complete |
-| OUT-01 | Phase 4 | Pending |
-| OUT-02 | Phase 4 | Pending |
-| OUT-03 | Phase 4 | Pending |
-| OUT-04 | Phase 4 | Pending |
-| OUT-05 | Phase 4 | Pending |
+| OUT-01 | Phase 4 | Complete |
+| OUT-02 | Phase 4 | Complete |
+| OUT-03 | Phase 4 | Complete |
+| OUT-04 | Phase 4 | Complete |
+| OUT-05 | Phase 4 | Complete |
 
 **Coverage:**
 - v1 requirements: 15 total
@@ -96,4 +96,4 @@ Deferred to future iterations.
 
 ---
 *Requirements defined: 2025-01-21*
-*Last updated: 2026-01-21 after roadmap creation*
+*Last updated: 2026-01-22 - All v1 requirements complete*
