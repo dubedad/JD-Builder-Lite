@@ -1,6 +1,6 @@
 """Flask application entry point for JD Builder Lite."""
 
-from flask import Flask
+from flask import Flask, render_template
 from flask_cors import CORS
 from src.routes.api import api_bp
 
@@ -11,13 +11,20 @@ def create_app():
     Returns:
         Configured Flask app instance
     """
-    app = Flask(__name__, static_folder='../static')
+    app = Flask(__name__,
+                template_folder='../templates',
+                static_folder='../static')
 
     # Enable CORS for frontend cross-origin requests
     CORS(app)
 
     # Register API blueprint
     app.register_blueprint(api_bp)
+
+    # Root route to serve the frontend
+    @app.route('/')
+    def index():
+        return render_template('index.html')
 
     return app
 
