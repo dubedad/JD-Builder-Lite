@@ -22,6 +22,15 @@ def create_app():
     # Enable CORS for frontend cross-origin requests
     CORS(app)
 
+    # Disable caching for static files in development
+    @app.after_request
+    def add_header(response):
+        if app.debug:
+            response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '0'
+        return response
+
     # Register API blueprint
     app.register_blueprint(api_bp)
 

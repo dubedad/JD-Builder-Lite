@@ -1,8 +1,34 @@
 """Export models for PDF and Word document generation."""
 
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 from typing import List, Optional, Dict, Any
 from datetime import datetime
+from email.utils import parsedate_to_datetime
+
+
+def parse_flexible_datetime(value):
+    """Parse datetime from ISO 8601 or RFC 2822 format."""
+    if isinstance(value, datetime):
+        return value
+    if isinstance(value, str):
+        # Try RFC 2822 first (e.g., 'Thu, 22 Jan 2026 09:31:53 GMT')
+        # These typically start with day-of-week abbreviation
+        if value and value[0].isalpha():
+            try:
+                return parsedate_to_datetime(value)
+            except (ValueError, TypeError):
+                pass
+        # Try ISO 8601 (e.g., '2026-01-22T09:31:53Z')
+        try:
+            return datetime.fromisoformat(value.replace('Z', '+00:00'))
+        except ValueError:
+            pass
+        # Last resort: try RFC 2822 anyway
+        try:
+            return parsedate_to_datetime(value)
+        except (ValueError, TypeError):
+            pass
+    raise ValueError(f"Cannot parse datetime: {value}")
 
 
 class SelectionMetadata(BaseModel):
@@ -16,6 +42,11 @@ class SelectionMetadata(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+    @field_validator('selected_at', mode='before')
+    @classmethod
+    def parse_selected_at(cls, v):
+        return parse_flexible_datetime(v)
+
 
 class AIMetadata(BaseModel):
     """AI-generated content disclosure for Directive compliance."""
@@ -27,6 +58,11 @@ class AIMetadata(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+    @field_validator('timestamp', mode='before')
+    @classmethod
+    def parse_timestamp(cls, v):
+        return parse_flexible_datetime(v)
+
 
 class SourceMetadataExport(BaseModel):
     """NOC source metadata for compliance appendix."""
@@ -36,6 +72,11 @@ class SourceMetadataExport(BaseModel):
     version: str  # NOC version (e.g., "2025.0")
 
     model_config = ConfigDict(from_attributes=True)
+
+    @field_validator('scraped_at', mode='before')
+    @classmethod
+    def parse_scraped_at(cls, v):
+        return parse_flexible_datetime(v)
 
 
 class ExportRequest(BaseModel):

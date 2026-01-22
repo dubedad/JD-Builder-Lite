@@ -6,6 +6,9 @@
 const exportModule = {
   // Cached export data for downloads
   currentExportData: null,
+  // Saved page state for back navigation
+  savedPageContent: null,
+  savedPageStyles: null,
 
   /**
    * Build export request from current state
@@ -93,6 +96,10 @@ const exportModule = {
       // Store for downloads
       this.currentExportData = exportData;
 
+      // Save current page state before showing preview
+      this.savedPageContent = document.body.innerHTML;
+      this.savedPageStyles = document.head.innerHTML;
+
       // Fetch preview HTML
       const response = await fetch('/api/preview', {
         method: 'POST',
@@ -105,13 +112,24 @@ const exportModule = {
         throw new Error(error.detail || error.error || 'Preview failed');
       }
 
-      // Replace page content with preview
+      // Parse preview HTML and extract body content
       const html = await response.text();
-      document.open();
-      document.write(html);
-      document.close();
+      const parser = new DOMParser();
+      const previewDoc = parser.parseFromString(html, 'text/html');
 
-      // Re-attach event listeners after page replacement
+      // Add preview styles to head (keeping original styles)
+      const previewStyles = previewDoc.querySelectorAll('link[rel="stylesheet"]');
+      previewStyles.forEach(style => {
+        if (!document.querySelector(`link[href="${style.getAttribute('href')}"]`)) {
+          document.head.appendChild(style.cloneNode(true));
+        }
+      });
+
+      // Replace body content with preview
+      document.body.innerHTML = previewDoc.body.innerHTML;
+      document.body.className = previewDoc.body.className;
+
+      // Re-attach event listeners after content replacement
       this.attachPreviewListeners();
 
     } catch (error) {
@@ -126,7 +144,31 @@ const exportModule = {
   attachPreviewListeners() {
     document.getElementById('download-pdf-btn')?.addEventListener('click', () => this.downloadPDF());
     document.getElementById('download-docx-btn')?.addEventListener('click', () => this.downloadDOCX());
-    document.getElementById('back-to-edit-btn')?.addEventListener('click', () => window.location.reload());
+    document.getElementById('back-to-edit-btn')?.addEventListener('click', () => this.backToEdit());
+  },
+
+  /**
+   * Return to edit page with state preserved
+   */
+  backToEdit() {
+    if (this.savedPageContent) {
+      // Restore original page content
+      document.body.innerHTML = this.savedPageContent;
+      document.body.className = '';
+
+      // Re-initialize all modules that need event listeners
+      if (typeof initExport === 'function') initExport();
+      if (typeof initSelection === 'function') initSelection();
+      if (typeof initSidebar === 'function') initSidebar();
+      if (typeof initSectionSearch === 'function') initSectionSearch();
+      if (typeof initGenerate === 'function') initGenerate();
+
+      // Clear saved state
+      this.savedPageContent = null;
+    } else {
+      // Fallback to reload if no saved state
+      window.location.reload();
+    }
   },
 
   /**
