@@ -20,9 +20,9 @@ Requirements for initial demo release.
 
 ### Data Display & Selection
 
-- [ ] **DISP-01**: App presents NOC data organized by JD Element headers (Key Activities, Skills, Effort, Responsibility, Working Conditions)
-- [ ] **DISP-02**: Manager can select multiple statements under each JD Element header
-- [ ] **DISP-03**: App tracks which NOC source attribute each statement came from
+- [x] **DISP-01**: App presents NOC data organized by JD Element headers (Key Activities, Skills, Effort, Responsibility, Working Conditions)
+- [x] **DISP-02**: Manager can select multiple statements under each JD Element header
+- [x] **DISP-03**: App tracks which NOC source attribute each statement came from
 
 ### AI Generation
 
@@ -78,9 +78,9 @@ Deferred to future iterations.
 | SRCH-03 | Phase 1 | Complete |
 | DATA-01 | Phase 1 | Complete |
 | DATA-02 | Phase 1 | Complete |
-| DISP-01 | Phase 2 | Pending |
-| DISP-02 | Phase 2 | Pending |
-| DISP-03 | Phase 2 | Pending |
+| DISP-01 | Phase 2 | Complete |
+| DISP-02 | Phase 2 | Complete |
+| DISP-03 | Phase 2 | Complete |
 | AI-01 | Phase 3 | Pending |
 | AI-02 | Phase 3 | Pending |
 | OUT-01 | Phase 4 | Pending |

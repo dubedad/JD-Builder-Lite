@@ -11,7 +11,7 @@ JD Builder Lite delivers a compliance-focused job description builder in 4 phase
 - Decimal phases (e.g., 2.1): Urgent insertions (marked with INSERTED)
 
 - [x] **Phase 1: Backend + Scraping** - Flask server that searches OASIS and returns parsed, mapped NOC data
-- [ ] **Phase 2: Frontend Core UI** - Interactive display of NOC data organized by JD elements with selection
+- [x] **Phase 2: Frontend Core UI** - Interactive display of NOC data organized by JD elements with selection
 - [ ] **Phase 3: LLM Integration** - AI-generated General Overview with full provenance tracking
 - [ ] **Phase 4: Output + Compliance** - PDF export with compliance metadata and audit trail
 
@@ -45,8 +45,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — Page structure, CSS styling, search-to-profile flow
-- [ ] 02-02-PLAN.md — Accordion display, selection system, drag-reorder, filtering, sidebar
+- [x] 02-01-PLAN.md — Page structure, CSS styling, search-to-profile flow
+- [x] 02-02-PLAN.md — Accordion display, selection system, drag-reorder, filtering, sidebar
 
 ### Phase 3: LLM Integration
 **Goal**: App generates a compliant AI overview based on manager's selections
@@ -87,8 +87,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Backend + Scraping | 3/3 | ✓ Complete | 2026-01-21 |
-| 2. Frontend Core UI | 0/2 | Ready | - |
-| 3. LLM Integration | 0/2 | Planned | - |
+| 2. Frontend Core UI | 2/2 | ✓ Complete | 2026-01-22 |
+| 3. LLM Integration | 0/2 | Ready | - |
 | 4. Output + Compliance | 0/2 | Not started | - |
 
 ---
