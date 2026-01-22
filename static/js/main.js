@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initSelection();
     initSectionSearch();
     initGenerate();
+    initExport();
 
     /**
      * Show inline error message

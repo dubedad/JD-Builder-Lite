@@ -30,6 +30,10 @@ const handleSelection = (checkbox) => {
         // Add to selections
         if (!current.includes(stmtId)) {
             newSelections = [...current, stmtId];
+            // Track selection timestamp for audit trail
+            const timestamps = state.selectionTimestamps || {};
+            timestamps[stmtId] = new Date().toISOString();
+            store.setState({ selectionTimestamps: timestamps });
         } else {
             newSelections = current;
         }
@@ -51,6 +55,7 @@ const handleSelection = (checkbox) => {
 const updateActionBar = (state) => {
     const actionBar = document.getElementById('action-bar');
     const generateBtn = document.getElementById('generate-btn');
+    const createBtn = document.getElementById('create-btn');
     if (!actionBar || !generateBtn) return;
 
     // Count total selections
@@ -62,9 +67,17 @@ const updateActionBar = (state) => {
         actionBar.classList.remove('hidden');
         generateBtn.disabled = false;
         generateBtn.textContent = `Generate Overview (${totalSelections} selected)`;
+        // Enable Create button when selections exist (doesn't require overview)
+        if (createBtn) {
+            createBtn.disabled = false;
+        }
     } else {
         generateBtn.disabled = true;
         generateBtn.textContent = 'Generate Overview (select statements first)';
+        // Disable Create button when no selections
+        if (createBtn) {
+            createBtn.disabled = true;
+        }
     }
 };
 
