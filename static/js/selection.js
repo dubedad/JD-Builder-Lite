@@ -25,15 +25,21 @@ const handleSelection = (checkbox) => {
     // Get current selections for this section
     const current = state.selections[sectionId] || [];
 
+    let newSelections;
     if (checkbox.checked) {
         // Add to selections
         if (!current.includes(stmtId)) {
-            state.selections[sectionId] = [...current, stmtId];
+            newSelections = [...current, stmtId];
+        } else {
+            newSelections = current;
         }
     } else {
         // Remove from selections
-        state.selections[sectionId] = current.filter(id => id !== stmtId);
+        newSelections = current.filter(id => id !== stmtId);
     }
+
+    // Update store (triggers subscribers)
+    store.setSelections(sectionId, newSelections);
 
     // Update visual highlight
     const li = checkbox.closest('.statement');

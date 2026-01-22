@@ -34,25 +34,19 @@ const generation = {
         this.elements.generateBtn?.addEventListener('click', () => this.startGeneration());
         this.elements.regenerateBtn?.addEventListener('click', () => this.startGeneration());
         this.elements.textarea?.addEventListener('input', () => this.handleEdit());
-
-        // Subscribe to state changes for button updates
-        if (window.store) {
-            store.subscribe((state) => this.updateButtonState(state));
-        }
     },
 
     /**
-     * Update generate button based on selection count
+     * Update generate button to show generating state
+     * (selection.js handles the count display via updateActionBar)
      */
-    updateButtonState(state) {
-        const totalSelections = Object.values(state.selections)
-            .reduce((sum, arr) => sum + arr.length, 0);
-
+    setGeneratingState(generating) {
         if (this.elements.generateBtn) {
-            this.elements.generateBtn.disabled = totalSelections === 0 || this.isGenerating;
-            this.elements.generateBtn.textContent = this.isGenerating
-                ? 'Generating...'
-                : `Generate Overview (${totalSelections} selected)`;
+            if (generating) {
+                this.elements.generateBtn.disabled = true;
+                this.elements.generateBtn.textContent = 'Generating...';
+            }
+            // When not generating, let selection.js restore the button via store subscription
         }
     },
 
@@ -135,7 +129,7 @@ const generation = {
         this.elements.badge.textContent = 'Generating...';
         this.elements.badge.className = 'ai-badge ai-badge--generating';
         this.elements.regenerateBtn.disabled = true;
-        this.updateButtonState(store.getState());
+        this.setGeneratingState(true);
 
         try {
             // Send POST request to trigger generation
@@ -234,7 +228,8 @@ const generation = {
             this.elements.badge.className = 'ai-badge';
         }
 
-        this.updateButtonState(store.getState());
+        // Trigger store notification to restore button state via selection.js
+        store.notify();
     },
 
     /**

@@ -3,22 +3,17 @@ const STORAGE_KEY = 'jdBuilderState';
 
 const createStore = (initialState) => {
     const listeners = new Set();
+    let state = initialState;
 
-    const handler = {
-        set(target, key, value) {
-            target[key] = value;
-            listeners.forEach(fn => fn(target));
-            // Persist to localStorage
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(target));
-            } catch (e) {
-                console.warn('localStorage save failed:', e);
-            }
-            return true;
+    // Helper to notify all listeners and persist
+    const notify = () => {
+        listeners.forEach(fn => fn(state));
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (e) {
+            console.warn('localStorage save failed:', e);
         }
     };
-
-    const state = new Proxy(initialState, handler);
 
     return {
         getState: () => state,
@@ -26,10 +21,24 @@ const createStore = (initialState) => {
             listeners.add(fn);
             return () => listeners.delete(fn);
         },
-        // Batch update without multiple notifications
-        batch: (updates) => {
-            Object.assign(state, updates);
-        }
+        // Update state and notify listeners
+        setState: (updates) => {
+            state = { ...state, ...updates };
+            notify();
+        },
+        // Update selections specifically (common operation)
+        setSelections: (sectionId, newSelections) => {
+            state = {
+                ...state,
+                selections: {
+                    ...state.selections,
+                    [sectionId]: newSelections
+                }
+            };
+            notify();
+        },
+        // Manually trigger notification (for complex updates)
+        notify
     };
 };
 
@@ -68,14 +77,16 @@ const store = createStore(initialState);
 const resetSelectionsForProfile = (nocCode) => {
     const state = store.getState();
     if (state.currentProfileCode !== nocCode) {
-        state.selections = {
-            key_activities: [],
-            skills: [],
-            effort: [],
-            responsibility: [],
-            working_conditions: []
-        };
-        state.currentProfileCode = nocCode;
+        store.setState({
+            selections: {
+                key_activities: [],
+                skills: [],
+                effort: [],
+                responsibility: [],
+                working_conditions: []
+            },
+            currentProfileCode: nocCode
+        });
     }
 };
 
