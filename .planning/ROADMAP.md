@@ -13,7 +13,7 @@ JD Builder Lite delivers a compliance-focused job description builder in 4 phase
 - [x] **Phase 1: Backend + Scraping** - Flask server that searches OASIS and returns parsed, mapped NOC data
 - [x] **Phase 2: Frontend Core UI** - Interactive display of NOC data organized by JD elements with selection
 - [x] **Phase 3: LLM Integration** - AI-generated General Overview with full provenance tracking
-- [ ] **Phase 4: Output + Compliance** - PDF export with compliance metadata and audit trail
+- [x] **Phase 4: Output + Compliance** - PDF export with compliance metadata and audit trail
 
 ## Phase Details
 
@@ -76,8 +76,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — Backend: WeasyPrint/python-docx, export models, PDF/Word generators, export API endpoints
-- [ ] 04-02-PLAN.md — Frontend: preview page, export templates with @page rules, Create button flow, compliance appendix
+- [x] 04-01-PLAN.md — Backend: WeasyPrint/python-docx, export models, PDF/Word generators, export API endpoints
+- [x] 04-02-PLAN.md — Frontend: preview page, export templates with @page rules, Create button flow, compliance appendix
 
 ## Progress
 
@@ -89,7 +89,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 | 1. Backend + Scraping | 3/3 | ✓ Complete | 2026-01-21 |
 | 2. Frontend Core UI | 2/2 | ✓ Complete | 2026-01-22 |
 | 3. LLM Integration | 2/2 | ✓ Complete | 2026-01-22 |
-| 4. Output + Compliance | 0/2 | Ready | - |
+| 4. Output + Compliance | 2/2 | ✓ Complete | 2026-01-22 |
 
 ---
 *Roadmap created: 2026-01-21*
@@ -97,3 +97,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 *Phase 2 planned: 2026-01-21*
 *Phase 3 planned: 2026-01-21*
 *Phase 4 planned: 2026-01-22*
+*Project completed: 2026-01-22*
