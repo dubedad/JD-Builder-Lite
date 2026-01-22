@@ -10,7 +10,7 @@ JD Builder Lite delivers a compliance-focused job description builder in 4 phase
 - Integer phases (1, 2, 3, 4): Planned milestone work
 - Decimal phases (e.g., 2.1): Urgent insertions (marked with INSERTED)
 
-- [ ] **Phase 1: Backend + Scraping** - Flask server that searches OASIS and returns parsed, mapped NOC data
+- [x] **Phase 1: Backend + Scraping** - Flask server that searches OASIS and returns parsed, mapped NOC data
 - [ ] **Phase 2: Frontend Core UI** - Interactive display of NOC data organized by JD elements with selection
 - [ ] **Phase 3: LLM Integration** - AI-generated General Overview with full provenance tracking
 - [ ] **Phase 4: Output + Compliance** - PDF export with compliance metadata and audit trail
@@ -29,9 +29,9 @@ JD Builder Lite delivers a compliance-focused job description builder in 4 phase
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Project foundation: dependencies, Pydantic models, OASIS scraper service
-- [ ] 01-02-PLAN.md — HTML parsing: CSS selectors, BeautifulSoup parser, NOC-to-JD mapper
-- [ ] 01-03-PLAN.md — Flask integration: API routes, app entry point, live verification
+- [x] 01-01-PLAN.md — Project foundation: dependencies, Pydantic models, OASIS scraper service
+- [x] 01-02-PLAN.md — HTML parsing: CSS selectors, BeautifulSoup parser, NOC-to-JD mapper
+- [x] 01-03-PLAN.md — Flask integration: API routes, app entry point, live verification
 
 ### Phase 2: Frontend Core UI
 **Goal**: Manager can view NOC data organized by JD elements and select statements for the job description
@@ -85,8 +85,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Backend + Scraping | 0/3 | Planned | - |
-| 2. Frontend Core UI | 0/2 | Planned | - |
+| 1. Backend + Scraping | 3/3 | ✓ Complete | 2026-01-21 |
+| 2. Frontend Core UI | 0/2 | Ready | - |
 | 3. LLM Integration | 0/1 | Not started | - |
 | 4. Output + Compliance | 0/2 | Not started | - |
 

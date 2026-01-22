@@ -9,14 +9,14 @@ Requirements for initial demo release.
 
 ### Search & Selection
 
-- [ ] **SRCH-01**: Manager can enter a job title and search OASIS for matching Occupational Profiles
-- [ ] **SRCH-02**: App displays search results showing NOC codes and profile names
-- [ ] **SRCH-03**: Manager can select an Occupational Profile from the results menu
+- [x] **SRCH-01**: Manager can enter a job title and search OASIS for matching Occupational Profiles
+- [x] **SRCH-02**: App displays search results showing NOC codes and profile names
+- [x] **SRCH-03**: Manager can select an Occupational Profile from the results menu
 
 ### Data Acquisition
 
-- [ ] **DATA-01**: App scrapes all relevant NOC data from selected profile (Overview, Work Characteristics, Skills & Abilities, Interests, Employment Requirements, Skills for Success)
-- [ ] **DATA-02**: App extracts and stores metadata from scraped pages (NOC code, profile URL, retrieval timestamp, any version info)
+- [x] **DATA-01**: App scrapes all relevant NOC data from selected profile (Overview, Work Characteristics, Skills & Abilities, Interests, Employment Requirements, Skills for Success)
+- [x] **DATA-02**: App extracts and stores metadata from scraped pages (NOC code, profile URL, retrieval timestamp, any version info)
 
 ### Data Display & Selection
 
@@ -73,11 +73,11 @@ Deferred to future iterations.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SRCH-01 | Phase 1 | Pending |
-| SRCH-02 | Phase 1 | Pending |
-| SRCH-03 | Phase 1 | Pending |
-| DATA-01 | Phase 1 | Pending |
-| DATA-02 | Phase 1 | Pending |
+| SRCH-01 | Phase 1 | Complete |
+| SRCH-02 | Phase 1 | Complete |
+| SRCH-03 | Phase 1 | Complete |
+| DATA-01 | Phase 1 | Complete |
+| DATA-02 | Phase 1 | Complete |
 | DISP-01 | Phase 2 | Pending |
 | DISP-02 | Phase 2 | Pending |
 | DISP-03 | Phase 2 | Pending |
