@@ -1,0 +1,153 @@
+/* Accordion Styles using <details>/<summary> */
+
+details.accordion-section {
+    border: 1px solid var(--border);
+    margin-bottom: 0.5rem;
+    border-radius: 4px;
+    background: var(--bg);
+    overflow: hidden;
+}
+
+details.accordion-section summary {
+    padding: 1rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    color: var(--text);
+    list-style: none;
+    user-select: none;
+    transition: background 0.15s;
+}
+
+/* Remove default marker */
+details.accordion-section summary::-webkit-details-marker {
+    display: none;
+}
+
+details.accordion-section summary::marker {
+    display: none;
+}
+
+details.accordion-section summary:hover {
+    background: #fafafa;
+}
+
+/* Custom expand icon */
+details.accordion-section summary::after {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    border-right: 2px solid var(--text-light);
+    border-bottom: 2px solid var(--text-light);
+    transform: rotate(-45deg);
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+    margin-left: 1rem;
+}
+
+details.accordion-section[open] summary::after {
+    transform: rotate(45deg);
+}
+
+/* Open state border */
+details.accordion-section[open] summary {
+    border-bottom: 1px solid var(--border);
+}
+
+/* Section content */
+.accordion-content {
+    padding: 1rem;
+}
+
+/* Section header with title and count */
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.section-title {
+    font-weight: 600;
+}
+
+.section-count {
+    color: var(--text-light);
+    font-weight: normal;
+    font-size: 0.875rem;
+}
+
+/* Statement items within accordion */
+.statement-list {
+    list-style: none;
+}
+
+.statement-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.statement-item:last-child {
+    border-bottom: none;
+}
+
+.statement-checkbox {
+    margin-top: 0.25rem;
+    width: 1rem;
+    height: 1rem;
+    cursor: pointer;
+    accent-color: var(--accent);
+}
+
+.statement-content {
+    flex: 1;
+}
+
+.statement-text {
+    color: var(--text);
+    line-height: 1.5;
+}
+
+.statement-source {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin-top: 0.25rem;
+}
+
+/* Selected state */
+.statement-item.selected {
+    background: var(--highlight);
+    margin: 0 -1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+/* Empty section state */
+.section-empty {
+    color: var(--text-light);
+    font-style: italic;
+    padding: 1rem 0;
+}
+
+/* Section filter/search */
+.section-filter {
+    margin-bottom: 1rem;
+}
+
+.section-filter input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+.section-filter input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
