@@ -12,7 +12,7 @@ JD Builder Lite delivers a compliance-focused job description builder in 4 phase
 
 - [x] **Phase 1: Backend + Scraping** - Flask server that searches OASIS and returns parsed, mapped NOC data
 - [x] **Phase 2: Frontend Core UI** - Interactive display of NOC data organized by JD elements with selection
-- [ ] **Phase 3: LLM Integration** - AI-generated General Overview with full provenance tracking
+- [x] **Phase 3: LLM Integration** - AI-generated General Overview with full provenance tracking
 - [ ] **Phase 4: Output + Compliance** - PDF export with compliance metadata and audit trail
 
 ## Phase Details
@@ -60,8 +60,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — Backend: OpenAI SDK, LLM service, SSE streaming endpoint, provenance tracking
-- [ ] 03-02-PLAN.md — Frontend: overview section, streaming textarea, AI badge, modification tracking
+- [x] 03-01-PLAN.md — Backend: OpenAI SDK, LLM service, SSE streaming endpoint, provenance tracking
+- [x] 03-02-PLAN.md — Frontend: overview section, streaming textarea, AI badge, modification tracking
 
 ### Phase 4: Output + Compliance
 **Goal**: Manager can export a complete, audit-ready job description PDF
@@ -88,8 +88,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 |-------|----------------|--------|-----------|
 | 1. Backend + Scraping | 3/3 | ✓ Complete | 2026-01-21 |
 | 2. Frontend Core UI | 2/2 | ✓ Complete | 2026-01-22 |
-| 3. LLM Integration | 0/2 | Ready | - |
-| 4. Output + Compliance | 0/2 | Planned | - |
+| 3. LLM Integration | 2/2 | ✓ Complete | 2026-01-22 |
+| 4. Output + Compliance | 0/2 | Ready | - |
 
 ---
 *Roadmap created: 2026-01-21*

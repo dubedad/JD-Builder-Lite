@@ -26,8 +26,8 @@ Requirements for initial demo release.
 
 ### AI Generation
 
-- [ ] **AI-01**: App generates a General Overview section using OpenAI API, informed by all selected statements
-- [ ] **AI-02**: App records AI generation metadata (model used, timestamp, input statements)
+- [x] **AI-01**: App generates a General Overview section using OpenAI API, informed by all selected statements
+- [x] **AI-02**: App records AI generation metadata (model used, timestamp, input statements)
 
 ### Output & Compliance
 
@@ -81,8 +81,8 @@ Deferred to future iterations.
 | DISP-01 | Phase 2 | Complete |
 | DISP-02 | Phase 2 | Complete |
 | DISP-03 | Phase 2 | Complete |
-| AI-01 | Phase 3 | Pending |
-| AI-02 | Phase 3 | Pending |
+| AI-01 | Phase 3 | Complete |
+| AI-02 | Phase 3 | Complete |
 | OUT-01 | Phase 4 | Pending |
 | OUT-02 | Phase 4 | Pending |
 | OUT-03 | Phase 4 | Pending |
