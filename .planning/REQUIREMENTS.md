@@ -80,28 +80,28 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SRCH-04 | TBD | Pending |
-| SRCH-05 | TBD | Pending |
-| DISP-04 | TBD | Pending |
-| DISP-05 | TBD | Pending |
-| DISP-06 | TBD | Pending |
-| DISP-07 | TBD | Pending |
-| DISP-08 | TBD | Pending |
-| DATA-03 | TBD | Pending |
-| DATA-04 | TBD | Pending |
-| DATA-05 | TBD | Pending |
-| DISP-09 | TBD | Pending |
-| DISP-10 | TBD | Pending |
-| DISP-11 | TBD | Pending |
-| OUT-06 | TBD | Pending |
-| OUT-07 | TBD | Pending |
-| OUT-08 | TBD | Pending |
+| SRCH-04 | Phase 6 | Pending |
+| SRCH-05 | Phase 6 | Pending |
+| DISP-04 | Phase 5 | Pending |
+| DISP-05 | Phase 5 | Pending |
+| DISP-06 | Phase 5 | Pending |
+| DISP-07 | Phase 5 | Pending |
+| DISP-08 | Phase 5 | Pending |
+| DATA-03 | Phase 5 | Pending |
+| DATA-04 | Phase 5 | Pending |
+| DATA-05 | Phase 5 | Pending |
+| DISP-09 | Phase 5 | Pending |
+| DISP-10 | Phase 5 | Pending |
+| DISP-11 | Phase 5 | Pending |
+| OUT-06 | Phase 7 | Pending |
+| OUT-07 | Phase 7 | Pending |
+| OUT-08 | Phase 7 | Pending |
 
 **Coverage:**
 - v1.1 requirements: 16 total
-- Mapped to phases: 0
-- Unmapped: 16 (pending roadmap creation)
+- Mapped to phases: 16
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-01-22*
-*Last updated: 2026-01-22 after initial definition*
+*Last updated: 2026-01-22 after roadmap creation*
