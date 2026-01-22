@@ -338,3 +338,328 @@ JD Builder Lite/
 ### Frontend
 - [Strapi - Vanilla JavaScript Form Handling Guide](https://strapi.io/blog/vanilla-javascript-form-handling-guide)
 - [HTML All The Things - Vanilla JS in 2025](https://www.htmlallthethings.com/podcast/stop-using-frameworks-for-everything-vanilla-javascript-in-2025)
+
+---
+
+# v1.1 Stack Additions
+
+**Milestone:** v1.1 Enhanced Data Display + Export Options
+**Researched:** 2026-01-22
+**Confidence:** HIGH
+
+## Executive Summary for v1.1
+
+v1.1 requires **NO new dependencies**. The existing stack already contains all necessary libraries: Python's built-in `csv` module handles CSV parsing for guide.csv and OASIS CSV files, `python-docx` 1.2.0 (already in requirements.txt) handles Word export, and vanilla JavaScript with CSS handles frontend grid view and star rating display. The focus should be on usage patterns and integration, not dependency additions.
+
+## Recommended Additions for v1.1
+
+### NONE REQUIRED
+
+All v1.1 features can be implemented with the existing stack:
+
+**CSV Parsing:** Python built-in `csv` module (no installation needed)
+- Why: Standard library, memory-efficient, perfect for line-by-line processing of guide.csv and OASIS CSVs
+- Integration: Add `csv_service.py` in `src/services/` using `csv.DictReader` pattern
+- Usage pattern:
+  ```python
+  import csv
+
+  with open('guide.csv', newline='', encoding='utf-8') as csvfile:
+      reader = csv.DictReader(csvfile)
+      for row in reader:
+          # Process row as dict with column headers as keys
+  ```
+
+**DOCX Export:** python-docx 1.2.0 (already installed)
+- Why: Already in requirements.txt, proven library for Word document generation
+- Integration: Existing `src/services/docx_generator.py` already implements full export pipeline
+- Extend for v1.1: Add Annex section generation in `generate_docx()` function
+
+**Grid View Toggle:** Vanilla JavaScript + CSS (no framework)
+- Why: Matches existing frontend architecture, zero dependencies
+- Integration: Add toggle button in search.js, CSS Grid for table layout in main.css
+- Pattern: Use CSS classes to switch between `.card-view` and `.grid-view` display modes
+
+**Star Rating Display:** CSS + HTML entity stars
+- Why: Pure CSS solution, accessible, no icon libraries needed
+- Integration: Add `.star-rating` component in main.css using Unicode star characters (★/☆)
+- Pattern:
+  ```html
+  <span class="star-rating" data-level="3" aria-label="3 out of 5">
+      ★★★☆☆
+  </span>
+  ```
+
+## Not Recommended for v1.1
+
+**pandas** (popular CSV library)
+- Why NOT: Overkill for simple CSV reading, adds 50+ MB dependency for functionality that built-in csv module provides
+- Alternative: Use Python's built-in `csv` module with `DictReader` for header-mapped row access
+
+**openpyxl** (Excel library)
+- Why NOT: v1.1 requires DOCX (Word), not XLSX (Excel)
+- Alternative: Continue using python-docx for all document export needs
+
+**Frontend UI frameworks** (React, Vue, Alpine.js)
+- Why NOT: Would require build step, contradicts existing vanilla JS architecture
+- Alternative: CSS Grid + vanilla JavaScript for grid view toggle
+
+**Icon libraries** (Font Awesome, Material Icons)
+- Why NOT: Unnecessary dependency for simple star ratings
+- Alternative: Unicode stars (★ U+2605, ☆ U+2606) or CSS shapes
+
+**CSV parsing libraries** (clevercsv, csvkit)
+- Why NOT: Built-in csv module is sufficient for well-formed OASIS CSVs
+- Alternative: Python's csv.DictReader with proper encoding handling
+
+## Integration Guidance for v1.1
+
+### CSV Service Layer
+
+Create new service at `src/services/csv_service.py`:
+
+```python
+"""CSV data service for OASIS metadata files."""
+
+import csv
+from pathlib import Path
+from typing import Dict, List, Optional
+
+class CSVService:
+    """Service for reading OASIS CSV metadata files."""
+
+    def __init__(self, csv_dir: Path):
+        self.csv_dir = csv_dir
+        self._guide_cache: Optional[Dict] = None
+
+    def load_guide(self) -> Dict[str, Dict]:
+        """Load guide.csv with category definitions and scale meanings.
+
+        Returns dict mapping OASIS labels to metadata:
+        {
+            "Abilities": {
+                "category": "Abilities",
+                "definition": "...",
+                "scale": "Proficiency"
+            }
+        }
+        """
+        if self._guide_cache:
+            return self._guide_cache
+
+        guide_path = self.csv_dir / "guide.csv"
+        guide_data = {}
+
+        with open(guide_path, newline='', encoding='utf-8') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                label = row.get('OASIS_Label', '')
+                guide_data[label] = {
+                    'category': row.get('Category', ''),
+                    'definition': row.get('Definition', ''),
+                    'scale': row.get('Scale', '')
+                }
+
+        self._guide_cache = guide_data
+        return guide_data
+```
+
+**Integration point:** Instantiate in `app.py`, inject into routes that need statement metadata.
+
+### DOCX Annex Section
+
+Extend existing `src/services/docx_generator.py`:
+
+```python
+def generate_docx(data: ExportData) -> bytes:
+    # ... existing code ...
+
+    # NEW: Annex section (before compliance appendix)
+    if data.annex_attributes:
+        doc.add_page_break()
+        doc.add_heading("Annex: Reference NOC Attributes", 1)
+
+        for attr_group in data.annex_attributes:
+            doc.add_heading(attr_group.name, 2)
+            for item in attr_group.items:
+                doc.add_paragraph(item, style='List Bullet')
+
+    # Existing compliance appendix code...
+```
+
+**Integration point:** Add `annex_attributes` field to `ExportData` model in `src/models/export_models.py`.
+
+### Frontend Grid View
+
+Add to `static/js/search.js`:
+
+```javascript
+// Toggle between card and grid view
+function toggleView(viewMode) {
+    const resultsContainer = document.getElementById('search-results');
+    resultsContainer.classList.remove('card-view', 'grid-view');
+    resultsContainer.classList.add(viewMode);
+    localStorage.setItem('searchViewMode', viewMode);
+}
+```
+
+Add to `static/css/main.css`:
+
+```css
+/* Search results grid view */
+.search-results.grid-view {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.search-results.card-view .result-card {
+    /* Existing card styles */
+}
+
+.search-results.grid-view .result-card {
+    display: grid;
+    grid-template-columns: 80px 1fr 200px;
+    align-items: center;
+    padding: 0.75rem;
+}
+```
+
+**Integration point:** Wire toggle button in search results template, persist preference in localStorage.
+
+### Star Rating Component
+
+Add to `static/css/main.css`:
+
+```css
+/* Star rating display */
+.star-rating {
+    color: #f5a623;
+    font-size: 1rem;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+}
+
+.star-rating::after {
+    content: attr(data-scale-meaning);
+    margin-left: 0.5rem;
+    color: var(--text-light);
+    font-size: 0.875rem;
+    font-weight: normal;
+}
+```
+
+Add helper in `static/js/main.js`:
+
+```javascript
+function renderStarRating(level, scaleMeaning) {
+    const filled = '★'.repeat(level);
+    const empty = '☆'.repeat(5 - level);
+    return `<span class="star-rating" data-level="${level}" data-scale-meaning="${scaleMeaning}" aria-label="${level} out of 5">${filled}${empty}</span>`;
+}
+```
+
+**Integration point:** Use in statement rendering functions in selection.js.
+
+## Version Verification for v1.1
+
+| Library | Recommended | Verified Date | Source | Confidence |
+|---------|-------------|---------------|--------|------------|
+| Python csv module | Built-in (3.12+) | 2026-01-22 | [Python docs](https://docs.python.org/3/library/csv.html) | HIGH |
+| python-docx | 1.2.0 | 2026-01-22 | [PyPI](https://pypi.org/project/python-docx/) | HIGH |
+| Unicode stars | U+2605/U+2606 | 2026-01-22 | Unicode Standard | HIGH |
+| CSS Grid | Stable (all modern browsers) | 2026-01-22 | MDN Web Docs | HIGH |
+
+**Note on python-docx version:** Current requirements.txt shows `python-docx==1.2.0`, which matches the latest stable release from PyPI (released June 16, 2025). No upgrade needed.
+
+## CSV Module Best Practices
+
+Based on official Python documentation:
+
+1. **Always use `newline=''`** when opening CSV files
+   - Prevents newline interpretation issues on Windows
+   - Critical for cross-platform compatibility
+
+2. **Specify encoding explicitly**
+   - Use `encoding='utf-8'` for OASIS CSVs (likely contain French text)
+   - Prevents encoding errors on different systems
+
+3. **Use DictReader for header-mapped access**
+   - More readable than index-based access
+   - Self-documenting code
+   - Easier to maintain if CSV columns change
+
+4. **Use context managers (`with` statements)**
+   - Automatic file closure
+   - Exception-safe
+
+5. **Cache parsed data if accessed multiple times**
+   - guide.csv likely accessed for every statement display
+   - Parse once, cache in memory for request lifecycle
+
+## python-docx Usage Patterns
+
+Based on existing `docx_generator.py` and official documentation:
+
+**Existing patterns to follow:**
+- Document initialization: `doc = Document()`
+- Section configuration for page setup
+- Header/footer customization
+- Heading hierarchy (0 = title, 1 = section, 2 = subsection)
+- Style application: `doc.add_paragraph(text, style='List Bullet')`
+- Table generation for structured data
+- Font styling via runs
+- BytesIO buffer for in-memory generation
+
+**New patterns needed for v1.1:**
+- Annex section: Same as JD Elements (heading + bullet list)
+- No new python-docx features required
+
+## Frontend Patterns for v1.1
+
+Based on existing vanilla JS architecture:
+
+**State management:** Existing Proxy-based state in `static/js/state.js`
+- Add `searchViewMode: 'card'` to state
+- Subscribe to changes for view toggle
+
+**Event delegation:** Existing pattern in search.js
+- Use for grid/card view toggle buttons
+- Maintain single event listener on container
+
+**CSS classes for state:** Existing pattern throughout
+- `.card-view` / `.grid-view` classes for display mode
+- `.selected` class for active toggle button
+
+**localStorage persistence:** Existing pattern in state.js
+- Persist view mode preference
+- Restore on page load
+
+## Risk Assessment for v1.1
+
+| Risk | Likelihood | Impact | Mitigation |
+|------|------------|--------|------------|
+| CSV encoding issues (French text) | Medium | Low | Explicit UTF-8 encoding, test with actual OASIS CSVs |
+| CSV column name changes | Low | Medium | Robust error handling, log missing columns |
+| Grid view layout on mobile | Medium | Low | CSS media queries, fallback to card view |
+| Star unicode rendering | Low | Low | Unicode widely supported, add aria-label for accessibility |
+| guide.csv structure assumption | Medium | Medium | Validate CSV structure on load, fail gracefully |
+
+## Sources for v1.1 Research
+
+- [Python csv module documentation](https://docs.python.org/3/library/csv.html) - Official Python docs
+- [python-docx PyPI page](https://pypi.org/project/python-docx/) - Version verification (June 16, 2025)
+- [python-docx official documentation](https://python-docx.readthedocs.io/) - API patterns
+- [Python CSV best practices - Real Python](https://realpython.com/python-csv/) - Usage patterns
+- Existing codebase analysis - `src/services/docx_generator.py`, `static/js/search.js`
+
+## Confidence Assessment for v1.1
+
+**Overall: HIGH**
+
+- CSV parsing: HIGH (built-in module, well-documented, proven patterns)
+- DOCX export: HIGH (already implemented, just needs extension)
+- Grid view: HIGH (CSS Grid stable, matches existing patterns)
+- Star ratings: HIGH (simple CSS + Unicode solution)
+
+**No external research flags.** All findings verified with official documentation or existing codebase analysis.

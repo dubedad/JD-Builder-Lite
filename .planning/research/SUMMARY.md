@@ -166,3 +166,201 @@ Phases with standard patterns (skip research-phase):
 ---
 *Research completed: 2026-01-21*
 *Ready for roadmap: yes*
+
+---
+
+# v1.1 Research Summary
+
+**Milestone:** v1.1 Enhanced Data Display + Export
+**Researched:** 2026-01-22
+**Confidence:** HIGH
+
+## Executive Summary
+
+v1.1 enhances the existing JD Builder Lite with CSV-based data enrichment (category definitions, proficiency levels, statement descriptions from Open Canada guide.csv), Work Context filtering fixes, and parallel DOCX export. The integration requires NO new external dependencies - Python's built-in csv module handles data loading, python-docx 1.2.0 (already in requirements.txt) handles Word export, and vanilla JavaScript with CSS handles enhanced UI components. The critical insight is that enrichment should happen on the backend at profile fetch time, not in frontend rendering, to avoid O(n*m) lookup performance issues. The highest risks are CSV encoding BOM issues (silent failure on Windows-exported files), python-docx BytesIO memory leaks, and localStorage quota exhaustion from caching enriched data.
+
+## Key Findings
+
+### Stack (No New Dependencies Required)
+
+v1.1 extends the v1.0 stack without adding external dependencies. Python's built-in csv module parses guide.csv using csv.DictReader for header-mapped row access. python-docx 1.2.0 (already installed) handles Word document generation. Vanilla JavaScript with CSS Grid provides grid view toggle functionality. Unicode star characters (U+2605/U+2606) with CSS render proficiency ratings without icon libraries.
+
+**Key Technologies:**
+- **Python csv module (built-in):** Parse guide.csv with DictReader pattern — standard library, zero dependencies
+- **python-docx 1.2.0 (existing):** DOCX export with Annex section — already in requirements.txt, proven implementation
+- **CSS Grid (browser-native):** Grid view toggle — stable across modern browsers, no framework needed
+- **Unicode stars:** Star rating display — accessible, zero dependency solution
+
+### Features (Enhanced Display + Export)
+
+v1.1 features fall into two categories: enhanced data display (showing OASIS metadata with statements) and export improvements (DOCX format, Annex section with reference attributes).
+
+**Enhanced Display (Table Stakes):**
+- Visual star display (1-5 stars) for proficiency/importance/complexity levels
+- Scale meaning labels explaining what each rating level means
+- Category definitions at top of each JD Element tab
+- Statement descriptions from guide.csv (tooltip/popover display)
+- Grid view toggle for search results (card vs table comparison)
+
+**Export Enhancements (Table Stakes):**
+- DOCX export matching PDF structure (same sections, compliance appendix)
+- Annex section with reference NOC attributes (example titles, interests, career mobility)
+- Correct Work Context dimension handling (Frequency, Duration, Responsibility scales)
+
+**Deferred Features:**
+- Column sorting/customization in grid view (nice-to-have, adds complexity)
+- Filter by rating level (power user feature, defer to v1.2)
+- Animated star filling (visual gimmick without functional value)
+- Inline editing of ratings (breaks provenance chain, violates compliance)
+
+### Architecture (Backend Enrichment Pattern)
+
+v1.1 extends the existing v1.0 architecture with a CSV data loading service and enrichment layer. The critical architectural decision is enrichment location: backend enrichment at profile fetch time avoids frontend performance issues and keeps CSV data abstracted from the browser.
+
+**New Components:**
+1. **CSV Loader Service (src/services/csv_loader.py):** Load guide.csv once at startup, provide lookup methods, module-level singleton pattern
+2. **Enrichment Service (src/services/enrichment_service.py):** Enrich NOCStatements with descriptions, proficiency levels, scale meanings, dimension names
+3. **Grid View Component (static/js/grid-view.js):** Toggle between card and table view, persist preference in localStorage
+4. **Enhanced Statement Display (static/js/statement-display.js):** Render stars, descriptions, scale meanings, dimension badges
+
+**Integration Points:**
+- CSV loaded at app startup via `@app.before_first_request` (singleton pattern)
+- Enrichment called in `/api/profile` route after mapping, before response
+- Frontend receives fully enriched ProfileResponse with new optional fields
+- DOCX/PDF generators extend to include Annex section from reference_attributes
+
+**Data Flow:**
+```
+App Start → Load guide.csv → Cache in memory
+    ↓
+/api/profile → Scrape → Parse → Map → Enrich → Return enriched JSON
+    ↓
+Frontend → Render with stars, descriptions, dimensions
+    ↓
+Export → Build ExportData with Annex → Generate PDF/DOCX
+```
+
+### Critical Risks
+
+1. **CSV Encoding BOM Issues (CRITICAL):** Windows Excel exports include UTF-8 BOM causing first column name to be '\ufeffNOC_Code' instead of 'NOC_Code', breaking all dictionary lookups. Silent failure - data appears to load but all lookups return None. **Mitigation:** Use `encoding='utf-8-sig'` when reading CSVs, validate column names after load, test with Windows-exported files.
+
+2. **python-docx Memory Leaks (CRITICAL):** BytesIO objects created for DOCX generation persist in memory after function return, causing gradual memory exhaustion in long-running Flask processes. **Mitigation:** Use context manager pattern (`with BytesIO() as buffer`), explicitly close buffers, test repeated exports to verify no accumulation.
+
+3. **localStorage Quota Exhaustion (CRITICAL):** Adding enriched CSV data to state exceeds 5MB browser limit, throwing QuotaExceededError that breaks entire frontend. No graceful degradation in current state.js implementation. **Mitigation:** Cache only active profile enrichment (not entire CSV), implement quota checks with fallback to in-memory state, add size monitoring.
+
+4. **CSV Lookup Performance (CRITICAL):** Naive O(n*m) joins on every statement render causes 50,000+ lookups per page load with 50 statements and 1000+ CSV rows, creating 2+ second lag and unresponsive browser. **Mitigation:** Pre-compute enrichment on backend (not frontend), use Map-based indexing if frontend joins needed, measure with performance profiling.
+
+5. **Star Rating Accessibility (MODERATE):** Incorrect ARIA implementation causes screen readers to announce "image 4 out of 5 stars star star star star star" with repetitive output, violating WCAG 2.1 Level AA required for TBS compliance. **Mitigation:** Use aria-hidden on decorative stars, single aria-label on container, test with NVDA/VoiceOver.
+
+## Implications for Roadmap
+
+v1.1 follows a clear dependency chain from data infrastructure through backend enrichment to frontend display and finally export features. Build order must respect this flow.
+
+### Suggested Phase Structure
+
+**Phase 1: CSV Infrastructure (Build First)**
+- Components: csv_loader.py, enrichment_service.py, extended NOCStatement model
+- Rationale: Foundation for all enhancements; no frontend dependencies; can test independently
+- Delivers: CSV loaded at startup, enrichment service operational
+- Avoids: PITFALL-1 (CSV encoding BOM), PITFALL-8 (repeated CSV loading)
+- Research needed: None - Python csv module well-documented
+
+**Phase 2: Backend Enrichment (Build Second)**
+- Components: Modified mapper.py, modified /api/profile route, Work Context filtering fix
+- Rationale: Depends on Phase 1; frontend needs enriched data to display; can test with curl/Postman
+- Delivers: /api/profile returns enriched statements with descriptions, levels, scale meanings
+- Avoids: PITFALL-4 (lookup performance) by enriching on backend
+- Research needed: None - extends existing mapper pattern
+
+**Phase 3: Frontend Enhanced Display (Build Third)**
+- Components: statement-display.js, statement-enhancements.css, profile-header.js, star ratings
+- Rationale: Depends on Phase 2 enriched responses; core user-facing feature
+- Delivers: Statements show stars, descriptions, scale meanings; category definitions visible
+- Avoids: PITFALL-6 (star rating accessibility), PITFALL-3 (localStorage quota)
+- Research needed: None - standard UX patterns, WCAG compliance documented
+
+**Phase 4: Grid View (Build Fourth, Optional Parallel)**
+- Components: grid-view.js, grid.css, modified search.js
+- Rationale: Independent of enrichment; can build parallel with Phase 3; enhancement not core
+- Delivers: Grid toggle functional, table view displays, preference persists
+- Avoids: PITFALL-10 (performance without virtualization) - acceptable for <50 results
+- Research needed: None - CSS Grid stable, vanilla JS patterns
+
+**Phase 5: Annex Export (Build Last)**
+- Components: Modified export_service.py, extended pdf_generator.py, extended docx_generator.py
+- Rationale: Depends on reference_attributes from Phase 2; output feature not core functionality
+- Delivers: Annex section in PDF and DOCX exports with reference attributes
+- Avoids: PITFALL-2 (BytesIO leaks), PITFALL-7 (PDF/DOCX divergence), PITFALL-15 (structure misalignment)
+- Research needed: None - extends existing export pattern
+
+### Critical Path
+
+```
+Phase 1 (CSV Infrastructure)
+    ↓ REQUIRED
+Phase 2 (Backend Enrichment)
+    ↓ REQUIRED
+Phase 3 (Enhanced Display) + Phase 4 (Grid View - PARALLEL OK)
+    ↓ REQUIRED
+Phase 5 (Annex Export)
+```
+
+### Phase Ordering Rationale
+
+- **CSV Infrastructure first:** All downstream features depend on guide.csv being loaded and queryable
+- **Backend enrichment before frontend display:** Avoids performance pitfalls and keeps CSV abstracted from browser
+- **Grid view can be parallel:** Independent of enrichment pipeline, can build alongside Phase 3 if resources allow
+- **Export last:** Requires complete enriched data flow working end-to-end
+
+### Research Flags
+
+**No additional research needed for v1.1 phases:**
+- Phase 1 (CSV Infrastructure): Python csv module comprehensively documented
+- Phase 2 (Backend Enrichment): Extends existing mapper pattern, no novel patterns
+- Phase 3 (Enhanced Display): Standard UX patterns, WCAG compliance well-documented
+- Phase 4 (Grid View): CSS Grid stable, vanilla JS patterns established
+- Phase 5 (Annex Export): python-docx usage patterns already proven in v1.0
+
+All findings verified with official documentation (Python docs, python-docx readthedocs, MDN Web Docs, W3C WAI-ARIA).
+
+## Confidence Assessment
+
+| Area | Confidence | Notes |
+|------|------------|-------|
+| Stack (No New Dependencies) | HIGH | Built-in csv module, python-docx already installed, browser-native CSS |
+| Features (Enhanced Display) | HIGH | Standard UX patterns verified across multiple authoritative sources |
+| Architecture (Backend Enrichment) | HIGH | Extends existing v1.0 patterns, singleton loader matches scraper/mapper design |
+| Pitfalls (Integration-Specific) | HIGH | CSV encoding, BytesIO leaks, localStorage quotas verified with GitHub issues and official docs |
+
+**Overall confidence:** HIGH
+
+### Gaps to Address
+
+- **guide.csv schema validation:** Exact column names and structure should be validated with actual Open Canada file during Phase 1 implementation
+- **OASIS Work Context dimension mapping:** Dimension labels (Frequency, Duration, etc.) extracted from HTML need verification against live NOC site structure
+- **DOCX Annex placement:** Design decision needed on whether Annex comes before or after Appendix A (compliance metadata)
+
+These gaps are implementation details, not architectural uncertainties. Address during respective phases with actual data.
+
+## Sources
+
+### Primary (HIGH confidence)
+- Python csv module documentation — verified built-in library patterns
+- python-docx PyPI page and readthedocs — version verification and API patterns
+- Open Canada NOC Dataset portal — OASIS metadata file availability confirmed
+- MDN Web Docs — CSS Grid stability and browser support
+- W3C WAI-ARIA Authoring Practices Guide — accessibility patterns for star ratings
+- GitHub Issues (pandas, python-docx) — BOM encoding issues, BytesIO memory leaks verified
+
+### Secondary (MEDIUM confidence)
+- UX design resources (Eleken, Pencilandpaper, UX Patterns) — grid view, collapsible sections, tooltip patterns
+- Medium, CodeRivers — python-docx usage patterns and optimization
+- Real Python — CSV best practices
+
+### Tertiary (LOW confidence - implementation details)
+- Annex vs Appendix formatting standards — multiple conflicting sources, design decision needed
+- Work Context dimension scale meanings — inferred from OASIS documentation, needs verification with guide.csv
+
+---
+*v1.1 Research completed: 2026-01-22*
+*Ready for roadmap: yes*

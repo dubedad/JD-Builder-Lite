@@ -1,465 +1,823 @@
-# Architecture Patterns
+# Architecture Research: v1.1 Enhanced Data Display + Export
 
-**Domain:** Web scraping app with data transformation and LLM integration
-**Project:** JD Builder Lite
-**Researched:** 2026-01-21
-**Confidence:** HIGH (standard patterns, well-documented)
+**Domain:** Enhancement to existing JD Builder Lite (Flask + Vanilla JS)
+**Researched:** 2026-01-22
+**Confidence:** HIGH (extending existing v1.0 architecture with well-understood patterns)
 
-## Recommended Architecture
+## Executive Summary
 
-```
-+------------------+         +------------------+         +------------------+
-|                  |  HTTP   |                  |  HTTP   |                  |
-|  Browser         |-------->|  Node.js/Express |-------->|  OASIS Site      |
-|  (Vanilla JS)    |<--------|  Backend Server  |<--------|  (noc.esdc.gc.ca)|
-|                  |         |                  |         |                  |
-+------------------+         +--------+---------+         +------------------+
-                                      |
-                                      | HTTPS
-                                      v
-                             +------------------+
-                             |                  |
-                             |  OpenAI API      |
-                             |                  |
-                             +------------------+
-```
+v1.1 adds enhanced data display features and DOCX export to the existing JD Builder Lite architecture. The integration involves: (1) new CSV data loading service for Open Canada guide.csv, (2) enriched response models with metadata fields, (3) frontend grid view component, and (4) parallel DOCX export route. All changes extend existing patterns without architectural restructuring. Build order follows data availability: CSV loader first, then backend enrichment, then frontend display, then export features.
 
-This is a **3-tier architecture** with the backend acting as a proxy/orchestration layer:
+## Current v1.0 Architecture (Baseline)
 
-1. **Frontend (Browser)**: Vanilla HTML/CSS/JS - handles UI, user input, display
-2. **Backend (Node.js)**: Express server - proxies OASIS requests, calls OpenAI, serves static files
-3. **External Services**: OASIS (scrape target), OpenAI (LLM API)
-
-### Why This Pattern
-
-**CORS bypass is mandatory.** Browsers block cross-origin requests to OASIS. The backend proxy pattern is the standard solution - the browser talks to your backend, your backend talks to OASIS. This is not a workaround; it's the correct architectural approach.
-
-**API key protection.** OpenAI API keys cannot be exposed in frontend code. The backend holds the key and proxies LLM requests.
-
-**Data transformation hub.** The backend is the natural place to parse HTML, extract structured data, and prepare it for the frontend or LLM.
-
-## Component Boundaries
-
-| Component | Responsibility | Communicates With | Technology |
-|-----------|---------------|-------------------|------------|
-| **Frontend UI** | User interaction, display, form handling | Backend API only | HTML, CSS, Vanilla JS |
-| **Static Server** | Serve HTML/CSS/JS files | Browser | Express.static |
-| **Scrape Proxy** | Fetch OASIS pages, bypass CORS | OASIS site | node-fetch or axios |
-| **HTML Parser** | Extract NOC data from HTML | Internal | cheerio |
-| **Data Mapper** | Transform NOC data to JD elements | Internal | Pure JS |
-| **LLM Proxy** | Call OpenAI API securely | OpenAI API | openai SDK |
-| **PDF Generator** | Create downloadable PDF | Internal | Browser print or jsPDF |
-
-### Boundary Rules
-
-1. **Frontend never calls external services directly** - all external requests go through backend
-2. **Backend is stateless** - no database, no sessions, each request is independent
-3. **Parsing logic lives in backend** - HTML parsing is server-side, frontend receives clean JSON
-4. **LLM prompts are backend-controlled** - frontend sends user selections, backend constructs prompts
-
-## Data Flow
-
-### Complete Request Flow
+### Backend Structure (Flask + Service Layer)
 
 ```
-User Action                Frontend                     Backend                      External
------------                --------                     -------                      --------
-
-1. Search for job title
-   [Type "Analyst"]  --->  fetch('/api/search?q=...')
-                                                   ---> GET OASIS search page
-                                                   <--- HTML response
-                                                        Parse HTML, extract results
-                           <--- JSON: [{title, url}]
-   [Show results list]
-
-2. Select a profile
-   [Click profile]   --->  fetch('/api/profile?url=...')
-                                                   ---> GET OASIS profile page
-                                                        (multiple tabs)
-                                                   <--- HTML responses
-                                                        Parse all tabs
-                                                        Extract NOC attributes
-                                                        Map to JD elements
-                           <--- JSON: {
-                                  keyActivities: [...],
-                                  skills: [...],
-                                  effort: [...],
-                                  ...
-                                }
-   [Display selection UI]
-
-3. Generate overview
-   [Click generate]  --->  POST /api/generate
-                           body: {selections: {...}}
-                                                   ---> POST OpenAI API
-                                                        (constructed prompt)
-                                                   <--- Generated text
-                           <--- JSON: {overview: "..."}
-   [Display overview]
-
-4. Export PDF
-   [Click export]    --->  (handled in browser)
-                           window.print() or jsPDF
+Flask App (src/app.py)
+    |
+    v
+Routes (src/routes/api.py)
+    |
+    +---> Services
+    |     - scraper.py: OASIS HTTP client
+    |     - parser.py: HTML -> structured data
+    |     - mapper.py: NOC data -> JD elements
+    |     - llm_service.py: OpenAI generation
+    |     - export_service.py: Build export data
+    |     - pdf_generator.py: WeasyPrint PDF
+    |     - docx_generator.py: python-docx Word (v1.0)
+    |
+    +---> Models (Pydantic)
+    |     - noc.py: SearchResult, NOCStatement, JDElementData
+    |     - responses.py: ProfileResponse, SearchResponse
+    |     - export_models.py: ExportRequest, ExportData
+    |     - ai.py: GenerationMetadata
+    |
+    +---> Utils
+          - selectors.py: CSS selectors for scraping
 ```
 
-### Data Transformation Pipeline
+### Frontend Structure (Vanilla JS)
 
 ```
-OASIS HTML (raw)
-      |
-      v
-+---------------------+
-| Backend: Scraper    | <-- Fetches multiple tab pages
-+---------------------+
-      |
-      v
-OASIS HTML (multiple pages)
-      |
-      v
-+---------------------+
-| Backend: Parser     | <-- cheerio extracts tables, lists, text
-+---------------------+
-      |
-      v
-Raw NOC Data (structured but unmapped)
+static/
+    +-- js/
+        - state.js: Store with localStorage persistence
+        - api.js: Fetch wrapper for backend
+        - search.js: Search UI logic
+        - accordion.js: JD element tabs
+        - selection.js: Statement checkbox logic
+        - generate.js: AI overview generation
+        - export.js: PDF/DOCX download
+```
+
+### Data Flow (v1.0)
+
+```
+User Search → /api/search → scraper → parser → SearchResponse
+    |
+    v
+Select Profile → /api/profile → scraper → parser → mapper → ProfileResponse
+    |                                                            - JD elements
+    |                                                            - NOCStatements
+    v
+Select Statements → Frontend state.js → localStorage
+    |
+    v
+Generate Overview → /api/generate → llm_service → SSE stream
+    |
+    v
+Export PDF → /api/export/pdf → build_export_data → generate_pdf → BytesIO
+```
+
+## v1.1 Integration Points
+
+### Backend Changes
+
+| Component | Change Type | Description | Why |
+|-----------|-------------|-------------|-----|
+| **src/services/csv_loader.py** | NEW | Load and parse guide.csv from Open Canada | Provides category definitions, label descriptions, scale meanings |
+| **src/services/enrichment_service.py** | NEW | Enrich NOCStatements with CSV metadata | Adds descriptions, proficiency levels, dimension names to statements |
+| **src/models/noc.py** | MODIFY | Add fields to NOCStatement | Add: description, proficiency_level, scale_meaning, dimension |
+| **src/models/responses.py** | MODIFY | Add profile metadata fields | Add: noc_hierarchy (TEER, broad category, major group), reference_attributes |
+| **src/services/parser.py** | MODIFY | Extract Work Context dimensions | Parse dimension labels (Frequency, Duration, etc.) from HTML |
+| **src/services/mapper.py** | MODIFY | Call enrichment service | Enrich statements after mapping, fix Effort/Responsibility filters |
+| **src/routes/api.py** | MODIFY | /api/profile enrichment | Call enrichment before returning ProfileResponse |
+| **src/routes/api.py** | VERIFY | /api/export/docx | Already exists in v1.0 - verify functionality |
+| **src/services/export_service.py** | MODIFY | Include Annex in ExportData | Add reference_attributes section to export data |
+
+### Frontend Changes
+
+| Component | Change Type | Description | Why |
+|-----------|-------------|-------------|-----|
+| **static/js/grid-view.js** | NEW | Grid toggle component for search results | Display card vs table view with columns |
+| **static/js/statement-display.js** | MODIFY | Render enriched statement metadata | Show descriptions, proficiency stars, scale meanings |
+| **static/js/profile-header.js** | NEW | Profile overview component | Display NOC code, hierarchy, reference attributes |
+| **static/css/grid.css** | NEW | Grid view styles | Table layout for search results |
+| **static/css/statement-enhancements.css** | NEW | Enhanced statement display | Star ratings, dimension badges, descriptions |
+| **templates/index.html** | MODIFY | Add grid toggle controls | Button to switch between card/table view |
+
+### New Data Flows
+
+#### CSV Data Loading (Startup)
+
+```
+App Initialization
+    |
+    v
+csv_loader.load_guide()
+    |
+    +---> Read guide.csv from data/
+    +---> Parse into lookup dictionaries:
+          - category_definitions: {category_name: definition}
+          - label_descriptions: {oasis_label: description}
+          - scale_meanings: {scale_type: {level: meaning}}
+    |
+    v
+Store in module-level cache (singleton pattern)
+```
+
+#### Enhanced Profile Response (Request Time)
+
+```
+/api/profile?code=21232
+    |
+    v
+scraper.fetch_profile(code)
+    |
+    v
+parser.parse_profile(html, code)
+    |
+    +---> Extract Work Context with dimensions
+    |     Example: "Frequency of Decision Making — 5"
+    |
+    v
+mapper.to_jd_elements(noc_data)
+    |
+    +---> Map NOC attributes to JD elements
+    +---> Filter Work Context for Effort/Responsibility
+    |
+    v
+enrichment_service.enrich_statements(jd_elements)
+    |
+    +---> For each NOCStatement:
+    |     - Lookup label description from guide.csv
+    |     - Extract proficiency level from text
+    |     - Get scale meaning for level
+    |     - Add dimension name (for Work Context)
+    |
+    v
+ProfileResponse (enriched)
 {
-  mainDuties: [...],
-  workActivities: [...],
-  skills: [...],
-  abilities: [...],
-  knowledge: [...],
-  workContext: [...],
-  ...
+  "noc_code": "21232",
+  "title": "Software developers",
+  "noc_hierarchy": {
+    "teer": "1",
+    "broad_category": "Natural and applied sciences",
+    "major_group": "21"
+  },
+  "key_activities": {
+    "statements": [
+      {
+        "text": "Design and develop software",
+        "source_attribute": "Main Duties",
+        "source_url": "...",
+        "description": "Core tasks performed",  // NEW
+        "proficiency_level": null,
+        "scale_meaning": null,
+        "dimension": null
+      }
+    ]
+  },
+  "skills": {
+    "statements": [
+      {
+        "text": "Programming — 5",
+        "source_attribute": "Skills",
+        "source_url": "...",
+        "description": "Using logic and methods to develop solutions",  // NEW
+        "proficiency_level": 5,  // NEW
+        "scale_meaning": "5 - Highest Level",  // NEW
+        "dimension": null
+      }
+    ]
+  },
+  "working_conditions": {
+    "statements": [
+      {
+        "text": "Frequency of Decision Making — 5",
+        "source_attribute": "Work Context",
+        "source_url": "...",
+        "description": "How often required to make decisions",  // NEW
+        "proficiency_level": 5,  // NEW
+        "scale_meaning": "5 - Every day, many times per day",  // NEW
+        "dimension": "Frequency"  // NEW
+      }
+    ]
+  },
+  "reference_attributes": {  // NEW - for Annex
+    "example_titles": ["Software Engineer", "Application Developer"],
+    "interests": ["Investigative", "Conventional"],
+    "personal_attributes": ["Analytical thinking", "Attention to detail"]
+  },
+  "metadata": { ... }
 }
-      |
-      v
-+---------------------+
-| Backend: Mapper     | <-- Applies NOC -> JD element mapping from PROJECT.md
-+---------------------+
-      |
-      v
-JD-Ready Data (frontend-friendly)
-{
-  keyActivities: [...],    // from mainDuties + workActivities
-  skills: [...],           // from skills + abilities + knowledge
-  effort: [...],           // from workContext filtered
-  responsibility: [...],   // from workContext filtered
-  workingConditions: [...],// from workContext
-  annex: {...}             // other attributes
-}
-      |
-      v
-+---------------------+
-| Frontend: Selector  | <-- User picks items under each header
-+---------------------+
-      |
-      v
-User Selections
-{
-  keyActivities: [selected items],
-  skills: [selected items],
-  ...
-}
-      |
-      v
-+---------------------+
-| Backend: LLM Proxy  | <-- Constructs prompt from selections
-+---------------------+
-      |
-      v
-OpenAI API
-      |
-      v
-Generated Overview
-      |
-      v
-+---------------------+
-| Frontend: Assembler | <-- Combines selections + overview + metadata
-+---------------------+
-      |
-      v
-Final Job Description (with compliance metadata)
-      |
-      v
-+---------------------+
-| Frontend/Browser:   | <-- Print dialog or jsPDF
-| PDF Export          |
-+---------------------+
 ```
 
-## File Structure
-
-Recommended project structure for this architecture:
+#### Frontend Enhanced Display
 
 ```
-jd-builder-lite/
-|
-+-- server.js              # Express entry point
-+-- package.json           # Dependencies
-|
-+-- public/                # Static files served to browser
-|   +-- index.html         # Main (only) HTML page
-|   +-- css/
-|   |   +-- styles.css     # All styles
-|   +-- js/
-|       +-- app.js         # Main application logic
-|       +-- api.js         # Fetch calls to backend
-|       +-- ui.js          # DOM manipulation
-|       +-- pdf.js         # PDF generation
-|
-+-- src/                   # Backend modules
-|   +-- scraper.js         # OASIS fetching
-|   +-- parser.js          # HTML parsing with cheerio
-|   +-- mapper.js          # NOC -> JD element mapping
-|   +-- llm.js             # OpenAI API calls
-|   +-- routes.js          # Express route definitions
-|
-+-- .env                   # OPENAI_API_KEY (gitignored)
-+-- .gitignore
+ProfileResponse received
+    |
+    v
+Render profile header with NOC hierarchy
+    |
+    v
+For each JD element tab:
+    |
+    +---> Display category definition at top (from response)
+    |
+    +---> For each statement:
+          |
+          +---> Show statement text
+          +---> Show description below (if present)
+          +---> Show proficiency stars (if level present)
+          +---> Show scale meaning next to stars
+          +---> Show dimension badge (if present)
 ```
 
-### Why This Structure
+#### Grid View Display
 
-- **public/**: Everything the browser needs, served statically
-- **src/**: Backend logic, never exposed to browser
-- **Single HTML page**: No routing needed, single-page app flow
-- **Separated JS files**: Maintainable but no build step required
+```
+Search results received
+    |
+    v
+User clicks grid toggle
+    |
+    +---> Switch display mode: card → table or table → card
+    |
+    v
+Table mode renders:
+    |
+    +---> Columns: NOC Code | Title | Broad Category | Training/Education | Lead Statement
+    +---> Data from search results + profile preview
+```
 
-## Patterns to Follow
+#### Annex Export
 
-### Pattern 1: Backend-for-Frontend (BFF) Proxy
+```
+Export request (PDF or DOCX)
+    |
+    v
+build_export_data(request)
+    |
+    +---> Include reference_attributes in ExportData
+    |
+    v
+PDF/DOCX generator
+    |
+    +---> Render main JD sections
+    +---> Add page break
+    +---> Add "Annex: Reference Attributes" section
+          - Example Titles
+          - Interests
+          - Personal Attributes
+          - Career Mobility
+```
 
-**What:** Backend shapes data specifically for this frontend's needs.
-**When:** Frontend needs curated data, not raw API/scrape responses.
-**Why:** Reduces frontend complexity, keeps parsing/mapping logic server-side.
+## New Components Needed
 
+### 1. CSV Loader Service (src/services/csv_loader.py)
+
+**Purpose:** Load and parse guide.csv at application startup
+
+**Responsibilities:**
+- Read CSV from data/ directory
+- Parse into lookup dictionaries
+- Provide query methods for enrichment
+
+**Interface:**
+```python
+class CSVLoader:
+    def load_guide(self, file_path: str) -> None
+    def get_category_definition(self, category: str) -> Optional[str]
+    def get_label_description(self, label: str) -> Optional[str]
+    def get_scale_meaning(self, scale_type: str, level: int) -> Optional[str]
+```
+
+**Singleton:** Module-level instance (like scraper, mapper)
+
+### 2. Enrichment Service (src/services/enrichment_service.py)
+
+**Purpose:** Enrich NOCStatements with CSV metadata
+
+**Responsibilities:**
+- Match statement text to CSV labels
+- Extract proficiency levels from text (regex)
+- Lookup descriptions and scale meanings
+- Add dimension names for Work Context
+
+**Interface:**
+```python
+class EnrichmentService:
+    def __init__(self, csv_loader: CSVLoader)
+    def enrich_statement(self, statement: NOCStatement, category: str) -> NOCStatement
+    def enrich_jd_elements(self, jd_data: Dict[str, JDElementData]) -> Dict[str, JDElementData]
+```
+
+### 3. Grid View Component (static/js/grid-view.js)
+
+**Purpose:** Toggle search results between card and table view
+
+**Responsibilities:**
+- Render table HTML from search results
+- Toggle visibility between card/table containers
+- Persist view preference in localStorage
+
+**Interface:**
 ```javascript
-// Backend: routes.js
-app.get('/api/profile', async (req, res) => {
-  const { url } = req.query;
-
-  // Fetch raw HTML
-  const html = await scraper.fetchProfile(url);
-
-  // Parse to structured data
-  const nocData = parser.extractNocData(html);
-
-  // Map to JD elements (shaped for this frontend)
-  const jdData = mapper.toJdElements(nocData);
-
-  // Return clean, ready-to-use JSON
-  res.json(jdData);
-});
+function initGridView()
+function toggleView(mode: 'card' | 'table')
+function renderTable(results: SearchResult[])
 ```
 
-### Pattern 2: Clean HTML Before LLM
+### 4. Enhanced Statement Display (static/js/statement-display.js)
 
-**What:** Strip HTML to essential text before sending to LLM.
-**When:** Using scraped content as LLM input.
-**Why:** Reduces tokens, improves LLM comprehension, lowers cost.
+**Purpose:** Render enriched statement metadata
 
+**Responsibilities:**
+- Show description below statement text
+- Render star rating from proficiency level
+- Display scale meaning next to stars
+- Show dimension badge for Work Context
+
+**Interface:**
 ```javascript
-// Backend: llm.js
-function buildPrompt(selections) {
-  // selections is already clean text, not HTML
-  const context = Object.entries(selections)
-    .map(([category, items]) => `${category}:\n${items.join('\n')}`)
-    .join('\n\n');
-
-  return `Generate a professional job overview based on:\n${context}`;
-}
+function renderStatement(statement: NOCStatement, container: HTMLElement)
+function renderStars(level: number): string
+function renderDimension(dimension: string): string
 ```
 
-### Pattern 3: Stateless Request Handling
+### 5. Profile Header Component (static/js/profile-header.js)
 
-**What:** Each request is independent, no server-side session.
-**When:** Demo apps, single-user scenarios.
-**Why:** Simplicity - no session management, no state bugs.
+**Purpose:** Display NOC code and hierarchy prominently
 
+**Responsibilities:**
+- Render NOC code below title
+- Show TEER/broad category/major group
+- Display reference attributes section
+
+**Interface:**
 ```javascript
-// Each request carries all needed context
-// No: req.session.selections
-// Yes: req.body.selections (sent each time)
-
-app.post('/api/generate', async (req, res) => {
-  const { selections } = req.body;  // Client sends selections each time
-  const overview = await llm.generateOverview(selections);
-  res.json({ overview });
-});
+function renderProfileHeader(profile: ProfileResponse, container: HTMLElement)
+function renderHierarchy(hierarchy: NOCHierarchy): string
+function renderReferenceAttributes(attrs: ReferenceAttributes): string
 ```
-
-### Pattern 4: Browser-Native PDF
-
-**What:** Use window.print() with print-specific CSS.
-**When:** Simple PDF needs, demo quality acceptable.
-**Why:** Zero dependencies, works everywhere, good enough for demo.
-
-```javascript
-// Frontend: pdf.js
-function exportPdf() {
-  window.print();  // Browser handles PDF generation
-}
-```
-
-```css
-/* styles.css */
-@media print {
-  .no-print { display: none; }
-  .print-only { display: block; }
-  body { font-size: 12pt; }
-}
-```
-
-## Anti-Patterns to Avoid
-
-### Anti-Pattern 1: Frontend Direct to External APIs
-
-**What:** Calling OASIS or OpenAI directly from browser JavaScript.
-**Why bad:** CORS blocks OASIS calls. OpenAI key exposed in browser.
-**Instead:** Always proxy through backend.
-
-### Anti-Pattern 2: Parsing HTML in Frontend
-
-**What:** Sending raw HTML to frontend, parsing with DOMParser.
-**Why bad:** Large payloads, duplicated parsing logic, harder to maintain.
-**Instead:** Parse on backend, send clean JSON.
-
-### Anti-Pattern 3: Storing State in Backend
-
-**What:** Keeping user selections in server memory between requests.
-**Why bad:** Complexity for no benefit in single-user demo.
-**Instead:** Frontend holds all state, sends to backend as needed.
-
-### Anti-Pattern 4: Build Step for Frontend
-
-**What:** Using webpack/Vite/etc. for vanilla JS demo.
-**Why bad:** Unnecessary complexity for simple app.
-**Instead:** Plain JS files, script tags in HTML. Works in browser directly.
-
-### Anti-Pattern 5: Over-Engineering the Proxy
-
-**What:** Building a general-purpose CORS proxy for any URL.
-**Why bad:** Security risk, not needed for specific use case.
-**Instead:** Purpose-built routes for OASIS search and profile only.
 
 ## Suggested Build Order
 
-Build order follows data flow dependencies and testability:
+Build order follows data availability and dependency chain:
 
-### Phase 1: Backend Foundation (Build First)
+### Phase 1: CSV Infrastructure (Build First)
 
-**Components:** Express server, static file serving, basic route structure
+**Components:** csv_loader.py, enrichment_service.py, updated models
 
 **Why first:**
-- Frontend can't function without backend endpoints
-- Can test with curl/Postman before frontend exists
-- Establishes project structure
+- Foundation for all enhancements
+- Can test independently with sample data
+- No frontend dependencies
 
-**Deliverable:** Server that serves static files and has placeholder routes returning mock JSON.
+**Deliverables:**
+- CSV data loaded at startup
+- Enrichment service tests passing
+- NOCStatement model has new fields
 
-### Phase 2: Scraping Pipeline (Build Second)
+**Testing:** Unit tests with sample CSV data
 
-**Components:** OASIS fetcher, HTML parser, data mapper
+### Phase 2: Backend Enrichment (Build Second)
+
+**Components:** Modified mapper.py, modified api.py /api/profile route
 
 **Why second:**
-- Core functionality - everything depends on getting NOC data
-- Can test independently with hardcoded URLs
-- Most likely to have issues (external site structure)
+- Depends on CSV infrastructure (Phase 1)
+- Frontend needs enriched data to display
+- Can test with curl/Postman
 
-**Deliverable:** Endpoint that returns parsed, mapped JD data for a profile URL.
+**Deliverables:**
+- /api/profile returns enriched statements
+- Work Context filtering fixed (Effort/Responsibility)
+- Profile includes NOC hierarchy and reference attributes
 
-### Phase 3: Frontend UI (Build Third)
+**Testing:** API tests verify enriched response structure
 
-**Components:** HTML structure, CSS styling, JS for search/selection
+### Phase 3: Frontend Enhanced Display (Build Third)
+
+**Components:** statement-display.js, statement-enhancements.css, profile-header.js
 
 **Why third:**
-- Now has real data to display (from Phase 2)
-- Can iterate on UI with working data
-- User can see actual NOC content
+- Depends on enriched API responses (Phase 2)
+- Core feature - users need to see enhancements
+- Can iterate on styling with real data
 
-**Deliverable:** Working search, profile display, and selection interface.
+**Deliverables:**
+- Statements show descriptions, stars, scale meanings
+- Profile displays NOC hierarchy prominently
+- Category definitions visible at top of tabs
 
-### Phase 4: LLM Integration (Build Fourth)
+**Testing:** Manual verification with multiple profiles
 
-**Components:** OpenAI proxy, prompt construction, overview generation
+### Phase 4: Grid View (Build Fourth)
+
+**Components:** grid-view.js, grid.css, modified search.js
 
 **Why fourth:**
-- Needs selections from UI (Phase 3)
-- Most expensive to test (API calls)
-- Can use mock data while developing prompt
+- Independent of enrichment features
+- Can build in parallel with Phase 3 if needed
+- Enhancement to search, not core data display
 
-**Deliverable:** Generate button produces real LLM overview.
+**Deliverables:**
+- Grid toggle button functional
+- Table view displays correctly
+- View preference persists
 
-### Phase 5: PDF Export and Polish (Build Last)
+**Testing:** Test with various search results
 
-**Components:** Print CSS, final assembly, compliance metadata
+### Phase 5: Annex Export (Build Last)
+
+**Components:** Modified export_service.py, modified pdf_generator.py, modified docx_generator.py
 
 **Why last:**
-- Needs complete flow working (all previous phases)
-- Finishing touches, not core functionality
-- Easy to iterate on styling
+- Depends on reference_attributes from Phase 2
+- Output feature, not core functionality
+- Easiest to test once everything else works
 
-**Deliverable:** Complete demo with PDF export.
+**Deliverables:**
+- Annex section in PDF exports
+- Annex section in DOCX exports
+- Reference attributes formatted correctly
+
+**Testing:** Export multiple profiles, verify Annex content
 
 ### Dependency Graph
 
 ```
-Phase 1: Backend Foundation
+Phase 1: CSV Infrastructure
     |
     v
-Phase 2: Scraping Pipeline
+Phase 2: Backend Enrichment
+    |
+    +------------------------+
+    |                        |
+    v                        v
+Phase 3: Enhanced Display   Phase 4: Grid View
+    |                        |
+    +------------------------+
     |
     v
-Phase 3: Frontend UI
-    |
-    v
-Phase 4: LLM Integration
-    |
-    v
-Phase 5: PDF Export & Polish
+Phase 5: Annex Export
 ```
 
-Each phase builds on the previous. Phase 2 requires Phase 1's routes. Phase 3 requires Phase 2's data. Phase 4 requires Phase 3's selections. Phase 5 requires everything.
+**Critical Path:** Phase 1 → Phase 2 → Phase 3 → Phase 5
 
-## Scalability Considerations
+**Parallel Opportunity:** Phase 4 (Grid View) can be built in parallel with Phase 3 if resources allow.
 
-| Concern | At 1 user (Demo) | At 100 users | At 10K users |
-|---------|------------------|--------------|--------------|
-| OASIS load | Negligible | Rate limit risk | Need caching layer |
-| OpenAI cost | Minimal | Moderate | Need usage limits |
-| Server resources | Single process fine | Still fine | Need horizontal scaling |
-| State management | In-browser only | Still fine | Consider session store |
+## Integration Patterns
 
-**For this demo:** All concerns are "demo" level. No scaling needed.
+### Pattern 1: CSV Singleton Loader
 
-## Technology Recommendations
+**Problem:** Multiple services need CSV data, but loading is expensive
 
-Based on this architecture:
+**Solution:** Module-level singleton loaded once at startup
 
-| Component | Recommended | Why |
-|-----------|-------------|-----|
-| Web server | Express.js | Standard, simple, well-documented |
-| HTTP client | node-fetch or axios | Either works, axios slightly nicer |
-| HTML parser | cheerio | jQuery-like API, fast, well-maintained |
-| OpenAI client | openai (official SDK) | Best maintained, handles auth |
-| PDF | window.print() | Zero deps, good enough for demo |
-| Frontend | Vanilla JS | No build step, explicit requirement |
+```python
+# csv_loader.py
+class CSVLoader:
+    def __init__(self):
+        self._guide_data = None
+
+    def load_guide(self, path):
+        if self._guide_data is None:
+            self._guide_data = self._parse_csv(path)
+
+# Module-level instance
+csv_loader = CSVLoader()
+
+# app.py
+from src.services.csv_loader import csv_loader
+
+@app.before_first_request
+def load_csv_data():
+    csv_loader.load_guide('data/guide.csv')
+```
+
+**Why:** Matches existing pattern (scraper, mapper singletons)
+
+### Pattern 2: Optional Enrichment
+
+**Problem:** Not all statements have CSV metadata (e.g., Main Duties have no proficiency levels)
+
+**Solution:** Enrichment adds fields as Optional, frontend checks before displaying
+
+```python
+# models/noc.py
+class NOCStatement(BaseModel):
+    text: str
+    source_attribute: str
+    source_url: str
+    description: Optional[str] = None  # May not exist
+    proficiency_level: Optional[int] = None  # May not exist
+    scale_meaning: Optional[str] = None
+    dimension: Optional[str] = None
+```
+
+```javascript
+// Frontend
+if (statement.proficiency_level) {
+    stmtElement.innerHTML += renderStars(statement.proficiency_level);
+}
+```
+
+**Why:** Graceful degradation - works with partial data
+
+### Pattern 3: Incremental Rendering
+
+**Problem:** Grid view needs more data than simple search returns
+
+**Solution:** Table columns show what's available, fetch details on demand if needed
+
+```javascript
+// Initial: Show NOC code, title from search results
+renderBasicTable(searchResults);
+
+// Optional: Fetch profile previews for additional columns
+async function enhanceTableWithPreviews(results) {
+    for (const result of results) {
+        const preview = await fetchProfilePreview(result.noc_code);
+        updateTableRow(result.noc_code, preview);
+    }
+}
+```
+
+**Why:** Progressive enhancement - fast initial load, richer data if needed
+
+### Pattern 4: Backward Compatible Models
+
+**Problem:** Enrichment adds new fields, but v1.0 exports might not have them
+
+**Solution:** All new fields are Optional with defaults
+
+```python
+class NOCStatement(BaseModel):
+    # v1.0 fields (required)
+    text: str
+    source_attribute: str
+    source_url: str
+
+    # v1.1 fields (optional, backward compatible)
+    description: Optional[str] = None
+    proficiency_level: Optional[int] = None
+    scale_meaning: Optional[str] = None
+    dimension: Optional[str] = None
+```
+
+**Why:** Existing v1.0 data structures still valid, no migration needed
+
+## Anti-Patterns to Avoid
+
+### Anti-Pattern 1: Loading CSV on Every Request
+
+**What:** Reading guide.csv in enrichment_service for each /api/profile call
+
+**Why bad:** I/O bottleneck, slow response times
+
+**Instead:** Load once at startup, cache in memory
+
+### Anti-Pattern 2: Enrichment in Frontend
+
+**What:** Sending raw CSV data to frontend, matching labels in JavaScript
+
+**Why bad:** Large payload, duplicated logic, CSV exposure
+
+**Instead:** Enrich in backend, send enriched JSON
+
+### Anti-Pattern 3: Separate Enrichment Endpoint
+
+**What:** /api/profile returns basic data, /api/enrich adds metadata
+
+**Why bad:** Two round trips, complex state management
+
+**Instead:** /api/profile returns fully enriched data in one call
+
+### Anti-Pattern 4: Hardcoded Scale Meanings
+
+**What:** Mapping levels to meanings in code: `{1: "Lowest", 5: "Highest"}`
+
+**Why bad:** Incorrect for different scales (Frequency uses different meanings)
+
+**Instead:** Load from CSV, respect per-scale definitions
+
+### Anti-Pattern 5: Grid View as Separate Page
+
+**What:** /search shows cards, /search/grid shows table
+
+**Why bad:** State duplication, back button confusion
+
+**Instead:** Single page, toggle component switches display mode
+
+## Data Model Extensions
+
+### Extended NOCStatement
+
+```python
+class NOCStatement(BaseModel):
+    """v1.1: Extended with CSV enrichment"""
+    # v1.0 fields
+    text: str
+    source_attribute: str  # "Main Duties", "Skills", etc.
+    source_url: str
+
+    # v1.1 enrichment fields
+    description: Optional[str] = None  # From guide.csv
+    proficiency_level: Optional[int] = None  # Extracted from text
+    scale_meaning: Optional[str] = None  # From guide.csv
+    dimension: Optional[str] = None  # "Frequency", "Duration", etc.
+```
+
+### Extended ProfileResponse
+
+```python
+class ProfileResponse(BaseModel):
+    """v1.1: Extended with hierarchy and reference attributes"""
+    # v1.0 fields
+    noc_code: str
+    title: str
+    key_activities: JDElementData
+    skills: JDElementData
+    effort: JDElementData
+    responsibility: JDElementData
+    working_conditions: JDElementData
+    metadata: SourceMetadata
+
+    # v1.1 fields
+    noc_hierarchy: Optional[NOCHierarchy] = None
+    reference_attributes: Optional[ReferenceAttributes] = None
+
+class NOCHierarchy(BaseModel):
+    teer: str  # Training, Education, Experience, Responsibilities
+    broad_category: str
+    major_group: str
+
+class ReferenceAttributes(BaseModel):
+    """Annex-bound attributes"""
+    example_titles: List[str] = []
+    interests: List[str] = []
+    personal_attributes: List[str] = []
+    career_mobility: Optional[str] = None
+```
+
+### Extended ExportData
+
+```python
+class ExportData(BaseModel):
+    """v1.1: Extended with Annex section"""
+    # v1.0 fields
+    noc_code: str
+    job_title: str
+    general_overview: Optional[str]
+    jd_elements: List[JDElementExport]
+    manager_selections: List[SelectionMetadata]
+    ai_metadata: Optional[AIMetadata]
+    source_metadata: SourceMetadataExport
+    compliance_sections: List[ComplianceSection]
+    generated_at: datetime
+
+    # v1.1 fields
+    reference_attributes: Optional[ReferenceAttributes] = None
+```
+
+## Technology Verification
+
+### Existing Stack (No Changes)
+
+| Component | Technology | Status | Notes |
+|-----------|-----------|--------|-------|
+| Backend | Flask 3.1.0 | ✓ Continues | No version change |
+| HTML Parser | BeautifulSoup + lxml | ✓ Continues | Handles Work Context dimension parsing |
+| PDF | WeasyPrint | ✓ Continues | Can render Annex section |
+| DOCX | python-docx | ✓ Continues | Already implemented in v1.0 |
+| Frontend | Vanilla JS | ✓ Continues | Grid view uses plain JS/CSS |
+| State | localStorage | ✓ Continues | Persist grid view preference |
+
+### New Dependencies (v1.1)
+
+| Component | Technology | Version | Purpose |
+|-----------|-----------|---------|---------|
+| CSV parsing | Python csv module | Built-in | Parse guide.csv (standard library) |
+
+**No new external dependencies required.** All v1.1 features use existing stack.
+
+## File Structure Impact
+
+### New Files
+
+```
+jd-builder-lite/
+|
++-- data/                      # NEW directory
+|   +-- guide.csv              # Open Canada CSV
+|
++-- src/services/
+|   +-- csv_loader.py          # NEW
+|   +-- enrichment_service.py  # NEW
+|
++-- static/js/
+|   +-- grid-view.js           # NEW
+|   +-- statement-display.js   # NEW (refactored from existing)
+|   +-- profile-header.js      # NEW
+|
++-- static/css/
+    +-- grid.css               # NEW
+    +-- statement-enhancements.css  # NEW
+```
+
+### Modified Files
+
+```
+src/models/noc.py              # Add fields to NOCStatement
+src/models/responses.py        # Add NOCHierarchy, ReferenceAttributes
+src/services/parser.py         # Extract Work Context dimensions
+src/services/mapper.py         # Call enrichment, fix filters
+src/routes/api.py              # Enrich in /api/profile
+src/services/export_service.py # Include reference_attributes
+src/services/pdf_generator.py  # Render Annex section
+src/services/docx_generator.py # Render Annex section
+static/js/search.js            # Grid view integration
+static/js/accordion.js         # Render enriched statements
+templates/index.html           # Grid toggle button
+```
+
+**Modification Risk:** LOW - all changes extend existing patterns without breaking v1.0 functionality
+
+## Testing Strategy
+
+### Unit Tests (Backend)
+
+```python
+# test_csv_loader.py
+def test_load_guide()
+def test_get_category_definition()
+def test_get_scale_meaning()
+
+# test_enrichment.py
+def test_enrich_statement_with_proficiency()
+def test_enrich_work_context_with_dimension()
+def test_enrich_missing_csv_data()
+
+# test_parser.py (extended)
+def test_extract_work_context_dimension()
+```
+
+### Integration Tests (API)
+
+```bash
+# Profile returns enriched data
+curl localhost:5000/api/profile?code=21232
+# Verify: statements have description, proficiency_level, scale_meaning
+
+# Export includes Annex
+curl -X POST localhost:5000/api/export/pdf -d '{...}'
+# Verify: PDF contains "Annex: Reference Attributes"
+```
+
+### Manual Testing (Frontend)
+
+- Search results grid toggle
+- Statement display with stars and descriptions
+- Profile header shows NOC hierarchy
+- Category definitions visible at tab tops
+- Export Annex in PDF and DOCX
+
+## Performance Considerations
+
+| Operation | v1.0 Baseline | v1.1 Impact | Mitigation |
+|-----------|---------------|-------------|------------|
+| /api/profile | ~2-3s (scraping) | +50-100ms (enrichment) | Acceptable - enrichment is in-memory lookups |
+| CSV loading | N/A | ~200ms (startup) | One-time cost, not per-request |
+| Grid view rendering | N/A | ~10ms (100 results) | Vanilla JS, no framework overhead |
+| Export | ~500ms (PDF) | +50ms (Annex) | Negligible - Annex is small section |
+
+**Overall Impact:** Minimal - enrichment adds <5% to request time
+
+## Rollback Plan
+
+If v1.1 issues occur, rollback is straightforward:
+
+1. **Code rollback:** Git revert to v1.0 tag
+2. **Data rollback:** Remove data/ directory (CSV)
+3. **Frontend rollback:** Remove grid-view.js, statement-enhancements.css
+
+**Risk:** LOW - all v1.1 features are additive, not replacing v1.0 functionality
 
 ## Sources
 
-Architecture patterns and CORS proxy approaches:
-- [WebScraping.AI - CORS and API-based scraping](https://webscraping.ai/faq/apis/what-is-cors-and-how-does-it-affect-api-based-web-scraping)
-- [Bump.sh - Open-source CORS proxy solution](https://bump.sh/blog/releasing-cors-proxy-opensource/)
-- [SerpAPI - Building reverse proxy for frontend](https://serpapi.com/blog/adding-a-node-js-backend-to-handle-api-interactions-for-a-frontend-application/)
-- [HeyNode - Express API proxy server](https://heynode.com/tutorial/use-express-create-api-proxy-server-nodejs/)
-- [http-proxy-middleware on GitHub](https://github.com/chimurai/http-proxy-middleware)
+**High Confidence Sources:**
 
-HTML parsing and LLM integration:
-- [DZone - Enhancing web scraping with LLMs](https://dzone.com/articles/enhancing-web-scraping-with-large-language-models)
-- [LLM Scraper on GitHub](https://github.com/mishushakov/llm-scraper)
-- [GroupBWT - Web scraping infrastructure](https://groupbwt.com/blog/infrastructure-of-web-scraping/)
+- Existing v1.0 codebase examination (src/routes/api.py, src/services/*, src/models/*)
+- Open Canada NOC Dataset: [https://open.canada.ca/data/en/dataset/eeb3e442-9f19-4d12-8b38-c488fe4f6e5e](https://open.canada.ca/data/en/dataset/eeb3e442-9f19-4d12-8b38-c488fe4f6e5e)
+- Flask documentation (patterns already used in v1.0)
+- Python csv module (standard library, well-documented)
 
-Vanilla JS frontend patterns:
-- [The New Stack - Developers returning to Vanilla JavaScript](https://thenewstack.io/why-developers-are-ditching-frameworks-for-vanilla-javascript/)
-- [Frontend integration with APIs guide](https://kapucuonur.medium.com/integrating-frontend-and-backend-with-apis-a-comprehensive-guide-9d296eef2e33)
+**Medium Confidence Sources:**
+
+- v1.1 requirements from PROJECT.md (SRCH-04 through OUT-07)
+
+**Architectural Patterns Confidence:**
+
+- CSV singleton pattern: HIGH (matches existing scraper/mapper pattern)
+- Optional enrichment: HIGH (standard Pydantic pattern)
+- Grid view component: HIGH (vanilla JS, no framework complexity)
+- Annex export: HIGH (extends existing export_service pattern)
+
+---
+
+*Architecture research complete. Ready for roadmap phase structure planning.*
