@@ -1,15 +1,20 @@
 """API routes for NOC data search and profile fetching."""
 
-from flask import Blueprint, jsonify, request, current_app, Response, stream_with_context, session
+from flask import Blueprint, jsonify, request, current_app, Response, stream_with_context, session, send_file
+from io import BytesIO
 import requests
 import re
 from src.services.scraper import scraper
 from src.services.parser import parser
 from src.services.mapper import mapper
 from src.services.llm_service import generate_stream, get_model_name, get_prompt_version
+from src.services.export_service import build_export_data
+from src.services.pdf_generator import generate_pdf, render_preview
+from src.services.docx_generator import generate_docx
 from src.models.responses import SearchResponse, ProfileResponse, ErrorResponse
 from src.models.noc import SourceMetadata
 from src.models.ai import GenerationRequest, GenerationMetadata, StatementInput, JobContext
+from src.models.export_models import ExportRequest
 from src.config import OASIS_BASE_URL, OASIS_VERSION
 from datetime import datetime
 
@@ -225,3 +230,131 @@ def health():
         "status": "ok",
         "version": "1.0.0"
     })
+
+
+@api_bp.route('/preview', methods=['POST'])
+def preview():
+    """Render JD preview HTML for browser display.
+
+    Expects JSON body matching ExportRequest schema.
+
+    Returns:
+        HTML string for browser rendering
+        ErrorResponse with 400/500 on error
+    """
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify(ErrorResponse(
+                error="Request body required"
+            ).model_dump()), 400
+
+        # Validate and parse request
+        export_request = ExportRequest(**data)
+
+        # Build export data
+        export_data = build_export_data(export_request)
+
+        # Render preview HTML
+        html = render_preview(export_data)
+
+        return html, 200, {'Content-Type': 'text/html'}
+
+    except Exception as e:
+        current_app.logger.error(f"Preview error: {e}")
+        return jsonify(ErrorResponse(
+            error="Preview generation failed",
+            detail=str(e)
+        ).model_dump()), 500
+
+
+@api_bp.route('/export/pdf', methods=['POST'])
+def export_pdf():
+    """Generate and download PDF job description.
+
+    Expects JSON body matching ExportRequest schema.
+
+    Returns:
+        PDF file download with Content-Disposition header
+        ErrorResponse with 400/500 on error
+    """
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify(ErrorResponse(
+                error="Request body required"
+            ).model_dump()), 400
+
+        # Validate and parse request
+        export_request = ExportRequest(**data)
+
+        # Build export data
+        export_data = build_export_data(export_request)
+
+        # Generate PDF
+        pdf_bytes = generate_pdf(export_data, request.url_root)
+
+        # Create filename
+        safe_title = "".join(c for c in export_data.job_title if c.isalnum() or c in " -_")[:50]
+        filename = f"JD-{export_data.noc_code}-{safe_title}.pdf"
+
+        # Return as download
+        return send_file(
+            BytesIO(pdf_bytes),
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name=filename
+        )
+
+    except Exception as e:
+        current_app.logger.error(f"PDF export error: {e}")
+        return jsonify(ErrorResponse(
+            error="PDF generation failed",
+            detail=str(e)
+        ).model_dump()), 500
+
+
+@api_bp.route('/export/docx', methods=['POST'])
+def export_docx():
+    """Generate and download Word document job description.
+
+    Expects JSON body matching ExportRequest schema.
+
+    Returns:
+        DOCX file download with Content-Disposition header
+        ErrorResponse with 400/500 on error
+    """
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify(ErrorResponse(
+                error="Request body required"
+            ).model_dump()), 400
+
+        # Validate and parse request
+        export_request = ExportRequest(**data)
+
+        # Build export data
+        export_data = build_export_data(export_request)
+
+        # Generate DOCX
+        docx_bytes = generate_docx(export_data)
+
+        # Create filename
+        safe_title = "".join(c for c in export_data.job_title if c.isalnum() or c in " -_")[:50]
+        filename = f"JD-{export_data.noc_code}-{safe_title}.docx"
+
+        # Return as download
+        return send_file(
+            BytesIO(docx_bytes),
+            mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            as_attachment=True,
+            download_name=filename
+        )
+
+    except Exception as e:
+        current_app.logger.error(f"DOCX export error: {e}")
+        return jsonify(ErrorResponse(
+            error="Word document generation failed",
+            detail=str(e)
+        ).model_dump()), 500
