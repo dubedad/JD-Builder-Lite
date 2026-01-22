@@ -73,11 +73,11 @@ Plans:
   3. PDF includes compliance metadata block (NOC code, source URLs, retrieval timestamp)
   4. PDF includes full audit trail (manager's selections per JD Element, traced to NOC source)
   5. PDF includes AI disclosure (General Overview marked as AI-generated, inputs listed, model and timestamp)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 04-01: TBD
-- [ ] 04-02: TBD
+- [ ] 04-01-PLAN.md — Backend: WeasyPrint/python-docx, export models, PDF/Word generators, export API endpoints
+- [ ] 04-02-PLAN.md — Frontend: preview page, export templates with @page rules, Create button flow, compliance appendix
 
 ## Progress
 
@@ -89,10 +89,11 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 | 1. Backend + Scraping | 3/3 | ✓ Complete | 2026-01-21 |
 | 2. Frontend Core UI | 2/2 | ✓ Complete | 2026-01-22 |
 | 3. LLM Integration | 0/2 | Ready | - |
-| 4. Output + Compliance | 0/2 | Not started | - |
+| 4. Output + Compliance | 0/2 | Planned | - |
 
 ---
 *Roadmap created: 2026-01-21*
 *Phase 1 planned: 2026-01-21*
 *Phase 2 planned: 2026-01-21*
 *Phase 3 planned: 2026-01-21*
+*Phase 4 planned: 2026-01-22*
