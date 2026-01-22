@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Description Builder - Open Data Oasis Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .workflow-indicator {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .workflow-step {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .step {
+            padding: 10px 20px;
+            border-radius: 20px;
+            background: #e9ecef;
+            color: #6c757d;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .step.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .step-arrow {
+            color: #6c757d;
+            font-size: 1.2em;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        @media (max-width: 968px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #495057;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .list-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .list-input input {
+            flex: 1;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .list-items {
+            margin-top: 10px;
+        }
+
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .list-item-text {
+            flex: 1;
+        }
+
+        .skills-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .skill-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: #667eea;
+            color: white;
+            border-radius: 16px;
+            font-size: 14px;
+        }
+
+        .skill-tag button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .provenance-info {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+            margin-top: 15px;
+        }
+
+        .provenance-info p {
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #495057;
+        }
+
+        .provenance-info strong {
+            color: #212529;
+        }
+
+        .output-section {
+            grid-column: 1 / -1;
+        }
+
+        .output-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 6px 6px 0 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .output-content {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 6px;
+            overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .output-content pre {
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .icon {
+            font-size: 1.2em;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Job Description Builder</h1>
+            <p>Open Data Oasis API Demo - Create, Manage, and Export Job Descriptions</p>
+        </div>
+
+        <div class="workflow-indicator">
+            <div class="workflow-step">
+                <div class="step active" id="step-draft">Draft</div>
+                <div class="step-arrow">→</div>
+                <div class="step" id="step-review">Review</div>
+                <div class="step-arrow">→</div>
+                <div class="step" id="step-published">Published</div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Basic Information Section -->
+            <div class="section">
+                <h2><span class="icon">💼</span>Basic Information</h2>
+                <div class="form-group">
+                    <label for="jobTitle">Job Title *</label>
+                    <input type="text" id="jobTitle" placeholder="e.g., Senior Software Engineer">
+                </div>
+                <div class="form-group">
+                    <label for="company">Company Name *</label>
+                    <input type="text" id="company" placeholder="e.g., Tech Corp">
+                </div>
+                <div class="two-column">
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <input type="text" id="location" placeholder="e.g., San Francisco, CA">
+                    </div>
+                    <div class="form-group">
+                        <label for="jobType">Job Type</label>
+                        <select id="jobType">
+                            <option value="Full-time">Full-time</option>
+                            <option value="Part-time">Part-time</option>
+                            <option value="Contract">Contract</option>
+                            <option value="Internship">Internship</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="two-column">
+                    <div class="form-group">
+                        <label for="minSalary">Min Salary (USD)</label>
+                        <input type="number" id="minSalary" placeholder="80000">
+                    </div>
+                    <div class="form-group">
+                        <label for="maxSalary">Max Salary (USD)</label>
+                        <input type="number" id="maxSalary" placeholder="120000">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="description">Job Description</label>
+                    <textarea id="description" placeholder="Provide a brief overview of the role..."></textarea>
+                </div>
+            </div>
+
+            <!-- Responsibilities Section -->
+            <div class="section">
+                <h2><span class="icon">✓</span>Responsibilities</h2>
+                <div class="list-input">
+                    <input type="text" id="responsibilityInput" placeholder="Add a responsibility...">
+                    <button class="btn btn-primary btn-small" onclick="addResponsibility()">Add</button>
+                </div>
+                <div class="list-items" id="responsibilitiesList"></div>
+            </div>
+
+            <!-- Qualifications Section -->
+            <div class="section">
+                <h2><span class="icon">🎓</span>Qualifications</h2>
+                <div class="list-input">
+                    <input type="text" id="qualificationInput" placeholder="Add a qualification...">
+                    <button class="btn btn-primary btn-small" onclick="addQualification()">Add</button>
+                </div>
+                <div class="list-items" id="qualificationsList"></div>
+            </div>
+
+            <!-- Skills Section -->
+            <div class="section">
+                <h2><span class="icon">⚡</span>Required Skills</h2>
+                <div class="list-input">
+                    <input type="text" id="skillInput" placeholder="Add a skill...">
+                    <button class="btn btn-primary btn-small" onclick="addSkill()">Add</button>
+                </div>
+                <div class="skills-container" id="skillsContainer"></div>
+            </div>
+
+            <!-- Provenance Section -->
+            <div class="section">
+                <h2><span class="icon">📝</span>Provenance & Metadata</h2>
+                <div class="form-group">
+                    <label for="author">Author/Creator</label>
+                    <input type="text" id="author" placeholder="Your name">
+                </div>
+                <div class="provenance-info" id="provenanceInfo">
+                    <p><strong>Created:</strong> <span id="createdDate">Not yet saved</span></p>
+                    <p><strong>Last Modified:</strong> <span id="modifiedDate">Not yet saved</span></p>
+                    <p><strong>Version:</strong> <span id="version">1.0</span></p>
+                    <p><strong>Status:</strong> <span id="status">Draft</span></p>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" onclick="changeWorkflow('draft')">Set Draft</button>
+                    <button class="btn btn-primary" onclick="changeWorkflow('review')">Send to Review</button>
+                    <button class="btn btn-success" onclick="changeWorkflow('published')">Publish</button>
+                </div>
+            </div>
+
+            <!-- Output Section -->
+            <div class="section output-section">
+                <h2><span class="icon">📤</span>Export & Preview</h2>
+                <div class="output-tabs">
+                    <button class="tab-btn active" onclick="switchTab('preview')">Preview</button>
+                    <button class="tab-btn" onclick="switchTab('odata')">OData Schema</button>
+                    <button class="tab-btn" onclick="switchTab('json')">JSON Export</button>
+                    <button class="tab-btn" onclick="switchTab('markdown')">Markdown</button>
+                </div>
+                <div class="output-content" id="outputContent">
+                    <pre id="outputText">Fill in the form above and click Generate to see the output...</pre>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-success" onclick="generateOutput()">Generate Output</button>
+                    <button class="btn btn-primary" onclick="downloadOutput()">Download Current View</button>
+                    <button class="btn btn-secondary" onclick="copyToClipboard()">Copy to Clipboard</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let jobData = {
+            basicInfo: {},
+            responsibilities: [],
+            qualifications: [],
+            skills: [],
+            provenance: {
+                author: '',
+                created: null,
+                modified: null,
+                version: '1.0',
+                status: 'draft'
+            }
+        };
+
+        let currentTab = 'preview';
+        let currentOutput = '';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateProvenance();
+        });
+
+        // Add event listeners for Enter key
+        document.getElementById('responsibilityInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') addResponsibility();
+        });
+        document.getElementById('qualificationInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') addQualification();
+        });
+        document.getElementById('skillInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') addSkill();
+        });
+
+        // Responsibilities functions
+        function addResponsibility() {
+            const input = document.getElementById('responsibilityInput');
+            const text = input.value.trim();
+            if (text) {
+                jobData.responsibilities.push(text);
+                renderList('responsibilitiesList', jobData.responsibilities, removeResponsibility);
+                input.value = '';
+                updateModified();
+            }
+        }
+
+        function removeResponsibility(index) {
+            jobData.responsibilities.splice(index, 1);
+            renderList('responsibilitiesList', jobData.responsibilities, removeResponsibility);
+            updateModified();
+        }
+
+        // Qualifications functions
+        function addQualification() {
+            const input = document.getElementById('qualificationInput');
+            const text = input.value.trim();
+            if (text) {
+                jobData.qualifications.push(text);
+                renderList('qualificationsList', jobData.qualifications, removeQualification);
+                input.value = '';
+                updateModified();
+            }
+        }
+
+        function removeQualification(index) {
+            jobData.qualifications.splice(index, 1);
+            renderList('qualificationsList', jobData.qualifications, removeQualification);
+            updateModified();
+        }
+
+        // Skills functions
+        function addSkill() {
+            const input = document.getElementById('skillInput');
+            const text = input.value.trim();
+            if (text) {
+                jobData.skills.push(text);
+                renderSkills();
+                input.value = '';
+                updateModified();
+            }
+        }
+
+        function removeSkill(index) {
+            jobData.skills.splice(index, 1);
+            renderSkills();
+            updateModified();
+        }
+
+        // Render functions
+        function renderList(containerId, items, removeFunction) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = items.map((item, index) => `
+                <div class="list-item">
+                    <span class="list-item-text">${item}</span>
+                    <button class="btn btn-secondary btn-small" onclick="${removeFunction.name}(${index})">Remove</button>
+                </div>
+            `).join('');
+        }
+
+        function renderSkills() {
+            const container = document.getElementById('skillsContainer');
+            container.innerHTML = jobData.skills.map((skill, index) => `
+                <div class="skill-tag">
+                    ${skill}
+                    <button onclick="removeSkill(${index})">×</button>
+                </div>
+            `).join('');
+        }
+
+        // Workflow management
+        function changeWorkflow(status) {
+            jobData.provenance.status = status;
+            updateWorkflowIndicator();
+            updateProvenance();
+            updateModified();
+        }
+
+        function updateWorkflowIndicator() {
+            const steps = {
+                'draft': 'step-draft',
+                'review': 'step-review',
+                'published': 'step-published'
+            };
+            
+            Object.values(steps).forEach(step => {
+                document.getElementById(step).classList.remove('active');
+            });
+            
+            document.getElementById(steps[jobData.provenance.status]).classList.add('active');
+        }
+
+        // Provenance management
+        function updateProvenance() {
+            const now = new Date().toISOString();
+            
+            if (!jobData.provenance.created) {
+                jobData.provenance.created = now;
+            }
+            jobData.provenance.modified = now;
+
+            document.getElementById('createdDate').textContent = formatDate(jobData.provenance.created);
+            document.getElementById('modifiedDate').textContent = formatDate(jobData.provenance.modified);
+            document.getElementById('version').textContent = jobData.provenance.version;
+            document.getElementById('status').textContent = jobData.provenance.status.charAt(0).toUpperCase() + jobData.provenance.status.slice(1);
+        }
+
+        function updateModified() {
+            jobData.provenance.modified = new Date().toISOString();
+            document.getElementById('modifiedDate').textContent = formatDate(jobData.provenance.modified);
+        }
+
+        function formatDate(isoString) {
+            if (!isoString) return 'Not yet saved';
+            const date = new Date(isoString);
+            return date.toLocaleString();
+        }
+
+        // Data collection
+        function collectJobData() {
+            jobData.basicInfo = {
+                title: document.getElementById('jobTitle').value,
+                company: document.getElementById('company').value,
+                location: document.getElementById('location').value,
+                jobType: document.getElementById('jobType').value,
+                salaryRange: {
+                    min: parseInt(document.getElementById('minSalary').value) || null,
+                    max: parseInt(document.getElementById('maxSalary').value) || null
+                },
+                description: document.getElementById('description').value
+            };
+            jobData.provenance.author = document.getElementById('author').value;
+            return jobData;
+        }
+
+        // Output generation
+        function generateOutput() {
+            collectJobData();
+            switchTab(currentTab);
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            // Update tab buttons
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Find and activate the correct tab button
+            const tabNames = ['Preview', 'OData Schema', 'JSON Export', 'Markdown'];
+            const tabIndex = ['preview', 'odata', 'json', 'markdown'].indexOf(tab);
+            if (tabIndex >= 0 && tabButtons[tabIndex]) {
+                tabButtons[tabIndex].classList.add('active');
+            }
+            
+            const data = collectJobData();
+            let output = '';
+            
+            switch(tab) {
+                case 'preview':
+                    output = generatePreview(data);
+                    break;
+                case 'odata':
+                    output = generateODataSchema(data);
+                    break;
+                case 'json':
+                    output = JSON.stringify(data, null, 2);
+                    break;
+                case 'markdown':
+                    output = generateMarkdown(data);
+                    break;
+            }
+            
+            currentOutput = output;
+            document.getElementById('outputText').textContent = output;
+        }
+
+        function generatePreview(data) {
+            const salaryLine = (data.basicInfo.salaryRange.min && data.basicInfo.salaryRange.max) 
+                ? `Salary: $${data.basicInfo.salaryRange.min.toLocaleString()} - $${data.basicInfo.salaryRange.max.toLocaleString()}\n`
+                : '';
+            
+            return `
+JOB DESCRIPTION PREVIEW
+=======================
+
+${data.basicInfo.title || 'Job Title'} at ${data.basicInfo.company || 'Company Name'}
+Location: ${data.basicInfo.location || 'Not specified'}
+Type: ${data.basicInfo.jobType}
+${salaryLine}
+DESCRIPTION
+-----------
+${data.basicInfo.description || 'No description provided'}
+
+RESPONSIBILITIES
+----------------
+${data.responsibilities.length > 0 ? data.responsibilities.map((r, i) => `${i + 1}. ${r}`).join('\n') : '• No responsibilities listed'}
+
+QUALIFICATIONS
+--------------
+${data.qualifications.length > 0 ? data.qualifications.map((q, i) => `${i + 1}. ${q}`).join('\n') : '• No qualifications listed'}
+
+REQUIRED SKILLS
+---------------
+${data.skills.length > 0 ? data.skills.join(', ') : 'No skills specified'}
+
+METADATA
+--------
+Author: ${data.provenance.author || 'Not specified'}
+Created: ${formatDate(data.provenance.created)}
+Last Modified: ${formatDate(data.provenance.modified)}
+Version: ${data.provenance.version}
+Status: ${data.provenance.status}
+`.trim();
+        }
+
+        function generateODataSchema(data) {
+            const odataSchema = {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "@odata.context": "https://api.example.com/odata/$metadata#JobDescriptions",
+                "@odata.type": "#JobDescription",
+                "title": "Job Description OData Schema",
+                "description": "OpenAPI/OData compliant schema for job descriptions",
+                "version": "1.0.0",
+                "definitions": {
+                    "JobDescription": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "description": "Unique identifier for the job description"
+                            },
+                            "title": {
+                                "type": "string",
+                                "description": "Job title",
+                                "example": data.basicInfo.title
+                            },
+                            "company": {
+                                "type": "string",
+                                "description": "Company name",
+                                "example": data.basicInfo.company
+                            },
+                            "location": {
+                                "type": "string",
+                                "description": "Job location",
+                                "example": data.basicInfo.location
+                            },
+                            "jobType": {
+                                "type": "string",
+                                "enum": ["Full-time", "Part-time", "Contract", "Internship"],
+                                "example": data.basicInfo.jobType
+                            },
+                            "salaryRange": {
+                                "type": "object",
+                                "properties": {
+                                    "min": { "type": "integer", "minimum": 0 },
+                                    "max": { "type": "integer", "minimum": 0 },
+                                    "currency": { "type": "string", "default": "USD" }
+                                }
+                            },
+                            "description": {
+                                "type": "string",
+                                "description": "Detailed job description"
+                            },
+                            "responsibilities": {
+                                "type": "array",
+                                "items": { "type": "string" },
+                                "description": "List of job responsibilities"
+                            },
+                            "qualifications": {
+                                "type": "array",
+                                "items": { "type": "string" },
+                                "description": "Required qualifications"
+                            },
+                            "skills": {
+                                "type": "array",
+                                "items": { "type": "string" },
+                                "description": "Required skills"
+                            },
+                            "provenance": {
+                                "type": "object",
+                                "properties": {
+                                    "author": { "type": "string" },
+                                    "created": { "type": "string", "format": "date-time" },
+                                    "modified": { "type": "string", "format": "date-time" },
+                                    "version": { "type": "string" },
+                                    "status": { 
+                                        "type": "string",
+                                        "enum": ["draft", "review", "published"]
+                                    }
+                                }
+                            }
+                        },
+                        "required": ["title", "company"]
+                    }
+                },
+                "sampleData": data
+            };
+            
+            return JSON.stringify(odataSchema, null, 2);
+        }
+
+        function generateMarkdown(data) {
+            const salaryLine = (data.basicInfo.salaryRange.min && data.basicInfo.salaryRange.max)
+                ? `**Salary Range:** $${data.basicInfo.salaryRange.min.toLocaleString()} - $${data.basicInfo.salaryRange.max.toLocaleString()}  \n`
+                : '';
+            
+            return `# ${data.basicInfo.title || 'Job Title'}
+
+**Company:** ${data.basicInfo.company || 'Company Name'}  
+**Location:** ${data.basicInfo.location || 'Not specified'}  
+**Type:** ${data.basicInfo.jobType}  
+${salaryLine}
+## Description
+
+${data.basicInfo.description || 'No description provided'}
+
+## Responsibilities
+
+${data.responsibilities.length > 0 ? data.responsibilities.map(r => `- ${r}`).join('\n') : '- No responsibilities listed'}
+
+## Qualifications
+
+${data.qualifications.length > 0 ? data.qualifications.map(q => `- ${q}`).join('\n') : '- No qualifications listed'}
+
+## Required Skills
+
+${data.skills.length > 0 ? data.skills.map(s => `- ${s}`).join('\n') : '- No skills specified'}
+
+---
+
+## Metadata
+
+- **Author:** ${data.provenance.author || 'Not specified'}
+- **Created:** ${formatDate(data.provenance.created)}
+- **Last Modified:** ${formatDate(data.provenance.modified)}
+- **Version:** ${data.provenance.version}
+- **Status:** ${data.provenance.status}
+`;
+        }
+
+        // Export functions
+        function downloadOutput() {
+            const extensions = {
+                'preview': 'txt',
+                'odata': 'json',
+                'json': 'json',
+                'markdown': 'md'
+            };
+            
+            const filename = `job-description-${Date.now()}.${extensions[currentTab]}`;
+            const blob = new Blob([currentOutput], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function copyToClipboard() {
+            navigator.clipboard.writeText(currentOutput).then(() => {
+                alert('Copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
+        }
+    </script>
+</body>
+</html>
