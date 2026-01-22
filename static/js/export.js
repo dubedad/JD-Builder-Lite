@@ -56,6 +56,13 @@ const exportModule = {
       };
     }
 
+    // Convert scraped_at to ISO format if needed (API returns RFC 2822 format)
+    let scrapedAt = profile.metadata.scraped_at;
+    if (scrapedAt && !scrapedAt.includes('T')) {
+      // Parse RFC 2822 format and convert to ISO 8601
+      scrapedAt = new Date(scrapedAt).toISOString();
+    }
+
     return {
       noc_code: profile.noc_code,
       job_title: profile.title,
@@ -65,7 +72,7 @@ const exportModule = {
       source_metadata: {
         noc_code: profile.metadata.noc_code,
         profile_url: profile.metadata.profile_url,
-        scraped_at: profile.metadata.scraped_at,
+        scraped_at: scrapedAt,
         version: profile.metadata.version
       }
     };
