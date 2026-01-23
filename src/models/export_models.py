@@ -1,7 +1,7 @@
 """Export models for PDF and Word document generation."""
 
 from pydantic import BaseModel, Field, ConfigDict, field_validator
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Literal
 from datetime import datetime
 from email.utils import parsedate_to_datetime
 
@@ -109,6 +109,30 @@ class ComplianceSection(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class AnnexSection(BaseModel):
+    """Single Annex category section for unused NOC attributes."""
+    title: str  # Display title: "Job Requirements", "Career Mobility", etc.
+    category: str  # Internal key: job_requirements, career_mobility, interests, personal_suitability
+    items: List[str]  # Content items for this section
+    format_type: Literal['paragraph', 'list', 'grouped_list']
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class AnnexData(BaseModel):
+    """Complete Annex section data with all categories."""
+    sections: List[AnnexSection]
+    source_noc_code: str
+    retrieved_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+    @field_validator('retrieved_at', mode='before')
+    @classmethod
+    def parse_retrieved_at(cls, v):
+        return parse_flexible_datetime(v)
+
+
 class ExportData(BaseModel):
     """Complete data structure for PDF/Word template rendering."""
     # Header info
@@ -124,6 +148,9 @@ class ExportData(BaseModel):
     ai_metadata: Optional[AIMetadata] = None
     source_metadata: SourceMetadataExport
     compliance_sections: List[ComplianceSection]
+
+    # Annex section (unused NOC attributes)
+    annex_data: Optional[AnnexData] = None
 
     # Export metadata
     generated_at: datetime = Field(default_factory=datetime.utcnow)

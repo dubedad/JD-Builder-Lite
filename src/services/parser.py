@@ -132,8 +132,17 @@ class OASISParser:
             - work_context: List[dict] with {text, level, max, dimension_type}
             - employment_requirements: List[str]
             - reference_attributes: ReferenceAttributes
+            - interests: List[str] (for Annex builder)
+            - personal_attributes: List[str] (for Annex builder)
+            - career_mobility: Dict with 'from' and 'to' lists (for Annex builder)
         """
         soup = BeautifulSoup(html, 'lxml')
+
+        # Extract reference attributes (includes interests, career_mobility, personal_attributes)
+        ref_attrs = self._extract_reference_attributes(soup)
+
+        # Convert interests to List[str] for annex builder
+        interests_list = [i.name for i in ref_attrs.interests] if ref_attrs.interests else []
 
         return {
             'noc_code': code,
@@ -146,7 +155,11 @@ class OASISParser:
             'knowledge': self._extract_rating_items_with_levels(soup, 'Knowledge') or self._extract_rating_items_with_levels(soup, 'General Learning'),
             'work_context': self._extract_work_context(soup),
             'employment_requirements': self._extract_section_list(soup, 'Employment requirements'),
-            'reference_attributes': self._extract_reference_attributes(soup),
+            'reference_attributes': ref_attrs,
+            # Top-level fields for Annex builder
+            'interests': interests_list,
+            'personal_attributes': ref_attrs.personal_attributes or [],
+            'career_mobility': self._extract_career_mobility_dict(soup),
         }
 
     def _extract_profile_title(self, soup: BeautifulSoup) -> str:
@@ -609,6 +622,66 @@ class OASISParser:
                         ))
 
         return paths
+
+    def _extract_career_mobility_dict(self, soup: BeautifulSoup) -> Dict[str, List[str]]:
+        """Extract career mobility paths as dict with 'from' and 'to' keys.
+
+        Looks for entry paths (where workers come from) and advancement paths
+        (where workers can go to).
+
+        Returns:
+            Dict with 'from' (entry paths) and 'to' (advancement paths)
+        """
+        result = {'from': [], 'to': []}
+
+        # Look for career mobility section
+        h3 = soup.find('h3', string=lambda x: x and 'mobility' in x.lower() if x else False)
+        if not h3:
+            return result
+
+        panel = h3.find_parent('div', class_='panel')
+        if not panel:
+            return result
+
+        panel_body = panel.find('div', class_='panel-body')
+        if not panel_body:
+            return result
+
+        # Try to find entry/advancement sub-sections
+        current_section = None
+
+        for elem in panel_body.children:
+            if not hasattr(elem, 'name'):
+                continue
+
+            # Check for section headers
+            if elem.name in ['h4', 'h5', 'strong', 'b', 'p']:
+                text = elem.get_text(strip=True).lower()
+                if 'entry' in text or 'from' in text or 'come from' in text:
+                    current_section = 'from'
+                elif 'advancement' in text or 'progress' in text or 'move to' in text or 'to' in text:
+                    current_section = 'to'
+
+            # Extract links from lists or divs
+            if elem.name in ['ul', 'div']:
+                links = elem.find_all('a')
+                for link in links:
+                    title = link.get_text(strip=True)
+                    if title:
+                        if current_section:
+                            result[current_section].append(title)
+                        else:
+                            # Default to 'from' if no section identified
+                            result['from'].append(title)
+
+        # Fallback: if no structure found, get all links
+        if not result['from'] and not result['to']:
+            for link in panel_body.find_all('a'):
+                title = link.get_text(strip=True)
+                if title:
+                    result['from'].append(title)
+
+        return result
 
     def _extract_personal_attributes(self, soup: BeautifulSoup) -> List[str]:
         """Extract personal attributes from profile."""
