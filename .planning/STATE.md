@@ -11,10 +11,10 @@ See: .planning/PROJECT.md (updated 2026-01-22)
 
 Milestone: v1.1 Enhanced Data Display + Export
 Phase: Phase 5 - Data Enrichment Pipeline (5/5 plans)
-Status: In progress
-Last activity: 2026-01-23 - Completed 05-04-PLAN.md
+Status: Phase complete
+Last activity: 2026-01-23 - Completed 05-05-PLAN.md
 
-Progress: [██        ] 25% v1.1 (4/16 plans complete)
+Progress: [███       ] 31% v1.1 (5/16 plans complete)
 
 ## Milestone History
 
@@ -49,7 +49,7 @@ See .planning/MILESTONES.md for details.
 
 | Phase | Name | Requirements | Status |
 |-------|------|--------------|--------|
-| 5 | Data Enrichment Pipeline | 11 | In progress (4/5 plans) |
+| 5 | Data Enrichment Pipeline | 11 | Complete (5/5 plans) |
 | 6 | Enhanced UI Display | 2 | Pending |
 | 7 | Export Extensions | 3 | Pending |
 
@@ -81,6 +81,9 @@ Full v1.0 decision history archived in milestones/v1.0-ROADMAP.md.
 - NOC hierarchy from code structure: Digit positions map to categories (broad, TEER, major, minor, unit) (05-04)
 - Reference attributes from Overview tab: Extract example titles, interests, career mobility for Annex (05-04)
 - Career mobility NOC codes: Extract from profile link hrefs for cross-referencing (05-04)
+- EnrichedJDElementData as standard response model: Replaces JDElementData for enriched API responses (05-05)
+- WorkContextData alternative view: Provides classified Work Context alongside individual sections (05-05)
+- Deprecated old mapper methods: Backward compatibility maintained but new enriched methods used (05-05)
 
 ### Open Concerns
 
@@ -91,13 +94,14 @@ Full v1.0 decision history archived in milestones/v1.0-ROADMAP.md.
 | OpenAI API key required | User must configure OPENAI_API_KEY environment variable | .env.example documents setup | Open - user setup required |
 | CSV encoding BOM issues | Windows-exported guide.csv may include UTF-8 BOM | Use encoding='utf-8-sig' in Phase 5 | Resolved - implemented in 05-01 |
 | localStorage quota limits | Enriched data may exceed 5MB browser limit | Cache only active profile, implement quota checks | Open - address in Phase 6 |
+| OASIS 2025.0 version availability | Some NOC codes not accessible in 2025.0 version | May need fallback to 2021.3 version | Open - verify in production |
 
 ## Session Continuity
 
 Last session: 2026-01-23
-Stopped at: Completed 05-04-PLAN.md (reference attributes)
+Stopped at: Completed 05-05-PLAN.md (API integration) - Phase 5 complete
 Resume file: None
-Next: Execute plan 05-05 (API integration)
+Next: Phase 6 - Enhanced UI Display (06-01)
 
 ---
-*Last updated: 2026-01-23 after completing 05-04-PLAN.md*
+*Last updated: 2026-01-23 after completing 05-05-PLAN.md*
