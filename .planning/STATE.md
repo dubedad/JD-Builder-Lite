@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-22)
 ## Current Position
 
 Milestone: v1.1 Enhanced Data Display + Export
-Phase: Phase 5 - Data Enrichment Pipeline
-Status: Roadmap complete, ready for planning
-Last activity: 2026-01-22 - Roadmap created
+Phase: Phase 5 - Data Enrichment Pipeline (5/5 plans)
+Status: In progress
+Last activity: 2026-01-23 - Completed 05-01-PLAN.md
 
-Progress: [          ] 0% v1.1 starting
+Progress: [█         ] 6% v1.1 (1/16 plans complete)
 
 ## Milestone History
 
@@ -49,7 +49,7 @@ See .planning/MILESTONES.md for details.
 
 | Phase | Name | Requirements | Status |
 |-------|------|--------------|--------|
-| 5 | Data Enrichment Pipeline | 11 | Pending |
+| 5 | Data Enrichment Pipeline | 11 | In progress (1/5 plans) |
 | 6 | Enhanced UI Display | 2 | Pending |
 | 7 | Export Extensions | 3 | Pending |
 
@@ -62,9 +62,12 @@ Full v1.0 decision history archived in milestones/v1.0-ROADMAP.md.
 
 **v1.1 Decisions:**
 - Backend enrichment over frontend joins: Avoid O(n*m) lookup performance issues
-- UTF-8-sig encoding for CSV: Handle Windows BOM in guide.csv
+- UTF-8-sig encoding for CSV: Handle Windows BOM in guide.csv (implemented in 05-01)
 - Unicode stars over icon libraries: Zero-dependency accessibility solution
 - Annex after Appendix A: Clear separation between compliance metadata and reference attributes
+- Module-level singleton for CSV loader: Zero-latency lookups via load-on-import (05-01)
+- CATEGORY_MAPPING constant: Translate JD element names to OASIS CSV categories (05-01)
+- Hardcoded SCALE_MEANINGS: Use OASIS documentation constants vs dynamic lookup (05-01)
 
 ### Open Concerns
 
@@ -73,15 +76,15 @@ Full v1.0 decision history archived in milestones/v1.0-ROADMAP.md.
 | SSL verification bypass | verify=False acceptable for dev, not for production | Need proper cert bundle for production deployment | Open - defer to deployment |
 | OASIS rate limiting unknown | No rate limiting implemented, OASIS limits unknown | May need retry logic or caching if limits encountered | Open - monitor in production |
 | OpenAI API key required | User must configure OPENAI_API_KEY environment variable | .env.example documents setup | Open - user setup required |
-| CSV encoding BOM issues | Windows-exported guide.csv may include UTF-8 BOM | Use encoding='utf-8-sig' in Phase 5 | Open - address in Phase 5 |
+| CSV encoding BOM issues | Windows-exported guide.csv may include UTF-8 BOM | Use encoding='utf-8-sig' in Phase 5 | Resolved - implemented in 05-01 |
 | localStorage quota limits | Enriched data may exceed 5MB browser limit | Cache only active profile, implement quota checks | Open - address in Phase 6 |
 
 ## Session Continuity
 
-Last session: 2026-01-22
-Stopped at: Roadmap creation complete
+Last session: 2026-01-23
+Stopped at: Completed 05-01-PLAN.md (CSV loader foundation)
 Resume file: None
-Next: Execute `/gsd:plan-phase 5` to start v1.1 implementation
+Next: Execute plan 05-02 (enrichment service)
 
 ---
-*Last updated: 2026-01-22 after v1.1 roadmap creation*
+*Last updated: 2026-01-23 after completing 05-01-PLAN.md*
