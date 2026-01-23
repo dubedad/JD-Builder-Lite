@@ -34,9 +34,9 @@ Requirements for v1.1 Enhanced Data Display + Export milestone.
 
 ### Export
 
-- [ ] **OUT-06**: Manager can export final JD to Word/DOCX format
-- [ ] **OUT-07**: PDF export includes Annex section with unused NOC reference attributes
-- [ ] **OUT-08**: DOCX export includes Annex section with unused NOC reference attributes
+- [x] **OUT-06**: Manager can export final JD to Word/DOCX format
+- [x] **OUT-07**: PDF export includes Annex section with unused NOC reference attributes
+- [x] **OUT-08**: DOCX export includes Annex section with unused NOC reference attributes
 
 ## v1.2 Requirements (Future)
 
@@ -93,9 +93,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DISP-09 | Phase 5 | Complete |
 | DISP-10 | Phase 5 | Complete |
 | DISP-11 | Phase 5 | Complete |
-| OUT-06 | Phase 7 | Pending |
-| OUT-07 | Phase 7 | Pending |
-| OUT-08 | Phase 7 | Pending |
+| OUT-06 | Phase 7 | Complete |
+| OUT-07 | Phase 7 | Complete |
+| OUT-08 | Phase 7 | Complete |
 
 **Coverage:**
 - v1.1 requirements: 16 total
@@ -104,4 +104,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-22*
-*Last updated: 2026-01-23 after Phase 6 completion*
+*Last updated: 2026-01-23 after Phase 7 completion (milestone complete)*

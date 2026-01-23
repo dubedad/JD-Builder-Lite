@@ -99,10 +99,10 @@ Plans:
 **Plans:** 4 plans
 
 Plans:
-- [ ] 07-01-PLAN.md - Parser extension for reference attributes, Annex models and builder (Wave 1)
-- [ ] 07-02-PLAN.md - PDF export with Annex section integration (Wave 2)
-- [ ] 07-03-PLAN.md - DOCX export with Annex section and BytesIO fix (Wave 2)
-- [ ] 07-04-PLAN.md - Export UI dropdown, toast notifications, file naming (Wave 3)
+- [x] 07-01-PLAN.md - Parser extension for reference attributes, Annex models and builder (Wave 1)
+- [x] 07-02-PLAN.md - PDF export with Annex section integration (Wave 2)
+- [x] 07-03-PLAN.md - DOCX export with Annex section and BytesIO fix (Wave 2)
+- [x] 07-04-PLAN.md - Export UI dropdown, toast notifications, file naming (Wave 3)
 
 **Requirements:**
 - OUT-06: Manager can export final JD to Word/DOCX format
@@ -157,7 +157,7 @@ Plans:
 |-------|--------|-----------|
 | 5 - Data Enrichment Pipeline | Complete | 2026-01-23 |
 | 6 - Enhanced UI Display | Complete | 2026-01-23 |
-| 7 - Export Extensions | Planned | - |
+| 7 - Export Extensions | Complete | 2026-01-23 |
 
 ---
 *Roadmap created: 2026-01-22*
