@@ -1,10 +1,13 @@
 """OASIS HTML parser using BeautifulSoup."""
 
 import re
+import logging
 from typing import List, Dict, Any
 from bs4 import BeautifulSoup
 from src.models.noc import SearchResult
 from src.utils.selectors import get_selector, get_fallback
+
+logger = logging.getLogger(__name__)
 
 
 class OASISParser:
@@ -76,7 +79,16 @@ class OASISParser:
             code: NOC code for this profile
 
         Returns:
-            Dict with noc_code, title, and all profile sections as lists
+            Dict with:
+            - noc_code: str
+            - title: str
+            - main_duties: List[str]
+            - work_activities: List[dict] with {text, level, max}
+            - skills: List[dict] with {text, level, max}
+            - abilities: List[dict] with {text, level, max}
+            - knowledge: List[dict] with {text, level, max}
+            - work_context: List[dict] with {text, level, max, dimension_type}
+            - employment_requirements: List[str]
         """
         soup = BeautifulSoup(html, 'lxml')
 
@@ -84,10 +96,10 @@ class OASISParser:
             'noc_code': code,
             'title': self._extract_profile_title(soup),
             'main_duties': self._extract_section_list(soup, 'Main duties'),
-            'work_activities': self._extract_rating_items(soup, 'Work Activities'),
-            'skills': self._extract_rating_items(soup, 'Skills'),
-            'abilities': self._extract_rating_items(soup, 'Abilities'),
-            'knowledge': self._extract_rating_items(soup, 'Knowledge') or self._extract_rating_items(soup, 'General Learning'),
+            'work_activities': self._extract_rating_items_with_levels(soup, 'Work Activities'),
+            'skills': self._extract_rating_items_with_levels(soup, 'Skills'),
+            'abilities': self._extract_rating_items_with_levels(soup, 'Abilities'),
+            'knowledge': self._extract_rating_items_with_levels(soup, 'Knowledge') or self._extract_rating_items_with_levels(soup, 'General Learning'),
             'work_context': self._extract_work_context(soup),
             'employment_requirements': self._extract_section_list(soup, 'Employment requirements'),
         }
@@ -144,6 +156,9 @@ class OASISParser:
     def _extract_rating_items(self, soup: BeautifulSoup, section_name: str) -> List[str]:
         """Extract items from a rating-based section (Skills, Abilities, etc).
 
+        DEPRECATED: Use _extract_rating_items_with_levels for enhanced data.
+        Kept for backward compatibility.
+
         Args:
             soup: BeautifulSoup instance
             section_name: Name of section header
@@ -189,16 +204,131 @@ class OASISParser:
 
         return items
 
-    def _extract_work_context(self, soup: BeautifulSoup) -> List[str]:
-        """Extract work context items from Work Context section.
+    def _extract_rating_items_with_levels(self, soup: BeautifulSoup, section_name: str) -> List[Dict[str, Any]]:
+        """Extract items from a rating-based section with proficiency levels.
 
-        Work Context has a different structure with col-xs-6 divs.
+        Args:
+            soup: BeautifulSoup instance
+            section_name: Name of section header
+
+        Returns:
+            List of dicts with structure:
+            {
+                "text": "Critical thinking",
+                "level": 4,
+                "max": 5,
+                "element_id": None
+            }
+        """
+        # Find h3 with the section name
+        h3 = soup.find('h3', string=section_name)
+        if not h3:
+            # Try partial match
+            h3 = soup.find('h3', string=lambda x: x and section_name in x)
+        if not h3:
+            return []
+
+        # Navigate to panel body
+        panel_heading = h3.find_parent('div', class_='panel-heading')
+        if not panel_heading:
+            return []
+
+        panel = panel_heading.find_parent('div', class_='panel')
+        if not panel:
+            return []
+
+        panel_body = panel.find('div', class_='panel-body')
+        if not panel_body:
+            return []
+
+        # Extract items with proficiency levels
+        items = []
+        rows = panel_body.select('.wb-eqht-grd')
+
+        for row in rows:
+            cells = row.select('.OasisdescriptorRatingCell')
+            if not cells:
+                continue
+
+            first_cell = cells[0]
+
+            # Skip if first cell itself is a rating cell
+            if first_cell.find('span', class_='scale-option-circle'):
+                continue
+
+            # Extract text
+            text = first_cell.get_text(strip=True)
+
+            # Skip header cells
+            if not text or 'Proficiency' in text or 'level' in text or 'Importance' in text:
+                continue
+
+            # Extract proficiency level from rating circles
+            # Look for all circle elements in the entire row
+            all_circles = row.select('.scale-option-circle')
+
+            if not all_circles:
+                # No rating circles found - include item but with None values
+                items.append({
+                    "text": text,
+                    "level": None,
+                    "max": None,
+                    "element_id": None
+                })
+                continue
+
+            # Count total circles to determine max scale
+            max_level = len(all_circles)
+
+            # Count filled circles to determine proficiency level
+            # OASIS uses FontAwesome icons: 'fas' for filled, 'far' for empty
+            filled_count = 0
+            for circle in all_circles:
+                classes = circle.get('class', [])
+                # 'fas' = solid (filled), 'far' = regular (empty)
+                if 'fas' in classes:
+                    filled_count += 1
+                # Fallback: check for 'filled', 'active', or similar class
+                elif any('filled' in c.lower() or 'active' in c.lower() for c in classes):
+                    filled_count += 1
+                # Also check for inline style indicating filled state
+                elif circle.get('style') and ('background' in circle.get('style', '').lower()):
+                    filled_count += 1
+
+            # Try to extract element_id from data attributes
+            element_id = None
+            # Look for data-element-id or similar attributes on row or cells
+            for attr in ['data-element-id', 'data-id', 'id']:
+                if row.get(attr):
+                    element_id = row.get(attr)
+                    break
+                if first_cell.get(attr):
+                    element_id = first_cell.get(attr)
+                    break
+
+            items.append({
+                "text": text,
+                "level": filled_count,
+                "max": max_level,
+                "element_id": element_id
+            })
+
+        return items
+
+    def _extract_work_context(self, soup: BeautifulSoup) -> List[Dict[str, Any]]:
+        """Extract work context items with dimension types and proficiency levels.
 
         Args:
             soup: BeautifulSoup instance
 
         Returns:
-            List of work context descriptions
+            List of dicts with structure:
+            {
+                "text": "Degree of responsibility for work outcomes",
+                "dimension_type": "Degree of responsibility",
+                "level": 4,
+                "max": 5
+            }
         """
         items = []
 
@@ -220,18 +350,143 @@ class OASISParser:
         if not panel_body:
             return items
 
-        # Work context uses Descriptors-Rating-By-MeasuredDimension-Div with col-xs-6 cells
-        for div in panel_body.select('.Descriptors-Rating-By-MeasuredDimension-Div'):
-            # Find the first col-xs-6 cell which contains the dimension name
-            cells = div.select('.col-xs-6.pad10')
-            if cells:
-                first_cell = cells[0]
-                # Skip if it contains rating circles
-                if first_cell.find('span', class_='scale-option-circle'):
-                    continue
-                text = first_cell.get_text(strip=True)
-                if text and text not in items:  # Avoid duplicates
-                    items.append(text)
+        # PRIMARY: Try standard structure with Descriptors-Rating-By-MeasuredDimension-Div
+        dimension_divs = panel_body.select('.Descriptors-Rating-By-MeasuredDimension-Div')
+
+        if dimension_divs:
+            logger.info("Work Context extraction using primary selector (.Descriptors-Rating-By-MeasuredDimension-Div)")
+
+            for div in dimension_divs:
+                # Work Context structure:
+                # - First col-xs-6 cell: dimension type (e.g., "Structured versus Unstructured Work")
+                # - Second col-xs-6 cell: item description (e.g., "Degree of freedom...")
+                # - Fourth col-xs-6 cell: rating with circles
+
+                all_cells = div.select('.col-xs-6')
+
+                if len(all_cells) >= 2:
+                    # First cell is dimension type
+                    dimension_type = all_cells[0].get_text(strip=True)
+
+                    # Second cell is item description
+                    item_text = all_cells[1].get_text(strip=True)
+
+                    # Find rating cell (contains circles)
+                    level = None
+                    max_level = None
+                    for cell in all_cells:
+                        circles = cell.select('.scale-option-circle')
+                        if circles:
+                            # Count filled circles (fas = solid, far = empty)
+                            level = sum(1 for c in circles if 'fas' in c.get('class', []))
+                            max_level = len(circles)
+                            break
+
+                    # Only add if we have actual item text (not just dimension type)
+                    if item_text and item_text != dimension_type and 'Proficiency' not in item_text and 'level' not in item_text:
+                        items.append({
+                            "text": item_text,
+                            "dimension_type": dimension_type,
+                            "level": level,
+                            "max": max_level
+                        })
+
+        else:
+            # FALLBACK 1: Try alternative class names
+            logger.info("Work Context primary selector failed, trying fallback 1 (alternative class names)")
+            alt_divs = panel_body.select('.MeasuredDimension-Div, .work-context-dimension, .dimension-section')
+
+            if alt_divs:
+                # Same logic as primary
+                for div in alt_divs:
+                    dimension_type = "Unknown"
+                    dimension_header = div.find(['strong', 'b', 'h4', 'h5'])
+                    if dimension_header:
+                        dimension_type = dimension_header.get_text(strip=True)
+
+                    rows = div.select('.wb-eqht-grd')
+                    for row in rows:
+                        cells = row.select('.col-xs-6.pad10, .OasisdescriptorRatingCell')
+                        if cells:
+                            first_cell = cells[0]
+                            if first_cell.find('span', class_='scale-option-circle'):
+                                continue
+
+                            text = first_cell.get_text(strip=True)
+                            if text and text != dimension_type:
+                                circles = row.select('.scale-option-circle')
+                                level = sum(1 for c in circles if 'fas' in c.get('class', []) or any('filled' in cls.lower() or 'active' in cls.lower() for cls in c.get('class', [])))
+                                max_level = len(circles) if circles else 5
+
+                                items.append({
+                                    "text": text,
+                                    "dimension_type": dimension_type,
+                                    "level": level,
+                                    "max": max_level
+                                })
+
+            else:
+                # FALLBACK 2: Structural fallback - find headers and items
+                logger.info("Work Context fallback 1 failed, trying fallback 2 (structural parsing)")
+                headers = panel_body.find_all(['h4', 'h5', 'strong'])
+
+                if headers:
+                    for header in headers:
+                        dimension_type = header.get_text(strip=True)
+
+                        # Find all items after this header until next header
+                        sibling = header.find_next_sibling()
+                        while sibling and sibling.name not in ['h4', 'h5', 'strong']:
+                            # Look for rating rows
+                            if sibling.name == 'div':
+                                rows = sibling.select('.wb-eqht-grd')
+                                for row in rows:
+                                    cells = row.select('.col-xs-6.pad10, .OasisdescriptorRatingCell')
+                                    if cells:
+                                        first_cell = cells[0]
+                                        if first_cell.find('span', class_='scale-option-circle'):
+                                            continue
+
+                                        text = first_cell.get_text(strip=True)
+                                        if text:
+                                            circles = row.select('.scale-option-circle')
+                                            level = sum(1 for c in circles if 'fas' in c.get('class', []) or any('filled' in cls.lower() or 'active' in cls.lower() for cls in c.get('class', [])))
+                                            max_level = len(circles) if circles else 5
+
+                                            items.append({
+                                                "text": text,
+                                                "dimension_type": dimension_type,
+                                                "level": level,
+                                                "max": max_level
+                                            })
+
+                            sibling = sibling.find_next_sibling()
+
+                else:
+                    # FALLBACK 3: No dimension structure detected
+                    logger.warning("Work Context dimension extraction failed, using fallback 3 (dimension_type='Unknown')")
+
+                    # Extract all items without dimension classification
+                    rows = panel_body.select('.wb-eqht-grd')
+                    for row in rows:
+                        cells = row.select('.col-xs-6.pad10, .OasisdescriptorRatingCell')
+                        if cells:
+                            first_cell = cells[0]
+                            if first_cell.find('span', class_='scale-option-circle'):
+                                continue
+
+                            text = first_cell.get_text(strip=True)
+                            if text:
+                                circles = row.select('.scale-option-circle')
+                                level = sum(1 for c in circles if 'fas' in c.get('class', []) or any('filled' in cls.lower() or 'active' in cls.lower() for cls in c.get('class', [])))
+                                max_level = len(circles) if circles else 5
+
+                                items.append({
+                                    "text": text,
+                                    "dimension_type": "Unknown",
+                                    "level": level,
+                                    "max": max_level
+                                })
 
         return items
 
