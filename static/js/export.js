@@ -3,6 +3,33 @@
  * Handles: building export request, preview navigation, file downloads.
  */
 
+/**
+ * Show toast notification
+ */
+function showToast(message, type = 'info') {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+
+  const toast = document.createElement('div');
+  toast.className = `toast toast--${type}`;
+  toast.innerHTML = `
+    <span>${message}</span>
+    <button class="toast-dismiss" aria-label="Dismiss">
+      <svg width="16" height="16" viewBox="0 0 16 16">
+        <path d="M4 4L12 12M12 4L4 12" stroke="currentColor" stroke-width="2"/>
+      </svg>
+    </button>
+  `;
+
+  // Dismiss on click
+  toast.querySelector('.toast-dismiss').addEventListener('click', () => toast.remove());
+
+  container.appendChild(toast);
+
+  // Auto-dismiss after 5 seconds
+  setTimeout(() => toast.remove(), 5000);
+}
+
 const exportModule = {
   // Cached export data for downloads
   currentExportData: null,
@@ -88,13 +115,11 @@ const exportModule = {
     try {
       const exportData = this.buildExportRequest();
 
-      if (exportData.selections.length === 0) {
-        alert('Select at least one statement before creating the job description.');
-        return;
-      }
-
       // Store for downloads
       this.currentExportData = exportData;
+
+      // Track if we should show empty warning after preview loads
+      this._showEmptyWarning = exportData.selections.length === 0;
 
       // Save current page state before showing preview
       this.savedPageContent = document.body.innerHTML;
@@ -132,9 +157,15 @@ const exportModule = {
       // Re-attach event listeners after content replacement
       this.attachPreviewListeners();
 
+      // Show empty selection warning after preview loads (per CONTEXT.md - warning, not blocking)
+      if (this._showEmptyWarning) {
+        showToast('Warning: No statements selected. Export will contain only header information.', 'warning');
+        this._showEmptyWarning = false;
+      }
+
     } catch (error) {
       console.error('Preview error:', error);
-      alert('Failed to generate preview: ' + error.message);
+      showToast('Failed to generate preview: ' + error.message, 'error');
     }
   },
 
@@ -142,8 +173,42 @@ const exportModule = {
    * Attach event listeners on preview page
    */
   attachPreviewListeners() {
-    document.getElementById('download-pdf-btn')?.addEventListener('click', () => this.downloadPDF());
-    document.getElementById('download-docx-btn')?.addEventListener('click', () => this.downloadDOCX());
+    // Dropdown toggle
+    const exportBtn = document.getElementById('export-btn');
+    const dropdown = document.getElementById('export-dropdown');
+    const menu = dropdown?.querySelector('.export-dropdown-menu');
+
+    if (exportBtn && menu) {
+      exportBtn.addEventListener('click', () => {
+        const isOpen = menu.getAttribute('data-open') === 'true';
+        menu.setAttribute('data-open', !isOpen);
+        exportBtn.setAttribute('aria-expanded', !isOpen);
+      });
+
+      // Close on click outside
+      document.addEventListener('click', (e) => {
+        if (!dropdown.contains(e.target)) {
+          menu.setAttribute('data-open', 'false');
+          exportBtn.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      // Handle export option clicks
+      menu.querySelectorAll('.export-option').forEach(option => {
+        option.addEventListener('click', (e) => {
+          const format = option.dataset.format;
+          menu.setAttribute('data-open', 'false');
+          exportBtn.setAttribute('aria-expanded', 'false');
+
+          if (format === 'pdf') {
+            this.downloadPDF();
+          } else if (format === 'docx') {
+            this.downloadDOCX();
+          }
+        });
+      });
+    }
+
     document.getElementById('back-to-edit-btn')?.addEventListener('click', () => this.backToEdit());
   },
 
@@ -172,15 +237,40 @@ const exportModule = {
   },
 
   /**
+   * Generate filename per CONTEXT.md format:
+   * {NOC code} - {Title} - {date} - Job Description.{ext}
+   */
+  _generateFilename(ext) {
+    const data = this.currentExportData;
+    const date = new Date().toISOString().split('T')[0];
+    const safeTitle = data.job_title.replace(/[<>:"/\\|?*]/g, '').substring(0, 50);
+    return `${data.noc_code} - ${safeTitle} - ${date} - Job Description.${ext}`;
+  },
+
+  /**
+   * Download blob as file
+   */
+  _downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  },
+
+  /**
    * Download PDF
    */
   async downloadPDF() {
-    const btn = document.getElementById('download-pdf-btn');
+    const btn = document.getElementById('export-btn');
     if (!btn || !this.currentExportData) return;
 
-    btn.disabled = true;
-    btn.classList.add('btn--loading');
-    btn.textContent = 'Generating...';
+    btn.classList.add('export-btn--loading');
+    const btnText = btn.querySelector('.export-btn-text');
+    if (btnText) btnText.textContent = 'Generating PDF...';
 
     try {
       const response = await fetch('/api/export/pdf', {
@@ -194,32 +284,26 @@ const exportModule = {
         throw new Error(error.detail || error.error || 'PDF generation failed');
       }
 
-      // Get filename from Content-Disposition header or generate one
+      // Get filename from header or generate
       const contentDisposition = response.headers.get('Content-Disposition');
-      let filename = `JD-${this.currentExportData.noc_code}.pdf`;
+      let filename = this._generateFilename('pdf');
       if (contentDisposition) {
         const match = contentDisposition.match(/filename="?([^"]+)"?/);
         if (match) filename = match[1];
       }
 
-      // Download the blob
+      // Download
       const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      this._downloadBlob(blob, filename);
+      showToast('PDF downloaded successfully', 'success');
 
     } catch (error) {
       console.error('PDF download error:', error);
-      alert('Failed to download PDF: ' + error.message);
+      showToast('Failed to generate PDF: ' + error.message, 'error');
     } finally {
-      btn.disabled = false;
-      btn.classList.remove('btn--loading');
-      btn.textContent = 'Download PDF';
+      btn.classList.remove('export-btn--loading');
+      const btnText = btn.querySelector('.export-btn-text');
+      if (btnText) btnText.textContent = 'Export Job Description';
     }
   },
 
@@ -227,12 +311,12 @@ const exportModule = {
    * Download Word document
    */
   async downloadDOCX() {
-    const btn = document.getElementById('download-docx-btn');
+    const btn = document.getElementById('export-btn');
     if (!btn || !this.currentExportData) return;
 
-    btn.disabled = true;
-    btn.classList.add('btn--loading');
-    btn.textContent = 'Generating...';
+    btn.classList.add('export-btn--loading');
+    const btnText = btn.querySelector('.export-btn-text');
+    if (btnText) btnText.textContent = 'Generating Word...';
 
     try {
       const response = await fetch('/api/export/docx', {
@@ -246,32 +330,26 @@ const exportModule = {
         throw new Error(error.detail || error.error || 'Word generation failed');
       }
 
-      // Get filename from Content-Disposition header or generate one
+      // Get filename from header or generate
       const contentDisposition = response.headers.get('Content-Disposition');
-      let filename = `JD-${this.currentExportData.noc_code}.docx`;
+      let filename = this._generateFilename('docx');
       if (contentDisposition) {
         const match = contentDisposition.match(/filename="?([^"]+)"?/);
         if (match) filename = match[1];
       }
 
-      // Download the blob
+      // Download
       const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      this._downloadBlob(blob, filename);
+      showToast('Word document downloaded successfully', 'success');
 
     } catch (error) {
       console.error('DOCX download error:', error);
-      alert('Failed to download Word document: ' + error.message);
+      showToast('Failed to generate Word document: ' + error.message, 'error');
     } finally {
-      btn.disabled = false;
-      btn.classList.remove('btn--loading');
-      btn.textContent = 'Download Word';
+      btn.classList.remove('export-btn--loading');
+      const btnText = btn.querySelector('.export-btn-text');
+      if (btnText) btnText.textContent = 'Export Job Description';
     }
   }
 };
