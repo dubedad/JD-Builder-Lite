@@ -12,9 +12,9 @@ See: .planning/PROJECT.md (updated 2026-01-22)
 Milestone: v1.1 Enhanced Data Display + Export
 Phase: Phase 5 - Data Enrichment Pipeline (5/5 plans)
 Status: In progress
-Last activity: 2026-01-23 - Completed 05-01-PLAN.md
+Last activity: 2026-01-23 - Completed 05-02-PLAN.md
 
-Progress: [█         ] 6% v1.1 (1/16 plans complete)
+Progress: [█         ] 12% v1.1 (2/16 plans complete)
 
 ## Milestone History
 
@@ -49,7 +49,7 @@ See .planning/MILESTONES.md for details.
 
 | Phase | Name | Requirements | Status |
 |-------|------|--------------|--------|
-| 5 | Data Enrichment Pipeline | 11 | In progress (1/5 plans) |
+| 5 | Data Enrichment Pipeline | 11 | In progress (2/5 plans) |
 | 6 | Enhanced UI Display | 2 | Pending |
 | 7 | Export Extensions | 3 | Pending |
 
@@ -68,6 +68,10 @@ Full v1.0 decision history archived in milestones/v1.0-ROADMAP.md.
 - Module-level singleton for CSV loader: Zero-latency lookups via load-on-import (05-01)
 - CATEGORY_MAPPING constant: Translate JD element names to OASIS CSV categories (05-01)
 - Hardcoded SCALE_MEANINGS: Use OASIS documentation constants vs dynamic lookup (05-01)
+- FontAwesome icon detection: Use 'fas' (filled) vs 'far' (empty) classes for proficiency levels (05-02)
+- Structured dict returns: Rating sections return {text, level, max} instead of strings (05-02)
+- Level 0 inclusion: Parser includes all items, filtering deferred to enrichment service (05-02)
+- Work Context dimension extraction: First col-xs-6 cell contains dimension type (05-02)
 
 ### Open Concerns
 
@@ -82,9 +86,9 @@ Full v1.0 decision history archived in milestones/v1.0-ROADMAP.md.
 ## Session Continuity
 
 Last session: 2026-01-23
-Stopped at: Completed 05-01-PLAN.md (CSV loader foundation)
+Stopped at: Completed 05-02-PLAN.md (parser proficiency extraction)
 Resume file: None
-Next: Execute plan 05-02 (enrichment service)
+Next: Execute plan 05-03 (enrichment service)
 
 ---
-*Last updated: 2026-01-23 after completing 05-01-PLAN.md*
+*Last updated: 2026-01-23 after completing 05-02-PLAN.md*
