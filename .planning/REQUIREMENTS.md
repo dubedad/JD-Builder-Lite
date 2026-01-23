@@ -14,23 +14,23 @@ Requirements for v1.1 Enhanced Data Display + Export milestone.
 
 ### Statement Display
 
-- [ ] **DISP-04**: Each JD Element section shows category definition at top (from guide.csv)
-- [ ] **DISP-05**: Each statement includes OASIS label description (from guide.csv lookup)
-- [ ] **DISP-06**: Statements display proficiency/complexity level as stars (1-5)
-- [ ] **DISP-07**: Star ratings include scale meaning label (e.g., "5 - Highest Level" for Skills)
-- [ ] **DISP-08**: Work Context statements show dimension type (Frequency, Duration, Degree of responsibility, etc.)
+- [x] **DISP-04**: Each JD Element section shows category definition at top (from guide.csv)
+- [x] **DISP-05**: Each statement includes OASIS label description (from guide.csv lookup)
+- [x] **DISP-06**: Statements display proficiency/complexity level as stars (1-5)
+- [x] **DISP-07**: Star ratings include scale meaning label (e.g., "5 - Highest Level" for Skills)
+- [x] **DISP-08**: Work Context statements show dimension type (Frequency, Duration, Degree of responsibility, etc.)
 
 ### Data Bug Fixes
 
-- [ ] **DATA-03**: Responsibilities header populated with Work Context items containing "responsib" or "decision"
-- [ ] **DATA-04**: Effort header captures all Work Context items containing "effort"
-- [ ] **DATA-05**: Work Context scraping extracts complete data from OASIS
+- [x] **DATA-03**: Responsibilities header populated with Work Context items containing "responsib" or "decision"
+- [x] **DATA-04**: Effort header captures all Work Context items containing "effort"
+- [x] **DATA-05**: Work Context scraping extracts complete data from OASIS
 
 ### Profile Overview
 
-- [ ] **DISP-09**: Profile page shows NOC code prominently under title
-- [ ] **DISP-10**: Profile page displays NOC hierarchical breakdown (TEER, broad category, major group)
-- [ ] **DISP-11**: Profile page displays reference NOC attributes (job requirements, career mobility, example titles, interests, personal attributes)
+- [x] **DISP-09**: Profile page shows NOC code prominently under title
+- [x] **DISP-10**: Profile page displays NOC hierarchical breakdown (TEER, broad category, major group)
+- [x] **DISP-11**: Profile page displays reference NOC attributes (job requirements, career mobility, example titles, interests, personal attributes)
 
 ### Export
 
@@ -82,17 +82,17 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | SRCH-04 | Phase 6 | Pending |
 | SRCH-05 | Phase 6 | Pending |
-| DISP-04 | Phase 5 | Pending |
-| DISP-05 | Phase 5 | Pending |
-| DISP-06 | Phase 5 | Pending |
-| DISP-07 | Phase 5 | Pending |
-| DISP-08 | Phase 5 | Pending |
-| DATA-03 | Phase 5 | Pending |
-| DATA-04 | Phase 5 | Pending |
-| DATA-05 | Phase 5 | Pending |
-| DISP-09 | Phase 5 | Pending |
-| DISP-10 | Phase 5 | Pending |
-| DISP-11 | Phase 5 | Pending |
+| DISP-04 | Phase 5 | Complete |
+| DISP-05 | Phase 5 | Complete |
+| DISP-06 | Phase 5 | Complete |
+| DISP-07 | Phase 5 | Complete |
+| DISP-08 | Phase 5 | Complete |
+| DATA-03 | Phase 5 | Complete |
+| DATA-04 | Phase 5 | Complete |
+| DATA-05 | Phase 5 | Complete |
+| DISP-09 | Phase 5 | Complete |
+| DISP-10 | Phase 5 | Complete |
+| DISP-11 | Phase 5 | Complete |
 | OUT-06 | Phase 7 | Pending |
 | OUT-07 | Phase 7 | Pending |
 | OUT-08 | Phase 7 | Pending |
@@ -104,4 +104,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-22*
-*Last updated: 2026-01-22 after roadmap creation*
+*Last updated: 2026-01-23 after Phase 5 completion*

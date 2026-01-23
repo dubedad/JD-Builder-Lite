@@ -21,11 +21,11 @@
 **Plans:** 5 plans
 
 Plans:
-- [ ] 05-01-PLAN.md - CSV loader singleton with guide.csv and scale meanings (Wave 1)
-- [ ] 05-02-PLAN.md - Parser enhancements for proficiency and dimension extraction (Wave 1)
-- [ ] 05-03-PLAN.md - Enrichment service with classification and LLM fallback (Wave 2)
-- [ ] 05-04-PLAN.md - Reference attributes extraction and NOC hierarchy (Wave 2)
-- [ ] 05-05-PLAN.md - Mapper integration and ProfileResponse update (Wave 3)
+- [x] 05-01-PLAN.md - CSV loader singleton with guide.csv and scale meanings (Wave 1)
+- [x] 05-02-PLAN.md - Parser enhancements for proficiency and dimension extraction (Wave 1)
+- [x] 05-03-PLAN.md - Enrichment service with classification and LLM fallback (Wave 2)
+- [x] 05-04-PLAN.md - Reference attributes extraction and NOC hierarchy (Wave 2)
+- [x] 05-05-PLAN.md - Mapper integration and ProfileResponse update (Wave 3)
 
 **Requirements:**
 - DISP-04: Each JD Element section shows category definition at top (from guide.csv)
@@ -155,7 +155,7 @@ Plans:
 
 | Phase | Status | Completed |
 |-------|--------|-----------|
-| 5 - Data Enrichment Pipeline | Planned | - |
+| 5 - Data Enrichment Pipeline | Complete | 2026-01-23 |
 | 6 - Enhanced UI Display | Planned | - |
 | 7 - Export Extensions | Planned | - |
 
