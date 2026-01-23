@@ -12,9 +12,9 @@ See: .planning/PROJECT.md (updated 2026-01-22)
 Milestone: v1.1 Enhanced Data Display + Export
 Phase: Phase 5 - Data Enrichment Pipeline (5/5 plans)
 Status: In progress
-Last activity: 2026-01-23 - Completed 05-02-PLAN.md
+Last activity: 2026-01-23 - Completed 05-03-PLAN.md
 
-Progress: [█         ] 12% v1.1 (2/16 plans complete)
+Progress: [██        ] 18% v1.1 (3/16 plans complete)
 
 ## Milestone History
 
@@ -49,7 +49,7 @@ See .planning/MILESTONES.md for details.
 
 | Phase | Name | Requirements | Status |
 |-------|------|--------------|--------|
-| 5 | Data Enrichment Pipeline | 11 | In progress (2/5 plans) |
+| 5 | Data Enrichment Pipeline | 11 | In progress (3/5 plans) |
 | 6 | Enhanced UI Display | 2 | Pending |
 | 7 | Export Extensions | 3 | Pending |
 
@@ -72,6 +72,12 @@ Full v1.0 decision history archived in milestones/v1.0-ROADMAP.md.
 - Structured dict returns: Rating sections return {text, level, max} instead of strings (05-02)
 - Level 0 inclusion: Parser includes all items, filtering deferred to enrichment service (05-02)
 - Work Context dimension extraction: First col-xs-6 cell contains dimension type (05-02)
+- LLM imputation is optional: Graceful degradation when OpenAI not installed/configured (05-03)
+- Confidence tracking: CSV data=1.0, LLM-imputed=0.7 for data provenance (05-03)
+- Work Context classification patterns: responsibilities=['responsib', 'decision'], effort=['effort'] (05-03)
+- Classification conflict resolution: responsibilities wins if matches both patterns (05-03)
+- Level 0 filtering during enrichment: Business logic separation from parsing (05-03)
+- Proficiency-based sorting: Highest first with alphabetical tiebreaker (05-03)
 
 ### Open Concerns
 
@@ -86,9 +92,9 @@ Full v1.0 decision history archived in milestones/v1.0-ROADMAP.md.
 ## Session Continuity
 
 Last session: 2026-01-23
-Stopped at: Completed 05-02-PLAN.md (parser proficiency extraction)
+Stopped at: Completed 05-03-PLAN.md (enrichment service)
 Resume file: None
-Next: Execute plan 05-03 (enrichment service)
+Next: Execute plan 05-04 (API integration)
 
 ---
-*Last updated: 2026-01-23 after completing 05-02-PLAN.md*
+*Last updated: 2026-01-23 after completing 05-03-PLAN.md*
