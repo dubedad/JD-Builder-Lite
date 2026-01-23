@@ -153,11 +153,14 @@ def generate_docx(data: ExportData) -> bytes:
                 ("Purpose", section.content.get("purpose", ""))
             ])
 
-    # Write to bytes
-    buffer = BytesIO()
-    doc.save(buffer)
-    buffer.seek(0)
-    return buffer.read()
+    # Add Annex section if data available
+    _add_annex_section(doc, data)
+
+    # Write to bytes using context manager for memory safety
+    with BytesIO() as buffer:
+        doc.save(buffer)
+        buffer.seek(0)
+        return buffer.read()
 
 
 def _add_key_value_table(doc, items):
@@ -174,3 +177,89 @@ def _add_key_value_table(doc, items):
         for para in cells[0].paragraphs:
             for run in para.runs:
                 run.bold = True
+
+
+# Text color constant for light gray
+TEXT_LIGHT = RGBColor(0x66, 0x66, 0x66)
+
+
+def _add_annex_section(doc, data):
+    """Add Annex section with unused NOC attributes.
+
+    Renders the Annex after compliance appendix with all 4 categories:
+    - Job Requirements (paragraph format)
+    - Career Mobility (grouped list)
+    - Interests (Holland Codes) (bullet list)
+    - Personal Suitability (Placement Criteria) (bullet list)
+    """
+    if not data.annex_data or not data.annex_data.sections:
+        return  # No annex data to render
+
+    # Page break before Annex
+    doc.add_page_break()
+
+    # Main heading (Heading 1 for navigation pane)
+    main_heading = doc.add_heading('Additional Job Information', 1)
+    for run in main_heading.runs:
+        run.font.color.rgb = GC_PRIMARY
+
+    # Intro paragraph
+    intro = doc.add_paragraph(
+        'Reference information from the National Occupational Classification '
+        'that may be useful for recruitment, career development, and job analysis.'
+    )
+    if intro.runs:
+        intro.runs[0].italic = True
+
+    # Render each category section
+    for section in data.annex_data.sections:
+        # Category heading (Heading 2 for hierarchy)
+        category_heading = doc.add_heading(section.title, 2)
+        for run in category_heading.runs:
+            run.font.color.rgb = GC_PRIMARY
+            run.font.size = Pt(12)
+        category_heading.paragraph_format.space_after = Pt(9)
+
+        # Handle empty sections
+        if not section.items:
+            empty_para = doc.add_paragraph('No additional information available.')
+            if empty_para.runs:
+                empty_para.runs[0].italic = True
+                empty_para.runs[0].font.color.rgb = TEXT_LIGHT
+            continue
+
+        # Render based on format type
+        if section.format_type == 'paragraph':
+            # Job Requirements: paragraphs
+            for item in section.items:
+                doc.add_paragraph(item)
+
+        elif section.format_type == 'grouped_list':
+            # Career Mobility: grouped list with Entry/Advancement headers
+            for item in section.items:
+                if item.endswith(':'):
+                    # Group header (Entry Paths:, Advancement Paths:)
+                    para = doc.add_paragraph()
+                    run = para.add_run(item)
+                    run.bold = True
+                else:
+                    # Mobility item (indented with dash)
+                    para = doc.add_paragraph(item)
+                    para.paragraph_format.left_indent = Inches(0.25)
+
+        else:  # 'list'
+            # Interests, Personal Suitability: bullet list
+            for item in section.items:
+                para = doc.add_paragraph(item, style='List Bullet')
+                para.paragraph_format.space_after = Pt(6)
+
+    # Source attribution at end of Annex
+    attr_para = doc.add_paragraph()
+    attr_para.paragraph_format.space_before = Pt(24)
+    attr_run = attr_para.add_run(
+        f"Source: NOC {data.annex_data.source_noc_code}, "
+        f"retrieved {data.annex_data.retrieved_at.strftime('%Y-%m-%d')}"
+    )
+    attr_run.font.size = Pt(9)
+    attr_run.font.color.rgb = TEXT_LIGHT
+    attr_run.italic = True
