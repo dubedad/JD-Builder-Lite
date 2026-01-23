@@ -7,6 +7,14 @@ const JD_ELEMENT_LABELS = {
     working_conditions: 'Working Conditions'
 };
 
+const PROFICIENCY_LABELS = {
+    1: 'Basic Level',
+    2: 'Low Level',
+    3: 'Medium Level',
+    4: 'High Level',
+    5: 'Highest Level'
+};
+
 const renderAccordions = (profile) => {
     const container = document.querySelector('.jd-sections');
     const state = store.getState();
@@ -64,14 +72,26 @@ const createAccordionSection = (sectionId, statements, selectedIds) => {
         li.className = 'statement' + (isSelected ? ' statement--selected' : '');
         li.dataset.id = stmtId;
 
+        // Build proficiency HTML if enriched data present
+        const proficiencyHtml = stmt.proficiency ? renderProficiency(stmt.proficiency) : '';
+
+        // Build dimension badge HTML for Work Context statements
+        const dimensionBadgeHtml = stmt.dimension_type ? renderDimensionBadge(stmt.dimension_type) : '';
+
+        // Build source text with optional dimension badge
+        const sourceText = stmt.source_attribute || 'Unknown source';
+
         li.innerHTML = `
             <label class="statement__label">
                 <input type="checkbox" class="statement__checkbox"
                        data-section="${sectionId}"
                        data-id="${stmtId}"
                        ${isSelected ? 'checked' : ''}>
-                <span class="statement__text">${escapeHtml(stmt.text)}</span>
-                <span class="statement__source">from ${escapeHtml(stmt.source_attribute)}</span>
+                <span class="statement__content">
+                    <span class="statement__text">${escapeHtml(stmt.text)}${dimensionBadgeHtml}</span>
+                    <span class="statement__source">from ${escapeHtml(sourceText)}</span>
+                </span>
+                ${proficiencyHtml}
             </label>
         `;
 
@@ -121,7 +141,44 @@ const escapeHtml = (text) => {
     return div.innerHTML;
 };
 
+const renderProficiency = (proficiency) => {
+    // Handle missing or invalid proficiency
+    if (!proficiency || proficiency.level === null || proficiency.level === undefined) {
+        return `
+            <div class="proficiency-rating no-rating" aria-label="No rated level">
+                <span class="rating-label">No rating</span>
+            </div>
+        `;
+    }
+
+    const level = proficiency.level;
+    const max = proficiency.max || 5;
+    const label = proficiency.label || PROFICIENCY_LABELS[level] || `Level ${level}`;
+
+    // Build circles string: filled circles then empty circles
+    const filledCircles = '<span class="filled">●</span>'.repeat(level);
+    const emptyCircles = '<span class="empty">○</span>'.repeat(max - level);
+
+    return `
+        <div class="proficiency-rating"
+             aria-label="Level ${level}"
+             data-full-label="${level} - ${escapeHtml(label)}"
+             tabindex="0">
+            <span class="rating-circles" aria-hidden="true">${filledCircles}${emptyCircles}</span>
+            <span class="rating-label">L${level}</span>
+        </div>
+    `;
+};
+
+const renderDimensionBadge = (dimensionType) => {
+    if (!dimensionType) return '';
+    return `<span class="dimension-badge">${escapeHtml(dimensionType)}</span>`;
+};
+
 // Export for other modules
 window.renderAccordions = renderAccordions;
 window.updateSelectionCount = updateSelectionCount;
 window.JD_ELEMENT_LABELS = JD_ELEMENT_LABELS;
+window.renderProficiency = renderProficiency;
+window.renderDimensionBadge = renderDimensionBadge;
+window.PROFICIENCY_LABELS = PROFICIENCY_LABELS;

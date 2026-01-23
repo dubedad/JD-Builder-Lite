@@ -53,8 +53,13 @@
 
         <!-- Search Results (initially hidden) -->
         <section id="search-results" class="search-results hidden">
+            <div class="view-controls">
+                <button id="view-toggle" class="view-toggle" aria-label="Switch to grid view" title="Grid view">
+                    <span aria-hidden="true">&#x2630;</span>
+                </button>
+            </div>
             <h2>Search Results</h2>
-            <ul id="results-list"></ul>
+            <ul id="results-list" class="results-list card-view"></ul>
         </section>
 
         <!-- JD Sections Accordion Container -->
@@ -116,6 +121,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
     <!-- Scripts (loaded in order) -->
+    <script src="/static/js/storage.js"></script>
     <script src="/static/js/api.js"></script>
     <script src="/static/js/state.js"></script>
     <script src="/static/js/accordion.js"></script>
