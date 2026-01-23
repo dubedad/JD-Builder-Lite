@@ -9,8 +9,8 @@ Requirements for v1.1 Enhanced Data Display + Export milestone.
 
 ### Search Results
 
-- [ ] **SRCH-04**: Search results display grid view toggle (card vs table views)
-- [ ] **SRCH-05**: Search results show NOC code next to profile title (e.g., "Air pilots (72600.01)")
+- [x] **SRCH-04**: Search results display grid view toggle (card vs table views)
+- [x] **SRCH-05**: Search results show NOC code next to profile title (e.g., "Air pilots (72600.01)")
 
 ### Statement Display
 
@@ -80,8 +80,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SRCH-04 | Phase 6 | Pending |
-| SRCH-05 | Phase 6 | Pending |
+| SRCH-04 | Phase 6 | Complete |
+| SRCH-05 | Phase 6 | Complete |
 | DISP-04 | Phase 5 | Complete |
 | DISP-05 | Phase 5 | Complete |
 | DISP-06 | Phase 5 | Complete |
@@ -104,4 +104,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-22*
-*Last updated: 2026-01-23 after Phase 5 completion*
+*Last updated: 2026-01-23 after Phase 6 completion*

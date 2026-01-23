@@ -67,8 +67,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 06-01-PLAN.md - Search results with NOC codes, grid/card view toggle, localStorage persistence
-- [ ] 06-02-PLAN.md - Proficiency circle rendering, dimension badges, accessibility compliance
+- [x] 06-01-PLAN.md - Search results with NOC codes, grid/card view toggle, localStorage persistence
+- [x] 06-02-PLAN.md - Proficiency circle rendering, dimension badges, accessibility compliance
 
 **Requirements:**
 - SRCH-04: Search results display grid view toggle (card vs table views)
@@ -156,7 +156,7 @@ Plans:
 | Phase | Status | Completed |
 |-------|--------|-----------|
 | 5 - Data Enrichment Pipeline | Complete | 2026-01-23 |
-| 6 - Enhanced UI Display | Planned | - |
+| 6 - Enhanced UI Display | Complete | 2026-01-23 |
 | 7 - Export Extensions | Planned | - |
 
 ---
