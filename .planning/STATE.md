@@ -12,9 +12,9 @@ See: .planning/PROJECT.md (updated 2026-01-22)
 Milestone: v1.1 Enhanced Data Display + Export
 Phase: Phase 5 - Data Enrichment Pipeline (5/5 plans)
 Status: In progress
-Last activity: 2026-01-23 - Completed 05-03-PLAN.md
+Last activity: 2026-01-23 - Completed 05-04-PLAN.md
 
-Progress: [██        ] 18% v1.1 (3/16 plans complete)
+Progress: [██        ] 25% v1.1 (4/16 plans complete)
 
 ## Milestone History
 
@@ -49,7 +49,7 @@ See .planning/MILESTONES.md for details.
 
 | Phase | Name | Requirements | Status |
 |-------|------|--------------|--------|
-| 5 | Data Enrichment Pipeline | 11 | In progress (3/5 plans) |
+| 5 | Data Enrichment Pipeline | 11 | In progress (4/5 plans) |
 | 6 | Enhanced UI Display | 2 | Pending |
 | 7 | Export Extensions | 3 | Pending |
 
@@ -78,6 +78,9 @@ Full v1.0 decision history archived in milestones/v1.0-ROADMAP.md.
 - Classification conflict resolution: responsibilities wins if matches both patterns (05-03)
 - Level 0 filtering during enrichment: Business logic separation from parsing (05-03)
 - Proficiency-based sorting: Highest first with alphabetical tiebreaker (05-03)
+- NOC hierarchy from code structure: Digit positions map to categories (broad, TEER, major, minor, unit) (05-04)
+- Reference attributes from Overview tab: Extract example titles, interests, career mobility for Annex (05-04)
+- Career mobility NOC codes: Extract from profile link hrefs for cross-referencing (05-04)
 
 ### Open Concerns
 
@@ -92,9 +95,9 @@ Full v1.0 decision history archived in milestones/v1.0-ROADMAP.md.
 ## Session Continuity
 
 Last session: 2026-01-23
-Stopped at: Completed 05-03-PLAN.md (enrichment service)
+Stopped at: Completed 05-04-PLAN.md (reference attributes)
 Resume file: None
-Next: Execute plan 05-04 (API integration)
+Next: Execute plan 05-05 (API integration)
 
 ---
-*Last updated: 2026-01-23 after completing 05-03-PLAN.md*
+*Last updated: 2026-01-23 after completing 05-04-PLAN.md*
