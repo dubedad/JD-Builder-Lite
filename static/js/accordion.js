@@ -175,6 +175,17 @@ const renderDimensionBadge = (dimensionType) => {
     return `<span class="dimension-badge">${escapeHtml(dimensionType)}</span>`;
 };
 
+// WCAG 2.1 SC 1.4.13: Dismiss tooltips with Escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        // Remove focus from any proficiency rating to hide tooltip
+        const focused = document.activeElement;
+        if (focused && focused.classList.contains('proficiency-rating')) {
+            focused.blur();
+        }
+    }
+});
+
 // Export for other modules
 window.renderAccordions = renderAccordions;
 window.updateSelectionCount = updateSelectionCount;

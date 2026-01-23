@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const actionBar = document.getElementById('action-bar');
     const sidebar = document.getElementById('sidebar');
     const sidebarToggle = document.getElementById('sidebar-toggle');
+    const viewToggle = document.getElementById('view-toggle');
 
     // Profile info elements
     const profileTitle = document.getElementById('profile-title');
@@ -20,12 +21,63 @@ document.addEventListener('DOMContentLoaded', function() {
     // Global profile data storage
     window.currentProfile = null;
 
+    // View toggle state
+    let currentView = storage.get('viewMode', 'card');
+    let currentSort = { column: null, ascending: true };
+    let lastResults = []; // Store results for re-rendering on view change
+
     // Initialize modules (from Plan 02)
     initSidebar();
     initSelection();
     initSectionSearch();
     initGenerate();
     initExport();
+
+    // Responsive view handling
+    const mediaQuery = window.matchMedia('(max-width: 768px)');
+
+    function handleViewportChange(e) {
+        if (e.matches) {
+            // Mobile: force card view, disable toggle
+            switchView('card', false);
+            viewToggle.disabled = true;
+        } else {
+            // Desktop: enable toggle, restore preference
+            viewToggle.disabled = false;
+            switchView(storage.get('viewMode', 'card'), false);
+        }
+    }
+
+    mediaQuery.addEventListener('change', handleViewportChange);
+
+    /**
+     * Switch between card and grid views
+     * @param {string} view - 'card' or 'grid'
+     * @param {boolean} persist - Whether to save preference to storage
+     */
+    function switchView(view, persist = true) {
+        currentView = view;
+        resultsList.className = 'results-list ' + view + '-view';
+
+        if (view === 'grid') {
+            viewToggle.innerHTML = '<span aria-hidden="true">&#x25A6;</span>';
+            viewToggle.setAttribute('aria-label', 'Switch to card view');
+            viewToggle.setAttribute('title', 'Card view');
+        } else {
+            viewToggle.innerHTML = '<span aria-hidden="true">&#x2630;</span>';
+            viewToggle.setAttribute('aria-label', 'Switch to grid view');
+            viewToggle.setAttribute('title', 'Grid view');
+        }
+
+        if (persist && !mediaQuery.matches) {
+            storage.set('viewMode', view);
+        }
+
+        // Re-render with current results
+        if (lastResults.length > 0) {
+            renderSearchResults(lastResults);
+        }
+    }
 
     /**
      * Show inline error message
@@ -109,6 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
      * @param {Array} results - Array of search result objects
      */
     function renderSearchResults(results) {
+        lastResults = results; // Store for re-rendering
         resultsList.innerHTML = '';
 
         if (results.length === 0) {
@@ -116,14 +169,107 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        results.forEach(function(result) {
-            const li = document.createElement('li');
-            li.setAttribute('data-code', result.noc_code);
-            li.innerHTML = `
-                <span class="result-title">${escapeHtml(result.title)}</span>
-                <span class="result-code">(${escapeHtml(result.noc_code)})</span>
+        if (currentView === 'grid' && !mediaQuery.matches) {
+            // Add header row for grid view
+            const header = document.createElement('div');
+            header.className = 'grid-header';
+            header.setAttribute('role', 'row');
+            header.innerHTML = `
+                <div class="grid-header-cell" data-column="profile" role="columnheader">
+                    OASIS Profile<span class="sort-indicator"></span>
+                </div>
+                <div class="grid-header-cell" data-column="examples" role="columnheader">
+                    Example Titles<span class="sort-indicator"></span>
+                </div>
+                <div class="grid-header-cell" data-column="lead" role="columnheader">
+                    Lead Statement<span class="sort-indicator"></span>
+                </div>
+                <div class="grid-header-cell" data-column="teer" role="columnheader">
+                    TEER<span class="sort-indicator"></span>
+                </div>
             `;
-            resultsList.appendChild(li);
+            resultsList.appendChild(header);
+
+            // Render grid rows
+            results.forEach(function(result) {
+                const li = document.createElement('li');
+                li.setAttribute('data-code', result.noc_code);
+                li.setAttribute('role', 'row');
+                li.innerHTML = `
+                    <div class="grid-cell" data-column="profile" role="cell">
+                        <strong>${escapeHtml(result.title)}</strong>
+                        <span class="noc-code">(${escapeHtml(result.noc_code)})</span>
+                    </div>
+                    <div class="grid-cell" data-column="examples" role="cell">
+                        ${escapeHtml(result.example_titles || '-')}
+                    </div>
+                    <div class="grid-cell" data-column="lead" role="cell">
+                        ${escapeHtml(result.lead_statement || '-')}
+                    </div>
+                    <div class="grid-cell" data-column="teer" role="cell">
+                        ${escapeHtml(result.teer || '-')}
+                    </div>
+                `;
+                resultsList.appendChild(li);
+            });
+
+            updateSortIndicator();
+        } else {
+            // Card view rendering
+            results.forEach(function(result) {
+                const li = document.createElement('li');
+                li.setAttribute('data-code', result.noc_code);
+                li.innerHTML = `
+                    <span class="result-title">${escapeHtml(result.title)}</span>
+                    <span class="noc-code">(${escapeHtml(result.noc_code)})</span>
+                `;
+                resultsList.appendChild(li);
+            });
+        }
+    }
+
+    /**
+     * Sort results by column
+     * @param {string} column - Column name to sort by
+     */
+    function sortResults(column) {
+        if (currentSort.column === column) {
+            currentSort.ascending = !currentSort.ascending;
+        } else {
+            currentSort.column = column;
+            currentSort.ascending = true;
+        }
+
+        const sortKey = {
+            profile: 'title',
+            examples: 'example_titles',
+            lead: 'lead_statement',
+            teer: 'teer'
+        }[column] || 'title';
+
+        lastResults.sort((a, b) => {
+            const aVal = (a[sortKey] || '').toString();
+            const bVal = (b[sortKey] || '').toString();
+            const cmp = aVal.localeCompare(bVal);
+            return currentSort.ascending ? cmp : -cmp;
+        });
+
+        renderSearchResults(lastResults);
+    }
+
+    /**
+     * Update sort indicator arrows in grid header
+     */
+    function updateSortIndicator() {
+        document.querySelectorAll('.grid-header-cell').forEach(cell => {
+            const indicator = cell.querySelector('.sort-indicator');
+            if (cell.dataset.column === currentSort.column) {
+                indicator.textContent = currentSort.ascending ? ' ▲' : ' ▼';
+                indicator.classList.add('active');
+            } else {
+                indicator.textContent = '';
+                indicator.classList.remove('active');
+            }
         });
     }
 
@@ -232,8 +378,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Event delegation for result clicks
+    // View toggle click
+    viewToggle.addEventListener('click', function() {
+        switchView(currentView === 'card' ? 'grid' : 'card');
+    });
+
+    // Event delegation for result clicks and sort header clicks
     resultsList.addEventListener('click', function(e) {
+        const headerCell = e.target.closest('.grid-header-cell');
+        if (headerCell) {
+            sortResults(headerCell.dataset.column);
+            return;
+        }
+
+        // Existing result click handling
         const li = e.target.closest('li[data-code]');
         if (li) {
             const code = li.getAttribute('data-code');
@@ -247,4 +405,7 @@ document.addEventListener('DOMContentLoaded', function() {
         sidebar.classList.toggle('collapsed');
         document.body.classList.toggle('sidebar-open');
     });
+
+    // Initialize view state
+    handleViewportChange(mediaQuery);
 });
