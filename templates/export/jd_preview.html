@@ -16,17 +16,41 @@
         <p class="preview-subtitle">Review before exporting</p>
       </div>
       <div class="preview-actions">
-        <button id="download-pdf-btn" class="btn btn--primary">
-          Download PDF
-        </button>
-        <button id="download-docx-btn" class="btn btn--secondary">
-          Download Word
-        </button>
+        <div class="export-dropdown" id="export-dropdown">
+          <button id="export-btn" class="btn btn--primary export-btn" aria-haspopup="true" aria-expanded="false">
+            <span class="export-btn-text">Export Job Description</span>
+            <svg class="export-btn-icon" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
+              <path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="2" fill="none"/>
+            </svg>
+            <span class="export-btn-spinner" aria-hidden="true"></span>
+          </button>
+          <div class="export-dropdown-menu" role="menu" aria-labelledby="export-btn">
+            <button class="export-option" data-format="pdf" role="menuitem">
+              <svg class="export-option-icon" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" fill="none" stroke="currentColor" stroke-width="2"/>
+                <polyline points="14 2 14 8 20 8" fill="none" stroke="currentColor" stroke-width="2"/>
+                <path d="M10 12H8v6h2v-2h1a2 2 0 0 0 0-4h-1zm0 2v-1h1a.5.5 0 0 1 0 1h-1z" fill="currentColor"/>
+              </svg>
+              <span>Export as PDF</span>
+            </button>
+            <button class="export-option" data-format="docx" role="menuitem">
+              <svg class="export-option-icon" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" fill="none" stroke="currentColor" stroke-width="2"/>
+                <polyline points="14 2 14 8 20 8" fill="none" stroke="currentColor" stroke-width="2"/>
+                <path d="M8 13h8M8 17h5" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              <span>Export as Word</span>
+            </button>
+          </div>
+        </div>
         <button id="back-to-edit-btn" class="btn btn--text">
           Back to Edit
         </button>
       </div>
     </header>
+
+    <!-- Toast notification container -->
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
 
     <!-- JD Document Preview -->
     <main class="jd-document">
@@ -184,6 +208,59 @@
         </div>
         {% endfor %}
       </section>
+
+      <!-- Annex: Additional Job Information -->
+      {% if annex_data and annex_data.sections %}
+      <section class="annex-section">
+        <h1>Additional Job Information</h1>
+        <p class="annex-intro">
+          Reference information from the National Occupational Classification that may be useful
+          for recruitment, career development, and job analysis.
+        </p>
+
+        {% for section in annex_data.sections %}
+        <div class="annex-category">
+          <h2>{{ section.title }}</h2>
+
+          {% if not section.items %}
+          <p class="annex-empty-state">No additional information available.</p>
+          {% else %}
+
+            {% if section.format_type == 'paragraph' %}
+            <!-- Job Requirements: paragraphs -->
+            {% for item in section.items %}
+            <p class="annex-paragraph">{{ item }}</p>
+            {% endfor %}
+
+            {% elif section.format_type == 'grouped_list' %}
+            <!-- Career Mobility: grouped list with Entry/Advancement headers -->
+            {% for item in section.items %}
+              {% if item.endswith(':') %}
+              <p class="annex-group-header"><strong>{{ item }}</strong></p>
+              {% else %}
+              <p class="annex-mobility-item">{{ item }}</p>
+              {% endif %}
+            {% endfor %}
+
+            {% else %}
+            <!-- List format: Interests, Personal Suitability -->
+            <ul class="annex-list">
+              {% for item in section.items %}
+              <li>{{ item }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+
+          {% endif %}
+        </div>
+        {% endfor %}
+
+        <!-- Source attribution -->
+        <p class="annex-attribution">
+          Source: NOC {{ annex_data.source_noc_code }}, retrieved {{ annex_data.retrieved_at.strftime('%Y-%m-%d') }}
+        </p>
+      </section>
+      {% endif %}
 
       <!-- Document Footer -->
       <footer class="jd-footer">

@@ -115,6 +115,59 @@
       </div>
       {% endfor %}
     </section>
+
+    <!-- Annex: Additional Job Information -->
+    {% if annex_data and annex_data.sections %}
+    <section class="annex-section">
+      <h1>Additional Job Information</h1>
+      <p class="annex-intro">
+        Reference information from the National Occupational Classification that may be useful
+        for recruitment, career development, and job analysis.
+      </p>
+
+      {% for section in annex_data.sections %}
+      <div class="annex-category">
+        <h2>{{ section.title }}</h2>
+
+        {% if not section.items %}
+        <p class="annex-empty-state">No additional information available.</p>
+        {% else %}
+
+          {% if section.format_type == 'paragraph' %}
+          <!-- Job Requirements: paragraphs -->
+          {% for item in section.items %}
+          <p class="annex-paragraph">{{ item }}</p>
+          {% endfor %}
+
+          {% elif section.format_type == 'grouped_list' %}
+          <!-- Career Mobility: grouped list with Entry/Advancement headers -->
+          {% for item in section.items %}
+            {% if item.endswith(':') %}
+            <p class="annex-group-header"><strong>{{ item }}</strong></p>
+            {% else %}
+            <p class="annex-mobility-item">{{ item }}</p>
+            {% endif %}
+          {% endfor %}
+
+          {% else %}
+          <!-- List format: Interests, Personal Suitability -->
+          <ul class="annex-list">
+            {% for item in section.items %}
+            <li>{{ item }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+
+        {% endif %}
+      </div>
+      {% endfor %}
+
+      <!-- Source attribution -->
+      <p class="annex-attribution">
+        Source: NOC {{ annex_data.source_noc_code }}, retrieved {{ annex_data.retrieved_at.strftime('%Y-%m-%d') }}
+      </p>
+    </section>
+    {% endif %}
   </div>
 </body>
 </html>

@@ -218,3 +218,84 @@ body {
 .compliance-table tr {
   page-break-inside: avoid;
 }
+
+/* Annex Section */
+.annex-section {
+  page: annex;
+  page-break-before: always;
+}
+
+@page annex {
+  @top-center {
+    content: "Annex: Additional Job Information";
+    font-family: "Lato", Arial, sans-serif;
+    font-size: 10pt;
+    color: #26374a;
+    padding-bottom: 0.25in;
+    border-bottom: 1pt solid #26374a;
+  }
+}
+
+.annex-section h1 {
+  font-size: 18pt;
+  color: #26374a;
+  text-align: center;
+  margin-bottom: 1em;
+  page-break-after: avoid;
+}
+
+.annex-intro {
+  margin-bottom: 1.5em;
+  font-style: italic;
+}
+
+.annex-category {
+  margin-top: 1.5em;
+  page-break-inside: avoid;
+}
+
+.annex-category h2 {
+  font-size: 12pt;
+  color: #26374a;
+  margin-bottom: 0.75em;
+  border-bottom: 1pt solid #cccccc;
+  padding-bottom: 0.25em;
+  page-break-after: avoid;
+}
+
+.annex-empty-state {
+  color: #666666;
+  font-style: italic;
+}
+
+.annex-paragraph {
+  margin-bottom: 0.5em;
+  text-align: justify;
+}
+
+.annex-group-header {
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+}
+
+.annex-mobility-item {
+  margin-left: 1em;
+  margin-bottom: 0.25em;
+}
+
+.annex-list {
+  list-style-type: disc;
+  margin-left: 1.5em;
+}
+
+.annex-list li {
+  margin-bottom: 0.5em;
+}
+
+.annex-attribution {
+  margin-top: 2em;
+  font-size: 9pt;
+  color: #666666;
+  font-style: italic;
+  text-align: right;
+}

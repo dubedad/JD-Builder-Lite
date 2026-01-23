@@ -1,11 +1,12 @@
 """Export service for building export data structures."""
 
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from datetime import datetime
 from src.models.export_models import (
     ExportRequest, ExportData, JDElementExport,
     SelectionMetadata, ComplianceSection
 )
+from src.services.annex_builder import build_annex_data
 
 
 # JD Element display names
@@ -21,12 +22,17 @@ JD_ELEMENT_LABELS = {
 JD_ELEMENT_ORDER = ["key_activities", "skills", "effort", "responsibility", "working_conditions"]
 
 
-def build_export_data(request: ExportRequest) -> ExportData:
+def build_export_data(request: ExportRequest, raw_noc_data: Optional[Dict[str, Any]] = None) -> ExportData:
     """
     Build complete export data structure from request.
 
     Organizes selections by JD element and builds compliance sections
-    with Directive references.
+    with Directive references. Optionally builds Annex data if raw NOC
+    data is provided.
+
+    Args:
+        request: ExportRequest with selections and metadata
+        raw_noc_data: Optional raw NOC profile data for Annex generation
     """
     # Group selections by JD element
     selections_by_element: Dict[str, List[str]] = {}
@@ -48,6 +54,16 @@ def build_export_data(request: ExportRequest) -> ExportData:
     # Build compliance sections
     compliance_sections = build_compliance_sections(request)
 
+    # Build Annex data if raw NOC data provided
+    annex_data = None
+    if raw_noc_data:
+        annex_data = build_annex_data(
+            raw_noc_data=raw_noc_data,
+            manager_selections=request.selections,
+            noc_code=request.noc_code,
+            scraped_at=request.source_metadata.scraped_at
+        )
+
     return ExportData(
         noc_code=request.noc_code,
         job_title=request.job_title,
@@ -57,6 +73,7 @@ def build_export_data(request: ExportRequest) -> ExportData:
         ai_metadata=request.ai_metadata,
         source_metadata=request.source_metadata,
         compliance_sections=compliance_sections,
+        annex_data=annex_data,
         generated_at=datetime.utcnow()
     )
 

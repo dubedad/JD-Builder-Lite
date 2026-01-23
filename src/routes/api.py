@@ -252,13 +252,22 @@ def preview():
         # Validate and parse request
         export_request = ExportRequest(**data)
 
-        # Build export data
-        export_data = build_export_data(export_request)
+        # Fetch raw NOC data for Annex generation
+        raw_noc_data = None
+        try:
+            html = scraper.fetch_profile(export_request.noc_code)
+            raw_noc_data = parser.parse_profile(html, export_request.noc_code)
+        except Exception as e:
+            current_app.logger.warning(f"Could not fetch NOC data for Annex: {e}")
+            # Continue without Annex data - graceful degradation
+
+        # Build export data with Annex
+        export_data = build_export_data(export_request, raw_noc_data)
 
         # Render preview HTML
-        html = render_preview(export_data)
+        preview_html = render_preview(export_data)
 
-        return html, 200, {'Content-Type': 'text/html'}
+        return preview_html, 200, {'Content-Type': 'text/html'}
 
     except Exception as e:
         current_app.logger.error(f"Preview error: {e}")
@@ -288,15 +297,25 @@ def export_pdf():
         # Validate and parse request
         export_request = ExportRequest(**data)
 
-        # Build export data
-        export_data = build_export_data(export_request)
+        # Fetch raw NOC data for Annex generation
+        raw_noc_data = None
+        try:
+            html = scraper.fetch_profile(export_request.noc_code)
+            raw_noc_data = parser.parse_profile(html, export_request.noc_code)
+        except Exception as e:
+            current_app.logger.warning(f"Could not fetch NOC data for Annex: {e}")
+            # Continue without Annex data - graceful degradation
+
+        # Build export data with Annex
+        export_data = build_export_data(export_request, raw_noc_data)
 
         # Generate PDF
         pdf_bytes = generate_pdf(export_data, request.url_root)
 
-        # Create filename
+        # Create filename per CONTEXT.md: {NOC code} - {Title} - {date} - Job Description.pdf
         safe_title = "".join(c for c in export_data.job_title if c.isalnum() or c in " -_")[:50]
-        filename = f"JD-{export_data.noc_code}-{safe_title}.pdf"
+        today = datetime.utcnow().strftime('%Y-%m-%d')
+        filename = f"{export_data.noc_code} - {safe_title} - {today} - Job Description.pdf"
 
         # Return as download
         return send_file(
@@ -334,15 +353,25 @@ def export_docx():
         # Validate and parse request
         export_request = ExportRequest(**data)
 
-        # Build export data
-        export_data = build_export_data(export_request)
+        # Fetch raw NOC data for Annex generation
+        raw_noc_data = None
+        try:
+            html = scraper.fetch_profile(export_request.noc_code)
+            raw_noc_data = parser.parse_profile(html, export_request.noc_code)
+        except Exception as e:
+            current_app.logger.warning(f"Could not fetch NOC data for Annex: {e}")
+            # Continue without Annex data - graceful degradation
+
+        # Build export data with Annex
+        export_data = build_export_data(export_request, raw_noc_data)
 
         # Generate DOCX
         docx_bytes = generate_docx(export_data)
 
-        # Create filename
+        # Create filename per CONTEXT.md: {NOC code} - {Title} - {date} - Job Description.docx
         safe_title = "".join(c for c in export_data.job_title if c.isalnum() or c in " -_")[:50]
-        filename = f"JD-{export_data.noc_code}-{safe_title}.docx"
+        today = datetime.utcnow().strftime('%Y-%m-%d')
+        filename = f"{export_data.noc_code} - {safe_title} - {today} - Job Description.docx"
 
         # Return as download
         return send_file(
