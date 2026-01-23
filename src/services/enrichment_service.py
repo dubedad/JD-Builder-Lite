@@ -1,11 +1,20 @@
 """Statement enrichment service combining CSV lookups with parsed data."""
 
+import os
 import logging
 from typing import List, Dict, Optional, Tuple, Any
 from src.models.noc import EnrichedNOCStatement, ProficiencyLevel, EnrichmentSource
 from src.services.csv_loader import guide_csv
 
 logger = logging.getLogger(__name__)
+
+# Try to import OpenAI, but don't fail if not installed
+try:
+    from openai import OpenAI
+    OPENAI_AVAILABLE = True
+except ImportError:
+    OPENAI_AVAILABLE = False
+    logger.info("OpenAI not installed - LLM imputation disabled")
 
 # Work Context classification patterns (from CONTEXT.md)
 CLASSIFICATION_PATTERNS = {
@@ -16,6 +25,67 @@ CLASSIFICATION_PATTERNS = {
 
 class EnrichmentService:
     """Service for enriching parsed statements with CSV data and classification."""
+
+    def __init__(self):
+        """Initialize with optional LLM imputation support."""
+        self._imputation_cache: Dict[str, Tuple[Optional[str], float]] = {}
+        self._openai_client = None
+        self._llm_enabled = False
+
+        # Initialize OpenAI client if available and configured
+        if OPENAI_AVAILABLE:
+            api_key = os.environ.get("OPENAI_API_KEY")
+            if api_key:
+                try:
+                    self._openai_client = OpenAI(api_key=api_key)
+                    self._llm_enabled = True
+                    logger.info("LLM imputation enabled")
+                except Exception as e:
+                    logger.warning(f"Failed to initialize OpenAI client: {e}")
+            else:
+                logger.info("OPENAI_API_KEY not set - LLM imputation disabled")
+
+    def _impute_description(self, text: str, category: str) -> Tuple[Optional[str], float]:
+        """Impute description using LLM.
+
+        Args:
+            text: Statement text to describe
+            category: Category context (skills, abilities, etc.)
+
+        Returns:
+            (description, confidence) tuple
+            Returns (None, 0.0) if LLM not available or call fails
+        """
+        # Return cached result if available
+        cache_key = f"{category}:{text}"
+        if cache_key in self._imputation_cache:
+            return self._imputation_cache[cache_key]
+
+        # If LLM not enabled, return empty result
+        if not self._llm_enabled or not self._openai_client:
+            return (None, 0.0)
+
+        try:
+            response = self._openai_client.chat.completions.create(
+                model="gpt-3.5-turbo",  # Cost-effective for simple descriptions
+                messages=[
+                    {"role": "system", "content": "You are a concise assistant that provides one-sentence descriptions of occupational attributes."},
+                    {"role": "user", "content": f"Provide a one-sentence description of the OASIS attribute '{text}' in the context of {category}."}
+                ],
+                max_tokens=100,
+                temperature=0.3
+            )
+            description = response.choices[0].message.content.strip()
+            confidence = 0.7  # LLM-generated descriptions have lower confidence
+
+            # Cache result
+            result = (description, confidence)
+            self._imputation_cache[cache_key] = result
+            return result
+
+        except Exception as e:
+            logger.warning(f"LLM imputation failed for '{text}': {e}")
+            return (None, 0.0)
 
     def enrich_statement(
         self,
@@ -44,6 +114,18 @@ class EnrichmentService:
         if description == "":
             description = None
 
+        # Track enrichment source and confidence
+        enrichment_source = EnrichmentSource.GUIDE_CSV
+        confidence = 1.0
+
+        # If no description from CSV, try LLM imputation
+        if description is None:
+            imputed_desc, imputed_confidence = self._impute_description(text, category)
+            if imputed_desc:
+                description = imputed_desc
+                enrichment_source = EnrichmentSource.LLM_IMPUTED
+                confidence = imputed_confidence
+
         # Get category definition
         category_definition = guide_csv.get_category_definition(category)
 
@@ -68,8 +150,8 @@ class EnrichmentService:
             description=description,
             proficiency=proficiency,
             category_definition=category_definition,
-            enrichment_source=EnrichmentSource.GUIDE_CSV,
-            confidence=1.0
+            enrichment_source=enrichment_source,
+            confidence=confidence
         )
 
     def enrich_work_context_statement(
@@ -96,6 +178,18 @@ class EnrichmentService:
         description = row.get("description", "").strip() if row else None
         if description == "":
             description = None
+
+        # Track enrichment source and confidence
+        enrichment_source = EnrichmentSource.GUIDE_CSV
+        confidence = 1.0
+
+        # If no description from CSV, try LLM imputation
+        if description is None:
+            imputed_desc, imputed_confidence = self._impute_description(text, "work_context")
+            if imputed_desc:
+                description = imputed_desc
+                enrichment_source = EnrichmentSource.LLM_IMPUTED
+                confidence = imputed_confidence
 
         # Classify Work Context item
         classification, reason = self.classify_work_context(text, description)
@@ -144,8 +238,8 @@ class EnrichmentService:
             dimension_type=dimension_type,
             classification=classification,
             classification_reason=reason,
-            enrichment_source=EnrichmentSource.GUIDE_CSV,
-            confidence=1.0
+            enrichment_source=enrichment_source,
+            confidence=confidence
         )
 
     def classify_work_context(
