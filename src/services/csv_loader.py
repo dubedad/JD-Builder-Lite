@@ -23,6 +23,84 @@ CATEGORY_MAPPING = {
     "personal_attributes": "Personal Attributes",
 }
 
+# OASIS scale meanings from official documentation
+# Source: https://open.canada.ca/data/en/dataset/eeb3e442-9f19-4d12-8b38-c488fe4f6e5e
+SCALE_MEANINGS = {
+    "skills": {
+        1: "1 - Lowest Level",
+        2: "2 - Low Level",
+        3: "3 - Moderate Level",
+        4: "4 - High Level",
+        5: "5 - Highest Level",
+        "max": 5,
+        "dimension": "Proficiency"
+    },
+    "abilities": {
+        1: "1 - Lowest Level",
+        2: "2 - Low Level",
+        3: "3 - Moderate Level",
+        4: "4 - High Level",
+        5: "5 - Highest Level",
+        "max": 5,
+        "dimension": "Proficiency"
+    },
+    "knowledge": {
+        1: "1 - Basic",
+        2: "2 - Intermediate",
+        3: "3 - Advanced",
+        "max": 3,
+        "dimension": "Knowledge Level"
+    },
+    "work_activities": {
+        1: "1 - Lowest Complexity",
+        2: "2 - Low Complexity",
+        3: "3 - Moderate Complexity",
+        4: "4 - High Complexity",
+        5: "5 - Highest Complexity",
+        "max": 5,
+        "dimension": "Complexity"
+    },
+    "personal_attributes": {
+        1: "1 - Lowest Importance",
+        2: "2 - Low Importance",
+        3: "3 - Moderate Importance",
+        4: "4 - High Importance",
+        5: "5 - Highest Importance",
+        "max": 5,
+        "dimension": "Importance"
+    },
+    # Work Context dimension-specific scales
+    "work_context_frequency": {
+        1: "Once a year or more but not every month",
+        2: "Once a month or more but not every week",
+        3: "Once a week or more but not every day",
+        4: "Every day, a few times per day",
+        5: "Every day, many times per day",
+        "max": 5,
+        "dimension": "Frequency"
+    },
+    "work_context_duration": {
+        1: "Very little time",
+        2: "Less than half the time",
+        3: "About half the time",
+        4: "More than half the time",
+        5: "All the time, or almost all the time",
+        "max": 5,
+        "dimension": "Duration"
+    }
+}
+
+# NOC TEER (Training, Education, Experience, Responsibilities) categories
+# Source: https://noc.esdc.gc.ca/Structure/Matrix
+TEER_CATEGORIES = {
+    0: "Management occupations",
+    1: "University degree usually required",
+    2: "College diploma or apprenticeship (2+ years), or supervisory",
+    3: "College diploma or apprenticeship (<2 years), or 6+ months training",
+    4: "High school diploma or several weeks training",
+    5: "Short-term work demonstration, no formal education"
+}
+
 
 class GuideCSVLoader:
     """Singleton CSV loader with O(1) lookups for OASIS guide data."""
@@ -134,6 +212,41 @@ class GuideCSVLoader:
             ISO timestamp string, or None if not loaded
         """
         return self._loaded_at
+
+    def get_scale_meaning(self, category: str, level: int) -> Optional[dict]:
+        """Get scale meaning for a category and level.
+
+        Args:
+            category: Category name (e.g., 'skills', 'knowledge', 'work_activities')
+            level: Level value (1-5 for most, 1-3 for knowledge)
+
+        Returns:
+            Dict with level, max, label, dimension, or None if not found
+        """
+        scale = SCALE_MEANINGS.get(category.lower())
+        if not scale:
+            return None
+
+        # Get max level for this category
+        max_level = scale.get("max", 5)
+
+        # Check if level is valid
+        if level < 1 or level > max_level:
+            return None
+
+        # Get label and dimension
+        label = scale.get(level)
+        dimension = scale.get("dimension", "Level")
+
+        if not label:
+            return None
+
+        return {
+            "level": level,
+            "max": max_level,
+            "label": label,
+            "dimension": dimension
+        }
 
 
 # Module-level singleton

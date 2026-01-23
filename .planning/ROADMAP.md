@@ -96,26 +96,37 @@ Plans:
 
 **Goal:** Users can export job descriptions to Word/DOCX format with the same compliance structure as PDF, and both PDF and DOCX exports include Annex section with unused NOC reference attributes.
 
+**Plans:** 4 plans
+
+Plans:
+- [ ] 07-01-PLAN.md - Parser extension for reference attributes, Annex models and builder (Wave 1)
+- [ ] 07-02-PLAN.md - PDF export with Annex section integration (Wave 2)
+- [ ] 07-03-PLAN.md - DOCX export with Annex section and BytesIO fix (Wave 2)
+- [ ] 07-04-PLAN.md - Export UI dropdown, toast notifications, file naming (Wave 3)
+
 **Requirements:**
 - OUT-06: Manager can export final JD to Word/DOCX format
 - OUT-07: PDF export includes Annex section with unused NOC reference attributes
 - OUT-08: DOCX export includes Annex section with unused NOC reference attributes
 
 **Success Criteria:**
-1. User completes job description and sees "Export to DOCX" button alongside "Export to PDF"
-2. User clicks "Export to DOCX" and receives Word document with same section structure as PDF (General Overview, JD Elements, Compliance Metadata, Appendix A)
-3. User exports to PDF and sees Annex section at end of document listing unused NOC reference attributes (example titles, interests, career mobility, personal attributes)
-4. User exports to DOCX and sees Annex section at end of document listing unused NOC reference attributes (matching PDF structure)
+1. User completes job description and sees "Export Job Description" dropdown button
+2. User clicks dropdown and sees options for "Export as PDF" and "Export as Word" with icons
+3. User exports to PDF and sees Annex section at end of document listing unused NOC reference attributes
+4. User exports to DOCX and sees Annex section at end of document (matching PDF structure)
 5. User views Annex section in both formats and sees reference attributes formatted consistently with appropriate headings and attribution
 
 **Notes:**
 - python-docx 1.2.0 already in requirements.txt (no new dependency)
 - CRITICAL: Use context manager pattern (with BytesIO() as buffer) to prevent memory leaks in DOCX generation
 - Annex section placed after Appendix A (Compliance Metadata) in both formats
-- Annex content includes: Example titles, Interests, Career mobility paths, Job requirements, Personal attributes
-- Each Annex item includes source attribution (NOC code, retrieval timestamp)
-- Test repeated exports to verify no BytesIO accumulation in memory
-- DOCX and PDF Annex structure must match exactly (avoid divergence)
+- Annex title: "Additional Job Information"
+- Annex categories (fixed order): Job Requirements, Career Mobility, Interests (Holland Codes), Personal Suitability (Placement Criteria)
+- Each Annex category includes source attribution (NOC code, retrieval timestamp)
+- Export UI uses dropdown menu pattern (not side-by-side buttons)
+- File naming: {NOC code} - {Title} - {date} - Job Description.{ext}
+- Errors show toast notifications (non-blocking)
+- Empty category sections show placeholder text (not omitted)
 
 ## Traceability
 
@@ -146,7 +157,7 @@ Plans:
 |-------|--------|-----------|
 | 5 - Data Enrichment Pipeline | Planned | - |
 | 6 - Enhanced UI Display | Planned | - |
-| 7 - Export Extensions | Pending | - |
+| 7 - Export Extensions | Planned | - |
 
 ---
 *Roadmap created: 2026-01-22*
