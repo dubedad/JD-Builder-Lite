@@ -4,7 +4,8 @@ import re
 import logging
 from typing import List, Dict, Any
 from bs4 import BeautifulSoup
-from src.models.noc import SearchResult
+from src.models.noc import SearchResult, NOCHierarchy, BROAD_CATEGORIES
+from src.services.csv_loader import TEER_CATEGORIES
 from src.utils.selectors import get_selector, get_fallback
 
 logger = logging.getLogger(__name__)
@@ -71,6 +72,43 @@ class OASISParser:
 
         return results
 
+    def extract_noc_hierarchy(self, noc_code: str) -> NOCHierarchy:
+        """Extract NOC hierarchy from 5 or 7-digit code.
+
+        NOC code structure: 72600 or 72600.01
+          - 7 = Broad occupational category (first digit)
+          - 2 = TEER category (second digit)
+          - 72 = Major group (first 2 digits)
+          - 726 = Minor group (first 3 digits)
+          - 7260 = Unit group (first 4 digits)
+          - 72600 = Full 5-digit NOC (can have .XX suffix)
+
+        Args:
+            noc_code: NOC code string (e.g., "72600.01" or "21232")
+
+        Returns:
+            NOCHierarchy with all breakdown fields
+        """
+        # Remove decimal suffix for parsing
+        base_code = noc_code.split('.')[0]
+
+        # Pad to 5 digits if shorter
+        base_code = base_code.zfill(5)
+
+        broad = int(base_code[0])
+        teer = int(base_code[1])
+
+        return NOCHierarchy(
+            noc_code=noc_code,
+            broad_category=broad,
+            broad_category_name=BROAD_CATEGORIES.get(broad, "Unknown category"),
+            teer_category=teer,
+            teer_description=TEER_CATEGORIES.get(teer, "Unknown TEER category"),
+            major_group=base_code[:2],
+            minor_group=base_code[:3],
+            unit_group=base_code[:4]
+        )
+
     def parse_profile(self, html: str, code: str) -> Dict[str, Any]:
         """Parse profile HTML into structured data dict.
 
@@ -82,6 +120,7 @@ class OASISParser:
             Dict with:
             - noc_code: str
             - title: str
+            - noc_hierarchy: NOCHierarchy
             - main_duties: List[str]
             - work_activities: List[dict] with {text, level, max}
             - skills: List[dict] with {text, level, max}
@@ -95,6 +134,7 @@ class OASISParser:
         return {
             'noc_code': code,
             'title': self._extract_profile_title(soup),
+            'noc_hierarchy': self.extract_noc_hierarchy(code),
             'main_duties': self._extract_section_list(soup, 'Main duties'),
             'work_activities': self._extract_rating_items_with_levels(soup, 'Work Activities'),
             'skills': self._extract_rating_items_with_levels(soup, 'Skills'),
