@@ -4,7 +4,10 @@ import re
 import logging
 from typing import List, Dict, Any
 from bs4 import BeautifulSoup
-from src.models.noc import SearchResult, NOCHierarchy, BROAD_CATEGORIES
+from src.models.noc import (
+    SearchResult, NOCHierarchy, BROAD_CATEGORIES,
+    ReferenceAttributes, CareerMobilityPath, Interest, JobRequirements
+)
 from src.services.csv_loader import TEER_CATEGORIES
 from src.utils.selectors import get_selector, get_fallback
 
@@ -128,6 +131,7 @@ class OASISParser:
             - knowledge: List[dict] with {text, level, max}
             - work_context: List[dict] with {text, level, max, dimension_type}
             - employment_requirements: List[str]
+            - reference_attributes: ReferenceAttributes
         """
         soup = BeautifulSoup(html, 'lxml')
 
@@ -142,6 +146,7 @@ class OASISParser:
             'knowledge': self._extract_rating_items_with_levels(soup, 'Knowledge') or self._extract_rating_items_with_levels(soup, 'General Learning'),
             'work_context': self._extract_work_context(soup),
             'employment_requirements': self._extract_section_list(soup, 'Employment requirements'),
+            'reference_attributes': self._extract_reference_attributes(soup),
         }
 
     def _extract_profile_title(self, soup: BeautifulSoup) -> str:
@@ -529,6 +534,138 @@ class OASISParser:
                                 })
 
         return items
+
+    def _extract_also_known_as(self, soup: BeautifulSoup) -> List[str]:
+        """Extract 'Also known as' titles from Overview."""
+        # Look for text containing "Also known as" followed by a list
+        also_known = []
+
+        # Try to find in profile summary or first panel
+        for div in soup.select('.panel-body'):
+            text = div.get_text()
+            if 'Also known as' in text or 'also known as' in text:
+                # Find the ul/li items after
+                ul = div.find('ul')
+                if ul:
+                    also_known = [li.get_text(strip=True) for li in ul.find_all('li')]
+                    break
+
+        return also_known
+
+    def _extract_interests(self, soup: BeautifulSoup) -> List[Interest]:
+        """Extract interests from Interests section."""
+        interests = []
+
+        h3 = soup.find('h3', string='Interests')
+        if not h3:
+            h3 = soup.find('h3', string=lambda x: x and 'Interest' in x)
+
+        if h3:
+            panel = h3.find_parent('div', class_='panel')
+            if panel:
+                panel_body = panel.find('div', class_='panel-body')
+                if panel_body:
+                    # Interests may have name + description pairs
+                    for item in panel_body.select('.wb-eqht-grd, li'):
+                        text = item.get_text(strip=True)
+                        if text:
+                            # Try to split name: description
+                            if ':' in text:
+                                parts = text.split(':', 1)
+                                interests.append(Interest(
+                                    name=parts[0].strip(),
+                                    description=parts[1].strip() if len(parts) > 1 else None
+                                ))
+                            else:
+                                interests.append(Interest(name=text))
+
+        return interests
+
+    def _extract_career_mobility(self, soup: BeautifulSoup) -> List[CareerMobilityPath]:
+        """Extract career mobility paths from Overview."""
+        paths = []
+
+        # Look for career mobility section
+        h3 = soup.find('h3', string=lambda x: x and 'mobility' in x.lower() if x else False)
+        if not h3:
+            return paths
+
+        panel = h3.find_parent('div', class_='panel')
+        if panel:
+            panel_body = panel.find('div', class_='panel-body')
+            if panel_body:
+                for link in panel_body.find_all('a'):
+                    href = link.get('href', '')
+                    title = link.get_text(strip=True)
+
+                    # Extract NOC code from href if present
+                    code_match = self.NOC_CODE_PATTERN.search(href)
+                    noc_code = code_match.group(0) if code_match else None
+
+                    if title:
+                        paths.append(CareerMobilityPath(
+                            title=title,
+                            noc_code=noc_code
+                        ))
+
+        return paths
+
+    def _extract_personal_attributes(self, soup: BeautifulSoup) -> List[str]:
+        """Extract personal attributes from profile."""
+        # Try multiple section names
+        for section_name in ['Personal attributes', 'Personal qualities', 'Key attributes']:
+            items = self._extract_section_list(soup, section_name)
+            if items:
+                return items
+
+        # Also check rating-based personal attributes
+        items = self._extract_rating_items(soup, 'Personal Attributes')
+        if items:
+            # Convert from dict format if needed
+            if items and isinstance(items[0], dict):
+                return [item.get('text', str(item)) for item in items]
+            return items
+
+        return []
+
+    def _extract_reference_attributes(self, soup: BeautifulSoup) -> ReferenceAttributes:
+        """Extract reference attributes from Overview tab.
+
+        Looks for:
+        - "Also known as" section -> example_titles
+        - "Interests" section -> interests with descriptions
+        - "Career mobility" section -> career paths with NOC codes
+        - Employment requirements (already extracted) -> job_requirements
+        - "Personal attributes" or "Core competencies" sections
+
+        Args:
+            soup: BeautifulSoup instance
+
+        Returns:
+            ReferenceAttributes with all available data
+        """
+        # Example titles from "Also known as"
+        example_titles = self._extract_also_known_as(soup)
+
+        # Interests with descriptions
+        interests = self._extract_interests(soup)
+
+        # Career mobility paths
+        career_mobility = self._extract_career_mobility(soup)
+
+        # Personal attributes
+        personal_attributes = self._extract_personal_attributes(soup)
+
+        # Core competencies (if present)
+        core_competencies = self._extract_section_list(soup, 'Core competencies')
+
+        return ReferenceAttributes(
+            example_titles=example_titles,
+            interests=interests,
+            career_mobility=career_mobility,
+            personal_attributes=personal_attributes,
+            core_competencies=core_competencies
+        )
 
 
 # Module-level singleton for easy import
