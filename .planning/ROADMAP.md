@@ -38,6 +38,11 @@
 
 **Reference:** Slide 4, 06-CONTEXT.md Step 1 section
 
+**Plans:** 1 plan
+
+Plans:
+- [ ] 08-A-01-PLAN.md — Pill toggle, authoritative sources footnote, full stack search type support
+
 ---
 
 ### Phase 08-B: Results Cards & Grid
@@ -57,6 +62,8 @@
 4. Clicking any result navigates to profile details page
 
 **Reference:** Slides 5-8, 13, 06-CONTEXT.md Step 4 section, OASIS-HTML-REFERENCE.md
+
+**Plans:** (created by /gsd:plan-phase)
 
 ---
 
@@ -80,6 +87,8 @@
 
 **Reference:** Slides 9-10, 06-CONTEXT.md Step 9 section
 
+**Plans:** (created by /gsd:plan-phase)
+
 ---
 
 ### Phase 08-D: Statement Selection
@@ -88,7 +97,7 @@
 
 **Requirements:**
 - SEL-01: Checkboxes on all statements in all Job Header tabs
-- SEL-02: Proficiency circles display (●●●●○) matching OaSIS style
+- SEL-02: Proficiency circles display (filled/empty) matching OaSIS style
 - SEL-03: Provenance labels always visible (small italics)
 - SEL-04: Description tooltip on hover for items with proficiency levels
 - SEL-05: Single "Create Job Description (X selected)" button
@@ -101,6 +110,8 @@
 5. Single "Create Job Description (X selected)" button visible, count updates with selections
 
 **Reference:** Slide 12, 06-CONTEXT.md Step 9/10 section
+
+**Plans:** (created by /gsd:plan-phase)
 
 ---
 
@@ -126,3 +137,4 @@ Each phase produces working code. Usability testing follows execution.
 
 ---
 *Created: 2026-01-24*
+*Phase 08-A planned: 2026-01-24*
