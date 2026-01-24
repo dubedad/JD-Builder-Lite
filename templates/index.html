@@ -20,6 +20,14 @@
     <main class="container">
         <!-- Search Section -->
         <section class="search-container">
+            <div class="search-type-toggle" role="tablist">
+                <button role="tab" class="pill-btn active" data-search-type="Keyword" aria-selected="true">
+                    Keyword
+                </button>
+                <button role="tab" class="pill-btn" data-search-type="Code" aria-selected="false">
+                    Code
+                </button>
+            </div>
             <input
                 type="search"
                 id="search-input"
@@ -28,6 +36,10 @@
             >
             <button id="search-button" type="button">Search</button>
         </section>
+
+        <p class="authoritative-sources">
+            Authoritative Sources: ESDC OaSIS 2025 NOC v1.0 / ONET (R) 27.2 Database (USDOL/ETA)
+        </p>
 
         <!-- Profile Info Card (initially hidden) -->
         <section id="profile-info" class="info-card hidden">
