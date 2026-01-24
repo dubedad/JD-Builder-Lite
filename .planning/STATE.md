@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-24)
 ## Current Position
 
 Milestone: v2.0 UI Redesign
-Phase: 08-A Search Bar Redesign (1 of 1 complete)
-Status: Phase complete - ready for 08-B
-Last activity: 2026-01-24 — Completed 08-A-01-PLAN.md
+Phase: 08-B Results Cards Grid (1 of 3 complete)
+Status: In progress - backend enrichment complete
+Last activity: 2026-01-24 — Completed 08-B-01-PLAN.md
 
-Progress: [██░░░░░░░░] 20% — Phase 08-A complete (1/4 phases)
+Progress: [████░░░░░░] 40% — Phase 08-A complete, Phase 08-B 1/3 (2/5 total phases)
 
 ## Milestone History
 
@@ -39,13 +39,16 @@ v2.0 UI Redesign context gathered in `.planning/phases/06-enhanced-ui-display/`:
 | SRCH-10 | Keyword/Code pill toggle | 08-A-01 | Mimics OASIS UI, clear visual distinction between search modes |
 | SRCH-11 | Authoritative sources footnote | 08-A-01 | Transparent data attribution per requirements |
 | SRCH-12 | No version dropdown/advanced search | 08-A-01 | Not needed for v2.0 scope, keeps UI clean |
+| ENRICH-10 | Profile-dependent fields defined but left as None | 08-B-01 | Enables complete model now, progressive enhancement in Phase 08-C |
+| ENRICH-11 | Derive minor_group from NOC code | 08-B-01 | Available in search HTML without additional API calls |
+| ENRICH-12 | Backward compatible API changes | 08-B-01 | EnrichedSearchResult is superset of SearchResult |
 
 ## Session Continuity
 
 Last session: 2026-01-24
-Stopped at: Completed 08-A-01-PLAN.md
+Stopped at: Completed 08-B-01-PLAN.md
 Resume file: None
-Next: `/gsd:discuss-phase 08-B` to continue v2.0 UI Redesign
+Next: `/gsd:execute-phase 08-B-02` to implement frontend cards
 
 ---
-*Last updated: 2026-01-24 — Phase 08-A complete, ready for Phase 08-B*
+*Last updated: 2026-01-24 — Phase 08-B Plan 01 complete, backend enrichment ready*
