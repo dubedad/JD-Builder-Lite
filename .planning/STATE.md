@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-24)
 ## Current Position
 
 Milestone: v2.0 UI Redesign
-Phase: 08-B Results Cards Grid (3 of 3 complete - PHASE COMPLETE)
-Status: Complete - filter panel with Minor Unit Group filtering functional
-Last activity: 2026-01-24 — Completed 08-B-03-PLAN.md
+Phase: 08-C Profile Page Tabs (1 of 3 complete - IN PROGRESS)
+Status: In progress - LLM icon and description endpoints complete
+Last activity: 2026-01-24 — Completed 08-C-01-PLAN.md
 
-Progress: [████░░░░░░] 50% — Phases 08-A + 08-B complete (2/4 phases)
+Progress: [█████░░░░░] 55% — Phases 08-A + 08-B complete, 08-C in progress (2.3/4 phases)
 
 ## Milestone History
 
@@ -48,13 +48,17 @@ v2.0 UI Redesign context gathered in `.planning/phases/06-enhanced-ui-display/`:
 | FILT-11 | Feeder/Career filters as UI placeholders | 08-B-03 | Require profile data not available from search - deferred to Phase 08-C |
 | FILT-12 | OR logic within filter group | 08-B-03 | Matches OASIS behavior - multiple selections show ANY selected group |
 | FILT-13 | Filter module as standalone | 08-B-03 | Encapsulation, clear API boundary, easier to test and enhance |
+| D-ICON-01 | 16 semantic icon categories | 08-C-01 | Balanced coverage of NOC occupation types without overwhelming LLM |
+| D-ICON-02 | Temperature 0 for icons, 0.3 for descriptions | 08-C-01 | Deterministic icon selection, slight creativity for descriptions |
+| D-ICON-03 | Graceful fallback (fa-briefcase default) | 08-C-01 | UI never breaks from LLM failures |
+| D-ICON-04 | First 5 main duties only for descriptions | 08-C-01 | Reduces token usage while capturing key responsibilities |
 
 ## Session Continuity
 
 Last session: 2026-01-24
-Stopped at: Completed 08-B-02-PLAN.md (concurrent with 08-B-03)
+Stopped at: Completed 08-C-01-PLAN.md
 Resume file: None
-Next: `/gsd:discuss-phase 08-C` — Profile Page Tabs
+Next: Continue Phase 08-C with remaining profile page tab plans
 
 ---
-*Last updated: 2026-01-24 — Phase 08-B complete: Results cards grid with filtering*
+*Last updated: 2026-01-24 — Phase 08-C in progress: LLM icon and description endpoints complete*
