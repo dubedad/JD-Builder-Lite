@@ -13,13 +13,13 @@ autonomous: true
 
 must_haves:
   truths:
-    - "Filter panel displays with Minor Unit Group filter"
-    - "Filter panel displays with Feeder Group Mobility filter"
-    - "Filter panel displays with Career Progression filter"
-    - "Filter checkboxes are populated from current search results"
-    - "Selecting a filter checkbox narrows displayed results"
+    - "Filter panel visible with Minor Unit Group section"
+    - "Minor Unit Group filter checkboxes populated from search results"
+    - "Selecting Minor Unit Group checkbox narrows displayed results"
     - "Clearing filters restores all results"
-    - "Multiple filters can be combined (AND logic)"
+    - "Multiple Minor Unit Group filters can be combined (OR logic within group)"
+    - "Feeder Group Mobility filter section visible with placeholder message indicating profile data required"
+    - "Career Progression filter section visible with placeholder message indicating profile data required"
   artifacts:
     - path: "static/css/filters.css"
       provides: "Filter panel styles"
@@ -46,11 +46,18 @@ must_haves:
 ---
 
 <objective>
-Implement custom filter panel for search results with Minor Unit Group, Feeder Group Mobility, and Career Progression filters.
+Implement custom filter panel for search results with Minor Unit Group filter (functional) and Feeder Group Mobility / Career Progression filters (UI structure with placeholders).
 
-Purpose: Enable users to narrow search results by NOC minor group and career path criteria (DISP-22). Filters are populated dynamically from current search results. Provides filtering UX matching OaSIS pattern but with custom filter categories.
+Purpose: Enable users to narrow search results by NOC minor group (DISP-22). The Minor Unit Group filter is fully functional using data derived from search results. Feeder Group Mobility and Career Progression filters are scaffolded as UI placeholders since they require profile data not available from search results.
 
 Output: New filter panel CSS, filter logic JavaScript module, filter UI integrated into search results page.
+
+**Scope note (DISP-22 partial):** This plan delivers:
+- Minor Unit Group filter: FULLY FUNCTIONAL (uses minor_group from search results)
+- Feeder Group Mobility filter: UI ONLY with placeholder "Select a profile to enable mobility filtering"
+- Career Progression filter: UI ONLY with placeholder "Select a profile to enable progression filtering"
+
+Full Feeder/Career filtering requires profile data and is deferred to Phase 08-C or future enhancement.
 </objective>
 
 <execution_context>
@@ -334,7 +341,7 @@ Find the search-results section (around line 55-70) and wrap the content in a la
         <aside id="filter-panel" class="filter-panel">
             <h3>Filter items</h3>
 
-            <!-- Minor Unit Group Filter -->
+            <!-- Minor Unit Group Filter (FUNCTIONAL) -->
             <details class="filter-group" id="filter-minor-group" open>
                 <summary>Minor Unit Group</summary>
                 <fieldset>
@@ -345,24 +352,24 @@ Find the search-results section (around line 55-70) and wrap the content in a la
                 </fieldset>
             </details>
 
-            <!-- Feeder Group Mobility Filter -->
+            <!-- Feeder Group Mobility Filter (PLACEHOLDER - requires profile data) -->
             <details class="filter-group" id="filter-feeder-mobility">
                 <summary>Feeder Group Mobility</summary>
                 <fieldset>
                     <legend>Filter by Feeder Group Mobility</legend>
                     <div id="filter-feeder-options" class="filter-options">
-                        <p class="filter-empty">Load profiles for mobility data</p>
+                        <p class="filter-empty">Select a profile to enable mobility filtering</p>
                     </div>
                 </fieldset>
             </details>
 
-            <!-- Career Progression Filter -->
+            <!-- Career Progression Filter (PLACEHOLDER - requires profile data) -->
             <details class="filter-group" id="filter-career-progression">
                 <summary>Career Progression</summary>
                 <fieldset>
                     <legend>Filter by Career Progression</legend>
                     <div id="filter-progression-options" class="filter-options">
-                        <p class="filter-empty">Load profiles for progression data</p>
+                        <p class="filter-empty">Select a profile to enable progression filtering</p>
                     </div>
                 </fieldset>
             </details>
@@ -383,14 +390,17 @@ Find the search-results section (around line 55-70) and wrap the content in a la
 Note: The Feeder Group Mobility and Career Progression filters show placeholder text because they require profile data (fetched when user views a profile). The Minor Unit Group filter can be populated from search results immediately.
   </action>
   <verify>
-Open browser and verify:
-- Filter panel visible on left side of results
-- Three filter groups present: Minor Unit Group, Feeder Group Mobility, Career Progression
-- Groups are collapsible
-- Clear all filters button visible
+Verify filter panel HTML structure:
+```bash
+grep "filter-panel" templates/index.html
+grep "filter-minor-group" templates/index.html
+grep "filter-feeder-mobility" templates/index.html
+grep "filter-career-progression" templates/index.html
+grep "Select a profile to enable" templates/index.html
+```
   </verify>
   <done>
-Filter panel HTML added with three filter groups, clear button, and mobile toggle. Integrated into results layout.
+Filter panel HTML added with three filter groups (Minor Unit Group functional, Feeder/Career as placeholders), clear button, and mobile toggle. Integrated into results layout.
   </done>
 </task>
 
@@ -403,7 +413,11 @@ Filter panel HTML added with three filter groups, clear button, and mobile toggl
 ```javascript
 /**
  * Filter Panel Module
- * Handles filtering of search results by Minor Unit Group, Feeder Mobility, and Career Progression
+ * Handles filtering of search results by Minor Unit Group.
+ *
+ * Note: Feeder Group Mobility and Career Progression filters are UI placeholders.
+ * They require profile data which is not available from search results.
+ * Full implementation deferred to Phase 08-C or future enhancement.
  */
 
 (function() {
@@ -412,8 +426,8 @@ Filter panel HTML added with three filter groups, clear button, and mobile toggl
     // Filter state
     const filters = {
         minorGroup: new Set(),
-        feederMobility: new Set(),
-        careerProgression: new Set()
+        feederMobility: new Set(),      // Placeholder - not functional
+        careerProgression: new Set()    // Placeholder - not functional
     };
 
     // Store all results for filtering
@@ -511,9 +525,8 @@ Filter panel HTML added with three filter groups, clear button, and mobile toggl
             }
         }
 
-        // Feeder Mobility and Career Progression require profile data
-        // These will be populated when profiles are loaded
-        // For now, show informative placeholder
+        // Feeder Mobility and Career Progression: Keep placeholder messages
+        // These require profile data which is not available from search results
         if (feederOptions) {
             feederOptions.innerHTML = '<p class="filter-empty">Select a profile to enable mobility filtering</p>';
         }
@@ -560,24 +573,18 @@ Filter panel HTML added with three filter groups, clear button, and mobile toggl
      */
     function applyFilters() {
         const filtered = allResults.filter(result => {
-            // Check minor group filter
+            // Check minor group filter (OR logic - any checked group matches)
             if (filters.minorGroup.size > 0) {
                 if (!result.minor_group || !filters.minorGroup.has(result.minor_group)) {
                     return false;
                 }
             }
 
-            // Check feeder mobility filter (when implemented)
-            if (filters.feederMobility.size > 0) {
-                // TODO: Implement when profile data is available
-                // For now, pass through
-            }
+            // Feeder mobility filter: placeholder, not functional
+            // Full implementation requires profile data (Phase 08-C or future)
 
-            // Check career progression filter (when implemented)
-            if (filters.careerProgression.size > 0) {
-                // TODO: Implement when profile data is available
-                // For now, pass through
-            }
+            // Career progression filter: placeholder, not functional
+            // Full implementation requires profile data (Phase 08-C or future)
 
             return true;
         });
@@ -688,12 +695,13 @@ Note: The filter module stores allResults internally and calls renderSearchResul
 Test filter functionality:
 1. Search for "software" - Minor Unit Group filter should populate with groups from results
 2. Check a minor group checkbox - results should filter down
-3. Check another checkbox - further filtering (AND logic)
+3. Check another checkbox - further filtering (OR logic within minor group)
 4. Click "Clear all filters" - all results return
 5. Active filter count badge appears when filters active
+6. Feeder/Career filters show placeholder text (not functional)
   </verify>
   <done>
-Filter module created with Minor Unit Group filtering. Feeder Mobility and Career Progression filters show placeholder (require profile data). Filters integrate with main.js. Clear button and active count work.
+Filter module created with Minor Unit Group filtering functional. Feeder Mobility and Career Progression filters show placeholder messages (require profile data - deferred to Phase 08-C). Filters integrate with main.js. Clear button and active count work.
   </done>
 </task>
 
@@ -708,26 +716,26 @@ After all tasks complete:
    - Filter panel visible on left side of results
    - Three filter groups: Minor Unit Group, Feeder Group Mobility, Career Progression
 
-2. **Minor Group filter verification:**
+2. **Minor Group filter verification (FUNCTIONAL):**
    - Minor Unit Group filter populates with groups from results
-   - Each group shows count (e.g., "726 - Air pilots (3)")
+   - Each group shows count (e.g., "726 - Minor Group 726 (3)")
    - Checking a group filters results to only that group
-   - Checking multiple groups shows results from any checked group
+   - Checking multiple groups shows results from any checked group (OR logic)
 
-3. **Clear filter verification:**
+3. **Placeholder verification:**
+   - Feeder Group Mobility shows "Select a profile to enable mobility filtering"
+   - Career Progression shows "Select a profile to enable progression filtering"
+   - These are UI placeholders - filtering not functional
+
+4. **Clear filter verification:**
    - With filters active, badge shows count
    - Click "Clear all filters" - all results return
    - Checkboxes are unchecked
    - Badge disappears
 
-4. **New search verification:**
+5. **New search verification:**
    - Perform new search - filters are cleared
    - Minor Group filter repopulates with new results
-
-5. **Placeholder verification:**
-   - Feeder Group Mobility shows "Select a profile to enable mobility filtering"
-   - Career Progression shows similar placeholder
-   - These require profile data (future enhancement)
 
 6. **Responsive verification:**
    - Resize to mobile - filter toggle button appears
@@ -740,10 +748,11 @@ After all tasks complete:
 - [ ] Filter panel visible in results layout (left sidebar)
 - [ ] Three filter groups render with collapsible details
 - [ ] Minor Unit Group filter populates from search results
-- [ ] Checking Minor Group checkbox filters results
+- [ ] Checking Minor Group checkbox filters results (OR logic)
 - [ ] Clear all filters button restores all results
 - [ ] Active filter count badge appears when filters active
-- [ ] Feeder/Progression filters show placeholder (future enhancement)
+- [ ] Feeder Group Mobility shows placeholder message
+- [ ] Career Progression shows placeholder message
 - [ ] filters.js module exports init, updateOptions, clear, getState
 - [ ] main.js integrates filter module
 - [ ] Responsive layout works (mobile toggle, stacked layout)

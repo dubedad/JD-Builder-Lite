@@ -20,6 +20,7 @@ must_haves:
     - "Each card shows matching criteria with search icon"
     - "Cards are clickable and navigate to profile details"
     - "Sort dropdown allows sorting by label, code, or match"
+    - "Grid view shows placeholder message for skills/abilities/knowledge columns (profile data required)"
   artifacts:
     - path: "static/css/results-cards.css"
       provides: "OaSIS card styles matching reference"
@@ -51,6 +52,8 @@ Implement OaSIS-style card view for search results with 6 data points.
 Purpose: Render search results as rich cards matching OaSIS design (DISP-20). Display lead statement, TEER, broad category, and matching criteria with appropriate icons. Add sort controls per OaSIS pattern.
 
 Output: New CSS file for card styles, updated renderSearchResults() to use enriched data, sort dropdown, clickable cards navigating to profile.
+
+**Scope note (DISP-21 Grid View):** Grid view displays columns for Skills, Abilities, and Knowledge with placeholder text "Load profile for [X]". These columns require profile data which is not available from search results. Full grid population deferred to Phase 08-C profile integration or future enhancement.
 </objective>
 
 <execution_context>
@@ -250,6 +253,13 @@ Output: New CSS file for card styles, updated renderSearchResults() to use enric
 .oasis-card .far {
     font-size: 1rem;
 }
+
+/* Grid View placeholder text */
+.loading-text {
+    color: var(--text-light);
+    font-style: italic;
+    font-size: 0.8rem;
+}
 ```
 
 2. Add CSS link to templates/index.html after the existing CSS links (around line 11):
@@ -328,10 +338,12 @@ With this enhanced structure:
 Note: Changed from <ul> to <div> for more flexible card layout. Added sort dropdown and results count.
   </action>
   <verify>
-Open browser and check DOM structure:
-- Sort dropdown visible with 5 options
-- View toggle button has icon
-- Results container is a div with role="list"
+Verify HTML structure contains required elements:
+```bash
+grep "sort-select" templates/index.html
+grep "results-cards-container" templates/index.html
+grep "view-toggle" templates/index.html
+```
   </verify>
   <done>
 Search results section has sort dropdown, view toggle with icon, results count placeholder, and flexible container div.
@@ -434,7 +446,8 @@ function renderCardView(results) {
 }
 
 /**
- * Render grid view (simplified - will be enhanced in Plan 03)
+ * Render grid view with placeholder for profile-dependent columns
+ * Note: Skills/Abilities/Knowledge require profile fetch - shows placeholder
  * @param {Array} results - Array of EnrichedSearchResult objects
  */
 function renderGridView(results) {
@@ -566,9 +579,10 @@ Run the app and test:
 3. Sort dropdown should reorder cards
 4. Clicking a card should navigate to profile
 5. View toggle should switch between card and grid views
+6. Grid view shows "Load profile for skills/abilities/knowledge" placeholders
   </verify>
   <done>
-Card view renders with OaSIS styling and icons. Sort dropdown works. Cards are clickable with keyboard support. View toggle switches views.
+Card view renders with OaSIS styling and icons. Sort dropdown works. Cards are clickable with keyboard support. View toggle switches views. Grid view shows placeholder text for profile-dependent columns.
   </done>
 </task>
 
@@ -598,6 +612,7 @@ After all tasks complete:
 
 4. **View toggle verification:**
    - Click "Grid view" - switches to grid layout
+   - Grid shows "Load profile for skills/abilities/knowledge" in respective columns
    - Click "Card view" - switches back to cards
 
 5. **Responsive verification:**
@@ -615,6 +630,7 @@ After all tasks complete:
 - [ ] Clicking card navigates to profile
 - [ ] Keyboard Enter on card navigates to profile
 - [ ] View toggle switches between card/grid
+- [ ] Grid view shows placeholder text for skills/abilities/knowledge columns
 - [ ] Results count displays correctly
 - [ ] Responsive layout works on mobile
 </success_criteria>

@@ -18,7 +18,7 @@ must_haves:
     - "Each result includes TEER description from OaSIS HTML"
     - "Each result includes broad category from OaSIS HTML"
     - "Each result includes matching criteria from OaSIS HTML"
-    - "Minor group is derived from NOC code for filtering"
+    - "Minor group code is derived from NOC code for filtering"
   artifacts:
     - path: "src/models/noc.py"
       provides: "EnrichedSearchResult model with all card/filter fields"
@@ -53,6 +53,10 @@ Create backend infrastructure for enriched search results with all 6 card data p
 Purpose: Enable frontend to render OaSIS-style cards without additional API calls. Extract lead statement, TEER, broad category, and matching criteria from OaSIS search HTML. Derive minor group from NOC code for filtering.
 
 Output: EnrichedSearchResult model, enhanced parser method, updated API route returning enriched data.
+
+**Scope note:** This plan extracts data available from search results HTML. Fields requiring profile fetch (example_titles, mobility_progression, source_table, publication_date, top_skills, top_abilities, top_knowledge) are defined in the model but populated as None. Profile data population is deferred to Phase 08-C or a future enhancement.
+
+**Limitation:** minor_group_name is not available from search results HTML. The field exists in the model but remains None. Only minor_group (the 3-digit code) is derived from the NOC code.
 </objective>
 
 <execution_context>
@@ -93,6 +97,9 @@ class EnrichedSearchResult(BaseModel):
     6. publication_date - (requires profile fetch, optional)
 
     Plus fields for filtering (DISP-22) and grid view (DISP-21).
+
+    Note: Fields marked "requires profile fetch" are populated as None in this phase.
+    Profile data population deferred to Phase 08-C or future enhancement.
     """
     # Core fields (same as SearchResult)
     noc_code: str
@@ -114,7 +121,7 @@ class EnrichedSearchResult(BaseModel):
     # For Filtering (DISP-22) - derived from NOC code
     broad_category: Optional[int] = None  # First digit of NOC code
     minor_group: Optional[str] = None     # First 3 digits
-    minor_group_name: Optional[str] = None
+    minor_group_name: Optional[str] = None  # Not available from search HTML
 
     # For Grid View (DISP-21) - requires profile fetch
     top_skills: Optional[List[str]] = None
@@ -256,6 +263,7 @@ def parse_search_results_enhanced(self, html: str) -> List[EnrichedSearchResult]
             matching_criteria=matching_criteria,
             broad_category=broad_category,
             minor_group=minor_group,
+            minor_group_name=None,  # Not available from search HTML
             # These require profile fetch - left as None
             example_titles=None,
             mobility_progression=None,
@@ -408,6 +416,7 @@ After all tasks complete:
 - [ ] Minor group derived from NOC code (first 3 digits)
 - [ ] API /search returns EnrichedSearchResult via SearchResponse
 - [ ] Existing frontend continues to work (backward compatible)
+- [ ] Profile-dependent fields (skills, abilities, knowledge, mobility) documented as None
 </success_criteria>
 
 <output>
