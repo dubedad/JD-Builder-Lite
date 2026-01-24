@@ -12,6 +12,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const sidebarToggle = document.getElementById('sidebar-toggle');
     const viewToggle = document.getElementById('view-toggle');
     const pillBtns = document.querySelectorAll('.pill-btn');
+    const sortSelect = document.getElementById('sort-select');
+    const resultsCount = document.getElementById('results-count');
+    const viewToggleLabel = document.getElementById('view-toggle-label');
 
     // Profile info elements
     const profileTitle = document.getElementById('profile-title');
@@ -33,6 +36,11 @@ document.addEventListener('DOMContentLoaded', function() {
     initSectionSearch();
     initGenerate();
     initExport();
+
+    // Initialize filter module
+    filterModule.init(function(filteredResults) {
+        renderSearchResults(filteredResults);
+    });
 
     // Search type toggle state
     let currentSearchType = 'Keyword';
@@ -87,11 +95,11 @@ document.addEventListener('DOMContentLoaded', function() {
         resultsList.className = 'results-list ' + view + '-view';
 
         if (view === 'grid') {
-            viewToggle.innerHTML = '<span aria-hidden="true">&#x25A6;</span>';
+            viewToggleLabel.textContent = 'Card view';
             viewToggle.setAttribute('aria-label', 'Switch to card view');
             viewToggle.setAttribute('title', 'Card view');
         } else {
-            viewToggle.innerHTML = '<span aria-hidden="true">&#x2630;</span>';
+            viewToggleLabel.textContent = 'Grid view';
             viewToggle.setAttribute('aria-label', 'Switch to grid view');
             viewToggle.setAttribute('title', 'Grid view');
         }
@@ -346,6 +354,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
         try {
             const response = await api.search(query, currentSearchType);
+
+            // Update filter options with new results
+            filterModule.updateOptions(response.results);
+
+            // Clear any previous filters when doing new search
+            filterModule.clear();
+
             renderSearchResults(response.results);
             searchResults.classList.remove('hidden');
         } catch (error) {
