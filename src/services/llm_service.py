@@ -18,6 +18,26 @@ JD_ELEMENT_LABELS = {
     "working_conditions": "Working Conditions"
 }
 
+# Icon options for occupation icon selection
+ICON_OPTIONS = {
+    "legislative": "fa-landmark",
+    "management": "fa-users-cog",
+    "business": "fa-briefcase",
+    "finance": "fa-chart-line",
+    "sciences": "fa-atom",
+    "health": "fa-heartbeat",
+    "education": "fa-graduation-cap",
+    "law": "fa-balance-scale",
+    "arts": "fa-palette",
+    "sports": "fa-running",
+    "sales": "fa-handshake",
+    "transport": "fa-truck",
+    "trades": "fa-tools",
+    "agriculture": "fa-tractor",
+    "manufacturing": "fa-industry",
+    "default": "fa-briefcase"
+}
+
 # Initialize OpenAI client
 client = OpenAI(api_key=OPENAI_API_KEY)
 
@@ -118,3 +138,111 @@ def get_model_name() -> str:
 def get_prompt_version() -> str:
     """Return the prompt version for provenance tracking."""
     return PROMPT_VERSION
+
+
+def select_occupation_icon(occupation_title: str, lead_statement: str) -> str:
+    """
+    Select an appropriate Font Awesome icon class for an occupation.
+
+    Uses LLM to choose the most appropriate icon from ICON_OPTIONS based on
+    the occupation title and lead statement.
+
+    Args:
+        occupation_title: The NOC occupation title
+        lead_statement: The NOC lead statement/description
+
+    Returns:
+        Font Awesome icon class (e.g., "fa-atom")
+        Falls back to "fa-briefcase" on error or invalid response
+    """
+    try:
+        # Build available icons list for the prompt
+        icon_list = "\n".join([f"- {category}: {icon_class}" for category, icon_class in ICON_OPTIONS.items()])
+
+        system_prompt = "You are an icon selection expert. Select ONE icon class from the list that best represents this occupation. Return ONLY the icon class name."
+
+        user_prompt = f"""Occupation: {occupation_title}
+
+Description: {lead_statement}
+
+Available icon classes:
+{icon_list}
+
+Select the most appropriate icon class. Return ONLY the icon class name (e.g., "fa-atom")."""
+
+        response = client.chat.completions.create(
+            model=OPENAI_MODEL,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ],
+            temperature=0,  # Deterministic
+            max_tokens=30
+        )
+
+        # Extract and validate response
+        icon_class = response.choices[0].message.content.strip()
+
+        # Validate it's in our allowed list
+        if icon_class in ICON_OPTIONS.values():
+            return icon_class
+        else:
+            # Fallback to default
+            return "fa-briefcase"
+
+    except Exception as e:
+        # Log error but return fallback gracefully
+        print(f"Icon selection error: {e}")
+        return "fa-briefcase"
+
+
+def generate_occupation_description(occupation_title: str, lead_statement: str, main_duties: List[str]) -> str:
+    """
+    Generate a concise occupation description paragraph.
+
+    Uses LLM to synthesize a 3-4 sentence paragraph describing what workers
+    in this occupation do, based on NOC data.
+
+    Args:
+        occupation_title: The NOC occupation title
+        lead_statement: The NOC lead statement
+        main_duties: List of main duty statements (uses first 5)
+
+    Returns:
+        Generated description paragraph (~100 words)
+        Returns empty string on error
+    """
+    try:
+        # Limit to first 5 duties
+        duties_subset = main_duties[:5] if main_duties else []
+        duties_text = "\n".join([f"- {duty}" for duty in duties_subset])
+
+        system_prompt = "You are an expert HR consultant. Generate a concise 3-4 sentence paragraph (~100 words) describing what workers in this occupation do. Write in third person present tense. Synthesize the information - do not copy verbatim."
+
+        user_prompt = f"""Occupation: {occupation_title}
+
+Lead Statement: {lead_statement}
+
+Main Duties:
+{duties_text}
+
+Generate a professional 3-4 sentence description of what workers in this occupation do."""
+
+        response = client.chat.completions.create(
+            model=OPENAI_MODEL,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ],
+            temperature=0.3,  # Slight creativity
+            max_tokens=200
+        )
+
+        # Extract and clean response
+        description = response.choices[0].message.content.strip()
+        return description
+
+    except Exception as e:
+        # Log error but return empty string gracefully
+        print(f"Description generation error: {e}")
+        return ""
