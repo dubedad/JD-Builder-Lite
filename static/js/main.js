@@ -199,112 +199,115 @@ document.addEventListener('DOMContentLoaded', function() {
         lastResults = results; // Store for re-rendering
         resultsList.innerHTML = '';
 
+        // Update results count
+        resultsCount.textContent = `Showing ${results.length} ${results.length === 1 ? 'result' : 'results'}`;
+
         if (results.length === 0) {
-            resultsList.innerHTML = '<li class="empty-state">No results found</li>';
+            resultsList.innerHTML = '<div class="empty-state" role="listitem">No results found</div>';
             return;
         }
 
         if (currentView === 'grid' && !mediaQuery.matches) {
-            // Add header row for grid view
-            const header = document.createElement('div');
-            header.className = 'grid-header';
-            header.setAttribute('role', 'row');
-            header.innerHTML = `
-                <div class="grid-header-cell" data-column="profile" role="columnheader">
-                    OASIS Profile<span class="sort-indicator"></span>
+            renderGridView(results);
+        } else {
+            renderCardView(results);
+        }
+    }
+
+    /**
+     * Render OaSIS-style card view
+     * @param {Array} results - Array of EnrichedSearchResult objects
+     */
+    function renderCardView(results) {
+        resultsList.className = 'results-cards-container';
+
+        results.forEach(function(result) {
+            const card = document.createElement('div');
+            card.className = 'oasis-card';
+            card.setAttribute('data-code', result.noc_code);
+            card.setAttribute('role', 'listitem');
+            card.setAttribute('tabindex', '0');
+
+            // Build card HTML with available data
+            card.innerHTML = `
+                <div class="card-header">
+                    <a href="#" class="card-title-link" data-code="${escapeHtml(result.noc_code)}">
+                        ${escapeHtml(result.noc_code)} - ${escapeHtml(result.title)}
+                    </a>
                 </div>
-                <div class="grid-header-cell" data-column="examples" role="columnheader">
-                    Example Titles<span class="sort-indicator"></span>
+
+                ${result.broad_category_name ? `
+                <div class="card-row">
+                    <i class="fa fa-truck card-icon" aria-hidden="true"></i>
+                    <span class="card-text">${escapeHtml(result.broad_category_name)}</span>
                 </div>
-                <div class="grid-header-cell" data-column="lead" role="columnheader">
-                    Lead Statement<span class="sort-indicator"></span>
+                ` : ''}
+
+                ${result.teer_description ? `
+                <div class="card-row">
+                    <i class="fa fa-bookmark card-icon" aria-hidden="true"></i>
+                    <span class="card-text">${escapeHtml(result.teer_description)}</span>
                 </div>
-                <div class="grid-header-cell" data-column="teer" role="columnheader">
-                    TEER<span class="sort-indicator"></span>
+                ` : ''}
+
+                ${result.lead_statement ? `
+                <div class="card-row">
+                    <i class="fa fa-book card-icon" aria-hidden="true"></i>
+                    <span class="card-text">${escapeHtml(result.lead_statement)}</span>
+                </div>
+                ` : ''}
+
+                <div class="card-footer">
+                    <i class="fa fa-search card-icon" aria-hidden="true"></i>
+                    <span class="card-text">
+                        <span class="matching-label">Matching search criteria</span>
+                        ${result.matching_criteria ? `<br><span class="matching-value">${escapeHtml(result.matching_criteria)}</span>` : ''}
+                    </span>
                 </div>
             `;
-            resultsList.appendChild(header);
 
-            // Render grid rows
-            results.forEach(function(result) {
-                const li = document.createElement('li');
-                li.setAttribute('data-code', result.noc_code);
-                li.setAttribute('role', 'row');
-                li.innerHTML = `
-                    <div class="grid-cell" data-column="profile" role="cell">
-                        <strong>${escapeHtml(result.title)}</strong>
-                        <span class="noc-code">(${escapeHtml(result.noc_code)})</span>
-                    </div>
-                    <div class="grid-cell" data-column="examples" role="cell">
-                        ${escapeHtml(result.example_titles || '-')}
-                    </div>
-                    <div class="grid-cell" data-column="lead" role="cell">
-                        ${escapeHtml(result.lead_statement || '-')}
-                    </div>
-                    <div class="grid-cell" data-column="teer" role="cell">
-                        ${escapeHtml(result.teer || '-')}
-                    </div>
-                `;
-                resultsList.appendChild(li);
-            });
-
-            updateSortIndicator();
-        } else {
-            // Card view rendering
-            results.forEach(function(result) {
-                const li = document.createElement('li');
-                li.setAttribute('data-code', result.noc_code);
-                li.innerHTML = `
-                    <span class="result-title">${escapeHtml(result.title)}</span>
-                    <span class="noc-code">(${escapeHtml(result.noc_code)})</span>
-                `;
-                resultsList.appendChild(li);
-            });
-        }
-    }
-
-    /**
-     * Sort results by column
-     * @param {string} column - Column name to sort by
-     */
-    function sortResults(column) {
-        if (currentSort.column === column) {
-            currentSort.ascending = !currentSort.ascending;
-        } else {
-            currentSort.column = column;
-            currentSort.ascending = true;
-        }
-
-        const sortKey = {
-            profile: 'title',
-            examples: 'example_titles',
-            lead: 'lead_statement',
-            teer: 'teer'
-        }[column] || 'title';
-
-        lastResults.sort((a, b) => {
-            const aVal = (a[sortKey] || '').toString();
-            const bVal = (b[sortKey] || '').toString();
-            const cmp = aVal.localeCompare(bVal);
-            return currentSort.ascending ? cmp : -cmp;
+            resultsList.appendChild(card);
         });
-
-        renderSearchResults(lastResults);
     }
 
     /**
-     * Update sort indicator arrows in grid header
+     * Render grid view with placeholder for profile-dependent columns
+     * Note: Skills/Abilities/Knowledge require profile fetch - shows placeholder
+     * @param {Array} results - Array of EnrichedSearchResult objects
      */
-    function updateSortIndicator() {
-        document.querySelectorAll('.grid-header-cell').forEach(cell => {
-            const indicator = cell.querySelector('.sort-indicator');
-            if (cell.dataset.column === currentSort.column) {
-                indicator.textContent = currentSort.ascending ? ' ▲' : ' ▼';
-                indicator.classList.add('active');
-            } else {
-                indicator.textContent = '';
-                indicator.classList.remove('active');
-            }
+    function renderGridView(results) {
+        resultsList.className = 'results-list grid-view';
+
+        // Grid header
+        const header = document.createElement('div');
+        header.className = 'grid-header';
+        header.setAttribute('role', 'row');
+        header.innerHTML = `
+            <div class="grid-header-cell" role="columnheader">OaSIS Profile</div>
+            <div class="grid-header-cell" role="columnheader">Top Skills</div>
+            <div class="grid-header-cell" role="columnheader">Top Abilities</div>
+            <div class="grid-header-cell" role="columnheader">Top Knowledge</div>
+            <div class="grid-header-cell" role="columnheader">Matching Criteria</div>
+        `;
+        resultsList.appendChild(header);
+
+        // Grid rows (skills/abilities/knowledge require profile fetch - show placeholder)
+        results.forEach(function(result) {
+            const row = document.createElement('div');
+            row.className = 'grid-row';
+            row.setAttribute('data-code', result.noc_code);
+            row.setAttribute('role', 'row');
+            row.setAttribute('tabindex', '0');
+            row.innerHTML = `
+                <div class="grid-cell" role="cell">
+                    <a href="#" class="grid-profile-link">${escapeHtml(result.noc_code)} - ${escapeHtml(result.title)}</a>
+                </div>
+                <div class="grid-cell" role="cell">${result.top_skills ? result.top_skills.slice(0, 3).join(', ') : '<span class="loading-text">Load profile for skills</span>'}</div>
+                <div class="grid-cell" role="cell">${result.top_abilities ? result.top_abilities.slice(0, 3).join(', ') : '<span class="loading-text">Load profile for abilities</span>'}</div>
+                <div class="grid-cell" role="cell">${result.top_knowledge ? result.top_knowledge.slice(0, 3).join(', ') : '<span class="loading-text">Load profile for knowledge</span>'}</div>
+                <div class="grid-cell" role="cell">${escapeHtml(result.matching_criteria || '-')}</div>
+            `;
+            resultsList.appendChild(row);
         });
     }
 
@@ -425,19 +428,66 @@ document.addEventListener('DOMContentLoaded', function() {
         switchView(currentView === 'card' ? 'grid' : 'card');
     });
 
-    // Event delegation for result clicks and sort header clicks
+    // Sort dropdown handler
+    sortSelect.addEventListener('change', function() {
+        const sortValue = sortSelect.value;
+        let sorted = [...lastResults];
+
+        switch (sortValue) {
+            case 'title-asc':
+                sorted.sort((a, b) => a.title.localeCompare(b.title));
+                break;
+            case 'title-desc':
+                sorted.sort((a, b) => b.title.localeCompare(a.title));
+                break;
+            case 'code-asc':
+                sorted.sort((a, b) => a.noc_code.localeCompare(b.noc_code));
+                break;
+            case 'code-desc':
+                sorted.sort((a, b) => b.noc_code.localeCompare(a.noc_code));
+                break;
+            case 'match':
+            default:
+                // Keep original order (API returns by match relevance)
+                sorted = [...lastResults];
+                break;
+        }
+
+        renderSearchResults(sorted);
+    });
+
+    // Event delegation for result clicks
     resultsList.addEventListener('click', function(e) {
-        const headerCell = e.target.closest('.grid-header-cell');
-        if (headerCell) {
-            sortResults(headerCell.dataset.column);
+        // Handle card clicks (prevent link default, use data-code)
+        const card = e.target.closest('.oasis-card, .grid-row');
+        if (card) {
+            e.preventDefault();
+            const code = card.getAttribute('data-code');
+            if (code) {
+                handleResultClick(code);
+            }
             return;
         }
 
-        // Existing result click handling
+        // Fallback for direct li clicks (legacy)
         const li = e.target.closest('li[data-code]');
         if (li) {
             const code = li.getAttribute('data-code');
             handleResultClick(code);
+        }
+    });
+
+    // Keyboard navigation for cards
+    resultsList.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            const card = e.target.closest('.oasis-card, .grid-row');
+            if (card) {
+                e.preventDefault();
+                const code = card.getAttribute('data-code');
+                if (code) {
+                    handleResultClick(code);
+                }
+            }
         }
     });
 
