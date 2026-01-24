@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="/static/css/skeleton.css">
     <link rel="stylesheet" href="/static/css/overview.css">
     <link rel="stylesheet" href="/static/css/results-cards.css">
+    <link rel="stylesheet" href="/static/css/filters.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
@@ -67,13 +68,29 @@
 
         <!-- Search Results (initially hidden) -->
         <section id="search-results" class="search-results hidden">
-            <div class="view-controls">
-                <button id="view-toggle" class="view-toggle" aria-label="Switch to grid view" title="Grid view">
-                    <span aria-hidden="true">&#x2630;</span>
-                </button>
-            </div>
             <h2>Search Results</h2>
-            <ul id="results-list" class="results-list card-view"></ul>
+
+            <!-- Sort and View Controls -->
+            <div class="sort-controls">
+                <label for="sort-select">Sort by:</label>
+                <select id="sort-select" class="sort-select">
+                    <option value="match" selected>Matching search criteria</option>
+                    <option value="title-asc">Label - A to Z</option>
+                    <option value="title-desc">Label - Z to A</option>
+                    <option value="code-asc">Code - Ascending</option>
+                    <option value="code-desc">Code - Descending</option>
+                </select>
+
+                <button id="view-toggle" class="view-toggle btn btn--secondary" aria-label="Switch to grid view" title="Grid view">
+                    <span id="view-toggle-label">Grid view</span>
+                    <i class="fa fa-th-list" aria-hidden="true"></i>
+                </button>
+
+                <span id="results-count" class="results-count"></span>
+            </div>
+
+            <!-- Results Container (card or grid view) -->
+            <div id="results-list" class="results-cards-container" role="list"></div>
         </section>
 
         <!-- JD Sections Accordion Container -->

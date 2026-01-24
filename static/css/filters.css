@@ -1,0 +1,195 @@
+/* Filter Panel Styles
+   Based on OASIS-HTML-REFERENCE.md filter patterns
+*/
+
+/* Results Layout with Filter Panel */
+.results-layout {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+}
+
+.results-main {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Filter Panel */
+.filter-panel {
+    width: 280px;
+    flex-shrink: 0;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1rem;
+}
+
+.filter-panel h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+/* Filter Groups (collapsible details) */
+.filter-group {
+    margin-bottom: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+}
+
+.filter-group summary {
+    padding: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    background: var(--highlight);
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.filter-group summary::-webkit-details-marker {
+    display: none;
+}
+
+.filter-group summary::after {
+    content: '+';
+    font-weight: bold;
+    font-size: 1.25rem;
+    color: var(--text-light);
+}
+
+.filter-group[open] summary::after {
+    content: '-';
+}
+
+.filter-group summary:hover {
+    background: var(--border-light, #f0f0f0);
+}
+
+.filter-group summary:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+}
+
+/* Filter Fieldset */
+.filter-group fieldset {
+    border: none;
+    margin: 0;
+    padding: 0.5rem 0.75rem;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.filter-group legend {
+    display: none;
+}
+
+/* Filter Checkboxes */
+.filter-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.25rem 0;
+    font-size: 0.875rem;
+    cursor: pointer;
+}
+
+.filter-checkbox input[type="checkbox"] {
+    margin-top: 0.25rem;
+    flex-shrink: 0;
+}
+
+.filter-checkbox-label {
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.filter-checkbox-count {
+    color: var(--text-light);
+    font-size: 0.75rem;
+    margin-left: 0.25rem;
+}
+
+/* Clear Filters Button */
+.filter-clear {
+    width: 100%;
+    padding: 0.5rem;
+    margin-top: 1rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.875rem;
+}
+
+.filter-clear:hover {
+    background: var(--highlight);
+}
+
+.filter-clear:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Active Filter Badge */
+.filter-active-count {
+    background: var(--accent);
+    color: white;
+    font-size: 0.75rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: 10px;
+    margin-left: 0.5rem;
+}
+
+/* Empty Filter State */
+.filter-empty {
+    padding: 0.75rem;
+    color: var(--text-light);
+    font-size: 0.875rem;
+    font-style: italic;
+    text-align: center;
+}
+
+/* Responsive: Hide filter panel on mobile */
+@media (max-width: 768px) {
+    .results-layout {
+        flex-direction: column;
+    }
+
+    .filter-panel {
+        width: 100%;
+        order: -1; /* Filters above results on mobile */
+    }
+
+    /* Collapse all filter groups by default on mobile */
+    .filter-group:not([open]) {
+        /* Default closed on mobile for space */
+    }
+}
+
+/* Filter Panel Toggle (for mobile) */
+.filter-toggle {
+    display: none;
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+    .filter-toggle {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .filter-panel.collapsed {
+        display: none;
+    }
+}
