@@ -89,8 +89,61 @@
                 <span id="results-count" class="results-count"></span>
             </div>
 
-            <!-- Results Container (card or grid view) -->
-            <div id="results-list" class="results-cards-container" role="list"></div>
+            <!-- Filter Toggle (mobile) -->
+            <button id="filter-toggle" class="filter-toggle" type="button">
+                <span>Filter Results</span>
+                <span id="filter-active-indicator"></span>
+            </button>
+
+            <!-- Results Layout with Filter Panel -->
+            <div class="results-layout">
+                <!-- Filter Panel -->
+                <aside id="filter-panel" class="filter-panel">
+                    <h3>Filter items</h3>
+
+                    <!-- Minor Unit Group Filter (FUNCTIONAL) -->
+                    <details class="filter-group" id="filter-minor-group" open>
+                        <summary>Minor Unit Group</summary>
+                        <fieldset>
+                            <legend>Filter by Minor Unit Group</legend>
+                            <div id="filter-minor-group-options" class="filter-options">
+                                <p class="filter-empty">Search to see filter options</p>
+                            </div>
+                        </fieldset>
+                    </details>
+
+                    <!-- Feeder Group Mobility Filter (PLACEHOLDER - requires profile data) -->
+                    <details class="filter-group" id="filter-feeder-mobility">
+                        <summary>Feeder Group Mobility</summary>
+                        <fieldset>
+                            <legend>Filter by Feeder Group Mobility</legend>
+                            <div id="filter-feeder-options" class="filter-options">
+                                <p class="filter-empty">Select a profile to enable mobility filtering</p>
+                            </div>
+                        </fieldset>
+                    </details>
+
+                    <!-- Career Progression Filter (PLACEHOLDER - requires profile data) -->
+                    <details class="filter-group" id="filter-career-progression">
+                        <summary>Career Progression</summary>
+                        <fieldset>
+                            <legend>Filter by Career Progression</legend>
+                            <div id="filter-progression-options" class="filter-options">
+                                <p class="filter-empty">Select a profile to enable progression filtering</p>
+                            </div>
+                        </fieldset>
+                    </details>
+
+                    <button id="filter-clear" class="filter-clear" type="button" disabled>
+                        Clear all filters
+                    </button>
+                </aside>
+
+                <!-- Results Main Content -->
+                <div class="results-main">
+                    <div id="results-list" class="results-cards-container" role="list"></div>
+                </div>
+            </div>
         </section>
 
         <!-- JD Sections Accordion Container -->
