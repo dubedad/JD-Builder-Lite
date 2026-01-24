@@ -121,7 +121,10 @@ Plans:
 
 **Reference:** Slide 12, 06-CONTEXT.md Step 9/10 section
 
-**Plans:** (created by /gsd:plan-phase)
+**Plans:** 1 plan
+
+Plans:
+- [ ] 08-D-01-PLAN.md — Tooltips, provenance display, consolidated Create button
 
 ---
 
@@ -150,3 +153,4 @@ Each phase produces working code. Usability testing follows execution.
 *Phase 08-A planned: 2026-01-24*
 *Phase 08-B planned: 2026-01-24*
 *Phase 08-C planned: 2026-01-24*
+*Phase 08-D planned: 2026-01-24*
