@@ -14,7 +14,7 @@ Phase: 08-C Profile Page Tabs (COMPLETE)
 Status: Complete - Tab navigation with ARIA pattern, profile header with LLM enrichment
 Last activity: 2026-01-24 — Completed 08-C-03-PLAN.md
 
-Progress: [██████░░░░] 62.5% — Phases 08-A, 08-B, 08-C complete (2.5/4 phases)
+Progress: [███████░░░] 75% — Phases 08-A, 08-B, 08-C complete (3/4 phases)
 
 ## Milestone History
 
@@ -64,7 +64,7 @@ v2.0 UI Redesign context gathered in `.planning/phases/06-enhanced-ui-display/`:
 Last session: 2026-01-24
 Stopped at: Completed 08-C-03-PLAN.md
 Resume file: None
-Next: Phase 08-C complete. Ready for next phase or milestone review.
+Next: `/gsd:discuss-phase 08-D` — Statement Selection
 
 ---
 *Last updated: 2026-01-24 — Phase 08-C complete: Tab navigation with ARIA pattern, profile header with LLM enrichment*

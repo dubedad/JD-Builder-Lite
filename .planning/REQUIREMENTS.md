@@ -23,11 +23,11 @@
 
 ### Profile Display (Step 9)
 
-- [ ] **DISP-30**: Profile header shows occupation title with LLM-driven icon based on minor group
-- [ ] **DISP-31**: OaSIS code displayed as badge below title
-- [ ] **DISP-32**: LLM-generated paragraph description above tabs
-- [ ] **DISP-33**: Horizontal tabs renamed to Job Headers: Overview | Key Activities | Skills | Effort | Responsibility | Feeder Group Mobility & Career Progression
-- [ ] **DISP-34**: Tab content mapping: Key Activities (Main Duties + Work Activities), Skills (Skills + Abilities + Knowledge), Effort (Work Context "effort"), Responsibility (Work Context "responsib"/"decision")
+- [x] **DISP-30**: Profile header shows occupation title with LLM-driven icon based on minor group ✓
+- [x] **DISP-31**: OaSIS code displayed as badge below title ✓
+- [x] **DISP-32**: LLM-generated paragraph description above tabs ✓
+- [x] **DISP-33**: Horizontal tabs renamed to Job Headers: Overview | Key Activities | Skills | Effort | Responsibility | Feeder Group Mobility & Career Progression ✓
+- [x] **DISP-34**: Tab content mapping: Key Activities (Main Duties + Work Activities), Skills (Skills + Abilities + Knowledge), Effort (Work Context "effort"), Responsibility (Work Context "responsib"/"decision") ✓
 
 ### Statement Selection (Step 10)
 
@@ -84,11 +84,11 @@ Each phase will produce a rough prototype for validation before final implementa
 | DISP-21 | 08-B | ✓ |
 | DISP-22 | 08-B | ✓ |
 | DISP-23 | 08-B | ✓ |
-| DISP-30 | 08-C | |
-| DISP-31 | 08-C | |
-| DISP-32 | 08-C | |
-| DISP-33 | 08-C | |
-| DISP-34 | 08-C | |
+| DISP-30 | 08-C | ✓ |
+| DISP-31 | 08-C | ✓ |
+| DISP-32 | 08-C | ✓ |
+| DISP-33 | 08-C | ✓ |
+| DISP-34 | 08-C | ✓ |
 | SEL-01 | 08-D | |
 | SEL-02 | 08-D | |
 | SEL-03 | 08-D | |
