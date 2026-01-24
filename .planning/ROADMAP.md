@@ -66,9 +66,9 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
-- [ ] 08-B-01-PLAN.md — Backend: EnrichedSearchResult model, enhanced parser, API update
-- [ ] 08-B-02-PLAN.md — Card View: OaSIS-style cards HTML/CSS/JS, sort controls
-- [ ] 08-B-03-PLAN.md — Filters: Filter panel with Minor Unit Group, Feeder Mobility, Career Progression
+- [x] 08-B-01-PLAN.md — Backend: EnrichedSearchResult model, enhanced parser, API update ✓
+- [x] 08-B-02-PLAN.md — Card View: OaSIS-style cards HTML/CSS/JS, sort controls ✓
+- [x] 08-B-03-PLAN.md — Filters: Filter panel with Minor Unit Group, Feeder Mobility, Career Progression ✓
 
 ---
 
@@ -151,6 +151,8 @@ Each phase produces working code. Usability testing follows execution.
 ---
 *Created: 2026-01-24*
 *Phase 08-A planned: 2026-01-24*
+*Phase 08-A complete: 2026-01-24*
 *Phase 08-B planned: 2026-01-24*
+*Phase 08-B complete: 2026-01-24*
 *Phase 08-C planned: 2026-01-24*
 *Phase 08-D planned: 2026-01-24*

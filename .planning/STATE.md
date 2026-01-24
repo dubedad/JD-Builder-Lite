@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-01-24)
 
 **Core value:** Every piece of content in the final job description can be traced back to its authoritative source (NOC/OASIS), with clear documentation of human decisions and AI involvement.
-**Current focus:** v2.0 UI Redesign — Phase 08-A complete, ready for 08-B
+**Current focus:** v2.0 UI Redesign — Phase 08-B complete, ready for 08-C
 
 ## Current Position
 
@@ -14,7 +14,7 @@ Phase: 08-B Results Cards Grid (3 of 3 complete - PHASE COMPLETE)
 Status: Complete - filter panel with Minor Unit Group filtering functional
 Last activity: 2026-01-24 — Completed 08-B-03-PLAN.md
 
-Progress: [████░░░░░░] 40% — Phase 08-A complete, Phase 08-B 3/3 (2/5 total phases)
+Progress: [████░░░░░░] 50% — Phases 08-A + 08-B complete (2/4 phases)
 
 ## Milestone History
 
@@ -54,7 +54,7 @@ v2.0 UI Redesign context gathered in `.planning/phases/06-enhanced-ui-display/`:
 Last session: 2026-01-24
 Stopped at: Completed 08-B-02-PLAN.md (concurrent with 08-B-03)
 Resume file: None
-Next: Phase 08-B complete. Ready for Phase 08-C (Profile Page Tabs) or Phase 08-D (Statement Selection)
+Next: `/gsd:discuss-phase 08-C` — Profile Page Tabs
 
 ---
 *Last updated: 2026-01-24 — Phase 08-B complete: Results cards grid with filtering*

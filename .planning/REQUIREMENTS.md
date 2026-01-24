@@ -16,10 +16,10 @@
 
 ### Results Display (Step 4)
 
-- [ ] **DISP-20**: Card view replicates OaSIS exactly with 6 data points (lead statement, example titles, TEER, mobility/progression, source table, publication date)
-- [ ] **DISP-21**: Grid view uses custom columns: OaSIS Profile | Top 10 Skills | Top Abilities | Top Knowledge | Matching criteria
-- [ ] **DISP-22**: Custom filters replace OaSIS filters: Minor Unit Group, Feeder Group Mobility, Career Progression
-- [ ] **DISP-23**: Card/grid click navigates to Profile Details page (Step 9)
+- [x] **DISP-20**: Card view replicates OaSIS exactly with 6 data points (lead statement, example titles, TEER, mobility/progression, source table, publication date) ✓
+- [x] **DISP-21**: Grid view uses custom columns: OaSIS Profile | Top 10 Skills | Top Abilities | Top Knowledge | Matching criteria ✓
+- [x] **DISP-22**: Custom filters replace OaSIS filters: Minor Unit Group, Feeder Group Mobility, Career Progression ✓
+- [x] **DISP-23**: Card/grid click navigates to Profile Details page (Step 9) ✓
 
 ### Profile Display (Step 9)
 
@@ -80,10 +80,10 @@ Each phase will produce a rough prototype for validation before final implementa
 | SRCH-10 | 08-A | ✓ |
 | SRCH-11 | 08-A | ✓ |
 | SRCH-12 | 08-A | ✓ |
-| DISP-20 | 08-B | |
-| DISP-21 | 08-B | |
-| DISP-22 | 08-B | |
-| DISP-23 | 08-B | |
+| DISP-20 | 08-B | ✓ |
+| DISP-21 | 08-B | ✓ |
+| DISP-22 | 08-B | ✓ |
+| DISP-23 | 08-B | ✓ |
 | DISP-30 | 08-C | |
 | DISP-31 | 08-C | |
 | DISP-32 | 08-C | |
