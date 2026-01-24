@@ -129,9 +129,9 @@ body.sidebar-open main.container {
 }
 
 .pill-btn.active {
-    background: var(--accent);
-    color: white;
-    border-color: var(--accent);
+    background: var(--accent) !important;
+    color: white !important;
+    border-color: var(--accent) !important;
 }
 
 .pill-btn:hover:not(.active) {
