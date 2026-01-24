@@ -44,25 +44,24 @@
             Authoritative Sources: ESDC OaSIS 2025 NOC v1.0 / ONET (R) 27.2 Database (USDOL/ETA)
         </p>
 
-        <!-- Profile Info Card (initially hidden) -->
-        <section id="profile-info" class="info-card hidden">
-            <div class="info-grid">
-                <div class="info-item">
-                    <span class="info-label">Job Title</span>
-                    <span id="profile-title" class="info-value"></span>
+        <!-- Profile Header (blue banner, initially hidden) -->
+        <section id="profile-header" class="profile-header blueBG hidden">
+            <div class="profile-header__content">
+                <div class="profile-header__text">
+                    <h2 id="profile-title" class="profile-header__title"></h2>
+                    <span id="profile-code-badge" class="oasis-code-badge"></span>
+                    <p id="profile-lead-statement" class="profile-header__lead"></p>
+                    <p id="profile-description" class="profile-header__description"></p>
                 </div>
-                <div class="info-item">
-                    <span class="info-label">NOC Code</span>
-                    <span id="profile-noc" class="info-value"></span>
+                <div class="profile-header__icon">
+                    <i id="profile-icon" class="fas fa-briefcase" aria-hidden="true"></i>
                 </div>
-                <div class="info-item">
-                    <span class="info-label">OASIS Source</span>
-                    <a id="profile-link" class="info-value" href="#" target="_blank" rel="noopener noreferrer">View on OASIS</a>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Retrieved</span>
-                    <span id="profile-timestamp" class="info-value"></span>
-                </div>
+            </div>
+            <div class="profile-header__meta">
+                <span class="profile-header__source">
+                    Source: <a id="profile-link" href="#" target="_blank" rel="noopener noreferrer">View on OASIS</a>
+                </span>
+                <span id="profile-timestamp" class="profile-header__timestamp"></span>
             </div>
         </section>
 

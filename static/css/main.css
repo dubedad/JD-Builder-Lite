@@ -298,6 +298,86 @@ body.sidebar-open .action-bar {
     background: var(--secondary);
 }
 
+/* Profile Header - Blue Banner */
+.profile-header {
+    background: linear-gradient(135deg, #003366 0%, #004488 100%);
+    color: #ffffff;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+}
+
+.profile-header__content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 2rem;
+}
+
+.profile-header__text {
+    flex: 1;
+}
+
+.profile-header__title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin: 0 0 0.75rem 0;
+    color: #ffffff;
+}
+
+.oasis-code-badge {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+.profile-header__lead {
+    font-size: 1rem;
+    line-height: 1.5;
+    margin: 0.75rem 0;
+    opacity: 0.95;
+}
+
+.profile-header__description {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    margin: 1rem 0 0 0;
+    opacity: 0.9;
+    font-style: italic;
+}
+
+.profile-header__icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-header__icon i {
+    font-size: 5rem;
+    color: #CADBF2;
+}
+
+.profile-header__meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 0.8125rem;
+    opacity: 0.8;
+}
+
+.profile-header__meta a {
+    color: #CADBF2;
+    text-decoration: underline;
+}
+
 /* Utility Classes */
 .hidden {
     display: none !important;
@@ -320,6 +400,14 @@ body.sidebar-open .action-bar {
 
     .search-container button {
         width: 100%;
+    }
+
+    .profile-header__icon {
+        display: none;
+    }
+
+    .profile-header__content {
+        flex-direction: column;
     }
 }
 
