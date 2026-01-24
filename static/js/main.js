@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const sidebar = document.getElementById('sidebar');
     const sidebarToggle = document.getElementById('sidebar-toggle');
     const viewToggle = document.getElementById('view-toggle');
+    const pillBtns = document.querySelectorAll('.pill-btn');
 
     // Profile info elements
     const profileTitle = document.getElementById('profile-title');
@@ -32,6 +33,32 @@ document.addEventListener('DOMContentLoaded', function() {
     initSectionSearch();
     initGenerate();
     initExport();
+
+    // Search type toggle state
+    let currentSearchType = 'Keyword';
+
+    // Pill toggle handler
+    pillBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // Update active state
+            pillBtns.forEach(b => {
+                b.classList.remove('active');
+                b.setAttribute('aria-selected', 'false');
+            });
+            btn.classList.add('active');
+            btn.setAttribute('aria-selected', 'true');
+
+            // Update search type
+            currentSearchType = btn.dataset.searchType;
+
+            // Update placeholder
+            searchInput.placeholder = currentSearchType === 'Keyword'
+                ? 'Search job titles...'
+                : 'Enter NOC code (e.g., 72600 or 72600.01)';
+            searchInput.setAttribute('aria-label',
+                currentSearchType === 'Keyword' ? 'Search job titles' : 'Enter NOC code');
+        });
+    });
 
     // Responsive view handling
     const mediaQuery = window.matchMedia('(max-width: 768px)');
@@ -318,7 +345,7 @@ document.addEventListener('DOMContentLoaded', function() {
         jdSections.innerHTML = '';
 
         try {
-            const response = await api.search(query);
+            const response = await api.search(query, currentSearchType);
             renderSearchResults(response.results);
             searchResults.classList.remove('hidden');
         } catch (error) {
