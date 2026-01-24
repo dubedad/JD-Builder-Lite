@@ -25,6 +25,52 @@ class SearchResult(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class EnrichedSearchResult(BaseModel):
+    """Enhanced search result with card data for OaSIS-style display.
+
+    Contains all 6 data points for card view (DISP-20):
+    1. lead_statement - from OaSIS card
+    2. example_titles - (requires profile fetch, optional)
+    3. teer_description - from OaSIS card
+    4. mobility_progression - (requires profile fetch, optional)
+    5. source_table - (requires profile fetch, optional)
+    6. publication_date - (requires profile fetch, optional)
+
+    Plus fields for filtering (DISP-22) and grid view (DISP-21).
+
+    Note: Fields marked "requires profile fetch" are populated as None in this phase.
+    Profile data population deferred to Phase 08-C or future enhancement.
+    """
+    # Core fields (same as SearchResult)
+    noc_code: str
+    title: str
+    url: str
+
+    # Card View Data (from OaSIS search HTML)
+    lead_statement: Optional[str] = None
+    teer_description: Optional[str] = None
+    broad_category_name: Optional[str] = None
+    matching_criteria: Optional[str] = None
+
+    # Card View Data (requires profile fetch - optional)
+    example_titles: Optional[str] = None
+    mobility_progression: Optional[str] = None
+    source_table: Optional[str] = None
+    publication_date: Optional[str] = None
+
+    # For Filtering (DISP-22) - derived from NOC code
+    broad_category: Optional[int] = None  # First digit of NOC code
+    minor_group: Optional[str] = None     # First 3 digits
+    minor_group_name: Optional[str] = None  # Not available from search HTML
+
+    # For Grid View (DISP-21) - requires profile fetch
+    top_skills: Optional[List[str]] = None
+    top_abilities: Optional[List[str]] = None
+    top_knowledge: Optional[List[str]] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class NOCStatement(BaseModel):
     """Single statement from NOC profile with source tracking."""
     text: str
