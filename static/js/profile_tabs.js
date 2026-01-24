@@ -1,0 +1,84 @@
+/**
+ * ARIA Tab Controller following W3C APG pattern
+ * Implements automatic activation with arrow key navigation
+ */
+class TabController {
+    constructor(tablistEl) {
+        this.tablist = tablistEl;
+        this.tabs = Array.from(tablistEl.querySelectorAll('[role="tab"]'));
+        this.panels = this.tabs.map(tab =>
+            document.getElementById(tab.getAttribute('aria-controls'))
+        );
+
+        if (this.tabs.length === 0) {
+            console.warn('TabController: No tabs found');
+            return;
+        }
+
+        // Bind event handlers
+        this.tablist.addEventListener('keydown', this.onKeydown.bind(this));
+        this.tabs.forEach((tab, i) => {
+            tab.addEventListener('click', () => this.activateTab(i));
+        });
+
+        // Set initial state - first tab active
+        this.activateTab(0);
+    }
+
+    onKeydown(event) {
+        const currentIndex = this.tabs.indexOf(document.activeElement);
+        if (currentIndex === -1) return;
+
+        let targetIndex = currentIndex;
+
+        switch (event.key) {
+            case 'ArrowRight':
+                targetIndex = (currentIndex + 1) % this.tabs.length;
+                break;
+            case 'ArrowLeft':
+                targetIndex = currentIndex === 0 ?
+                    this.tabs.length - 1 : currentIndex - 1;
+                break;
+            case 'Home':
+                targetIndex = 0;
+                break;
+            case 'End':
+                targetIndex = this.tabs.length - 1;
+                break;
+            default:
+                return; // Don't prevent default for other keys
+        }
+
+        event.preventDefault();
+        this.activateTab(targetIndex);
+        this.tabs[targetIndex].focus();
+    }
+
+    activateTab(index) {
+        // Update aria-selected and tabindex on all tabs
+        this.tabs.forEach((tab, i) => {
+            const isActive = i === index;
+            tab.setAttribute('aria-selected', isActive);
+            tab.setAttribute('tabindex', isActive ? '0' : '-1');
+            tab.classList.toggle('tab-button-active', isActive);
+        });
+
+        // Show/hide panels
+        this.panels.forEach((panel, i) => {
+            if (panel) {
+                panel.hidden = i !== index;
+            }
+        });
+    }
+
+    // Programmatic tab activation by id
+    activateTabById(tabId) {
+        const index = this.tabs.findIndex(tab => tab.id === tabId);
+        if (index !== -1) {
+            this.activateTab(index);
+        }
+    }
+}
+
+// Export for use
+window.TabController = TabController;
