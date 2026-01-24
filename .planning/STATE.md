@@ -2,19 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-01-23)
+See: .planning/PROJECT.md (updated 2026-01-24)
 
 **Core value:** Every piece of content in the final job description can be traced back to its authoritative source (NOC/OASIS), with clear documentation of human decisions and AI involvement.
-**Current focus:** Planning next milestone
+**Current focus:** v2.0 UI Redesign — defining requirements
 
 ## Current Position
 
-Milestone: v1.1 SHIPPED
-Phase: Ready for v1.2 planning
-Status: Milestone complete
-Last activity: 2026-01-23 — v1.1 milestone complete
+Milestone: v2.0 UI Redesign
+Phase: Not started (defining requirements)
+Status: Defining requirements
+Last activity: 2026-01-24 — Milestone v2.0 started
 
-Progress: [██████████] 100% v1.1 SHIPPED
+Progress: [░░░░░░░░░░] 0% — Defining requirements
 
 ## Milestone History
 
@@ -25,19 +25,19 @@ Progress: [██████████] 100% v1.1 SHIPPED
 
 See .planning/MILESTONES.md for details.
 
-## Archived Files
+## Context Files
 
-v1.1 milestone artifacts archived to `.planning/milestones/`:
-- v1.1-ROADMAP.md
-- v1.1-REQUIREMENTS.md
-- v1.1-MILESTONE-AUDIT.md
+v2.0 UI Redesign context gathered in `.planning/phases/06-enhanced-ui-display/`:
+- 06-CONTEXT.md — Full specifications with all decisions
+- 06-UI-REDESIGN-SUMMARY.md — Summary document
+- OASIS-HTML-REFERENCE.md — Actual HTML from OaSIS site for replication
 
 ## Session Continuity
 
-Last session: 2026-01-23
-Stopped at: v1.1 milestone complete
+Last session: 2026-01-24
+Stopped at: Milestone v2.0 started, defining requirements
 Resume file: None
-Next: `/gsd:new-milestone` to start v1.2
+Next: Complete requirements definition, create roadmap
 
 ---
-*Last updated: 2026-01-23 after v1.1 milestone completion*
+*Last updated: 2026-01-24 after v2.0 milestone start*

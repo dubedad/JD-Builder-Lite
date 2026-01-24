@@ -49,7 +49,21 @@ Every piece of content in the final job description can be traced back to its au
 
 ### Active
 
-**v1.2 Candidates (not yet planned):**
+**v2.0 UI Redesign (Current Milestone):**
+
+Goal: Redesign the JD Builder Lite UI to mirror the OaSIS website interface, following the swimlane process map with numbered steps.
+
+Target features:
+- UI-01: Step 1 Search Bar Redesign - Keyword/Code pill toggle, authoritative sources footnote
+- UI-02: Step 4 Card View - Replicate OaSIS cards with 6 data points
+- UI-03: Step 4 Grid View - Custom columns (Skills, Abilities, Knowledge)
+- UI-04: Step 4 Custom Filters - Minor Unit Group, Feeder Group Mobility, Career Progression
+- UI-05: Step 9 Profile Header - LLM icon, code badge, LLM paragraph description
+- UI-06: Step 9 Job Header Tabs - Overview, Key Activities, Skills, Effort, Responsibility, Mobility
+- UI-07: Step 10 Statement Selection - Checkboxes, proficiency circles, description tooltips on hover
+- UI-08: Step 10 Create JD Button - Single action with selection count
+
+**Deferred to v2.1:**
 - SRCH-06: Grid view shows columns: Broad category, Training/Education, Lead statement
 - SRCH-07: Filter items by Job Family
 - SRCH-08: Filter items by Organizational Unit
@@ -122,4 +136,4 @@ This tool demonstrates compliance with the Treasury Board's Directive on Automat
 | Proxy-based state management | Auto-persist to localStorage, subscription pattern | ⚠️ Revisit |
 
 ---
-*Last updated: 2026-01-23 after v1.1 milestone*
+*Last updated: 2026-01-24 — v2.0 UI Redesign milestone started*
