@@ -145,6 +145,68 @@
             </div>
         </section>
 
+        <!-- Profile Tabs Navigation -->
+        <nav id="profile-tabs-container" class="profile-tabs-container hidden">
+            <ul class="tabs-bar" role="tablist" aria-label="Job description sections">
+                <li role="presentation">
+                    <button role="tab" id="tab-overview" aria-selected="true"
+                            aria-controls="panel-overview" tabindex="0" class="tab-button tab-button-active">
+                        Overview
+                    </button>
+                </li>
+                <li role="presentation">
+                    <button role="tab" id="tab-activities" aria-selected="false"
+                            aria-controls="panel-activities" tabindex="-1" class="tab-button">
+                        Key Activities
+                    </button>
+                </li>
+                <li role="presentation">
+                    <button role="tab" id="tab-skills" aria-selected="false"
+                            aria-controls="panel-skills" tabindex="-1" class="tab-button">
+                        Skills
+                    </button>
+                </li>
+                <li role="presentation">
+                    <button role="tab" id="tab-effort" aria-selected="false"
+                            aria-controls="panel-effort" tabindex="-1" class="tab-button">
+                        Effort
+                    </button>
+                </li>
+                <li role="presentation">
+                    <button role="tab" id="tab-responsibility" aria-selected="false"
+                            aria-controls="panel-responsibility" tabindex="-1" class="tab-button">
+                        Responsibility
+                    </button>
+                </li>
+                <li role="presentation">
+                    <button role="tab" id="tab-career" aria-selected="false"
+                            aria-controls="panel-career" tabindex="-1" class="tab-button">
+                        Feeder Group Mobility & Career Progression
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Tab Panels -->
+            <div id="panel-overview" role="tabpanel" aria-labelledby="tab-overview" tabindex="0" class="tab-panel">
+                <!-- Overview content rendered by JS -->
+            </div>
+            <div id="panel-activities" role="tabpanel" aria-labelledby="tab-activities" tabindex="0" class="tab-panel" hidden>
+                <!-- Key Activities content -->
+            </div>
+            <div id="panel-skills" role="tabpanel" aria-labelledby="tab-skills" tabindex="0" class="tab-panel" hidden>
+                <!-- Skills content -->
+            </div>
+            <div id="panel-effort" role="tabpanel" aria-labelledby="tab-effort" tabindex="0" class="tab-panel" hidden>
+                <!-- Effort content -->
+            </div>
+            <div id="panel-responsibility" role="tabpanel" aria-labelledby="tab-responsibility" tabindex="0" class="tab-panel" hidden>
+                <!-- Responsibility content -->
+            </div>
+            <div id="panel-career" role="tabpanel" aria-labelledby="tab-career" tabindex="0" class="tab-panel" hidden>
+                <!-- Career content -->
+            </div>
+        </nav>
+
         <!-- JD Sections Accordion Container -->
         <section class="jd-sections" id="jd-sections">
             <!-- Accordion content will be populated by JavaScript -->
@@ -207,6 +269,7 @@
     <script src="/static/js/storage.js"></script>
     <script src="/static/js/api.js"></script>
     <script src="/static/js/state.js"></script>
+    <script src="/static/js/profile_tabs.js"></script>
     <script src="/static/js/accordion.js"></script>
     <script src="/static/js/selection.js"></script>
     <script src="/static/js/search.js"></script>
