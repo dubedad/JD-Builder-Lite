@@ -178,3 +178,91 @@
     font-style: italic;
     font-size: 0.8rem;
 }
+
+/* ===========================================
+   Grid View Styles
+   =========================================== */
+
+.results-list.grid-view {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+/* Grid Header */
+.grid-header {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr 1.5fr;
+    background: var(--highlight);
+    border-bottom: 2px solid var(--border);
+}
+
+.grid-header-cell {
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--text);
+    border-right: 1px solid var(--border-light, #f0f0f0);
+}
+
+.grid-header-cell:last-child {
+    border-right: none;
+}
+
+/* Grid Rows */
+.grid-row {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr 1.5fr;
+    border-bottom: 1px solid var(--border-light, #f0f0f0);
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.grid-row:last-child {
+    border-bottom: none;
+}
+
+.grid-row:hover {
+    background: var(--highlight);
+}
+
+.grid-row:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+}
+
+/* Grid Cells */
+.grid-cell {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    color: var(--text);
+    border-right: 1px solid var(--border-light, #f0f0f0);
+    display: flex;
+    align-items: flex-start;
+}
+
+.grid-cell:last-child {
+    border-right: none;
+}
+
+/* Grid Profile Link */
+.grid-profile-link {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.grid-profile-link:hover {
+    text-decoration: underline;
+}
+
+/* Responsive: Hide grid on mobile (card view forced) */
+@media (max-width: 768px) {
+    .results-list.grid-view {
+        display: none;
+    }
+}
