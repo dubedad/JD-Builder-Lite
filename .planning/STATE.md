@@ -42,6 +42,8 @@ v2.0 UI Redesign context gathered in `.planning/phases/06-enhanced-ui-display/`:
 | ENRICH-10 | Profile-dependent fields defined but left as None | 08-B-01 | Enables complete model now, progressive enhancement in Phase 08-C |
 | ENRICH-11 | Derive minor_group from NOC code | 08-B-01 | Available in search HTML without additional API calls |
 | ENRICH-12 | Backward compatible API changes | 08-B-01 | EnrichedSearchResult is superset of SearchResult |
+| DISP-20 | OaSIS-style card layout with icons | 08-B-02 | Header, content rows with FA icons, footer - matches OASIS reference HTML |
+| DISP-21 | Grid view placeholders for profile data | 08-B-02 | Skills/Abilities/Knowledge require profile fetch, show "Load profile for [X]" |
 | FILT-10 | Minor Unit Group filtering from search results | 08-B-03 | minor_group available from EnrichedSearchResult, no additional API calls needed |
 | FILT-11 | Feeder/Career filters as UI placeholders | 08-B-03 | Require profile data not available from search - deferred to Phase 08-C |
 | FILT-12 | OR logic within filter group | 08-B-03 | Matches OASIS behavior - multiple selections show ANY selected group |
@@ -50,7 +52,7 @@ v2.0 UI Redesign context gathered in `.planning/phases/06-enhanced-ui-display/`:
 ## Session Continuity
 
 Last session: 2026-01-24
-Stopped at: Completed 08-B-03-PLAN.md
+Stopped at: Completed 08-B-02-PLAN.md (concurrent with 08-B-03)
 Resume file: None
 Next: Phase 08-B complete. Ready for Phase 08-C (Profile Page Tabs) or Phase 08-D (Statement Selection)
 
