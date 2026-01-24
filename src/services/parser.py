@@ -5,7 +5,7 @@ import logging
 from typing import List, Dict, Any
 from bs4 import BeautifulSoup
 from src.models.noc import (
-    SearchResult, NOCHierarchy, BROAD_CATEGORIES,
+    SearchResult, EnrichedSearchResult, NOCHierarchy, BROAD_CATEGORIES,
     ReferenceAttributes, CareerMobilityPath, Interest, JobRequirements
 )
 from src.services.csv_loader import TEER_CATEGORIES
@@ -71,6 +71,121 @@ class OASISParser:
                 noc_code=noc_code,
                 title=title,
                 url=href
+            ))
+
+        return results
+
+    def parse_search_results_enhanced(self, html: str) -> List[EnrichedSearchResult]:
+        """Parse search results HTML into EnrichedSearchResult models.
+
+        Extracts available card data from OaSIS search results HTML:
+        - NOC code and title from link
+        - Lead statement (fa-book icon cell)
+        - TEER description (fa-bookmark icon cell)
+        - Broad category (fa-truck/fa-pen-alt icon cell)
+        - Matching criteria (fa-search icon cell)
+        - Minor group (derived from NOC code)
+
+        Note: example_titles, mobility_progression, source_table, publication_date,
+        and skills/abilities/knowledge require profile fetch and are left as None.
+
+        Args:
+            html: Raw HTML from OASIS search page
+
+        Returns:
+            List of EnrichedSearchResult models with available card data
+        """
+        soup = BeautifulSoup(html, 'lxml')
+        results = []
+
+        # OaSIS uses table rows with class 'cardsTr' for each result
+        # Each row contains: hidden cols, profile link, BOC, TEER, lead statement, matching
+        rows = soup.select('tr.cardsTr, tr.eqht-trgt')
+
+        for row in rows:
+            # Skip header rows
+            if row.find('th'):
+                continue
+
+            # Extract NOC code and title from card header link
+            link = row.select_one('.cardsheader a, td a[href*="OccProfile"], td a[href*="code="]')
+            if not link:
+                continue
+
+            href = link.get('href', '')
+            text = link.get_text(strip=True)
+
+            # Extract NOC code from text or URL
+            code_match = self.NOC_CODE_PATTERN.search(text) or self.NOC_CODE_PATTERN.search(href)
+            if not code_match:
+                continue
+
+            noc_code = code_match.group(0)
+            # Title is text after code (format: "72600.01 - Air pilots")
+            title = text.replace(noc_code, '').strip(' -–')
+
+            # Extract lead statement (cell with fa-book icon)
+            lead_statement = None
+            book_cell = row.select_one('td:has(.fa-book) .OaSISCardTDTextStyle, td:has(.fa-book) p, td:has(.fa-book) div')
+            if book_cell:
+                lead_statement = book_cell.get_text(strip=True)
+            else:
+                # Fallback: try finding cell with "Lead" in class or text pattern
+                for td in row.select('td'):
+                    td_text = td.get_text(strip=True)
+                    # Lead statements typically describe what the occupation does
+                    if len(td_text) > 50 and not td_text.startswith('Matching'):
+                        if td.select_one('.fa-book'):
+                            lead_statement = td_text
+                            break
+
+            # Extract TEER description (cell with fa-bookmark icon)
+            teer_description = None
+            bookmark_cell = row.select_one('td:has(.fa-bookmark) .OaSISCardTDTextStyle, td:has(.fa-bookmark) span.noFontStyle')
+            if bookmark_cell:
+                teer_description = bookmark_cell.get_text(strip=True)
+
+            # Extract broad category (cell with fa-truck, fa-pen-alt, fa-handshake icons)
+            broad_category_name = None
+            for icon_class in ['fa-truck', 'fa-pen-alt', 'fa-handshake', 'fa-laptop', 'fa-stethoscope']:
+                boc_cell = row.select_one(f'td:has(.{icon_class}) .OaSISCardTDTextStyle')
+                if boc_cell:
+                    broad_category_name = boc_cell.get_text(strip=True)
+                    break
+
+            # Extract matching criteria (cell with fa-search icon)
+            matching_criteria = None
+            search_cell = row.select_one('td:has(.fa-search) .OaSISCardTDTextStyle, td.topBorder .OaSISCardTDTextStyle')
+            if search_cell:
+                # Get full text including child spans
+                matching_text = search_cell.get_text(separator=' ', strip=True)
+                # Clean up "Matching search criteria Label, Job titles" format
+                matching_criteria = matching_text.replace('Matching search criteria', '').strip()
+
+            # Derive minor group and broad category from NOC code
+            base_code = noc_code.split('.')[0]
+            broad_category = int(base_code[0]) if base_code else None
+            minor_group = base_code[:3] if len(base_code) >= 3 else None
+
+            results.append(EnrichedSearchResult(
+                noc_code=noc_code,
+                title=title,
+                url=href,
+                lead_statement=lead_statement,
+                teer_description=teer_description,
+                broad_category_name=broad_category_name,
+                matching_criteria=matching_criteria,
+                broad_category=broad_category,
+                minor_group=minor_group,
+                minor_group_name=None,  # Not available from search HTML
+                # These require profile fetch - left as None
+                example_titles=None,
+                mobility_progression=None,
+                source_table=None,
+                publication_date=None,
+                top_skills=None,
+                top_abilities=None,
+                top_knowledge=None
             ))
 
         return results
