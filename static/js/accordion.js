@@ -15,7 +15,57 @@ const PROFICIENCY_LABELS = {
     5: 'Highest Level'
 };
 
+const renderProfileHeader = async (profile) => {
+    const header = document.getElementById('profile-header');
+    const titleEl = document.getElementById('profile-title');
+    const badgeEl = document.getElementById('profile-code-badge');
+    const leadEl = document.getElementById('profile-lead-statement');
+    const descEl = document.getElementById('profile-description');
+    const iconEl = document.getElementById('profile-icon');
+    const linkEl = document.getElementById('profile-link');
+    const timestampEl = document.getElementById('profile-timestamp');
+
+    // Set static content immediately
+    titleEl.textContent = profile.title;
+    badgeEl.textContent = profile.noc_code;
+    leadEl.textContent = profile.reference_attributes?.lead_statement || '';
+    linkEl.href = profile.metadata?.profile_url || '#';
+    timestampEl.textContent = new Date().toLocaleDateString();
+
+    // Show header
+    header.classList.remove('hidden');
+
+    // Extract main duties for description generation
+    const mainDuties = (profile.key_activities?.statements || [])
+        .filter(s => s.source_attribute === 'Main Duties')
+        .map(s => s.text)
+        .slice(0, 5);
+
+    const leadStatement = profile.reference_attributes?.lead_statement || profile.title;
+
+    // Fetch icon and description in parallel (non-blocking)
+    Promise.all([
+        api.fetchOccupationIcon(profile.title, leadStatement),
+        api.fetchOccupationDescription(profile.title, leadStatement, mainDuties)
+    ]).then(([iconResult, descResult]) => {
+        // Update icon
+        const iconClass = iconResult.icon_class || 'fa-briefcase';
+        iconEl.className = `fas ${iconClass}`;
+
+        // Update description
+        if (descResult.description) {
+            descEl.textContent = descResult.description;
+        }
+    }).catch(err => {
+        console.warn('LLM enrichment failed:', err);
+        // Keep defaults - graceful degradation
+    });
+};
+
 const renderAccordions = (profile) => {
+    // Render profile header with LLM enrichment
+    renderProfileHeader(profile);
+
     const container = document.querySelector('.jd-sections');
     const state = store.getState();
 
@@ -187,6 +237,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 // Export for other modules
+window.renderProfileHeader = renderProfileHeader;
 window.renderAccordions = renderAccordions;
 window.updateSelectionCount = updateSelectionCount;
 window.JD_ELEMENT_LABELS = JD_ELEMENT_LABELS;
