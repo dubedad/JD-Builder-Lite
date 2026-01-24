@@ -55,7 +55,7 @@ def search():
     try:
         # Fetch and parse search results
         html = scraper.search(query, search_type=search_type)
-        results = parser.parse_search_results(html)
+        results = parser.parse_search_results_enhanced(html)
 
         # Create response with metadata
         response = SearchResponse(

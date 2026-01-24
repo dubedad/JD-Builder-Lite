@@ -3,7 +3,7 @@
 from pydantic import BaseModel, ConfigDict, Field
 from typing import List, Optional
 from src.models.noc import (
-    SearchResult, JDElementData, SourceMetadata,
+    SearchResult, EnrichedSearchResult, JDElementData, SourceMetadata,
     EnrichedNOCStatement, NOCHierarchy, ReferenceAttributes
 )
 
@@ -11,7 +11,7 @@ from src.models.noc import (
 class SearchResponse(BaseModel):
     """API response for /api/search endpoint."""
     query: str
-    results: List[SearchResult]
+    results: List[EnrichedSearchResult]  # Changed from SearchResult
     count: int
     metadata: SourceMetadata
 
