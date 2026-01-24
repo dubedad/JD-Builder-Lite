@@ -20,11 +20,12 @@ class OASISScraper:
             "User-Agent": USER_AGENT
         })
 
-    def search(self, query: str, version: Optional[str] = None) -> str:
+    def search(self, query: str, search_type: str = "Keyword", version: Optional[str] = None) -> str:
         """Fetch search results HTML from OASIS.
 
         Args:
             query: Search query string
+            search_type: Search type - "Keyword" or "Code" (defaults to "Keyword")
             version: OASIS version (defaults to config.OASIS_VERSION)
 
         Returns:
@@ -38,7 +39,7 @@ class OASISScraper:
 
         url = f"{OASIS_BASE_URL}/OaSIS/OaSISSearchResult"
         params = {
-            "searchType": "Keyword",
+            "searchType": search_type,
             "searchText": query,
             "version": version
         }

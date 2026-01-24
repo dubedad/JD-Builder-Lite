@@ -31,12 +31,18 @@ def search():
 
     Query params:
         q: Search query (minimum 2 characters)
+        type: Search type - "Keyword" or "Code" (default: "Keyword")
 
     Returns:
         SearchResponse with results array and metadata
         ErrorResponse with 400/500/502 on error
     """
     query = request.args.get('q', '')
+    search_type = request.args.get('type', 'Keyword')
+
+    # Validate search_type
+    if search_type not in ['Keyword', 'Code']:
+        search_type = 'Keyword'
 
     # Validate query
     if not query or len(query) < 2:
@@ -48,7 +54,7 @@ def search():
 
     try:
         # Fetch and parse search results
-        html = scraper.search(query)
+        html = scraper.search(query, search_type=search_type)
         results = parser.parse_search_results(html)
 
         # Create response with metadata
