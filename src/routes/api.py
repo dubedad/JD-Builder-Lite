@@ -7,7 +7,7 @@ import re
 from src.services.scraper import scraper
 from src.services.parser import parser
 from src.services.mapper import mapper
-from src.services.llm_service import generate_stream, get_model_name, get_prompt_version
+from src.services.llm_service import generate_stream, get_model_name, get_prompt_version, select_occupation_icon, generate_occupation_description
 from src.services.export_service import build_export_data
 from src.services.pdf_generator import generate_pdf, render_preview
 from src.services.docx_generator import generate_docx
@@ -391,5 +391,102 @@ def export_docx():
         current_app.logger.error(f"DOCX export error: {e}")
         return jsonify(ErrorResponse(
             error="Word document generation failed",
+            detail=str(e)
+        ).model_dump()), 500
+
+
+@api_bp.route('/occupation-icon', methods=['POST'])
+def occupation_icon():
+    """Select an appropriate icon for an occupation using LLM.
+
+    Expects JSON body:
+    {
+        "occupation_title": str,
+        "lead_statement": str
+    }
+
+    Returns:
+        {"icon_class": "fa-atom"} on success
+        ErrorResponse with 400/500 on error
+    """
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify(ErrorResponse(
+                error="Request body required"
+            ).model_dump()), 400
+
+        # Validate required fields
+        occupation_title = data.get('occupation_title', '').strip()
+        lead_statement = data.get('lead_statement', '').strip()
+
+        if not occupation_title or not lead_statement:
+            return jsonify(ErrorResponse(
+                error="Invalid request",
+                detail="Both 'occupation_title' and 'lead_statement' are required and must be non-empty"
+            ).model_dump()), 400
+
+        # Call LLM service
+        icon_class = select_occupation_icon(occupation_title, lead_statement)
+
+        return jsonify({"icon_class": icon_class})
+
+    except Exception as e:
+        current_app.logger.error(f"Occupation icon error: {e}")
+        return jsonify(ErrorResponse(
+            error="Icon selection failed",
+            detail=str(e)
+        ).model_dump()), 500
+
+
+@api_bp.route('/occupation-description', methods=['POST'])
+def occupation_description():
+    """Generate a concise occupation description using LLM.
+
+    Expects JSON body:
+    {
+        "occupation_title": str,
+        "lead_statement": str,
+        "main_duties": list[str]
+    }
+
+    Returns:
+        {"description": "...paragraph..."} on success
+        ErrorResponse with 400/500 on error
+    """
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify(ErrorResponse(
+                error="Request body required"
+            ).model_dump()), 400
+
+        # Validate required fields
+        occupation_title = data.get('occupation_title', '').strip()
+        lead_statement = data.get('lead_statement', '').strip()
+        main_duties = data.get('main_duties', [])
+
+        if not occupation_title or not lead_statement:
+            return jsonify(ErrorResponse(
+                error="Invalid request",
+                detail="Both 'occupation_title' and 'lead_statement' are required and must be non-empty"
+            ).model_dump()), 400
+
+        # Validate main_duties is a list (can be empty)
+        if not isinstance(main_duties, list):
+            return jsonify(ErrorResponse(
+                error="Invalid request",
+                detail="'main_duties' must be a list"
+            ).model_dump()), 400
+
+        # Call LLM service
+        description = generate_occupation_description(occupation_title, lead_statement, main_duties)
+
+        return jsonify({"description": description})
+
+    except Exception as e:
+        current_app.logger.error(f"Occupation description error: {e}")
+        return jsonify(ErrorResponse(
+            error="Description generation failed",
             detail=str(e)
         ).model_dump()), 500
