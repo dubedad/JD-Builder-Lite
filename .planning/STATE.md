@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-01-24)
 
 **Core value:** Every piece of content in the final job description can be traced back to its authoritative source (NOC/OASIS), with clear documentation of human decisions and AI involvement.
-**Current focus:** v2.0 UI Redesign — Phase 08-A in progress
+**Current focus:** v2.0 UI Redesign — Phase 08-A complete, ready for 08-B
 
 ## Current Position
 
@@ -45,7 +45,7 @@ v2.0 UI Redesign context gathered in `.planning/phases/06-enhanced-ui-display/`:
 Last session: 2026-01-24
 Stopped at: Completed 08-A-01-PLAN.md
 Resume file: None
-Next: `/gsd:plan-phase 08-B` to continue v2.0 UI Redesign
+Next: `/gsd:discuss-phase 08-B` to continue v2.0 UI Redesign
 
 ---
 *Last updated: 2026-01-24 — Phase 08-A complete, ready for Phase 08-B*

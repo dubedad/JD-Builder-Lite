@@ -41,7 +41,7 @@
 **Plans:** 1 plan
 
 Plans:
-- [ ] 08-A-01-PLAN.md — Pill toggle, authoritative sources footnote, full stack search type support
+- [x] 08-A-01-PLAN.md — Pill toggle, authoritative sources footnote, full stack search type support ✓
 
 ---
 

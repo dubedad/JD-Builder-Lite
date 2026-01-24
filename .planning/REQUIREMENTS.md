@@ -10,9 +10,9 @@
 
 ### Search (Step 1)
 
-- [ ] **SRCH-10**: Search bar positioned above results grid with pill toggle for Keyword/Code search
-- [ ] **SRCH-11**: Authoritative sources footnote replaces version dropdown: "ESDC OaSIS 2025 NOC v1.0 / ONET (R) 27.2 Database (USDOL/ETA)"
-- [ ] **SRCH-12**: Remove advanced search and View all A-Z links from search interface
+- [x] **SRCH-10**: Search bar positioned above results grid with pill toggle for Keyword/Code search ✓
+- [x] **SRCH-11**: Authoritative sources footnote replaces version dropdown: "ESDC OaSIS 2025 NOC v1.0 / ONET (R) 27.2 Database (USDOL/ETA)" ✓
+- [x] **SRCH-12**: Remove advanced search and View all A-Z links from search interface ✓
 
 ### Results Display (Step 4)
 
@@ -77,9 +77,9 @@ Each phase will produce a rough prototype for validation before final implementa
 
 | REQ-ID | Phase | Validated |
 |--------|-------|-----------|
-| SRCH-10 | 08-A | |
-| SRCH-11 | 08-A | |
-| SRCH-12 | 08-A | |
+| SRCH-10 | 08-A | ✓ |
+| SRCH-11 | 08-A | ✓ |
+| SRCH-12 | 08-A | ✓ |
 | DISP-20 | 08-B | |
 | DISP-21 | 08-B | |
 | DISP-22 | 08-B | |
