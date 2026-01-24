@@ -92,7 +92,12 @@ Plans:
 
 **Reference:** Slides 9-10, 06-CONTEXT.md Step 9 section
 
-**Plans:** (created by /gsd:plan-phase)
+**Plans:** 3 plans
+
+Plans:
+- [ ] 08-C-01-PLAN.md — Backend: LLM endpoints for icon selection and occupation description
+- [ ] 08-C-02-PLAN.md — Profile Header: Blue banner with icon, badge, lead statement, LLM description
+- [ ] 08-C-03-PLAN.md — Tab Navigation: ARIA tabs with content mapping to JD elements
 
 ---
 
@@ -144,3 +149,4 @@ Each phase produces working code. Usability testing follows execution.
 *Created: 2026-01-24*
 *Phase 08-A planned: 2026-01-24*
 *Phase 08-B planned: 2026-01-24*
+*Phase 08-C planned: 2026-01-24*
