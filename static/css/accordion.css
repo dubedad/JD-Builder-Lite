@@ -450,3 +450,82 @@ details.jd-section[open] summary.jd-section__header {
     color: var(--text-light);
     font-style: italic;
 }
+
+/* ============================================
+   Statement Description Tooltips (Phase 08-D)
+   WCAG 2.1 SC 1.4.13 compliant
+   ============================================ */
+
+/* Make statement text with tooltip focusable and indicate help cursor */
+.statement__text[data-tooltip] {
+    position: relative;
+    cursor: help;
+    display: inline-block;
+    outline-offset: 2px;
+}
+
+/* Tooltip content using ::after pseudo-element */
+.statement__text[data-tooltip]::after {
+    content: attr(data-tooltip);
+
+    /* Positioning - above element */
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 0;
+
+    /* Box model */
+    padding: 0.5rem 0.75rem;
+    max-width: 320px;
+    min-width: 200px;
+    width: max-content;
+
+    /* Typography */
+    font-size: 0.75rem;
+    font-weight: normal;
+    line-height: 1.5;
+    white-space: normal;
+    text-align: left;
+
+    /* Styling */
+    background: #333;
+    color: white;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+
+    /* Hidden by default */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 100;
+}
+
+/* Tooltip arrow */
+.statement__text[data-tooltip]::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% + 2px);
+    left: 16px;
+    border: 6px solid transparent;
+    border-top-color: #333;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 101;
+}
+
+/* Show tooltip on hover AND focus (WCAG 2.1 keyboard accessibility) */
+.statement__text[data-tooltip]:hover::after,
+.statement__text[data-tooltip]:hover::before,
+.statement__text[data-tooltip]:focus::after,
+.statement__text[data-tooltip]:focus::before {
+    opacity: 1;
+}
+
+/* Ensure provenance label is always visible (verify existing styles) */
+.statement__source {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-light);
+    font-style: italic;
+    margin-top: 0.25rem;
+}
