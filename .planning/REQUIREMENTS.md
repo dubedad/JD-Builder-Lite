@@ -31,11 +31,11 @@
 
 ### Statement Selection (Step 10)
 
-- [ ] **SEL-01**: Checkboxes on all statements in all Job Header tabs
-- [ ] **SEL-02**: Proficiency circles display (●●●●○) matching OaSIS style
-- [ ] **SEL-03**: Provenance labels always visible (small italics below statement)
-- [ ] **SEL-04**: Description tooltip on hover for items with proficiency levels
-- [ ] **SEL-05**: Single "Create Job Description (X selected)" button replaces separate Generate Overview
+- [x] **SEL-01**: Checkboxes on all statements in all Job Header tabs ✓
+- [x] **SEL-02**: Proficiency circles display (●●●●○) matching OaSIS style ✓
+- [x] **SEL-03**: Provenance labels always visible (small italics below statement) ✓
+- [x] **SEL-04**: Description tooltip on hover for items with proficiency levels ✓
+- [x] **SEL-05**: Single "Create Job Description (X selected)" button replaces separate Generate Overview ✓
 
 ---
 
@@ -89,11 +89,11 @@ Each phase will produce a rough prototype for validation before final implementa
 | DISP-32 | 08-C | ✓ |
 | DISP-33 | 08-C | ✓ |
 | DISP-34 | 08-C | ✓ |
-| SEL-01 | 08-D | |
-| SEL-02 | 08-D | |
-| SEL-03 | 08-D | |
-| SEL-04 | 08-D | |
-| SEL-05 | 08-D | |
+| SEL-01 | 08-D | ✓ |
+| SEL-02 | 08-D | ✓ |
+| SEL-03 | 08-D | ✓ |
+| SEL-04 | 08-D | ✓ |
+| SEL-05 | 08-D | ✓ |
 
 ---
 
