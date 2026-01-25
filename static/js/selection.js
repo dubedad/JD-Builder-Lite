@@ -54,30 +54,22 @@ const handleSelection = (checkbox) => {
 
 const updateActionBar = (state) => {
     const actionBar = document.getElementById('action-bar');
-    const generateBtn = document.getElementById('generate-btn');
     const createBtn = document.getElementById('create-btn');
-    if (!actionBar || !generateBtn) return;
+    if (!actionBar || !createBtn) return;
 
-    // Count total selections
+    // Count total selections across ALL sections
     const totalSelections = Object.values(state.selections)
         .reduce((sum, arr) => sum + arr.length, 0);
 
-    // Show action bar and enable button if selections exist
+    // Update button text and state based on selection count
     if (totalSelections > 0) {
         actionBar.classList.remove('hidden');
-        generateBtn.disabled = false;
-        generateBtn.textContent = `Generate Overview (${totalSelections} selected)`;
-        // Enable Create button when selections exist (doesn't require overview)
-        if (createBtn) {
-            createBtn.disabled = false;
-        }
+        createBtn.disabled = false;
+        createBtn.textContent = `Create Job Description (${totalSelections} selected)`;
     } else {
-        generateBtn.disabled = true;
-        generateBtn.textContent = 'Generate Overview (select statements first)';
-        // Disable Create button when no selections
-        if (createBtn) {
-            createBtn.disabled = true;
-        }
+        actionBar.classList.remove('hidden'); // Keep visible but disabled
+        createBtn.disabled = true;
+        createBtn.textContent = 'Create Job Description (select statements first)';
     }
 };
 
