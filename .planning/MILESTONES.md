@@ -1,5 +1,33 @@
 # Project Milestones: JD Builder Lite
 
+## v2.0 UI Redesign (Shipped: 2026-01-25)
+
+**Delivered:** Complete UI redesign mirroring OaSIS website interface with Keyword/Code search toggle, OaSIS-style result cards, LLM-powered profile headers, ARIA-compliant tab navigation, and accessible statement selection with tooltips.
+
+**Phases completed:** 08-A through 08-D (8 plans total)
+
+**Key accomplishments:**
+
+- Search bar redesign with Keyword/Code pill toggle and authoritative sources footnote
+- OaSIS-style search result cards with 6 data points extracted from search HTML
+- Minor Unit Group filtering with derived NOC code categories
+- LLM-powered occupation icons (16 semantic categories) and AI-generated descriptions
+- ARIA-compliant horizontal Job Header tabs with keyboard navigation
+- CSS tooltips for statement descriptions with WCAG 2.1 accessibility and single Create button
+
+**Stats:**
+
+- 47 commits in milestone
+- 10,370 lines of Python, HTML, CSS, JS (total codebase)
+- 4 phases, 8 plans, 17 requirements
+- 1 day from milestone start to ship (2026-01-24 to 2026-01-25)
+
+**Git range:** `feat(08-A-01)` → `docs(08-D)`
+
+**What's next:** v2.1 for UI polish, additional filters, and visual scale distinctions
+
+---
+
 ## v1.1 Enhanced Data Display + Export (Shipped: 2026-01-23)
 
 **Delivered:** Enriched statement display with OASIS metadata (proficiency levels, descriptions, scale meanings), NOC hierarchy breakdown, Work Context classification, grid view toggle, and PDF/DOCX export with Annex section for unused NOC reference attributes.

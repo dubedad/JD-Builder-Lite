@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A demo web application that helps managers create job descriptions by selecting content from Canada's official National Occupational Classification (NOC) database via the OASIS site. The tool demonstrates compliance with the Directive on Automated Decision-Making by providing full provenance, traceability, and audit trails for all content in the generated job description. Includes enriched statement display with proficiency levels, NOC hierarchy breakdown, and export to PDF/DOCX with Annex sections.
+A demo web application that helps managers create job descriptions by selecting content from Canada's official National Occupational Classification (NOC) database via the OASIS site. The tool demonstrates compliance with the Directive on Automated Decision-Making by providing full provenance, traceability, and audit trails for all content in the generated job description. Features an OaSIS-mirrored interface with Keyword/Code search toggle, result cards with 6 data points, LLM-powered profile headers with occupation icons, tabbed Job Header navigation, and accessible statement selection with tooltips. Exports to PDF/DOCX with full compliance metadata and Annex sections.
 
 ## Core Value
 
@@ -47,23 +47,28 @@ Every piece of content in the final job description can be traced back to its au
 - ✓ OUT-07: PDF export includes Annex section with unused NOC reference attributes — v1.1
 - ✓ OUT-08: DOCX export includes Annex section with unused NOC reference attributes — v1.1
 
+**v2.0 UI Redesign:**
+- ✓ SRCH-10: Search bar with pill toggle for Keyword/Code search modes — v2.0
+- ✓ SRCH-11: Authoritative sources footnote below search bar — v2.0
+- ✓ SRCH-12: Removed advanced search and A-Z links — v2.0
+- ✓ DISP-20: Card view with 6 data points (lead statement, TEER, broad category, matching criteria) — v2.0
+- ✓ DISP-21: Grid view with custom columns — v2.0
+- ✓ DISP-22: Custom filters (Minor Unit Group, Feeder Mobility UI, Career Progression UI) — v2.0
+- ✓ DISP-23: Card/grid click navigation to profile page — v2.0
+- ✓ DISP-30: Profile header with LLM-driven occupation icon — v2.0
+- ✓ DISP-31: OaSIS code badge below title — v2.0
+- ✓ DISP-32: LLM-generated paragraph description above tabs — v2.0
+- ✓ DISP-33: Horizontal Job Header tabs with ARIA navigation — v2.0
+- ✓ DISP-34: Tab content mapping (Key Activities, Skills, Effort, Responsibility, Career) — v2.0
+- ✓ SEL-01: Checkboxes on all statements in all tabs — v2.0
+- ✓ SEL-02: Proficiency circles display (filled/empty) — v2.0
+- ✓ SEL-03: Provenance labels always visible — v2.0
+- ✓ SEL-04: Description tooltip on hover with keyboard accessibility — v2.0
+- ✓ SEL-05: Single Create JD button with selection count — v2.0
+
 ### Active
 
-**v2.0 UI Redesign (Current Milestone):**
-
-Goal: Redesign the JD Builder Lite UI to mirror the OaSIS website interface, following the swimlane process map with numbered steps.
-
-Target features:
-- UI-01: Step 1 Search Bar Redesign - Keyword/Code pill toggle, authoritative sources footnote
-- UI-02: Step 4 Card View - Replicate OaSIS cards with 6 data points
-- UI-03: Step 4 Grid View - Custom columns (Skills, Abilities, Knowledge)
-- UI-04: Step 4 Custom Filters - Minor Unit Group, Feeder Group Mobility, Career Progression
-- UI-05: Step 9 Profile Header - LLM icon, code badge, LLM paragraph description
-- UI-06: Step 9 Job Header Tabs - Overview, Key Activities, Skills, Effort, Responsibility, Mobility
-- UI-07: Step 10 Statement Selection - Checkboxes, proficiency circles, description tooltips on hover
-- UI-08: Step 10 Create JD Button - Single action with selection count
-
-**Deferred to v2.1:**
+**v2.1 (Planned):**
 - SRCH-06: Grid view shows columns: Broad category, Training/Education, Lead statement
 - SRCH-07: Filter items by Job Family
 - SRCH-08: Filter items by Organizational Unit
@@ -86,13 +91,14 @@ Target features:
 
 ## Context
 
-**Current State (v1.1):**
-- Shipped v1.1 with 7,868 LOC (Python, HTML, CSS, JS)
+**Current State (v2.0):**
+- Shipped v2.0 with 10,370 LOC (Python, HTML, CSS, JS)
 - Tech stack: Flask, BeautifulSoup, OpenAI SDK, WeasyPrint, python-docx, vanilla JS
 - Full TBS Directive compliance (sections 6.2.3, 6.2.7, 6.3.5)
 - Provenance chain complete from OASIS scrape to PDF/DOCX export
-- Enriched data pipeline using guide.csv for category definitions and scale meanings
-- OASIS-style proficiency circles with WCAG 2.1 Level AA accessibility
+- OaSIS-mirrored interface with Keyword/Code search, result cards, LLM profile headers
+- ARIA-compliant tab navigation with keyboard accessibility
+- WCAG 2.1 Level AA compliant tooltips and proficiency circles
 
 **Regulatory Context:**
 This tool demonstrates compliance with the Treasury Board's Directive on Automated Decision-Making (https://www.tbs-sct.canada.ca/pol/doc-eng.aspx?id=32592). The directive requires transparency, accountability, and human oversight in automated decision systems.
@@ -134,6 +140,13 @@ This tool demonstrates compliance with the Treasury Board's Directive on Automat
 | Module-level singleton for CSV loader | Zero-latency lookups via load-on-import | ✓ Good |
 | localStorage with sessionStorage fallback | Handles QuotaExceededError gracefully | ✓ Good |
 | Proxy-based state management | Auto-persist to localStorage, subscription pattern | ⚠️ Revisit |
+| Keyword/Code pill toggle | Mimics OASIS UI, clear visual distinction between search modes | ✓ Good |
+| EnrichedSearchResult model | Progressive enhancement - card data from search, profile data later | ✓ Good |
+| 16 semantic icon categories | Balanced coverage of NOC occupation types without overwhelming LLM | ✓ Good |
+| Temperature 0 for icons, 0.3 for descriptions | Deterministic icons, slight creativity for descriptions | ✓ Good |
+| CSS ::after tooltips over JS library | Simpler, faster, no dependencies | ✓ Good |
+| ARIA tab pattern with automatic activation | Arrow keys navigate and activate in single operation | ✓ Good |
+| Single Create button | Removes dual-button confusion, overview generation in Create flow | ✓ Good |
 
 ---
-*Last updated: 2026-01-24 — v2.0 UI Redesign milestone started*
+*Last updated: 2026-01-25 — v2.0 UI Redesign milestone shipped*

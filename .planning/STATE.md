@@ -2,19 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-01-24)
+See: .planning/PROJECT.md (updated 2026-01-25)
 
 **Core value:** Every piece of content in the final job description can be traced back to its authoritative source (NOC/OASIS), with clear documentation of human decisions and AI involvement.
-**Current focus:** v2.0 UI Redesign — MILESTONE COMPLETE
+**Current focus:** Planning next milestone
 
 ## Current Position
 
-Milestone: v2.0 UI Redesign
-Phase: 08-D Statement Selection (COMPLETE)
-Status: Complete - All 4 phases executed, all 17 requirements verified
-Last activity: 2026-01-24 — Completed 08-D-01-PLAN.md, phase verified PASSED
+Milestone: v2.1 (not started)
+Phase: Not started
+Status: Ready for `/gsd:new-milestone`
+Last activity: 2026-01-25 — v2.0 UI Redesign shipped
 
-Progress: [██████████] 100% — All phases complete (4/4 phases)
+Progress: Ready to plan next milestone
 
 ## Milestone History
 
@@ -22,53 +22,22 @@ Progress: [██████████] 100% — All phases complete (4/4 pha
 |-----------|--------|---------|
 | v1.0 MVP | SHIPPED | 2026-01-22 |
 | v1.1 Enhanced Data Display + Export | SHIPPED | 2026-01-23 |
+| v2.0 UI Redesign | SHIPPED | 2026-01-25 |
 
 See .planning/MILESTONES.md for details.
 
-## Context Files
+## Archives
 
-v2.0 UI Redesign context gathered in `.planning/phases/06-enhanced-ui-display/`:
-- 06-CONTEXT.md — Full specifications with all decisions
-- 06-UI-REDESIGN-SUMMARY.md — Summary document
-- OASIS-HTML-REFERENCE.md — Actual HTML from OaSIS site for replication
-
-## Decisions
-
-| ID | Decision | Phase | Rationale |
-|----|----------|-------|-----------|
-| SRCH-10 | Keyword/Code pill toggle | 08-A-01 | Mimics OASIS UI, clear visual distinction between search modes |
-| SRCH-11 | Authoritative sources footnote | 08-A-01 | Transparent data attribution per requirements |
-| SRCH-12 | No version dropdown/advanced search | 08-A-01 | Not needed for v2.0 scope, keeps UI clean |
-| ENRICH-10 | Profile-dependent fields defined but left as None | 08-B-01 | Enables complete model now, progressive enhancement in Phase 08-C |
-| ENRICH-11 | Derive minor_group from NOC code | 08-B-01 | Available in search HTML without additional API calls |
-| ENRICH-12 | Backward compatible API changes | 08-B-01 | EnrichedSearchResult is superset of SearchResult |
-| DISP-20 | OaSIS-style card layout with icons | 08-B-02 | Header, content rows with FA icons, footer - matches OASIS reference HTML |
-| DISP-21 | Grid view placeholders for profile data | 08-B-02 | Skills/Abilities/Knowledge require profile fetch, show "Load profile for [X]" |
-| FILT-10 | Minor Unit Group filtering from search results | 08-B-03 | minor_group available from EnrichedSearchResult, no additional API calls needed |
-| FILT-11 | Feeder/Career filters as UI placeholders | 08-B-03 | Require profile data not available from search - deferred to Phase 08-C |
-| FILT-12 | OR logic within filter group | 08-B-03 | Matches OASIS behavior - multiple selections show ANY selected group |
-| FILT-13 | Filter module as standalone | 08-B-03 | Encapsulation, clear API boundary, easier to test and enhance |
-| D-ICON-01 | 16 semantic icon categories | 08-C-01 | Balanced coverage of NOC occupation types without overwhelming LLM |
-| D-ICON-02 | Temperature 0 for icons, 0.3 for descriptions | 08-C-01 | Deterministic icon selection, slight creativity for descriptions |
-| D-ICON-03 | Graceful fallback (fa-briefcase default) | 08-C-01 | UI never breaks from LLM failures |
-| D-ICON-04 | First 5 main duties only for descriptions | 08-C-01 | Reduces token usage while capturing key responsibilities |
-| D-UI-01 | Progressive enhancement for LLM content | 08-C-02 | Display static content immediately, enrich asynchronously for better UX |
-| D-UI-02 | Parallel LLM fetches with Promise.all | 08-C-02 | Reduces total wait time compared to sequential calls |
-| D-TAB-01 | W3C ARIA tab pattern with automatic activation | 08-C-03 | Arrow keys navigate and activate tabs in single operation, matches standard keyboard expectations |
-| D-TAB-02 | Six tabs mapping NOC categories to JD headers | 08-C-03 | Overview (reference data), Key Activities (Main Duties + Work Activities), Skills (Skills + Abilities + Knowledge), Effort, Responsibility, Career |
-| D-TAB-03 | Hide old accordion container | 08-C-03 | Tabs replace accordion as primary navigation pattern |
-| D-TAB-04 | Tab controller initialization after content render | 08-C-03 | Ensures DOM elements exist before controller binds event handlers |
-| SEL-01 | Tooltips only when stmt.description exists | 08-D-01 | Prevents empty tooltips and unnecessary tabindex on statements without descriptions |
-| SEL-02 | CSS ::after pattern instead of JS tooltip library | 08-D-01 | Simpler, faster, no dependencies - pure CSS solution |
-| SEL-03 | Single consolidated action button | 08-D-01 | Removes dual-button confusion - overview generation happens during Create flow |
-| SEL-04 | Tooltip positioning above element | 08-D-01 | Avoids viewport edge clipping, white on #333 meets WCAG AA contrast |
+- `.planning/milestones/v2.0-ROADMAP.md` — v2.0 roadmap archive
+- `.planning/milestones/v2.0-REQUIREMENTS.md` — v2.0 requirements archive
+- `.planning/milestones/v2.0-MILESTONE-AUDIT.md` — v2.0 audit report
 
 ## Session Continuity
 
-Last session: 2026-01-24
-Stopped at: v2.0 UI Redesign MILESTONE COMPLETE
+Last session: 2026-01-25
+Stopped at: v2.0 shipped, ready for next milestone
 Resume file: None
-Next: `/gsd:audit-milestone` — Audit milestone before archiving
+Next: `/gsd:new-milestone` — Start v2.1 planning
 
 ---
-*Last updated: 2026-01-24 — v2.0 UI Redesign MILESTONE COMPLETE: All 4 phases executed, all 17 requirements verified*
+*Last updated: 2026-01-25 — v2.0 UI Redesign SHIPPED*
