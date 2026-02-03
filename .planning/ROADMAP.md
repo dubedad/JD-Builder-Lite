@@ -17,7 +17,7 @@ v3.0 adds style-enhanced writing capabilities to JD Builder Lite. The milestone 
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 9: Vocabulary Foundation** - Build term index from JobForge parquet for constraint enforcement
-- [ ] **Phase 10: Style Analysis Pipeline** - PDF/DOCX parsing, style profile extraction and management
+- [ ] **Phase 10: Style Analysis Pipeline** - Analyze example JD corpus, document patterns, build few-shot examples
 - [ ] **Phase 11: Provenance Architecture** - Extended audit trail schema for styled content
 - [ ] **Phase 12: Constrained Generation** - Few-shot styling with vocabulary validation and retry
 - [ ] **Phase 13: Export Enhancement** - Styled statements in PDF/DOCX with dual-format display
@@ -39,20 +39,18 @@ Plans:
 - [ ] 09-01-PLAN.md - VocabularyIndex + VocabularyValidator + hot-reload watcher
 
 ### Phase 10: Style Analysis Pipeline
-**Goal**: User can upload example JDs and view extracted style characteristics
+**Goal**: Style patterns documented and few-shot examples ready for generation prompts
 **Depends on**: Nothing (can parallel Phase 9)
-**Requirements**: STYLE-01, STYLE-02, STYLE-04, STYLE-05, STYLE-06, STYLE-07
+**Requirements**: STYLE-01, STYLE-02, STYLE-04
 **Success Criteria** (what must be TRUE):
-  1. User can upload PDF example JDs and see extracted text content
-  2. User can upload DOCX example JDs and see extracted text content
-  3. User can view identified writing patterns (sentence structure, phrasing conventions) before generation
-  4. System saves style profiles that persist across browser sessions
-  5. User can select from previously saved style profiles
+  1. Example JD corpus analyzed (`Examples of Job Descriptions/` - 18 files)
+  2. Style patterns documented in `.planning/` (sentence structure, vocabulary patterns, section formatting)
+  3. Few-shot examples created from corpus for generation prompts
+  4. Key style rules implemented as code constants in `src/` for runtime prompt construction
 **Plans**: TBD
 
 Plans:
-- [ ] 10-01: PDF/DOCX parsing
-- [ ] 10-02: Style profile extraction and persistence
+- [ ] 10-01: Corpus analysis and style documentation
 
 ### Phase 11: Provenance Architecture
 **Goal**: Audit trail schema supports styled content with differentiated AI disclosure
@@ -63,7 +61,7 @@ Plans:
   2. Export differentiates "AI-styled" from "AI-generated" content with distinct labels
   3. Original NOC statements are always preserved alongside styled variants
   4. Export includes vocabulary audit section showing which NOC terms were used
-  5. Export includes generation metadata (style profile, confidence scores, retry counts)
+  5. Export includes generation metadata (confidence scores, retry counts, vocabulary coverage)
 **Plans**: TBD
 
 Plans:
@@ -112,11 +110,12 @@ Note: Phases 9, 10, 11 can execute in parallel; Phase 12 requires 9 and 11 compl
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 9. Vocabulary Foundation | 0/1 | Planned | - |
-| 10. Style Analysis Pipeline | 0/2 | Not started | - |
+| 10. Style Analysis Pipeline | 0/1 | Not started | - |
 | 11. Provenance Architecture | 0/2 | Not started | - |
 | 12. Constrained Generation | 0/3 | Not started | - |
 | 13. Export Enhancement | 0/1 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-03*
+*Last updated: 2026-02-03 - Phase 10 scope revised (no user upload, development-time style learning)*
 *Milestone: v3.0 Style-Enhanced Writing*

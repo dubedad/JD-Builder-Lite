@@ -9,13 +9,10 @@ Requirements for style-enhanced JD generation with vocabulary constraints.
 
 ### Style Infrastructure
 
-- [ ] **STYLE-01**: System can parse PDF example JDs to extract text content
-- [ ] **STYLE-02**: System can parse DOCX example JDs to extract text content
+- [ ] **STYLE-01**: Style patterns documented from analysis of example JD corpus (`Examples of Job Descriptions/`)
+- [ ] **STYLE-02**: Few-shot examples created from corpus for generation prompts
 - [ ] **STYLE-03**: System builds vocabulary index from JobForge parquet files (abilities, skills, knowledges, work activities)
-- [ ] **STYLE-04**: System analyzes extracted JD text to identify writing patterns (sentence structure, phrasing conventions)
-- [ ] **STYLE-05**: User can view extracted style characteristics before generation
-- [ ] **STYLE-06**: System persists style profiles for reuse across sessions
-- [ ] **STYLE-07**: User can select from saved style profiles
+- [ ] **STYLE-04**: Style rules implemented as code constants for runtime prompt construction
 
 ### Constrained Generation
 
@@ -34,7 +31,7 @@ Requirements for style-enhanced JD generation with vocabulary constraints.
 - [ ] **PROV-02**: Export includes differentiated AI disclosure ("AI-styled" vs "AI-generated")
 - [ ] **PROV-03**: Original NOC statements always preserved in export alongside styled variants
 - [ ] **PROV-04**: Export includes vocabulary audit section showing NOC terms used
-- [ ] **PROV-05**: Export includes generation metadata (style profile used, confidence scores, retry counts)
+- [ ] **PROV-05**: Export includes generation metadata (confidence scores, retry counts, vocabulary coverage)
 
 ### Export Enhancement
 
@@ -62,8 +59,9 @@ Requirements for style-enhanced JD generation with vocabulary constraints.
 | Fine-tuned custom models | Few-shot prompting sufficient; fine-tuning adds complexity without clear benefit |
 | Real-time constrained decoding | OpenAI API limitation (logit_bias limited to ~300 tokens) |
 | Style editing UI | Users accept/reject/regenerate, not edit styled text (maintains provenance) |
-| Automatic style selection | User must explicitly choose style profile (transparency requirement) |
-| OCR for scanned PDFs | Adds complexity; assume example JDs are text-based PDFs |
+| User-uploaded style examples | Style learning happens during development from curated corpus, not at runtime |
+| User-selectable style profiles | Single curated style; multi-style support deferred to v3.1+ |
+| OCR for scanned PDFs | Adds complexity; example JDs are text-based PDFs analyzed during development |
 
 ## Traceability
 
@@ -73,9 +71,6 @@ Requirements for style-enhanced JD generation with vocabulary constraints.
 | STYLE-02 | Phase 10 | Pending |
 | STYLE-03 | Phase 9 | Pending |
 | STYLE-04 | Phase 10 | Pending |
-| STYLE-05 | Phase 10 | Pending |
-| STYLE-06 | Phase 10 | Pending |
-| STYLE-07 | Phase 10 | Pending |
 | GEN-01 | Phase 12 | Pending |
 | GEN-02 | Phase 12 | Pending |
 | GEN-03 | Phase 12 | Pending |
@@ -94,10 +89,10 @@ Requirements for style-enhanced JD generation with vocabulary constraints.
 | EXP-03 | Phase 13 | Pending |
 
 **Coverage:**
-- v3.0 requirements: 23 total
-- Mapped to phases: 23
+- v3.0 requirements: 20 total
+- Mapped to phases: 20
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-03*
-*Last updated: 2026-02-03 - Traceability updated with phase mappings*
+*Last updated: 2026-02-03 - Phase 10 scope revised (no user upload, development-time style learning)*
