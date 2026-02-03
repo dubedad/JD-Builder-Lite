@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-01-25)
 
 **Core value:** Every piece of content in the final job description can be traced back to its authoritative source (NOC/OASIS), with clear documentation of human decisions and AI involvement.
-**Current focus:** v3.0 Style-Enhanced Writing - Phase 11 (Provenance Architecture)
+**Current focus:** v3.0 Style-Enhanced Writing - Phase 12 (Constrained Generation)
 
 ## Current Position
 
 Milestone: v3.0 Style-Enhanced Writing
-Phase: 11 of 13 (Provenance Architecture) - COMPLETE
-Plan: 11-02 complete (Phase complete)
-Status: Ready for Phase 12
-Last activity: 2026-02-03 - Completed 11-02-PLAN.md
+Phase: 12 of 13 (Constrained Generation) - IN PROGRESS
+Plan: 12-01 complete
+Status: In progress
+Last activity: 2026-02-03 - Completed 12-01-PLAN.md
 
-Progress: [#####.....] 50% (5/10 plans)
+Progress: [######....] 60% (6/10 plans)
 
 ## Milestone History
 
@@ -30,9 +30,9 @@ Progress: [#####.....] 50% (5/10 plans)
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5 (v3.0)
-- Average duration: 4.7min
-- Total execution time: 23.5min
+- Total plans completed: 6 (v3.0)
+- Average duration: 4.9min
+- Total execution time: 29.5min
 
 **By Phase:**
 
@@ -41,10 +41,11 @@ Progress: [#####.....] 50% (5/10 plans)
 | 09-vocabulary-foundation | 1 | 10min | 10min |
 | 10-style-analysis-pipeline | 2 | 9min | 4.5min |
 | 11-provenance-architecture | 2 | 4.5min | 2.25min |
+| 12-constrained-generation | 1 | 6min | 6min |
 
 **Recent Trend:**
-- Last 5 plans: 10-01 (5min), 10-02 (4min), 11-01 (2.5min), 11-02 (2min)
-- Trend: Execution time decreasing as patterns established
+- Last 5 plans: 10-02 (4min), 11-01 (2.5min), 11-02 (2min), 12-01 (6min)
+- Trend: 12-01 slightly longer due to sentence-transformers library installation
 
 *Updated after each plan completion*
 
@@ -70,6 +71,11 @@ Recent decisions affecting current work:
 - [Phase 11-01]: Frozen models for immutable audit data
 - [Phase 11-02]: StyledStatement and GenerationAttempt frozen for audit integrity
 - [Phase 11-02]: StyleVersionHistory mutable for growing attempts list
+- [Phase 12-01]: Semantic similarity threshold 0.75 (conservative, model accuracy ~84%)
+- [Phase 12-01]: Vocabulary coverage threshold 95% for validation
+- [Phase 12-01]: 3 retry attempts with exponential backoff (1-10 sec)
+- [Phase 12-01]: Fall back to ORIGINAL_NOC content type on validation failure
+- [Phase 12-01]: Temperature 0.3 for generation (lower than overview's 0.7)
 
 ### Pending Todos
 
@@ -82,9 +88,9 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-03
-Stopped at: Completed 11-02-PLAN.md (Phase 11 complete)
+Stopped at: Completed 12-01-PLAN.md
 Resume file: None
-Next: Phase 12 (Style Generation Implementation)
+Next: Phase 12-02 (Generation API endpoints)
 
 ---
-*Last updated: 2026-02-03 - Completed Phase 11 Provenance Architecture*
+*Last updated: 2026-02-03 - Completed 12-01-PLAN.md*
