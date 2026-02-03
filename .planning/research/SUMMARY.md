@@ -231,13 +231,13 @@ v1.1 extends the existing v1.0 architecture with a CSV data loading service and 
 
 **Data Flow:**
 ```
-App Start → Load guide.csv → Cache in memory
-    ↓
-/api/profile → Scrape → Parse → Map → Enrich → Return enriched JSON
-    ↓
-Frontend → Render with stars, descriptions, dimensions
-    ↓
-Export → Build ExportData with Annex → Generate PDF/DOCX
+App Start -> Load guide.csv -> Cache in memory
+    |
+/api/profile -> Scrape -> Parse -> Map -> Enrich -> Return enriched JSON
+    |
+Frontend -> Render with stars, descriptions, dimensions
+    |
+Export -> Build ExportData with Annex -> Generate PDF/DOCX
 ```
 
 ### Critical Risks
@@ -297,11 +297,11 @@ v1.1 follows a clear dependency chain from data infrastructure through backend e
 
 ```
 Phase 1 (CSV Infrastructure)
-    ↓ REQUIRED
+    | REQUIRED
 Phase 2 (Backend Enrichment)
-    ↓ REQUIRED
+    | REQUIRED
 Phase 3 (Enhanced Display) + Phase 4 (Grid View - PARALLEL OK)
-    ↓ REQUIRED
+    | REQUIRED
 Phase 5 (Annex Export)
 ```
 
@@ -363,4 +363,181 @@ These gaps are implementation details, not architectural uncertainties. Address 
 
 ---
 *v1.1 Research completed: 2026-01-22*
+*Ready for roadmap: yes*
+
+---
+
+# v3.0 Research Summary: Style-Enhanced Writing
+
+**Milestone:** v3.0 Style-Enhanced Writing with Vocabulary Constraints
+**Researched:** 2026-02-03
+**Confidence:** MEDIUM-HIGH
+
+## Executive Summary
+
+JD Builder Lite v3.0 adds style-enhanced writing capabilities: learning writing patterns from ~40 example JDs and generating styled sentences that use ONLY NOC vocabulary while maintaining TBS Directive compliance. This is **vocabulary-constrained style transfer** -- a specialized problem where the LLM must improve readability without introducing new content words.
+
+The recommended approach is **few-shot prompting with post-generation vocabulary validation**. Research confirms that constrained decoding (forcing vocabulary at token level) has limited support in cloud APIs like OpenAI and incurs significant performance penalties. Instead, generate freely using style examples in the prompt, then validate output vocabulary and regenerate on violations. The existing Flask + OpenAI stack handles this well with three new lightweight dependencies: `pdfplumber` for PDF extraction, `python-docx` (already installed) for DOCX extraction, and `pyarrow` for reading JobForge vocabulary from parquet files.
+
+The core risk is **provenance chain breakage**: if the LLM generates words not traceable to NOC sources, compliance collapses. Three critical pitfalls require architectural attention: vocabulary escape (LLM invents words), semantic drift (meaning changes during styling), and provenance opacity (cannot trace styled output to source statements). Prevention requires vocabulary validation on every generated sentence, semantic equivalence checking, and statement-level provenance tracking designed into the architecture from the start.
+
+## Key Findings
+
+### Recommended Stack for v3.0
+
+The v3.0 stack extends the existing v2.0 foundation with minimal additions. No heavy NLP libraries or local model infrastructure required.
+
+**Core technologies for v3.0:**
+- **pdfplumber 0.11.9:** PDF text extraction from example JDs -- MIT license, pure Python, handles text-heavy documents well
+- **python-docx 1.2.0:** DOCX text extraction -- already installed for export, reuse for input parsing
+- **pyarrow 19.x+:** Parquet file reading for NOC vocabulary from JobForge 2.0 gold data -- industry standard, no pandas overhead
+- **OpenAI SDK 1.109.1:** Few-shot prompting with style examples -- already installed, handles style learning through prompting
+
+**What NOT to add:**
+- No spaCy/NLTK (LLM handles style learning directly)
+- No Outlines/constrained decoding (limited OpenAI API support)
+- No vector databases (40 example files fit in prompt context)
+- No local model infrastructure (scope mismatch with demo app)
+
+### Expected Features for v3.0
+
+**Must have (table stakes):**
+- Upload example JDs (PDF/DOCX) as style references
+- Extract and display style characteristics from examples
+- Dual-format output: original NOC statement + styled companion sentence
+- Vocabulary constraint enforcement with post-generation validation
+- Statement-level toggle (use styled / use original per statement)
+- Regeneration on vocabulary violation (graceful degradation to original)
+
+**Should have (competitive):**
+- Style template library (pre-loaded organizational styles)
+- Vocabulary coverage report (% of style patterns achievable)
+- Style fidelity and content preservation scores
+- Batch styling for multiple statements
+
+**Defer (v2+):**
+- Style mixing (combine attributes from multiple references)
+- Vocabulary expansion suggestions (requires NOC ontology work)
+- Style fine-tuning (overkill for ~40 examples)
+
+### Architecture Approach for v3.0
+
+The style-enhanced generation integrates cleanly with the existing Flask architecture through four new service modules: `style_analyzer.py` (parse example JDs), `vocabulary_index.py` (build term index from parquet), `style_generator.py` (constrained LLM generation), and `style_service.py` (orchestration). The existing `llm_service.py` provides OpenAI patterns to follow. The frontend extends `profile_tabs.js` with dual-display (authoritative + styled) without breaking existing data flows.
+
+**Major components:**
+1. **VocabularyIndex** -- Load parquet files, build searchable term index, validate generated text
+2. **StyleAnalyzer** -- Parse PDF/DOCX, extract writing patterns via LLM, build style profiles
+3. **StyleGenerator** -- Build constrained prompts, call OpenAI, validate output, retry on violation
+4. **StyleService** -- Orchestrate pipeline, manage style profiles, coordinate generation
+
+**New API endpoints:**
+- `POST /api/generate-styled` -- Generate styled variants for selected statements
+- `GET /api/style-profiles` -- List available style profiles
+- `POST /api/vocabulary-check` -- Validate text against NOC vocabulary
+
+### Critical Pitfalls for v3.0
+
+1. **Vocabulary Escape (V3-01)** -- LLM generates non-NOC words breaking traceability. **Prevention:** Post-generation vocabulary validation with function word whitelist; fail-safe to original statement if validation fails after retries.
+
+2. **Semantic Drift (V3-02)** -- Style changes subtly alter meaning (e.g., "may supervise" becomes "supervises"). **Prevention:** Semantic equivalence validation via embedding similarity; lock modal verbs (may/must/should), negations, and quantifiers.
+
+3. **Provenance Chain Breakage (V3-03)** -- Cannot trace styled output to source statements. **Prevention:** Design provenance schema BEFORE implementing style generation; maintain statement-level mapping through transformation.
+
+4. **PDF Parsing Corruption (V3-04)** -- OCR/extraction errors corrupt source vocabulary. **Prevention:** Continue using web scraping from OASIS HTML; if PDF required, use vision-LLM approach; validate extracted text for OCR error patterns.
+
+5. **AI Disclosure Confusion (V3-07)** -- Users confuse "AI-generated" with "AI-styled authoritative content." **Prevention:** Differentiated disclosure: generation (synthesized content) vs. styling (reformatted authoritative content with source preserved).
+
+## Implications for Roadmap
+
+Based on research, suggested phase structure for v3.0:
+
+### Phase 1: Vocabulary Foundation
+**Rationale:** Independent of style analysis; provides testable foundation for constraint enforcement. Must exist before any generation.
+**Delivers:** VocabularyIndex service, vocabulary validation API, term index from JobForge parquet files
+**Addresses:** Table stakes vocabulary constraint enforcement
+**Avoids:** PITFALL-V3-01 (Vocabulary Escape) by establishing validation infrastructure first
+
+### Phase 2: Style Analysis Pipeline
+**Rationale:** Document parsing is independent of generation. Can be developed and tested in isolation.
+**Delivers:** StyleAnalyzer service, PDF/DOCX parsing, style profile extraction, `/api/style-profiles` endpoint
+**Uses:** pdfplumber, python-docx from stack additions
+**Implements:** Style reference upload and extraction display features
+
+### Phase 3: Provenance Architecture
+**Rationale:** Research emphasizes: "Provenance architecture must be designed BEFORE implementing style generation." Retrofit is extremely difficult.
+**Delivers:** Extended data models with statement-level tracing, transformation logging schema, compliance metadata for AI-enhanced content
+**Addresses:** PITFALL-V3-03 (Provenance Chain Breakage), PITFALL-V3-07 (AI Disclosure Confusion)
+**Avoids:** Audit trail gaps that would violate TBS Directive 6.2.7
+
+### Phase 4: Constrained Generation
+**Rationale:** Requires both vocabulary foundation and provenance architecture. Core feature implementation.
+**Delivers:** StyleGenerator service, few-shot prompting with vocabulary constraints, retry logic, semantic validation
+**Uses:** OpenAI SDK (existing), VocabularyIndex (Phase 1), StyleAnalyzer (Phase 2)
+**Implements:** Dual-format output, statement-level controls, graceful degradation
+
+### Phase 5: Integration and Export
+**Rationale:** Ties everything together; requires all previous phases complete.
+**Delivers:** StyleService orchestrator, frontend dual-display UI, export with styled variants, differentiated AI disclosure
+**Avoids:** PITFALL-V3-09 (Style Inconsistency) through unified style service
+
+### Phase Ordering Rationale
+
+- **Vocabulary before Generation:** Cannot validate LLM output without vocabulary index. Research confirms post-generation validation is the practical approach for cloud APIs.
+- **Provenance before Generation:** Research explicitly warns against retrofit. Schema design must accommodate statement-level tracing through transformation.
+- **Style Analysis parallel-able:** Document parsing and style profile extraction can proceed alongside vocabulary foundation.
+- **Integration last:** Frontend dual-display and export changes require stable backend services.
+
+### Research Flags for v3.0
+
+Phases likely needing deeper research during planning:
+- **Phase 3 (Provenance):** Complex schema design; review TBS Directive 6.2.7 requirements; may need legal consultation on AI disclosure differentiation
+- **Phase 4 (Constrained Generation):** Few-shot prompting patterns for style transfer need experimentation; retry budget and semantic threshold tuning required
+
+Phases with standard patterns (skip research-phase):
+- **Phase 1 (Vocabulary):** Well-documented parquet reading with pyarrow; existing labels_loader.py patterns to follow
+- **Phase 2 (Style Analysis):** Standard PDF/DOCX parsing; existing document handling patterns in codebase
+- **Phase 5 (Integration):** Extends existing UI patterns; no new technology
+
+## Confidence Assessment for v3.0
+
+| Area | Confidence | Notes |
+|------|------------|-------|
+| Stack | HIGH | Verified versions on PyPI; minimal additions to proven stack |
+| Features | HIGH | Well-documented style transfer patterns; existing UI precedent |
+| Architecture | HIGH | Analyzed existing codebase; clear integration points identified |
+| Pitfalls | HIGH | Multiple academic sources; TBS Directive is authoritative |
+
+**Overall confidence:** MEDIUM-HIGH
+
+Stack and architecture have high confidence based on verified sources and existing codebase analysis. The MEDIUM qualifier comes from uncertainty in generation quality -- few-shot prompting effectiveness depends on vocabulary richness and style example quality, which can only be validated empirically.
+
+### Gaps to Address for v3.0
+
+- **Python version verification:** PyArrow 23.0.0 requires Python >= 3.10. Verify project Python version before pinning.
+- **Example JD quality:** Are all 40 example JDs suitable? Some may be scanned images requiring OCR (out of scope).
+- **Semantic threshold tuning:** Embedding similarity threshold (0.92 suggested) needs empirical validation with actual JD content.
+- **Retry budget:** How many regeneration attempts on vocabulary violations before fallback? Research suggests 3, but needs validation.
+- **Style example selection:** Simple random selection vs. match by NOC category -- needs experimentation.
+
+## Sources for v3.0
+
+### Primary (HIGH confidence)
+- [TBS Directive on Automated Decision-Making](https://www.tbs-sct.canada.ca/pol/doc-eng.aspx?id=32592) -- Compliance requirements (6.2.3, 6.2.7, 6.3.5)
+- [pdfplumber PyPI v0.11.9](https://pypi.org/project/pdfplumber/) -- January 5, 2026 release verified
+- [Apache Arrow Parquet docs v23.0.0](https://arrow.apache.org/docs/python/parquet.html) -- Parquet reading patterns
+- [DOMINO: Guiding LLMs The Right Way](https://arxiv.org/html/2403.06988v1) -- Constrained generation challenges
+- Existing codebase analysis -- llm_service.py, labels_loader.py, api.py patterns
+
+### Secondary (MEDIUM confidence)
+- [CTG Survey: Controllable Text Generation for LLMs](https://arxiv.org/html/2408.12599v1) -- Style transfer risks semantic dissimilarity
+- [AuditableLLM Framework](https://www.mdpi.com/2079-9292/15/1/56) -- Hash-chain-backed audit trails
+- [Few-Shot Prompting Guide](https://www.promptingguide.ai/techniques/fewshot) -- Best practices
+- [LLM Style Imitation Research](https://arxiv.org/html/2509.14543v1) -- Few examples improve style mimicking
+
+### Tertiary (LOW confidence - needs validation)
+- [CRANE: Reasoning with Constrained Generation](https://arxiv.org/pdf/2502.09061) -- Performance benchmarks may not match JD Builder use case
+- OpenAI logit_bias limitations -- Community discussions confirm 300-1024 token limit, but exact behavior may vary
+
+---
+*v3.0 Research completed: 2026-02-03*
 *Ready for roadmap: yes*

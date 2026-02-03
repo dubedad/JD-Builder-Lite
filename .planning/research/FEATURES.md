@@ -1,393 +1,311 @@
-# Feature Landscape: JD Builder Lite
+# Feature Landscape: Style-Enhanced JD Generation
 
-**Domain:** Job Description Builder with NOC Data + Compliance/Provenance
-**Researched:** 2026-01-22 (Updated for v1.1)
-**Scope:** Single-user, local-only, demo-quality application
-
----
-
-## v1.0 Features (Completed)
-
-### Table Stakes (Built)
-
-| Feature | Why Expected | Complexity | Status |
-|---------|--------------|------------|--------|
-| **NOC Search** | Core value: find occupational profiles by title | Medium | ✓ Complete |
-| **Profile Selection** | Users need to pick from multiple matches | Low | ✓ Complete |
-| **NOC Data Display** | Must show scraped content organized by JD element | Medium | ✓ Complete |
-| **Statement Selection** | Core interaction: pick which NOC statements to include | Low | ✓ Complete |
-| **JD Preview** | Users must see what they're building | Low | ✓ Complete |
-| **PDF Export** | Final deliverable format for compliance | Medium | ✓ Complete |
-| **Clear Data Attribution** | Users expect to know where content comes from | Low | ✓ Complete |
-
-### Differentiators (Built)
-
-| Feature | Value Proposition | Status |
-|---------|-------------------|--------|
-| **Full Provenance Trail** | Compliance with Directive on Automated Decision-Making | ✓ Complete |
-| **AI-Generated Overview with Attribution** | Saves time while maintaining traceability | ✓ Complete |
-| **NOC Source Metadata in Export** | Audit-ready documentation | ✓ Complete |
-| **Compliance Metadata Block** | Machine-readable provenance in PDF | ✓ Complete |
+**Domain:** Vocabulary-Constrained Style Transfer for Job Descriptions
+**Researched:** 2026-02-03
+**Scope:** v3.0 Feature — Style learning from example JDs with NOC vocabulary constraint
 
 ---
 
-## v1.1 Features: Enhanced Data Display + Export
+## Context
 
-**Context:** v1.1 adds enhanced data display features (grid view toggle, star ratings, category definitions, statement descriptions) and DOCX export with an Annex section. Research confirms these are standard UX patterns with well-established best practices.
+The user's requirement defines a unique challenge:
 
----
+> "Use example JDs as style references. Continue using authoritative NOC language from JobForge 2.0. For each statement: keep the authoritative NOC sentence, PLUS add a 'styled' sentence that mimics the example JD writing style BUT using NOC words."
 
-### Grid View Toggle
-
-**Context:** Search results currently display as cards only. v1.1 adds toggle between card view and grid/table view.
-
-#### Table Stakes
-
-- **Toggle control with clear visual state** — Button or segmented control showing current view (card/grid) with visual feedback on selection. User must immediately understand which view is active. — Complexity: **Low**
-
-- **Persistent view preference** — View selection survives page refresh via localStorage. User shouldn't have to re-select their preference every session. — Complexity: **Low**
-
-- **Grid displays key comparison columns** — Table columns for: Broad category, Training/Education level, Lead statement (truncated). Enables vertical scanning for comparison. — Complexity: **Low**
-
-- **Keyboard accessible toggle** — Toggle button uses proper ARIA attributes (aria-pressed) and keyboard navigation (Space/Enter to activate). Screen reader announces current state. — Complexity: **Low**
-
-- **Touch target minimum 44x44px** — Mobile-friendly tap target meets accessibility standards. — Complexity: **Low**
-
-#### Differentiators
-
-- **Column sorting in grid view** — Click column headers to sort (alphabetically for text, numerically for TEER levels). Provides quick filtering for users comparing multiple profiles. — Complexity: **Medium**
-
-- **Column customization** — "Customize View" option lets users show/hide columns. Accommodates different user roles (manager vs. HR specialist) with different information priorities. — Complexity: **Medium**
-
-- **Density control** — Compact/comfortable/relaxed row height options in grid view. Lets power users see more data at once or casual users have easier scanning. — Complexity: **Low**
+This is **vocabulary-constrained style transfer** — a specific variant of text style transfer where:
+1. Style patterns are learned from example documents
+2. Generated content must use ONLY vocabulary from a predefined authoritative source (NOC)
+3. Output is dual-format: original authoritative sentence + styled companion sentence
 
 ---
 
-### Proficiency Ratings Display
+## Table Stakes
 
-**Context:** NOC uses 1-5 scales for Skills (proficiency), Abilities (proficiency), Personal Attributes (importance), Work Activities (complexity), Work Context (frequency/duration/responsibility). Statements need visual ratings.
+Features users expect for style-enhanced JD generation. Missing = feature feels incomplete or broken.
 
-#### Table Stakes
+### Style Reference Upload
 
-- **Visual star display (1-5 filled stars)** — Standard 5-star rating component showing proficiency/importance/complexity level. Universally understood metaphor. — Complexity: **Low**
+| Feature | Why Expected | Complexity | Dependencies |
+|---------|--------------|------------|--------------|
+| **Upload example JDs** | Users need to provide style references; PDF/DOCX/TXT formats expected | Medium | File parsing libraries |
+| **Multiple reference support** | Single JD may not capture full style; 2-5 examples provide better style signal | Low | Upload UI extension |
+| **Reference persistence** | Users expect uploaded references to persist within session | Low | localStorage or session state |
+| **Reference preview** | Users need to verify correct file was uploaded | Low | Document viewer |
 
-- **Scale meaning label** — Text next to stars explaining scale: "5 - Highest Level" or "5 - Every day, many times per day". Prevents misinterpretation (5 stars means what?). — Complexity: **Low**
+**Rationale:** Research on few-shot prompting confirms that "examples act as templates, showing LLMs the tone, structure, and style to replicate" ([PromptHub Guide](https://www.prompthub.us/blog/the-few-shot-prompting-guide)). Multiple diverse examples significantly improve style consistency.
 
-- **Correct scale per statement type** — Skills/Abilities use "Proficiency (1-5)", Personal Attributes use "Importance (1-5)", Work Activities use "Complexity (1-5)", Work Context uses dimension-specific scales (Frequency, Duration, Degree of responsibility, etc.). — Complexity: **Medium**
+### Style Extraction Display
 
-- **Non-interactive stars** — Read-only display (not clickable rating input). This is display, not data entry. — Complexity: **Low**
+| Feature | Why Expected | Complexity | Dependencies |
+|---------|--------------|------------|--------------|
+| **Style analysis feedback** | Users need confirmation that style was captured | Medium | LLM style analysis |
+| **Extracted style characteristics** | Show what patterns were detected (sentence length, tone, structure) | Medium | Style feature extraction |
+| **Style confidence indicator** | Users should know if uploaded examples provide sufficient style signal | Low | Analysis metrics |
 
-- **Accessible text alternative** — Screen readers announce "Proficiency level 4 of 5" or equivalent. Stars alone are insufficient for accessibility. — Complexity: **Low**
+**Rationale:** Research shows LLMs analyze "sentence length, vocabulary, punctuation, paragraph structure, and even how transitions are handled" ([Latitude Blog](https://latitude-blog.ghost.io/blog/how-examples-improve-llm-style-consistency/)). Making these visible builds user trust.
 
-#### Differentiators
+### Dual-Format Statement Output
 
-- **Visual distinction for scale types** — Different colors or icons for Proficiency vs Importance vs Complexity (e.g., blue stars for proficiency, orange for importance). Helps users quickly identify scale type. — Complexity: **Low**
+| Feature | Why Expected | Complexity | Dependencies |
+|---------|--------------|------------|--------------|
+| **Original NOC statement displayed** | User requirement: "keep the authoritative NOC sentence" | Low | Existing statement display |
+| **Styled companion sentence** | User requirement: "add a 'styled' sentence" | High | Style transfer generation |
+| **Visual distinction between formats** | Users must clearly see which is authoritative vs styled | Low | CSS styling |
+| **Both versions in export** | Compliance requires authoritative source; usability wants styled version | Low | Export template extension |
 
-- **Inline scale definition tooltip** — Hovering "i" icon explains scale (1=Lowest, 5=Highest for proficiency; 1=Rarely, 5=Every day for frequency). Provides just-in-time help. — Complexity: **Low**
+**Rationale:** This is the core differentiator of the feature. The dual-format preserves compliance (TBS Directive 6.2.3 requires traceable authoritative sources) while delivering improved readability.
 
-- **Filter by rating level** — In statement selection UI, filter to show only Level 4-5 statements. Helps managers focus on critical skills. — Complexity: **Medium**
+### Vocabulary Constraint Enforcement
 
----
+| Feature | Why Expected | Complexity | Dependencies |
+|---------|--------------|------------|--------------|
+| **NOC vocabulary extraction** | Build word list from NOC profile for constraint | Medium | NLP tokenization |
+| **Constraint violation detection** | Flag if styled sentence uses non-NOC words | Medium | Vocabulary matching |
+| **Regeneration on violation** | Automatically retry if constraint violated | Low | Retry logic |
+| **Constraint report in export** | Compliance audit: prove all words from NOC | Medium | Provenance tracking |
 
-### Category Definitions
+**Rationale:** OpenAI's API supports `logit_bias` for token probability adjustment, but is limited to 300 tokens ([OpenAI Help Center](https://help.openai.com/en/articles/5247780-using-logit-bias-to-alter-token-probability-with-the-openai-api)). For strict vocabulary constraint, post-generation validation with regeneration is more reliable than attempting token-level constraint.
 
-**Context:** Each JD Element tab (Skills, Work Context, etc.) represents an NOC category. Users may not understand what "Work Context" encompasses. guide.csv provides category definitions.
+### Statement-Level Control
 
-#### Table Stakes
+| Feature | Why Expected | Complexity | Dependencies |
+|---------|--------------|------------|--------------|
+| **Toggle styled version on/off per statement** | User may want original for some, styled for others | Low | Checkbox per statement |
+| **Edit styled sentence** | User may want to tweak AI output | Low | Inline editing |
+| **Regenerate single statement** | Retry without regenerating entire JD | Low | Single-statement API call |
+| **Accept/reject styled version** | Explicit approval before including in export | Low | State management |
 
-- **Definition displayed at section top** — Short paragraph explaining category before statements list. E.g., "Skills: Developed capacities that facilitate learning or the more rapid acquisition of knowledge." — Complexity: **Low**
-
-- **Collapsible definition** — Uses `<details>/<summary>` or expand/collapse control. Definition visible by default but can be minimized to reduce screen space. — Complexity: **Low**
-
-- **Accessible implementation** — If using custom accordion, uses button element with aria-expanded attribute. Keyboard navigable (Space/Enter to toggle). — Complexity: **Low**
-
-- **Visual hierarchy** — Definition styled distinctly from statements (background color, border, or typography) to indicate meta-information. — Complexity: **Low**
-
-#### Differentiators
-
-- **"Learn More" link to OASIS** — Link to official NOC documentation for category. Provides authoritative source for users wanting deeper understanding. — Complexity: **Low**
-
-- **Category metadata display** — Shows statement count in category: "Skills (24 statements)". Helps users understand scope. — Complexity: **Low**
-
----
-
-### Statement Descriptions
-
-**Context:** Each statement has an OASIS label (e.g., "Arm-Hand Steadiness"). guide.csv provides description for each label. Helps users understand statement meaning without visiting OASIS.
-
-#### Table Stakes
-
-- **Description on hover/focus** — Tooltip or popover displays description when hovering statement label. Provides contextual help without cluttering UI. — Complexity: **Low**
-
-- **Brief inline text** — Description text is concise (1-2 sentences). Avoids overwhelming users with lengthy explanations. — Complexity: **Low**
-
-- **Mobile-friendly display** — On touch devices, tapping "i" icon or label shows description (hover doesn't work). Ensures mobile accessibility. — Complexity: **Low**
-
-- **Keyboard accessible** — Focus on tooltip trigger (icon or label) via Tab, press Space/Enter to reveal description. — Complexity: **Low**
-
-#### Differentiators
-
-- **"Show all descriptions" toggle** — Checkbox at section top to expand all descriptions vs. hover-only. Accommodates different user preferences. — Complexity: **Low**
-
-- **Search includes descriptions** — Section search filters by statement text AND description. User searching "precision" finds "Arm-Hand Steadiness" via description match. — Complexity: **Low**
+**Rationale:** Fine-grained control matches existing v2.0 patterns (checkbox selection per statement) and supports compliance by ensuring human oversight of AI-generated content.
 
 ---
 
-### DOCX Export
+## Differentiators
 
-**Context:** v1.0 has PDF export via WeasyPrint. v1.1 adds Word/DOCX export for editability. Must match PDF structure (main content + compliance appendix).
+Features that set this implementation apart. Not expected, but valued.
 
-#### Table Stakes
+### Advanced Style Learning
 
-- **Document structure matches PDF** — Same sections in same order: Title, NOC Code, General Overview, JD Elements, Appendix A (Compliance Metadata). User expects format consistency. — Complexity: **Low**
+| Feature | Value Proposition | Complexity | Notes |
+|---------|-------------------|------------|-------|
+| **Style template library** | Pre-loaded organizational style templates (formal GC, plain language, technical) | Medium | Reduces upload friction |
+| **Style comparison view** | Side-by-side: original vs multiple style options | Medium | Helps users choose |
+| **Style persistence across sessions** | Save learned styles for reuse | Medium | Requires storage |
+| **Style mixing** | Combine attributes from multiple references (e.g., tone from A, structure from B) | High | Advanced prompt engineering |
 
-- **Compliance appendix included** — DOCX contains same TBS Directive sections as PDF (6.2.3 Data Sources, 6.2.7 Manager Decisions, 6.3.5 Data Quality, AI Disclosure). Demonstrates regulatory compliance. — Complexity: **Low**
+**Research basis:** ZeroStylus research demonstrates "hierarchical template acquisition from reference texts" enables "selective adaptation using reference subsets without reprocessing entire corpora" ([arXiv](https://arxiv.org/html/2505.07888v1)).
 
-- **Editable text** — All content is native Word text (not images or locked fields). User can modify directly in Word. — Complexity: **Low**
+### Intelligent Vocabulary Handling
 
-- **Page break before appendix** — Appendix starts on new page. Separates compliance metadata from job description content. — Complexity: **Low**
+| Feature | Value Proposition | Complexity | Notes |
+|---------|-------------------|------------|-------|
+| **Vocabulary expansion suggestions** | If NOC vocabulary too limited, suggest related terms from NOC hierarchy | Medium | Requires NOC ontology |
+| **Synonym mapping within NOC** | Use NOC-authorized synonyms to enable style variation | Medium | NOC thesaurus data |
+| **Vocabulary coverage report** | Show % of style patterns achievable with available vocabulary | Low | Analytics display |
+| **Domain-specific stop word handling** | Preserve domain terms during vocabulary constraint | Low | Configurable stop word list |
 
-- **Basic styling (headings, bullets, tables)** — Uses Word styles: Heading 1/2, List Bullet, Table Grid. Provides professional appearance. — Complexity: **Low**
+**Research basis:** "Even advanced Large Language Models encounter difficulties when dealing with out-of-vocabulary terms or unique jargon that are characteristic of specialized fields" ([ACM DL](https://dl.acm.org/doi/fullHtml/10.1145/3669754.3669784)). Smart vocabulary handling addresses this.
 
-- **File downloads with descriptive name** — Filename: "JD_[JobTitle]_[NOCCode]_[Date].docx". User can identify file without opening. — Complexity: **Low**
+### Generation Quality Features
 
-#### Differentiators
+| Feature | Value Proposition | Complexity | Notes |
+|---------|-------------------|------------|-------|
+| **Style fidelity score** | Quantify how well output matches reference style | Medium | Style similarity metrics |
+| **Content preservation score** | Verify meaning unchanged from original NOC statement | Medium | Semantic similarity |
+| **Readability metrics** | Show Flesch-Kincaid or similar for styled vs original | Low | Standard metrics |
+| **A/B comparison mode** | Generate multiple style variations for user selection | Medium | Multiple generation calls |
 
-- **Header/footer with NOC code** — Document header shows job title + NOC code, footer shows compliance note. Provides context on every page. — Complexity: **Low** (python-docx supports headers/footers)
+**Research basis:** Text style transfer evaluation uses "tri-axial metrics assessing style consistency, content preservation, and expression quality" ([arXiv](https://arxiv.org/html/2505.07888v1)). Exposing these builds trust.
 
-- **Custom styles for compliance sections** — Applies distinct style to compliance metadata (e.g., grey background for tables, smaller font). Visually separates regulatory content from JD content. — Complexity: **Low**
+### Workflow Enhancements
 
-- **Metadata properties set** — Document properties (Author, Title, Subject) populated with job title, NOC code, generation date. Improves document management. — Complexity: **Low**
-
----
-
-### Annex Section
-
-**Context:** NOC profiles contain reference attributes (example job titles, career mobility paths, employment requirements, interests) not used in main JD. v1.1 adds Annex section to preserve this information for context.
-
-#### Table Stakes
-
-- **Annex section after compliance appendix** — Structure: Main JD → Appendix A (Compliance) → Annex A (Reference NOC Attributes). Clearly separates regulatory compliance from supplementary information. — Complexity: **Low**
-
-- **Includes unused NOC attributes** — Lists: Example Titles, Employment Requirements, Career Mobility, Interests, Personal Attributes (if not selected). User has full NOC context. — Complexity: **Medium**
-
-- **Clear labeling** — "Annex A: Reference NOC Attributes" or "Annex: Additional NOC Profile Information". Title indicates supplementary nature. — Complexity: **Low**
-
-- **Formatted for readability** — Uses bullets or tables for lists. Employment Requirements shown in structured format (not paragraph dump). — Complexity: **Low**
-
-- **Included in both PDF and DOCX** — Annex appears in both export formats. Consistency across outputs. — Complexity: **Low**
-
-#### Differentiators
-
-- **"Include Annex" checkbox** — User opts in/out of Annex section at export time. Some users want minimal JD, others want full context. — Complexity: **Low**
-
-- **Annex summary table** — Table showing attribute categories and count: "Example Titles (8), Employment Requirements (5), Interests (6)". Provides overview before detail. — Complexity: **Low**
-
-- **Annex uses smaller font** — Visual distinction (10pt for Annex vs 11pt for main JD). Signals "reference material, not primary content". — Complexity: **Low**
+| Feature | Value Proposition | Complexity | Notes |
+|---------|-------------------|------------|-------|
+| **Batch styling** | Apply style to all selected statements at once | Medium | Bulk generation |
+| **Style preview before generation** | Show expected output format before full generation | Low | Sample generation |
+| **Undo/redo for style changes** | Non-destructive editing workflow | Low | State history |
+| **Style export for sharing** | Export learned style profile for organizational reuse | Medium | Style serialization |
 
 ---
 
-### Work Context Dimensions Display
+## Anti-Features
 
-**Context:** Work Context statements have multiple dimensions (Frequency, Duration, Degree of responsibility, etc.). Each dimension uses different scale. Must display correct dimension and scale meaning.
+Features to explicitly NOT build. Common mistakes in vocabulary-constrained generation systems.
 
-#### Table Stakes
+### Anti-Feature: Real-Time Token Constraint
 
-- **Dimension label shown** — Statement displays "Frequency: 5 (Every day, many times per day)" not just "5 stars". User understands what the rating measures. — Complexity: **Low**
+**Why Avoid:** OpenAI's `logit_bias` parameter limits constraint to 300 tokens. NOC vocabulary for a single occupation can exceed 1,000 unique terms. Token-level constraint during generation is technically infeasible with current API limitations.
 
-- **Correct dimension per statement** — Lookup dimension type from guide.csv (based on Work Context item code). Some items use Frequency, others use Duration or Responsibility. — Complexity: **Medium**
+**What to Do Instead:** Post-generation validation with regeneration. Generate freely, validate vocabulary compliance, regenerate if violated. More reliable and avoids API limitations.
 
-- **Scale meaning for dimension** — "Frequency: 1=Never, 5=Many times per day" shown in tooltip or inline. User interprets rating correctly. — Complexity: **Low**
+### Anti-Feature: Style Fine-Tuning
 
-- **Multiple dimensions per statement** — If statement has both Frequency and Duration, show both. E.g., "Face-to-Face Discussions: Frequency 4, Duration 3". — Complexity: **Medium**
+**Why Avoid:** Fine-tuning requires substantial training data (hundreds of examples), costs money, and creates model maintenance burden. For 2-5 example documents, fine-tuning is overkill and produces worse results than few-shot prompting.
 
-#### Differentiators
+**What to Do Instead:** Few-shot prompting with reference examples in context. Research confirms "few-shot prompting can be particularly helpful in specialized domains where gathering vast amounts of data can be difficult" ([IBM](https://www.ibm.com/think/topics/few-shot-prompting)).
 
-- **Visual encoding for dimensions** — Different icons for Frequency (clock), Duration (hourglass), Responsibility (shield). Provides quick visual differentiation. — Complexity: **Low**
+### Anti-Feature: Creative Word Generation
 
-- **Dimension filter** — Filter Work Context statements by dimension type: "Show only high-responsibility items". Helps managers focus on decision-making aspects. — Complexity: **Medium**
+**Why Avoid:** The user requirement explicitly states "NEVER fabricate content — all words must come from NOC vocabulary." Any creative generation that introduces non-NOC words breaks the provenance chain and compliance requirements.
 
----
+**What to Do Instead:** Enforce vocabulary constraint rigorously. If styling is impossible with available vocabulary, degrade gracefully to original NOC statement rather than fabricate.
 
-## Anti-Features (Updated for v1.1)
+### Anti-Feature: Automated Style Detection Without User Confirmation
 
-Features to explicitly NOT build. Common mistakes in data display and export tools.
+**Why Avoid:** Style is subjective. What the system detects as "formal" may not match user's intent. Automated style application without user review leads to unexpected outputs.
 
-### Anti-Feature: Inline Editing of Ratings
-**Why Avoid:** Ratings come from authoritative NOC data. Allowing managers to override ratings (e.g., change Proficiency from 3 to 5) breaks provenance chain and compliance. Directive 6.2.3 requires data integrity from authoritative source.
+**What to Do Instead:** Always show extracted style characteristics and get user confirmation before applying. Provide "style preview" before committing to generation.
 
-**What to Do Instead:** Display ratings as read-only. If manager disagrees with NOC rating, they can add note in General Overview or exclude statement entirely. Compliance metadata documents unmodified source data.
+### Anti-Feature: Replacing Original NOC Statement
 
-### Anti-Feature: Custom Statement Creation
-**Why Avoid:** User-written statements lack NOC provenance. Entire compliance model depends on tracing content to authoritative source. Custom statements break audit trail.
+**Why Avoid:** TBS Directive compliance requires traceable authoritative source. Styled sentence is AI-generated derivative, not authoritative source. Replacing original breaks audit trail.
 
-**What to Do Instead:** Encourage statement selection from NOC. If truly custom content needed (e.g., org-specific tools), add as separate section with clear "User-Created Content" label and no NOC attribution. Keep NOC-sourced content pure.
+**What to Do Instead:** Dual-format output as specified. Original NOC statement is the compliance anchor; styled sentence is value-add. Both must be present in export with clear labeling.
 
-### Anti-Feature: Exporting to Other Formats (Excel, JSON, etc.)
-**Why Avoid:** Scope creep. PDF (print/archive) and DOCX (edit) cover use cases. Excel export implies data analysis workflow not core to JD creation. JSON export implies programmatic consumption (API use case, not single-user demo).
+### Anti-Feature: Unrestricted Style Mixing
 
-**What to Do Instead:** Focus on PDF and DOCX quality. If users need data in other formats, they can copy from Word. Don't build export formats without validated use case.
+**Why Avoid:** Mixing incompatible styles (e.g., casual social media + formal legal) produces incoherent output. Users may upload inappropriate examples without understanding impact.
 
-### Anti-Feature: Animated Star Filling
-**Why Avoid:** Animated stars (filling from empty to proficiency level on page load) are visual gimmick without functional value. Adds complexity, slows perceived performance, and can distract from content.
+**What to Do Instead:** Style compatibility checking. Warn if uploaded references have conflicting characteristics. Recommend organizational template library for consistent results.
 
-**What to Do Instead:** Render stars in final state immediately. Use CSS (filled/empty star classes) not animation. Performance and clarity over decoration.
+### Anti-Feature: Sentence-Level Hallucination Tolerance
 
-### Anti-Feature: Printing Grid View Directly
-**Why Avoid:** Grid view is interactive comparison tool. Printing card view or grid view results in poor layout (wide tables, truncated text). Users should select profile first, then export formatted JD.
+**Why Avoid:** Even one hallucinated term in a job description can have legal/compliance implications. Zero tolerance for vocabulary violations is appropriate for this domain.
 
-**What to Do Instead:** Grid view is screen-only. Disable print CSS for grid view or show message "Select a profile to export formatted job description." Export functionality (PDF/DOCX) provides proper print output.
+**What to Do Instead:** Strict validation with graceful degradation. If styled sentence cannot be generated within vocabulary constraint after N attempts, fall back to original NOC statement with explanation.
 
 ---
 
-## v1.1 Feature Dependencies
+## Feature Dependencies
 
 ```
-Search Results Grid View
-  ↓ requires
-  Additional OASIS Fields (Broad category, Training level)
-
-Proficiency Stars
-  ↓ requires
-  guide.csv Scale Definitions
-  ↓ requires
-  Scale Meaning Labels
-
-Category Definitions
-  ↓ requires
-  guide.csv Category Descriptions
-
-Statement Descriptions
-  ↓ requires
-  guide.csv OASIS Label Descriptions
-
-Work Context Dimensions
-  ↓ requires
-  guide.csv Dimension Types
-  ↓ requires
-  Dimension-Specific Scales
-
-DOCX Export
-  ↓ requires
-  Annex Section Data
-  ↓ optional
-  Word Template (.docx file)
-
-Annex Section
-  ↓ requires
-  Expanded NOC Scraping (Example Titles, Employment Requirements, etc.)
+Style Reference Upload
+  |
+  v
+Style Extraction & Analysis
+  |
+  +---> Style Template Library (optional)
+  |
+  v
+NOC Vocabulary Extraction (from existing profile scrape)
+  |
+  v
+Styled Sentence Generation
+  |
+  +---> Post-Generation Vocabulary Validation
+  |       |
+  |       v
+  |     Regeneration Loop (if constraint violated)
+  |
+  v
+Dual-Format Statement Display
+  |
+  +---> Statement-Level Controls (toggle, edit, regenerate)
+  |
+  v
+Export with Both Versions
+  |
+  +---> Constraint Compliance Report
 ```
 
-### Critical Path for v1.1
-1. **guide.csv loading** — Multiple features depend on this. Load and parse guide.csv in backend service (csv_loader.py or similar). Expose via API or include in profile scrape response.
-2. **Annex data scraping** — DOCX export depends on Annex, which depends on scraping additional OASIS fields. Expand scraper.py to capture Example Titles, Employment Requirements, Interests, Career Mobility.
-3. **Statement rendering updates** — Stars, descriptions, dimensions all modify statement display. Update statement HTML template/rendering component once to accommodate all features.
+### Critical Path
+
+1. **NOC Vocabulary Extraction** — Foundation for constraint enforcement. Extract all words from scraped NOC profile (already available in v2.0 data model).
+
+2. **Style Reference Processing** — Parse uploaded documents, extract text, feed to style analysis. Depends on file format handling (PDF, DOCX, TXT).
+
+3. **Styled Sentence Generator** — Core LLM integration. Few-shot prompt with style examples + vocabulary constraint instruction + post-validation.
+
+4. **Dual-Format Display** — UI modification to show original + styled side-by-side or stacked. Extends existing statement display component.
 
 ---
 
-## v1.1 MVP Recommendation
-
-For v1.1 milestone, prioritize:
-
-1. **Proficiency star display with scale meanings** — Table stakes feature, high user value (visual understanding of levels). Low complexity.
-2. **Category definitions at section top** — Table stakes feature, helps users understand NOC structure. Low complexity.
-3. **Statement descriptions in tooltip** — Differentiator feature, provides just-in-time help. Low complexity.
-4. **DOCX export with basic structure** — Table stakes feature, matches PDF. Low-Medium complexity (python-docx basics).
-5. **Annex section in exports** — Table stakes feature, preserves NOC context. Medium complexity (requires scraping expansion).
-
-### Defer to post-v1.1:
-- **Grid view toggle** — Differentiator feature, adds comparison workflow. Defer unless user testing shows strong need. Alternative: Enhance card view with more details instead.
-- **Work Context dimensions display** — Table stakes for Work Context accuracy, but adds complexity. Include if time permits, otherwise defer to v1.2.
-- **Column sorting in grid view** — Medium complexity, nice-to-have.
-- **Filter by rating level** — Medium complexity, power user feature.
-
----
-
-## v1.1 Implementation Complexity Summary
+## Implementation Complexity Summary
 
 | Feature | Complexity | Effort (dev-days) | Dependencies |
 |---------|------------|-------------------|--------------|
-| Grid view toggle | Low-Medium | 2-3 | OASIS field expansion |
-| Proficiency stars (visual) | Low | 1 | guide.csv loading |
-| Scale meaning labels | Low | 0.5 | guide.csv loading |
-| Category definitions | Low | 1 | guide.csv loading |
-| Statement descriptions | Low | 1 | guide.csv loading |
-| Work Context dimensions | Medium | 2 | guide.csv loading |
-| DOCX export (basic) | Low-Medium | 2 | Existing ExportData |
-| Annex section | Medium | 2-3 | OASIS scraping expansion |
+| **Table Stakes** ||||
+| Style reference upload | Medium | 2-3 | PDF/DOCX parsing |
+| Style extraction display | Medium | 2 | LLM style analysis |
+| Dual-format statement output | Medium | 2-3 | UI component extension |
+| Vocabulary constraint enforcement | Medium | 2-3 | NLP tokenization |
+| Statement-level control | Low | 1-2 | Existing UI patterns |
+| **Differentiators** ||||
+| Style template library | Medium | 2-3 | Content curation |
+| Vocabulary expansion suggestions | Medium | 3 | NOC hierarchy data |
+| Style fidelity score | Medium | 2 | Similarity metrics |
+| Batch styling | Medium | 2 | Bulk API handling |
 
-**Total estimated effort (prioritized features only): 7-10 dev-days**
+**Estimated total (table stakes only): 10-14 dev-days**
 
 ---
 
-## Sources (Updated 2026-01-22)
+## Expected Behavior Patterns
 
-### v1.1 Research: Grid View / Table Toggle
-- [Table design UX guide](https://www.eleken.co/blog-posts/table-design-ux)
-- [Data Table Design UX Patterns](https://www.pencilandpaper.io/articles/ux-pattern-analysis-enterprise-data-tables)
-- [Table vs List vs Cards: When to Use Each](https://uxpatterns.dev/pattern-guide/table-vs-list-vs-cards)
-- [Cards versus Table UX Patterns](https://cwcorbin.medium.com/redux-cards-versus-table-ux-patterns-1911e3ca4b16)
+Based on research, users expect these behavior patterns for vocabulary-constrained style transfer:
 
-### v1.1 Research: Star Ratings / Proficiency Levels
-- [What are Proficiency Levels in 2026?](https://www.talentguard.com/what-are-proficiency-levels)
-- [Rating Scales in UX Research](https://www.interaction-design.org/literature/article/rating-scales-for-ux-research)
-- [Navigating the Skills Proficiency Scale](https://www.tilr.com/blog/skills-proficiency-scale)
+### 1. Graceful Degradation
 
-### v1.1 Research: Collapsible Sections / Tooltips
-- [Accordion UI Examples: Best Practices](https://www.eleken.co/blog-posts/accordion-ui)
-- [Accordion Pattern | UX Patterns](https://uxpatterns.dev/patterns/content-management/accordion)
-- [Expand/Collapse design pattern - Canada.ca](https://design.canada.ca/common-design-patterns/collapsible-content.html)
-- [Inline Help Examples](https://baymard.com/blog/inline-help)
-- [Contextual Help UX Patterns](https://www.chameleon.io/blog/contextual-help-ux)
+When vocabulary constraint cannot be satisfied:
+- Attempt regeneration (up to 3 times)
+- If still failing, show original NOC statement with explanation
+- Never show fabricated content
+- Log failure for analysis
 
-### v1.1 Research: python-docx / DOCX Export
-- [python-docx Comprehensive Guide](https://medium.com/@HeCanThink/python-docx-a-comprehensive-guide-to-creating-and-manipulating-word-documents-in-python-a765cf4b4cb9)
-- [Working with python-docx: Creating and Optimizing](https://coderivers.org/blog/pythondocx/)
-- [python-docx Official Documentation](https://python-docx.readthedocs.io/)
-- [8 Ways to Supercharge Microsoft Word Automation with Python](https://www.softkraft.co/python-word-automation/)
-- [python-docx-template Documentation](https://docxtpl.readthedocs.io/)
+### 2. Transparent Processing
 
-### v1.1 Research: Annex / Appendix Best Practices
-- [Annex vs Appendix: What is the difference?](https://researcher.life/blog/article/annex-vs-appendix-what-is-the-difference/)
-- [Best practices for formatting appendices and annexes](https://www.linkedin.com/advice/1/what-best-practices-formatting-referencing-appendices)
-- [Use an Appendix or Annex in Your Research Paper?](https://www.aje.com/arc/use-an-appendix-or-annex-in-research-paper)
+Users expect to see:
+- What style characteristics were extracted
+- What vocabulary is available for constraint
+- Why a particular styled sentence was generated
+- Confidence level of the output
 
-### v1.1 Research: Statement Descriptions / Inline Help
-- [UX writing | Grafana Toolkit](https://grafana.com/docs/writers-toolkit/write/style-guide/ux-writing/)
-- [Form UI/UX Design Best Practices 2026](https://www.designstudiouiux.com/blog/form-ux-design-best-practices/)
-- [How to Provide Contextual Help](https://userpilot.com/blog/contextual-help/)
+### 3. Human-in-the-Loop
 
-### v1.1 Research: Toggle Buttons / Accessibility
-- [Building accessible toggle buttons](https://joshcollinsworth.com/blog/accessible-toggle-buttons)
-- [Toggle UX: Tips on Getting it Right](https://www.eleken.co/blog-posts/toggle-ux)
-- [Accessibility of Toggle Buttons](https://dev.to/gzamann/accessibility-of-toggle-buttons-3ca9)
+AI-generated content requires human approval:
+- Preview before committing
+- Edit capability
+- Accept/reject per statement
+- Clear labeling of AI vs authoritative content
 
-### v1.1 Research: NOC Proficiency Scales / Work Context
-- [National Occupational Classification - Canada.ca](https://noc.esdc.gc.ca/)
-- [OaSIS 2022 Dataset - Open Government Portal](https://open.canada.ca/data/en/dataset/eeb3e442-9f19-4d12-8b38-c488fe4f6e5e)
-- [About the National Occupational Classification](https://noc.esdc.gc.ca/Home/AboutNOC)
-- [NOC 2026 Revision Report](https://www.statcan.gc.ca/en/consultation/2024/noc/results-report)
+### 4. Compliance Preservation
 
-### v1.1 Research: Data Visualization / Complexity Patterns
-- [Data Visualization UX Best Practices (Updated 2026)](https://www.designstudiouiux.com/blog/data-visualization-ux-best-practices/)
-- [UI considerations for designing large data tables](https://coyleandrew.medium.com/ui-considerations-for-designing-large-data-tables-aa6c1ea93797)
+Styled content must not compromise compliance:
+- Original NOC statement always preserved
+- Styled sentence clearly marked as AI-generated
+- Vocabulary constraint report in export
+- Audit trail for style decisions
 
-### v1.0 Research: Job Description Software Features
-- [Gartner Peer Insights - Job Description Software](https://www.gartner.com/reviews/market/job-description-software)
-- [Ongig - Job Description Software](https://www.ongig.com)
-- [JDXpert Features](https://jdxpert.com/features/)
-- [CompTool Job Description Manager](https://comptool.com/solutions/job-description-manager/)
-- [Best Job Description Software 2025 - Ongig Blog](https://blog.ongig.com/job-descriptions/best-job-description-software/)
+---
 
-### v1.0 Research: Compliance & Audit Trail
-- [Canada Directive on Automated Decision-Making](https://www.tbs-sct.canada.ca/pol/doc-eng.aspx?id=32592)
-- [Guide on Scope of Directive](https://www.canada.ca/en/government/system/digital-government/digital-government-innovations/responsible-use-ai/guide-scope-directive-automated-decision-making.html)
-- [HR Cloud - Compliance Audit Trail](https://www.hrcloud.com/resources/glossary/compliance-audit-trail)
-- [Qandle Audit Trail Software](https://www.qandle.com/audit-trail-software.html)
+## Sources
 
-### v1.0 Research: NOC Classification
-- [Statistics Canada NOC 2021 Introduction](https://www.statcan.gc.ca/en/subjects/standard/noc/2021/introductionV1)
-- [Job Bank and NOC](https://www.jobbank.gc.ca/trend-analysis/resources/national-occupational-classification)
+### Style Transfer Research
+- [Long Text Style Transfer with LLMs - arXiv](https://arxiv.org/html/2505.07888v1) — ZeroStylus hierarchical framework
+- [LLM-Based Text Style Transfer Survey - IEEE](https://ieeexplore.ieee.org/document/10915631/) — Overview of TST methods
+- [Text Style Transfer Introduction - Cloudera](https://text-style-transfer.fastforwardlabs.com/) — Foundational concepts
+- [Deep Learning for Text Style Transfer Survey - MIT Press](https://direct.mit.edu/coli/article/48/1/155/108845/Deep-Learning-for-Text-Style-Transfer-A-Survey) — Academic survey
+
+### Constrained Generation
+- [Constrained Decoding Guide - Michael Brenndoerfer](https://mbrenndoerfer.com/writing/constrained-decoding-structured-llm-output) — Grammar-guided generation
+- [Controlling Your LLM - Medium](https://medium.com/@docherty/controlling-your-llm-deep-dive-into-constrained-generation-1e561c736a20) — Practical implementation
+- [Guiding LLMs The Right Way - arXiv](https://arxiv.org/html/2403.06988v1) — DOMINO algorithm
+- [Controllable Text Generation Survey - arXiv](https://arxiv.org/html/2408.12599v1) — CTG methods overview
+
+### Few-Shot Prompting
+- [Few-Shot Prompting Guide - PromptingGuide.ai](https://www.promptingguide.ai/techniques/fewshot) — Best practices
+- [How Examples Improve LLM Style Consistency - Latitude](https://latitude-blog.ghost.io/blog/how-examples-improve-llm-style-consistency/) — Example-based learning
+- [What is Few Shot Prompting - IBM](https://www.ibm.com/think/topics/few-shot-prompting) — Industry perspective
+- [The Few Shot Prompting Guide - PromptHub](https://www.prompthub.us/blog/the-few-shot-prompting-guide) — Practical examples
+
+### Vocabulary Constraints
+- [Logit Bias in OpenAI API - OpenAI Help](https://help.openai.com/en/articles/5247780-using-logit-bias-to-alter-token-probability-with-the-openai-api) — Token control (300 limit)
+- [Improving Paraphrase Quality - ACM DL](https://dl.acm.org/doi/fullHtml/10.1145/3669754.3669784) — Domain-specific paraphrasing
+- [Paraphrase Strategy - Yale](https://poorvucenter.yale.edu/Paraphrase-Strategy3) — Handling specialized vocabulary
+
+### Job Description Writing
+- [Writing Effective Job Descriptions - Wright State](https://www.wright.edu/human-resources/writing-an-effective-job-description) — Style guidelines
+- [Job Description Guide - SHRM](https://www.shrm.org/topics-tools/tools/job-descriptions) — HR best practices
+- [RewriteLM - arXiv](https://arxiv.org/html/2305.15685v2) — Instruction-tuned rewriting
 
 ---
 
@@ -395,9 +313,31 @@ For v1.1 milestone, prioritize:
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| v1.0 Table Stakes | HIGH | Well-documented across commercial tools |
-| v1.0 Differentiators | HIGH | Directive requirements are explicit |
-| v1.1 Display Features | HIGH | Standard UX patterns, multiple authoritative sources |
-| v1.1 DOCX Export | HIGH | python-docx well-documented, existing implementation |
-| v1.1 Annex Section | MEDIUM-HIGH | Annex best practices clear, NOC data availability confirmed |
-| v1.1 Dependencies | HIGH | Logical flow from data sources |
+| Style extraction via few-shot | HIGH | Well-documented technique, multiple authoritative sources |
+| Vocabulary constraint approach | MEDIUM-HIGH | Post-validation more reliable than token-level; logit_bias limitation confirmed |
+| Dual-format output UX | HIGH | Standard comparison pattern, existing v2.0 UI precedent |
+| Content preservation | MEDIUM | Trade-off inherent in style transfer; metrics available |
+| Generation quality | MEDIUM | Depends on vocabulary richness; graceful degradation needed |
+| Compliance preservation | HIGH | Clear requirements, existing provenance patterns |
+
+---
+
+## MVP Recommendation
+
+For initial v3.0 style-enhanced generation, prioritize:
+
+1. **Style reference upload (PDF/DOCX)** — Core capability, enables all else
+2. **Simple style extraction feedback** — "Detected: formal tone, complex sentences"
+3. **Dual-format output** — Original + styled, clearly labeled
+4. **Basic vocabulary constraint** — Post-generation validation, regenerate on violation
+5. **Statement-level toggle** — Use styled / use original per statement
+
+### Defer to post-v3.0:
+- Style template library (requires content curation)
+- Style mixing (complex prompt engineering)
+- Vocabulary expansion suggestions (requires NOC ontology work)
+- Style fidelity scoring (nice-to-have, not blocking)
+
+---
+
+*Last updated: 2026-02-03 — Style-enhanced JD generation feature research*

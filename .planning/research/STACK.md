@@ -382,11 +382,11 @@ All v1.1 features can be implemented with the existing stack:
 
 **Star Rating Display:** CSS + HTML entity stars
 - Why: Pure CSS solution, accessible, no icon libraries needed
-- Integration: Add `.star-rating` component in main.css using Unicode star characters (★/☆)
+- Integration: Add `.star-rating` component in main.css using Unicode star characters
 - Pattern:
   ```html
   <span class="star-rating" data-level="3" aria-label="3 out of 5">
-      ★★★☆☆
+      stars displayed here
   </span>
   ```
 
@@ -406,160 +406,11 @@ All v1.1 features can be implemented with the existing stack:
 
 **Icon libraries** (Font Awesome, Material Icons)
 - Why NOT: Unnecessary dependency for simple star ratings
-- Alternative: Unicode stars (★ U+2605, ☆ U+2606) or CSS shapes
+- Alternative: Unicode stars (U+2605, U+2606) or CSS shapes
 
 **CSV parsing libraries** (clevercsv, csvkit)
 - Why NOT: Built-in csv module is sufficient for well-formed OASIS CSVs
 - Alternative: Python's csv.DictReader with proper encoding handling
-
-## Integration Guidance for v1.1
-
-### CSV Service Layer
-
-Create new service at `src/services/csv_service.py`:
-
-```python
-"""CSV data service for OASIS metadata files."""
-
-import csv
-from pathlib import Path
-from typing import Dict, List, Optional
-
-class CSVService:
-    """Service for reading OASIS CSV metadata files."""
-
-    def __init__(self, csv_dir: Path):
-        self.csv_dir = csv_dir
-        self._guide_cache: Optional[Dict] = None
-
-    def load_guide(self) -> Dict[str, Dict]:
-        """Load guide.csv with category definitions and scale meanings.
-
-        Returns dict mapping OASIS labels to metadata:
-        {
-            "Abilities": {
-                "category": "Abilities",
-                "definition": "...",
-                "scale": "Proficiency"
-            }
-        }
-        """
-        if self._guide_cache:
-            return self._guide_cache
-
-        guide_path = self.csv_dir / "guide.csv"
-        guide_data = {}
-
-        with open(guide_path, newline='', encoding='utf-8') as csvfile:
-            reader = csv.DictReader(csvfile)
-            for row in reader:
-                label = row.get('OASIS_Label', '')
-                guide_data[label] = {
-                    'category': row.get('Category', ''),
-                    'definition': row.get('Definition', ''),
-                    'scale': row.get('Scale', '')
-                }
-
-        self._guide_cache = guide_data
-        return guide_data
-```
-
-**Integration point:** Instantiate in `app.py`, inject into routes that need statement metadata.
-
-### DOCX Annex Section
-
-Extend existing `src/services/docx_generator.py`:
-
-```python
-def generate_docx(data: ExportData) -> bytes:
-    # ... existing code ...
-
-    # NEW: Annex section (before compliance appendix)
-    if data.annex_attributes:
-        doc.add_page_break()
-        doc.add_heading("Annex: Reference NOC Attributes", 1)
-
-        for attr_group in data.annex_attributes:
-            doc.add_heading(attr_group.name, 2)
-            for item in attr_group.items:
-                doc.add_paragraph(item, style='List Bullet')
-
-    # Existing compliance appendix code...
-```
-
-**Integration point:** Add `annex_attributes` field to `ExportData` model in `src/models/export_models.py`.
-
-### Frontend Grid View
-
-Add to `static/js/search.js`:
-
-```javascript
-// Toggle between card and grid view
-function toggleView(viewMode) {
-    const resultsContainer = document.getElementById('search-results');
-    resultsContainer.classList.remove('card-view', 'grid-view');
-    resultsContainer.classList.add(viewMode);
-    localStorage.setItem('searchViewMode', viewMode);
-}
-```
-
-Add to `static/css/main.css`:
-
-```css
-/* Search results grid view */
-.search-results.grid-view {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1rem;
-}
-
-.search-results.card-view .result-card {
-    /* Existing card styles */
-}
-
-.search-results.grid-view .result-card {
-    display: grid;
-    grid-template-columns: 80px 1fr 200px;
-    align-items: center;
-    padding: 0.75rem;
-}
-```
-
-**Integration point:** Wire toggle button in search results template, persist preference in localStorage.
-
-### Star Rating Component
-
-Add to `static/css/main.css`:
-
-```css
-/* Star rating display */
-.star-rating {
-    color: #f5a623;
-    font-size: 1rem;
-    letter-spacing: 0.1em;
-    white-space: nowrap;
-}
-
-.star-rating::after {
-    content: attr(data-scale-meaning);
-    margin-left: 0.5rem;
-    color: var(--text-light);
-    font-size: 0.875rem;
-    font-weight: normal;
-}
-```
-
-Add helper in `static/js/main.js`:
-
-```javascript
-function renderStarRating(level, scaleMeaning) {
-    const filled = '★'.repeat(level);
-    const empty = '☆'.repeat(5 - level);
-    return `<span class="star-rating" data-level="${level}" data-scale-meaning="${scaleMeaning}" aria-label="${level} out of 5">${filled}${empty}</span>`;
-}
-```
-
-**Integration point:** Use in statement rendering functions in selection.js.
 
 ## Version Verification for v1.1
 
@@ -571,79 +422,6 @@ function renderStarRating(level, scaleMeaning) {
 | CSS Grid | Stable (all modern browsers) | 2026-01-22 | MDN Web Docs | HIGH |
 
 **Note on python-docx version:** Current requirements.txt shows `python-docx==1.2.0`, which matches the latest stable release from PyPI (released June 16, 2025). No upgrade needed.
-
-## CSV Module Best Practices
-
-Based on official Python documentation:
-
-1. **Always use `newline=''`** when opening CSV files
-   - Prevents newline interpretation issues on Windows
-   - Critical for cross-platform compatibility
-
-2. **Specify encoding explicitly**
-   - Use `encoding='utf-8'` for OASIS CSVs (likely contain French text)
-   - Prevents encoding errors on different systems
-
-3. **Use DictReader for header-mapped access**
-   - More readable than index-based access
-   - Self-documenting code
-   - Easier to maintain if CSV columns change
-
-4. **Use context managers (`with` statements)**
-   - Automatic file closure
-   - Exception-safe
-
-5. **Cache parsed data if accessed multiple times**
-   - guide.csv likely accessed for every statement display
-   - Parse once, cache in memory for request lifecycle
-
-## python-docx Usage Patterns
-
-Based on existing `docx_generator.py` and official documentation:
-
-**Existing patterns to follow:**
-- Document initialization: `doc = Document()`
-- Section configuration for page setup
-- Header/footer customization
-- Heading hierarchy (0 = title, 1 = section, 2 = subsection)
-- Style application: `doc.add_paragraph(text, style='List Bullet')`
-- Table generation for structured data
-- Font styling via runs
-- BytesIO buffer for in-memory generation
-
-**New patterns needed for v1.1:**
-- Annex section: Same as JD Elements (heading + bullet list)
-- No new python-docx features required
-
-## Frontend Patterns for v1.1
-
-Based on existing vanilla JS architecture:
-
-**State management:** Existing Proxy-based state in `static/js/state.js`
-- Add `searchViewMode: 'card'` to state
-- Subscribe to changes for view toggle
-
-**Event delegation:** Existing pattern in search.js
-- Use for grid/card view toggle buttons
-- Maintain single event listener on container
-
-**CSS classes for state:** Existing pattern throughout
-- `.card-view` / `.grid-view` classes for display mode
-- `.selected` class for active toggle button
-
-**localStorage persistence:** Existing pattern in state.js
-- Persist view mode preference
-- Restore on page load
-
-## Risk Assessment for v1.1
-
-| Risk | Likelihood | Impact | Mitigation |
-|------|------------|--------|------------|
-| CSV encoding issues (French text) | Medium | Low | Explicit UTF-8 encoding, test with actual OASIS CSVs |
-| CSV column name changes | Low | Medium | Robust error handling, log missing columns |
-| Grid view layout on mobile | Medium | Low | CSS media queries, fallback to card view |
-| Star unicode rendering | Low | Low | Unicode widely supported, add aria-label for accessibility |
-| guide.csv structure assumption | Medium | Medium | Validate CSV structure on load, fail gracefully |
 
 ## Sources for v1.1 Research
 
@@ -663,3 +441,299 @@ Based on existing vanilla JS architecture:
 - Star ratings: HIGH (simple CSS + Unicode solution)
 
 **No external research flags.** All findings verified with official documentation or existing codebase analysis.
+
+---
+
+# v3.0 Stack Additions: Style-Enhanced JD Writing
+
+**Milestone:** v3.0 Style-Enhanced Writing with Vocabulary Constraints
+**Researched:** 2026-02-03
+**Overall Confidence:** MEDIUM
+
+## Executive Summary for v3.0
+
+The style-enhanced JD writing feature requires three new capabilities:
+1. **Text extraction** from ~40 example JD files (PDF/DOCX)
+2. **Style learning** from extracted examples
+3. **Vocabulary-constrained generation** using only NOC/JobForge terms
+
+The existing OpenAI SDK (v1.109.1) handles style learning and generation through **prompt engineering with few-shot examples**. No heavy NLP libraries or constrained decoding frameworks are needed. The main additions are lightweight: `pdfplumber` for PDF extraction and `pyarrow` for parquet vocabulary access.
+
+---
+
+## Recommended Stack Additions for v3.0
+
+### 1. PDF Text Extraction
+
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| **pdfplumber** | 0.11.9 | Extract text from example JD PDFs | MIT license (safe for internal tools), reliable text extraction, pure Python, built on pdfminer.six |
+
+**Rationale:** The example JDs are text-heavy documents (not scanned images), making pdfplumber ideal. PyMuPDF is faster but carries AGPL licensing concerns for internal tools. pypdf is lighter but pdfplumber handles complex layouts better.
+
+**Installation:**
+```bash
+pip install pdfplumber==0.11.9
+```
+
+**Confidence:** HIGH - Verified via [PyPI](https://pypi.org/project/pdfplumber/) (January 5, 2026 release)
+
+### 2. DOCX Text Extraction
+
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| **python-docx** | 1.2.0 | Extract text from example JD DOCX files | Already installed, proven reliable |
+
+**Rationale:** Already in `requirements.txt` for export. Reuse for extraction - no new dependency needed.
+
+**Confidence:** HIGH - Already validated in current stack
+
+### 3. Parquet File Access (Vocabulary)
+
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| **pyarrow** | 19.x or 23.0.0 | Read JobForge 2.0 parquet files containing NOC vocabulary | Industry standard for parquet, no pandas required |
+
+**Rationale:** JobForge 2.0 vocabulary lives in parquet files (gold model at `C:\Users\Administrator\Dropbox\++ Results Kit\JobForge 2.0\data\gold\`). PyArrow reads these directly as Arrow Tables without pandas overhead. Use `pq.read_table()` for simple column extraction.
+
+**Version Note:**
+- PyArrow 23.0.0 requires Python >= 3.10
+- If project uses Python 3.9, use PyArrow 15.x (last Python 3.9 compatible version)
+- Check project's Python version before pinning
+
+**Installation:**
+```bash
+pip install pyarrow>=19.0.0
+```
+
+**Confidence:** HIGH - Verified via [Arrow docs v23.0.0](https://arrow.apache.org/docs/python/parquet.html)
+
+---
+
+## Approach: Style Learning + Vocabulary-Constrained Generation
+
+### Recommended Approach: Few-Shot Prompting (No New Libraries)
+
+| Approach | Complexity | Quality | Libraries Needed |
+|----------|-----------|---------|------------------|
+| **Few-shot prompting** | Low | Good | None (use existing OpenAI SDK) |
+| Fine-tuning | High | Better | OpenAI fine-tuning API |
+| Constrained decoding | Very High | Variable | Outlines (local models only) |
+| Logit bias | Medium | Poor for vocab | OpenAI SDK (already installed) |
+
+**Recommendation: Few-shot prompting with vocabulary injection**
+
+The existing OpenAI SDK (v1.109.1) supports this pattern:
+
+```python
+# Pseudo-code for style-enhanced generation
+prompt = f"""
+You are writing job description content. Your task is to generate one sentence
+that expands on the following NOC statement.
+
+CRITICAL CONSTRAINT: You may ONLY use words from this vocabulary list:
+{vocabulary_words}
+
+If you cannot express the idea using only these words, say "CANNOT_EXPRESS".
+
+STYLE EXAMPLES (mimic this writing style):
+{few_shot_examples}
+
+NOC STATEMENT TO EXPAND:
+{noc_statement}
+
+STYLED SENTENCE (using only allowed vocabulary):
+"""
+```
+
+**Why not constrained decoding (Outlines)?**
+- Outlines works with local models (vLLM, Ollama, llama.cpp) but has **limited OpenAI API support**
+- OpenAI structured outputs only guarantee JSON schema compliance, not vocabulary constraints
+- Logit bias is limited to ~300-1024 tokens and works at token level, not word level
+- For vocabulary-constrained generation with cloud APIs, **prompt engineering + post-validation is the practical approach**
+
+**Confidence:** MEDIUM - Based on [Outlines docs](https://dottxt-ai.github.io/outlines/latest/) and [OpenAI community discussions](https://community.openai.com/t/logit-bias-default-bias-and-blocking-tokens-not-in-list/1057281)
+
+### Post-Generation Validation (Required)
+
+Since prompt-based vocabulary constraints are "best effort," implement validation:
+
+```python
+def validate_vocabulary(generated_text: str, allowed_words: set) -> tuple[bool, list]:
+    """Check if all words in generated text are in allowed vocabulary."""
+    words = set(generated_text.lower().split())
+    violations = words - allowed_words
+    return len(violations) == 0, list(violations)
+```
+
+If violations detected:
+1. Retry with violated words explicitly excluded in prompt
+2. Or fall back to original NOC statement only
+
+---
+
+## What NOT to Add for v3.0
+
+### Do NOT Add: Heavy NLP Libraries
+
+| Library | Why NOT |
+|---------|---------|
+| spaCy | Overkill for style extraction - adds 500MB+ models, complex dependency |
+| NLTK | Older, slower, unnecessary when LLM handles style learning |
+| FastStylometry | Academic tool for authorship attribution, not style transfer |
+| Gensim | Topic modeling not needed for JD style mimicking |
+| Hugging Face Transformers | Massive dependency for features OpenAI already provides |
+
+**Rationale:** The goal is style *mimicking*, not style *analysis*. LLMs learn style from examples directly through few-shot prompting - no preprocessing or feature extraction needed. Research confirms that "providing even a few writing examples significantly improves an LLM's ability to imitate implicit personal writing style" ([arxiv](https://arxiv.org/html/2509.14543v1)). Adding NLP libraries creates dependency bloat without improving output quality.
+
+### Do NOT Add: Local Model Infrastructure
+
+| Library | Why NOT |
+|---------|---------|
+| Outlines | Requires local model serving (vLLM/Ollama) for full vocabulary constraints |
+| llama.cpp | Adds model hosting complexity to a Flask demo app |
+| vLLM | Server infrastructure overkill for ~40 example files |
+
+**Rationale:** JD Builder Lite is a Flask demo that already uses OpenAI. Adding local model serving creates operational complexity disproportionate to the feature value.
+
+### Do NOT Add: Separate Embedding/RAG Stack
+
+| Library | Why NOT |
+|---------|---------|
+| ChromaDB | ~40 example files fit in prompt context - no vector DB needed |
+| Pinecone | Cloud dependency for a local demo tool |
+| FAISS | C++ dependency complexity for minimal benefit |
+| LangChain | Abstraction overhead for simple few-shot prompting |
+
+**Rationale:** With ~40 example JDs totaling perhaps 50-100KB of text, a simple file-based approach (read examples, select relevant ones, include in prompt) outperforms RAG complexity.
+
+---
+
+## Integration with Existing Stack
+
+### Existing Stack (DO NOT MODIFY)
+
+| Component | Version | Purpose | Integration Point |
+|-----------|---------|---------|-------------------|
+| Flask | 3.1.2 | Web framework | New endpoint for styled generation |
+| OpenAI SDK | 1.109.1 | LLM API access | **Use for style-enhanced generation** |
+| python-docx | 1.2.0 | DOCX export | **Reuse for DOCX extraction** |
+| WeasyPrint | 68.0 | PDF export | No change |
+| BeautifulSoup | 4.14.3 | Web scraping | No change |
+| Pydantic | 2.10.0 | Validation | Use for styled output models |
+
+### New Integration Points
+
+```
+Example JDs (PDF/DOCX)
+    |
+    v
+[pdfplumber] + [python-docx]  <-- Text extraction
+    |
+    v
+Style Examples (in-memory cache)
+    |
+    +----> [OpenAI SDK]  <-- Few-shot prompting
+    |           |
+    |           v
+    |      Styled Sentence
+    |           |
+    v           v
+[pyarrow] --> Vocabulary Validation
+    |
+    v
+JobForge parquet files
+```
+
+---
+
+## Updated requirements.txt for v3.0
+
+```txt
+# Existing (unchanged)
+flask==3.1.2
+flask-cors==6.0.2
+requests==2.32.5
+beautifulsoup4==4.14.3
+lxml==6.0.2
+pydantic==2.10.0
+python-dotenv==1.2.1
+openai==1.109.1
+tenacity==9.0.0
+weasyprint==68.0
+Flask-WeasyPrint==1.1.0
+python-docx==1.2.0
+
+# NEW for v3.0 style-enhanced writing
+pdfplumber==0.11.9    # PDF text extraction from example JDs
+pyarrow>=19.0.0       # Parquet reading for NOC vocabulary
+```
+
+**Note:** Check Python version. If Python < 3.10, pin `pyarrow<20.0.0`.
+
+---
+
+## Architecture Recommendation for v3.0
+
+### New Service Layer Files
+
+```
+src/
+  services/
+    style_service.py        # NEW: Style extraction and generation
+    vocabulary_service.py   # NEW: NOC vocabulary loading from parquet
+    example_loader.py       # NEW: PDF/DOCX extraction
+```
+
+### Data Flow
+
+1. **Startup:** Load example JDs once, extract text, cache in memory
+2. **Startup:** Load vocabulary from JobForge parquet files
+3. **Request:** User selects NOC statements
+4. **Generation:** For each statement:
+   - Select relevant style examples (by job category similarity)
+   - Build few-shot prompt with vocabulary constraint
+   - Call OpenAI with existing SDK
+   - Validate output against vocabulary
+   - Retry or fallback if validation fails
+
+---
+
+## Confidence Assessment for v3.0
+
+| Decision | Confidence | Reason |
+|----------|------------|--------|
+| pdfplumber for PDF extraction | HIGH | MIT license, verified current version, good for text-heavy docs |
+| python-docx for DOCX extraction | HIGH | Already in stack, proven |
+| pyarrow for parquet | HIGH | Industry standard, verified API |
+| Few-shot prompting approach | MEDIUM | Best available for cloud API + vocab constraint combo |
+| No NLP libraries | MEDIUM | Assumption that LLM handles style learning adequately |
+| No local model infrastructure | HIGH | Clear scope mismatch with demo app complexity |
+
+---
+
+## Open Questions for v3.0 Phase Planning
+
+1. **Python version:** Verify project Python version to pin correct pyarrow version
+2. **Example quality:** Are all 40 example JDs suitable? Some may be scanned images requiring OCR
+3. **Vocabulary granularity:** Should vocabulary be NOC-code-specific or global across all NOC?
+4. **Retry budget:** How many retries on vocabulary violations before fallback?
+5. **Style example selection:** Simple random selection or match by NOC category?
+
+---
+
+## Sources for v3.0 Research
+
+### Verified (HIGH confidence)
+- [pdfplumber PyPI v0.11.9](https://pypi.org/project/pdfplumber/) - January 5, 2026
+- [pypdf PyPI v6.6.2](https://pypdf.readthedocs.io/en/stable/meta/comparisons.html) - January 26, 2026
+- [Apache Arrow Parquet docs v23.0.0](https://arrow.apache.org/docs/python/parquet.html)
+- [pandas 2.2.2 Installation docs](https://pandas.pydata.org/pandas-docs/version/2.2.2/getting_started/install.html) - Python 3.9-3.12 support
+
+### Research (MEDIUM confidence)
+- [Outlines GitHub](https://github.com/dottxt-ai/outlines) - Structured output library
+- [OpenAI Logit Bias Help Center](https://help.openai.com/en/articles/5247780-using-logit-bias-to-alter-token-probability-with-the-openai-api)
+- [Constrained LLM Generation Deep Dive](https://medium.com/@docherty/controlling-your-llm-deep-dive-into-constrained-generation-1e561c736a20)
+- [Few-shot prompting for style mimicking](https://relevanceai.com/docs/example-use-cases/few-shot-prompting)
+- [LLM Style Imitation Research](https://arxiv.org/html/2509.14543v1)
+- [PDF Library Comparison 2026](https://unstract.com/blog/evaluating-python-pdf-to-text-libraries/)

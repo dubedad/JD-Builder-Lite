@@ -1,823 +1,736 @@
-# Architecture Research: v1.1 Enhanced Data Display + Export
+# Architecture: Style-Enhanced JD Generation
 
-**Domain:** Enhancement to existing JD Builder Lite (Flask + Vanilla JS)
-**Researched:** 2026-01-22
-**Confidence:** HIGH (extending existing v1.0 architecture with well-understood patterns)
+**Domain:** Style-enhanced writing for job descriptions constrained to NOC vocabulary
+**Researched:** 2026-02-03
+**Confidence:** HIGH
 
 ## Executive Summary
 
-v1.1 adds enhanced data display features and DOCX export to the existing JD Builder Lite architecture. The integration involves: (1) new CSV data loading service for Open Canada guide.csv, (2) enriched response models with metadata fields, (3) frontend grid view component, and (4) parallel DOCX export route. All changes extend existing patterns without architectural restructuring. Build order follows data availability: CSV loader first, then backend enrichment, then frontend display, then export features.
+Style-enhanced JD generation integrates cleanly with the existing Flask + OpenAI architecture. The current system already has the necessary extension points:
 
-## Current v1.0 Architecture (Baseline)
+1. **llm_service.py** handles all OpenAI interactions with clear patterns for new generation functions
+2. **labels_loader.py** loads parquet data and provides caching patterns for vocabulary indexing
+3. **mapper.py** transforms data through enrichment pipelines that can accommodate style variants
+4. **api.py** demonstrates SSE streaming patterns for async generation
 
-### Backend Structure (Flask + Service Layer)
+The architecture adds three new service modules and extends the frontend with dual-display (authoritative + styled) without breaking existing data flows.
 
-```
-Flask App (src/app.py)
-    |
-    v
-Routes (src/routes/api.py)
-    |
-    +---> Services
-    |     - scraper.py: OASIS HTTP client
-    |     - parser.py: HTML -> structured data
-    |     - mapper.py: NOC data -> JD elements
-    |     - llm_service.py: OpenAI generation
-    |     - export_service.py: Build export data
-    |     - pdf_generator.py: WeasyPrint PDF
-    |     - docx_generator.py: python-docx Word (v1.0)
-    |
-    +---> Models (Pydantic)
-    |     - noc.py: SearchResult, NOCStatement, JDElementData
-    |     - responses.py: ProfileResponse, SearchResponse
-    |     - export_models.py: ExportRequest, ExportData
-    |     - ai.py: GenerationMetadata
-    |
-    +---> Utils
-          - selectors.py: CSS selectors for scraping
-```
-
-### Frontend Structure (Vanilla JS)
+## Current Architecture Overview
 
 ```
-static/
-    +-- js/
-        - state.js: Store with localStorage persistence
-        - api.js: Fetch wrapper for backend
-        - search.js: Search UI logic
-        - accordion.js: JD element tabs
-        - selection.js: Statement checkbox logic
-        - generate.js: AI overview generation
-        - export.js: PDF/DOCX download
+                                    CURRENT SYSTEM (v2.0)
++-----------------------------------------------------------------------------+
+|                                                                             |
+|   FRONTEND (vanilla JS)                      BACKEND (Flask)                |
+|   ========================                   ================               |
+|                                                                             |
+|   search.js -----> /api/search -----> scraper.py (OASIS HTTP)              |
+|                                              |                              |
+|                                              v                              |
+|   profile_tabs.js -> /api/profile --> parser.py (BeautifulSoup)            |
+|                                              |                              |
+|                                              v                              |
+|                                       mapper.py (NOC -> JD Elements)       |
+|                                              |                              |
+|                                              +<-- enrichment_service.py    |
+|                                              +<-- labels_loader.py         |
+|                                              |     (parquet data)          |
+|                                              v                              |
+|   generate.js ---> /api/generate --> llm_service.py (OpenAI)              |
+|        |                                     |                              |
+|        |           SSE stream <--------------+                              |
+|        v                                                                    |
+|   export.js -----> /api/export/pdf --> export_service.py                  |
+|                                              |                              |
+|                                              v                              |
+|                                       pdf_generator.py (WeasyPrint)        |
+|                                                                             |
++-----------------------------------------------------------------------------+
 ```
 
-### Data Flow (v1.0)
+## Integration Points Identified
 
-```
-User Search → /api/search → scraper → parser → SearchResponse
-    |
-    v
-Select Profile → /api/profile → scraper → parser → mapper → ProfileResponse
-    |                                                            - JD elements
-    |                                                            - NOCStatements
-    v
-Select Statements → Frontend state.js → localStorage
-    |
-    v
-Generate Overview → /api/generate → llm_service → SSE stream
-    |
-    v
-Export PDF → /api/export/pdf → build_export_data → generate_pdf → BytesIO
-```
+### 1. llm_service.py (Line 1-261)
 
-## v1.1 Integration Points
+**Current Functions:**
+- `generate_stream()` - SSE streaming for overview generation (temp 0.7)
+- `select_occupation_icon()` - Deterministic icon selection (temp 0)
+- `generate_occupation_description()` - Short description (temp 0.3)
 
-### Backend Changes
-
-| Component | Change Type | Description | Why |
-|-----------|-------------|-------------|-----|
-| **src/services/csv_loader.py** | NEW | Load and parse guide.csv from Open Canada | Provides category definitions, label descriptions, scale meanings |
-| **src/services/enrichment_service.py** | NEW | Enrich NOCStatements with CSV metadata | Adds descriptions, proficiency levels, dimension names to statements |
-| **src/models/noc.py** | MODIFY | Add fields to NOCStatement | Add: description, proficiency_level, scale_meaning, dimension |
-| **src/models/responses.py** | MODIFY | Add profile metadata fields | Add: noc_hierarchy (TEER, broad category, major group), reference_attributes |
-| **src/services/parser.py** | MODIFY | Extract Work Context dimensions | Parse dimension labels (Frequency, Duration, etc.) from HTML |
-| **src/services/mapper.py** | MODIFY | Call enrichment service | Enrich statements after mapping, fix Effort/Responsibility filters |
-| **src/routes/api.py** | MODIFY | /api/profile enrichment | Call enrichment before returning ProfileResponse |
-| **src/routes/api.py** | VERIFY | /api/export/docx | Already exists in v1.0 - verify functionality |
-| **src/services/export_service.py** | MODIFY | Include Annex in ExportData | Add reference_attributes section to export data |
-
-### Frontend Changes
-
-| Component | Change Type | Description | Why |
-|-----------|-------------|-------------|-----|
-| **static/js/grid-view.js** | NEW | Grid toggle component for search results | Display card vs table view with columns |
-| **static/js/statement-display.js** | MODIFY | Render enriched statement metadata | Show descriptions, proficiency stars, scale meanings |
-| **static/js/profile-header.js** | NEW | Profile overview component | Display NOC code, hierarchy, reference attributes |
-| **static/css/grid.css** | NEW | Grid view styles | Table layout for search results |
-| **static/css/statement-enhancements.css** | NEW | Enhanced statement display | Star ratings, dimension badges, descriptions |
-| **templates/index.html** | MODIFY | Add grid toggle controls | Button to switch between card/table view |
-
-### New Data Flows
-
-#### CSV Data Loading (Startup)
-
-```
-App Initialization
-    |
-    v
-csv_loader.load_guide()
-    |
-    +---> Read guide.csv from data/
-    +---> Parse into lookup dictionaries:
-          - category_definitions: {category_name: definition}
-          - label_descriptions: {oasis_label: description}
-          - scale_meanings: {scale_type: {level: meaning}}
-    |
-    v
-Store in module-level cache (singleton pattern)
+**Integration Pattern:**
+```python
+# NEW FUNCTION: Style-constrained sentence generation
+def generate_styled_sentence(
+    authoritative_text: str,
+    style_profile: StyleProfile,
+    vocabulary_constraints: VocabularyIndex
+) -> str:
+    """Generate styled variant constrained to NOC vocabulary."""
 ```
 
-#### Enhanced Profile Response (Request Time)
+Temperature should be 0.7-1.0 for stylistic variation while maintaining vocabulary constraints in the prompt.
 
+### 2. labels_loader.py (Line 1-571)
+
+**Current Pattern:**
+- Singleton `LabelsLoader` class with lazy loading
+- Parquet file loading with pandas
+- In-memory caching by NOC code
+- Method pattern: `_load_X()` + `get_X(noc_code)`
+
+**Integration Pattern:**
+```python
+# EXTENDS LabelsLoader pattern
+class VocabularyIndex:
+    """Load and index vocabulary from parquet files."""
+
+    # Same lazy load pattern as LabelsLoader
+    ABILITIES_FILE = GOLD_DATA_PATH / "oasis_abilities.parquet"
+    SKILLS_FILE = GOLD_DATA_PATH / "oasis_skills.parquet"
+    KNOWLEDGE_FILE = GOLD_DATA_PATH / "oasis_knowledges.parquet"
+    WORK_ACTIVITIES_FILE = GOLD_DATA_PATH / "oasis_workactivities.parquet"
+
+    def get_domain_vocabulary(self, noc_code: str) -> List[str]:
+        """Get all valid terms for a NOC code."""
 ```
-/api/profile?code=21232
-    |
-    v
-scraper.fetch_profile(code)
-    |
-    v
-parser.parse_profile(html, code)
-    |
-    +---> Extract Work Context with dimensions
-    |     Example: "Frequency of Decision Making — 5"
-    |
-    v
-mapper.to_jd_elements(noc_data)
-    |
-    +---> Map NOC attributes to JD elements
-    +---> Filter Work Context for Effort/Responsibility
-    |
-    v
-enrichment_service.enrich_statements(jd_elements)
-    |
-    +---> For each NOCStatement:
-    |     - Lookup label description from guide.csv
-    |     - Extract proficiency level from text
-    |     - Get scale meaning for level
-    |     - Add dimension name (for Work Context)
-    |
-    v
-ProfileResponse (enriched)
-{
-  "noc_code": "21232",
-  "title": "Software developers",
-  "noc_hierarchy": {
-    "teer": "1",
-    "broad_category": "Natural and applied sciences",
-    "major_group": "21"
-  },
-  "key_activities": {
-    "statements": [
-      {
-        "text": "Design and develop software",
-        "source_attribute": "Main Duties",
-        "source_url": "...",
-        "description": "Core tasks performed",  // NEW
-        "proficiency_level": null,
-        "scale_meaning": null,
-        "dimension": null
-      }
-    ]
-  },
-  "skills": {
-    "statements": [
-      {
-        "text": "Programming — 5",
-        "source_attribute": "Skills",
-        "source_url": "...",
-        "description": "Using logic and methods to develop solutions",  // NEW
-        "proficiency_level": 5,  // NEW
-        "scale_meaning": "5 - Highest Level",  // NEW
-        "dimension": null
-      }
-    ]
-  },
-  "working_conditions": {
-    "statements": [
-      {
-        "text": "Frequency of Decision Making — 5",
-        "source_attribute": "Work Context",
-        "source_url": "...",
-        "description": "How often required to make decisions",  // NEW
-        "proficiency_level": 5,  // NEW
-        "scale_meaning": "5 - Every day, many times per day",  // NEW
-        "dimension": "Frequency"  // NEW
-      }
-    ]
-  },
-  "reference_attributes": {  // NEW - for Annex
-    "example_titles": ["Software Engineer", "Application Developer"],
-    "interests": ["Investigative", "Conventional"],
-    "personal_attributes": ["Analytical thinking", "Attention to detail"]
-  },
-  "metadata": { ... }
+
+### 3. mapper.py (Line 1-443)
+
+**Current Pattern:**
+- `to_jd_elements()` transforms parsed NOC data
+- Creates `EnrichedNOCStatement` objects with metadata
+- Calls `enrichment_service` for lookups
+- Returns dict matching `ProfileResponse` structure
+
+**Integration Pattern:**
+```python
+# EXTEND return structure (backward compatible)
+return {
+    'noc_code': noc_code,
+    'title': noc_data['title'],
+    # ... existing fields ...
+
+    # NEW: Style variants (None until generated)
+    'style_variants': None,  # Populated by style_service when requested
 }
 ```
 
-#### Frontend Enhanced Display
+### 4. api.py (Line 1-499)
 
-```
-ProfileResponse received
-    |
-    v
-Render profile header with NOC hierarchy
-    |
-    v
-For each JD element tab:
-    |
-    +---> Display category definition at top (from response)
-    |
-    +---> For each statement:
-          |
-          +---> Show statement text
-          +---> Show description below (if present)
-          +---> Show proficiency stars (if level present)
-          +---> Show scale meaning next to stars
-          +---> Show dimension badge (if present)
-```
+**Current Patterns:**
+- POST endpoints for generation (`/api/generate`, `/api/occupation-icon`)
+- SSE streaming response pattern
+- Session storage for metadata provenance
+- JSON request/response with Pydantic validation
 
-#### Grid View Display
-
-```
-Search results received
-    |
-    v
-User clicks grid toggle
-    |
-    +---> Switch display mode: card → table or table → card
-    |
-    v
-Table mode renders:
-    |
-    +---> Columns: NOC Code | Title | Broad Category | Training/Education | Lead Statement
-    +---> Data from search results + profile preview
-```
-
-#### Annex Export
-
-```
-Export request (PDF or DOCX)
-    |
-    v
-build_export_data(request)
-    |
-    +---> Include reference_attributes in ExportData
-    |
-    v
-PDF/DOCX generator
-    |
-    +---> Render main JD sections
-    +---> Add page break
-    +---> Add "Annex: Reference Attributes" section
-          - Example Titles
-          - Interests
-          - Personal Attributes
-          - Career Mobility
-```
-
-## New Components Needed
-
-### 1. CSV Loader Service (src/services/csv_loader.py)
-
-**Purpose:** Load and parse guide.csv at application startup
-
-**Responsibilities:**
-- Read CSV from data/ directory
-- Parse into lookup dictionaries
-- Provide query methods for enrichment
-
-**Interface:**
+**Integration Pattern:**
 ```python
-class CSVLoader:
-    def load_guide(self, file_path: str) -> None
-    def get_category_definition(self, category: str) -> Optional[str]
-    def get_label_description(self, label: str) -> Optional[str]
-    def get_scale_meaning(self, scale_type: str, level: int) -> Optional[str]
+# NEW ENDPOINT
+@api_bp.route('/generate-styled', methods=['POST'])
+def generate_styled():
+    """Generate styled sentence variants for selected statements.
+
+    Expects JSON body:
+    {
+        "statements": [{"id": "...", "text": "...", "source_attribute": "..."}],
+        "style_profile_id": "professional-formal",
+        "noc_code": "21232.00"
+    }
+
+    Returns:
+    {
+        "variants": [
+            {
+                "original_id": "key_activities-0",
+                "original_text": "...",
+                "styled_text": "...",
+                "vocabulary_compliance": 0.95,
+                "style_confidence": 0.87
+            }
+        ]
+    }
+    """
 ```
 
-**Singleton:** Module-level instance (like scraper, mapper)
+## Recommended Architecture
 
-### 2. Enrichment Service (src/services/enrichment_service.py)
+```
+                         v3.0 STYLE-ENHANCED ARCHITECTURE
++-----------------------------------------------------------------------------+
+|                                                                             |
+|   NEW COMPONENTS (src/services/)                                            |
+|   ==============================                                            |
+|                                                                             |
+|   +-------------------+    +-------------------+    +-------------------+   |
+|   | style_analyzer.py |    | vocabulary_index.py|   | style_generator.py |  |
+|   +-------------------+    +-------------------+    +-------------------+   |
+|   | parse_example_jds |    | load parquet vocab |   | constrained_gen   |  |
+|   | extract_patterns  |    | build term index   |   | apply_style_rules |  |
+|   | build_style_prof  |    | validate_terms     |   | score_compliance  |  |
+|   +-------------------+    +-------------------+    +-------------------+   |
+|            |                        |                        |              |
+|            +------------------------+------------------------+              |
+|                                     |                                       |
+|                                     v                                       |
+|                          +-----------------------+                          |
+|                          | style_service.py      |                          |
+|                          +-----------------------+                          |
+|                          | Orchestrates style    |                          |
+|                          | generation pipeline   |                          |
+|                          +-----------------------+                          |
+|                                     |                                       |
+|                                     v                                       |
+|   INTEGRATION                                                               |
+|   ===========                                                               |
+|                                                                             |
+|   api.py                    llm_service.py                                 |
+|   +--------------------+    +-----------------------+                       |
+|   | /api/generate-styled    | generate_styled_text  |                      |
+|   | /api/style-profiles     | validate_vocabulary   |                      |
+|   | /api/vocabulary-check   |                       |                      |
+|   +--------------------+    +-----------------------+                       |
+|                                                                             |
+|   FRONTEND EXTENSION                                                        |
+|   ==================                                                        |
+|                                                                             |
+|   profile_tabs.js (extended)                                               |
+|   +-----------------------------------------------------------------+      |
+|   | Dual display: [Authoritative NOC] | [Styled Variant]            |      |
+|   | Toggle: "Show styled" checkbox                                   |      |
+|   | Visual distinction: border color, badge                          |      |
+|   +-----------------------------------------------------------------+      |
+|                                                                             |
++-----------------------------------------------------------------------------+
+```
 
-**Purpose:** Enrich NOCStatements with CSV metadata
+## New Components Specification
 
-**Responsibilities:**
-- Match statement text to CSV labels
-- Extract proficiency levels from text (regex)
-- Lookup descriptions and scale meanings
-- Add dimension names for Work Context
+### 1. style_analyzer.py
 
-**Interface:**
+**Purpose:** Parse example JDs (PDF/DOCX) to extract writing style patterns
+
+**Dependencies:**
+- `pdfplumber` or `PyPDF2` for PDF parsing
+- `python-docx` for DOCX parsing (already installed)
+- OpenAI for pattern extraction
+
+**Class Design:**
 ```python
-class EnrichmentService:
-    def __init__(self, csv_loader: CSVLoader)
-    def enrich_statement(self, statement: NOCStatement, category: str) -> NOCStatement
-    def enrich_jd_elements(self, jd_data: Dict[str, JDElementData]) -> Dict[str, JDElementData]
+class StyleAnalyzer:
+    """Extract writing style patterns from example JDs."""
+
+    def __init__(self, llm_client: OpenAI):
+        self._llm = llm_client
+        self._pattern_cache = {}
+
+    def parse_document(self, file_path: Path) -> ParsedDocument:
+        """Extract text from PDF or DOCX."""
+
+    def extract_style_patterns(self, texts: List[str]) -> StyleProfile:
+        """Use LLM to identify writing patterns:
+        - Sentence structure (active/passive voice ratios)
+        - Average sentence length
+        - Vocabulary complexity level
+        - Common phrase patterns
+        - Verb tense preferences
+        """
+
+    def build_style_profile(self, documents: List[Path]) -> StyleProfile:
+        """Aggregate patterns from multiple documents."""
 ```
 
-### 3. Grid View Component (static/js/grid-view.js)
-
-**Purpose:** Toggle search results between card and table view
-
-**Responsibilities:**
-- Render table HTML from search results
-- Toggle visibility between card/table containers
-- Persist view preference in localStorage
-
-**Interface:**
-```javascript
-function initGridView()
-function toggleView(mode: 'card' | 'table')
-function renderTable(results: SearchResult[])
-```
-
-### 4. Enhanced Statement Display (static/js/statement-display.js)
-
-**Purpose:** Render enriched statement metadata
-
-**Responsibilities:**
-- Show description below statement text
-- Render star rating from proficiency level
-- Display scale meaning next to stars
-- Show dimension badge for Work Context
-
-**Interface:**
-```javascript
-function renderStatement(statement: NOCStatement, container: HTMLElement)
-function renderStars(level: number): string
-function renderDimension(dimension: string): string
-```
-
-### 5. Profile Header Component (static/js/profile-header.js)
-
-**Purpose:** Display NOC code and hierarchy prominently
-
-**Responsibilities:**
-- Render NOC code below title
-- Show TEER/broad category/major group
-- Display reference attributes section
-
-**Interface:**
-```javascript
-function renderProfileHeader(profile: ProfileResponse, container: HTMLElement)
-function renderHierarchy(hierarchy: NOCHierarchy): string
-function renderReferenceAttributes(attrs: ReferenceAttributes): string
-```
-
-## Suggested Build Order
-
-Build order follows data availability and dependency chain:
-
-### Phase 1: CSV Infrastructure (Build First)
-
-**Components:** csv_loader.py, enrichment_service.py, updated models
-
-**Why first:**
-- Foundation for all enhancements
-- Can test independently with sample data
-- No frontend dependencies
-
-**Deliverables:**
-- CSV data loaded at startup
-- Enrichment service tests passing
-- NOCStatement model has new fields
-
-**Testing:** Unit tests with sample CSV data
-
-### Phase 2: Backend Enrichment (Build Second)
-
-**Components:** Modified mapper.py, modified api.py /api/profile route
-
-**Why second:**
-- Depends on CSV infrastructure (Phase 1)
-- Frontend needs enriched data to display
-- Can test with curl/Postman
-
-**Deliverables:**
-- /api/profile returns enriched statements
-- Work Context filtering fixed (Effort/Responsibility)
-- Profile includes NOC hierarchy and reference attributes
-
-**Testing:** API tests verify enriched response structure
-
-### Phase 3: Frontend Enhanced Display (Build Third)
-
-**Components:** statement-display.js, statement-enhancements.css, profile-header.js
-
-**Why third:**
-- Depends on enriched API responses (Phase 2)
-- Core feature - users need to see enhancements
-- Can iterate on styling with real data
-
-**Deliverables:**
-- Statements show descriptions, stars, scale meanings
-- Profile displays NOC hierarchy prominently
-- Category definitions visible at top of tabs
-
-**Testing:** Manual verification with multiple profiles
-
-### Phase 4: Grid View (Build Fourth)
-
-**Components:** grid-view.js, grid.css, modified search.js
-
-**Why fourth:**
-- Independent of enrichment features
-- Can build in parallel with Phase 3 if needed
-- Enhancement to search, not core data display
-
-**Deliverables:**
-- Grid toggle button functional
-- Table view displays correctly
-- View preference persists
-
-**Testing:** Test with various search results
-
-### Phase 5: Annex Export (Build Last)
-
-**Components:** Modified export_service.py, modified pdf_generator.py, modified docx_generator.py
-
-**Why last:**
-- Depends on reference_attributes from Phase 2
-- Output feature, not core functionality
-- Easiest to test once everything else works
-
-**Deliverables:**
-- Annex section in PDF exports
-- Annex section in DOCX exports
-- Reference attributes formatted correctly
-
-**Testing:** Export multiple profiles, verify Annex content
-
-### Dependency Graph
-
-```
-Phase 1: CSV Infrastructure
-    |
-    v
-Phase 2: Backend Enrichment
-    |
-    +------------------------+
-    |                        |
-    v                        v
-Phase 3: Enhanced Display   Phase 4: Grid View
-    |                        |
-    +------------------------+
-    |
-    v
-Phase 5: Annex Export
-```
-
-**Critical Path:** Phase 1 → Phase 2 → Phase 3 → Phase 5
-
-**Parallel Opportunity:** Phase 4 (Grid View) can be built in parallel with Phase 3 if resources allow.
-
-## Integration Patterns
-
-### Pattern 1: CSV Singleton Loader
-
-**Problem:** Multiple services need CSV data, but loading is expensive
-
-**Solution:** Module-level singleton loaded once at startup
-
+**StyleProfile Model:**
 ```python
-# csv_loader.py
-class CSVLoader:
+class StyleProfile(BaseModel):
+    id: str
+    name: str
+    patterns: Dict[str, Any]  # Extracted patterns
+    voice: str  # "active" | "passive" | "mixed"
+    avg_sentence_length: int
+    vocabulary_level: str  # "simple" | "professional" | "technical"
+    phrase_templates: List[str]
+    source_documents: List[str]
+    created_at: datetime
+```
+
+### 2. vocabulary_index.py
+
+**Purpose:** Build searchable index from NOC/JobForge parquet files
+
+**Dependencies:**
+- `pandas` (already installed)
+- Optional: `rapidfuzz` for fuzzy matching
+
+**Class Design:**
+```python
+class VocabularyIndex:
+    """Index NOC vocabulary for constrained generation."""
+
+    # Extends LabelsLoader pattern
+    GOLD_DATA_PATH = Path(r"C:\...\JobForge 2.0\data\gold")
+
     def __init__(self):
-        self._guide_data = None
+        self._abilities_df = None
+        self._skills_df = None
+        self._knowledge_df = None
+        self._work_activities_df = None
+        self._full_index = None  # Combined searchable index
 
-    def load_guide(self, path):
-        if self._guide_data is None:
-            self._guide_data = self._parse_csv(path)
+    def build_index(self) -> None:
+        """Load all parquet files and build unified term index."""
 
-# Module-level instance
-csv_loader = CSVLoader()
+    def get_valid_terms(self, noc_code: str, category: str = None) -> Set[str]:
+        """Get all valid vocabulary terms for a NOC code."""
 
-# app.py
-from src.services.csv_loader import csv_loader
+    def validate_text(self, text: str, noc_code: str) -> ValidationResult:
+        """Check if text uses valid NOC vocabulary.
 
-@app.before_first_request
-def load_csv_data():
-    csv_loader.load_guide('data/guide.csv')
+        Returns:
+            ValidationResult with:
+            - compliance_score: float (0-1)
+            - valid_terms: List[str]
+            - invalid_terms: List[str]
+            - suggestions: Dict[str, List[str]]  # invalid -> valid alternatives
+        """
+
+    def suggest_replacements(self, invalid_term: str, noc_code: str) -> List[str]:
+        """Suggest valid NOC terms for an invalid word."""
 ```
 
-**Why:** Matches existing pattern (scraper, mapper singletons)
+### 3. style_generator.py
 
-### Pattern 2: Optional Enrichment
+**Purpose:** Generate styled text constrained to NOC vocabulary
 
-**Problem:** Not all statements have CSV metadata (e.g., Main Duties have no proficiency levels)
+**Dependencies:**
+- `openai` (already installed)
+- `vocabulary_index.py`
 
-**Solution:** Enrichment adds fields as Optional, frontend checks before displaying
-
+**Class Design:**
 ```python
-# models/noc.py
-class NOCStatement(BaseModel):
-    text: str
-    source_attribute: str
-    source_url: str
-    description: Optional[str] = None  # May not exist
-    proficiency_level: Optional[int] = None  # May not exist
-    scale_meaning: Optional[str] = None
-    dimension: Optional[str] = None
+class StyleGenerator:
+    """Generate vocabulary-constrained styled text."""
+
+    def __init__(
+        self,
+        llm_client: OpenAI,
+        vocab_index: VocabularyIndex
+    ):
+        self._llm = llm_client
+        self._vocab = vocab_index
+
+    def generate_styled_sentence(
+        self,
+        authoritative_text: str,
+        style_profile: StyleProfile,
+        noc_code: str,
+        max_retries: int = 3
+    ) -> StyledSentence:
+        """Generate styled variant constrained to NOC vocabulary.
+
+        Prompt structure:
+        1. System: Style rules from profile
+        2. User: Original text + vocabulary constraints
+        3. Constraint: ONLY use these terms: [valid_terms]
+
+        Returns:
+            StyledSentence with:
+            - styled_text: str
+            - vocabulary_compliance: float
+            - style_confidence: float
+            - retries_used: int
+        """
+
+    def _build_constraint_prompt(
+        self,
+        original: str,
+        style: StyleProfile,
+        valid_terms: Set[str]
+    ) -> str:
+        """Build prompt with vocabulary constraints."""
+
+    def _validate_and_retry(
+        self,
+        generated: str,
+        noc_code: str,
+        attempt: int
+    ) -> Tuple[str, float]:
+        """Validate output, retry if non-compliant."""
 ```
 
-```javascript
-// Frontend
-if (statement.proficiency_level) {
-    stmtElement.innerHTML += renderStars(statement.proficiency_level);
+### 4. style_service.py (Orchestrator)
+
+**Purpose:** Coordinate style analysis, indexing, and generation
+
+**Class Design:**
+```python
+class StyleService:
+    """Orchestrates style-enhanced generation pipeline."""
+
+    def __init__(self):
+        self._analyzer = StyleAnalyzer(client)
+        self._vocab = VocabularyIndex()
+        self._generator = StyleGenerator(client, self._vocab)
+        self._profiles: Dict[str, StyleProfile] = {}
+
+    def load_style_profile(self, profile_id: str) -> StyleProfile:
+        """Load or return cached style profile."""
+
+    def create_style_profile(
+        self,
+        name: str,
+        document_paths: List[Path]
+    ) -> StyleProfile:
+        """Create new profile from example documents."""
+
+    def generate_variants(
+        self,
+        statements: List[StatementInput],
+        profile_id: str,
+        noc_code: str
+    ) -> List[StyledVariant]:
+        """Generate styled variants for multiple statements."""
+
+    def get_vocabulary_stats(self, noc_code: str) -> VocabularyStats:
+        """Get vocabulary statistics for a NOC code."""
+
+# Module singleton
+style_service = StyleService()
+```
+
+## Data Flow Changes
+
+### Current Flow (unchanged)
+```
+User selects statements
+        |
+        v
+/api/generate (POST)
+        |
+        v
+llm_service.generate_stream()
+        |
+        v
+SSE stream -> overview_textarea
+```
+
+### New Flow (additive)
+```
+User enables "Style Enhancement"
+        |
+        v
+/api/generate-styled (POST)
+        |
+        +---> style_service.generate_variants()
+        |           |
+        |           +---> vocab_index.get_valid_terms()
+        |           |
+        |           +---> style_generator.generate_styled_sentence()
+        |           |
+        |           +---> vocab_index.validate_text()
+        |
+        v
+JSON response with variants
+        |
+        v
+UI displays dual view:
+[Authoritative] | [Styled]
+```
+
+## API Endpoints
+
+### POST /api/generate-styled
+
+**Request:**
+```json
+{
+    "statements": [
+        {
+            "id": "key_activities-0",
+            "text": "Coordinate activities with other engineers and technical personnel",
+            "source_attribute": "Work Activities",
+            "jd_element": "key_activities"
+        }
+    ],
+    "style_profile_id": "professional-formal",
+    "noc_code": "21232.00"
 }
 ```
 
-**Why:** Graceful degradation - works with partial data
+**Response:**
+```json
+{
+    "variants": [
+        {
+            "original_id": "key_activities-0",
+            "original_text": "Coordinate activities with other engineers and technical personnel",
+            "styled_text": "Collaborate with engineering teams and technical specialists to align project activities",
+            "vocabulary_compliance": 0.98,
+            "style_confidence": 0.91,
+            "invalid_terms": [],
+            "generation_metadata": {
+                "model": "gpt-4o",
+                "temperature": 0.8,
+                "retries": 0
+            }
+        }
+    ],
+    "profile_used": "professional-formal",
+    "noc_vocabulary_size": 847
+}
+```
 
-### Pattern 3: Incremental Rendering
+### GET /api/style-profiles
 
-**Problem:** Grid view needs more data than simple search returns
+**Response:**
+```json
+{
+    "profiles": [
+        {
+            "id": "professional-formal",
+            "name": "Professional Formal",
+            "source_document_count": 15,
+            "created_at": "2026-01-15T10:30:00Z"
+        },
+        {
+            "id": "concise-active",
+            "name": "Concise Active Voice",
+            "source_document_count": 8,
+            "created_at": "2026-01-20T14:00:00Z"
+        }
+    ]
+}
+```
 
-**Solution:** Table columns show what's available, fetch details on demand if needed
+### POST /api/vocabulary-check
 
-```javascript
-// Initial: Show NOC code, title from search results
-renderBasicTable(searchResults);
+**Request:**
+```json
+{
+    "text": "Manage software development lifecycle using agile methodologies",
+    "noc_code": "21232.00"
+}
+```
 
-// Optional: Fetch profile previews for additional columns
-async function enhanceTableWithPreviews(results) {
-    for (const result of results) {
-        const preview = await fetchProfilePreview(result.noc_code);
-        updateTableRow(result.noc_code, preview);
+**Response:**
+```json
+{
+    "compliance_score": 0.85,
+    "valid_terms": ["software", "development", "manage"],
+    "invalid_terms": ["agile", "methodologies"],
+    "suggestions": {
+        "agile": ["iterative", "adaptive"],
+        "methodologies": ["methods", "approaches", "practices"]
     }
 }
 ```
 
-**Why:** Progressive enhancement - fast initial load, richer data if needed
+## Frontend Changes
 
-### Pattern 4: Backward Compatible Models
+### profile_tabs.js Extension
 
-**Problem:** Enrichment adds new fields, but v1.0 exports might not have them
-
-**Solution:** All new fields are Optional with defaults
-
-```python
-class NOCStatement(BaseModel):
-    # v1.0 fields (required)
-    text: str
-    source_attribute: str
-    source_url: str
-
-    # v1.1 fields (optional, backward compatible)
-    description: Optional[str] = None
-    proficiency_level: Optional[int] = None
-    scale_meaning: Optional[str] = None
-    dimension: Optional[str] = None
+```javascript
+// NEW: Style toggle in statement display
+const renderStatementWithStyle = (statement, variant) => {
+    return `
+        <li class="statement ${variant ? 'statement--has-variant' : ''}">
+            <div class="statement__authoritative">
+                <input type="checkbox" class="statement__checkbox" />
+                <span class="statement__text">${statement.text}</span>
+                <span class="statement__provenance">${statement.source_attribute}</span>
+            </div>
+            ${variant ? `
+                <div class="statement__styled">
+                    <span class="statement__styled-badge">Styled</span>
+                    <span class="statement__styled-text">${variant.styled_text}</span>
+                    <span class="statement__compliance"
+                          title="Vocabulary compliance: ${(variant.vocabulary_compliance * 100).toFixed(0)}%">
+                        ${renderComplianceIndicator(variant.vocabulary_compliance)}
+                    </span>
+                </div>
+            ` : ''}
+        </li>
+    `;
+};
 ```
 
-**Why:** Existing v1.0 data structures still valid, no migration needed
+### New CSS Classes
+
+```css
+/* Statement dual display */
+.statement--has-variant {
+    border-left: 3px solid var(--styled-accent);
+}
+
+.statement__styled {
+    margin-left: 2rem;
+    padding: 0.5rem;
+    background: var(--styled-bg);
+    border-radius: 4px;
+}
+
+.statement__styled-badge {
+    font-size: 0.75rem;
+    background: var(--styled-accent);
+    color: white;
+    padding: 0.125rem 0.5rem;
+    border-radius: 2px;
+}
+
+.statement__compliance {
+    font-size: 0.75rem;
+    color: var(--muted-text);
+}
+```
+
+## Suggested Build Order
+
+Based on dependency analysis:
+
+### Phase 1: Vocabulary Foundation
+1. `vocabulary_index.py` - Load parquet, build term index
+2. Unit tests for vocabulary validation
+3. `/api/vocabulary-check` endpoint
+
+**Rationale:** Independent of style analysis, provides testable foundation.
+
+### Phase 2: Style Analysis
+4. `style_analyzer.py` - PDF/DOCX parsing
+5. StyleProfile model and storage
+6. `/api/style-profiles` endpoint
+
+**Rationale:** Document parsing is independent of generation.
+
+### Phase 3: Constrained Generation
+7. `style_generator.py` - LLM with constraints
+8. Retry logic for vocabulary compliance
+9. `/api/generate-styled` endpoint
+
+**Rationale:** Requires both vocabulary and style components.
+
+### Phase 4: Integration
+10. `style_service.py` - Orchestration
+11. Frontend dual-display UI
+12. Export with styled variants
+
+**Rationale:** Ties everything together.
+
+## Patterns to Follow
+
+### Pattern 1: Singleton Service (from labels_loader.py)
+```python
+class StyleService:
+    # ... class implementation ...
+
+# Module-level singleton
+style_service = StyleService()
+```
+**Use:** All new services follow this pattern for easy import.
+
+### Pattern 2: Lazy Loading with Cache (from labels_loader.py)
+```python
+def _load_vocabulary(self) -> bool:
+    if self._vocab_df is not None:
+        return True
+    # ... load logic ...
+
+def get_terms(self, noc_code: str) -> List[str]:
+    if noc_code in self._cache:
+        return self._cache[noc_code]
+    if not self._load_vocabulary():
+        return []
+    # ... query and cache ...
+```
+**Use:** All data loading follows lazy-load-then-cache pattern.
+
+### Pattern 3: Pydantic Models (from models/ai.py)
+```python
+class StyledVariant(BaseModel):
+    original_id: str
+    original_text: str
+    styled_text: str
+    vocabulary_compliance: float
+    style_confidence: float
+
+    model_config = ConfigDict(from_attributes=True)
+```
+**Use:** All API request/response models use Pydantic.
+
+### Pattern 4: Temperature Conventions (from llm_service.py)
+```python
+# Deterministic selection: temp = 0
+# Controlled creativity: temp = 0.3
+# Stylistic generation: temp = 0.7-1.0
+```
+**Use:** Style generation uses higher temperature for variation.
 
 ## Anti-Patterns to Avoid
 
-### Anti-Pattern 1: Loading CSV on Every Request
+### Anti-Pattern 1: Breaking Provenance Chain
+**What:** Generating text without tracking authoritative source
+**Why bad:** Core value proposition requires audit trail
+**Instead:** Always link styled variants back to original statement ID
 
-**What:** Reading guide.csv in enrichment_service for each /api/profile call
+### Anti-Pattern 2: Synchronous Batch Generation
+**What:** Generating all variants in single blocking request
+**Why bad:** Slow, poor UX for many statements
+**Instead:** Consider SSE streaming or async generation with polling
 
-**Why bad:** I/O bottleneck, slow response times
+### Anti-Pattern 3: Vocabulary Validation in Frontend
+**What:** Checking vocabulary compliance in JavaScript
+**Why bad:** Index too large, security concern
+**Instead:** All validation server-side via `/api/vocabulary-check`
 
-**Instead:** Load once at startup, cache in memory
+### Anti-Pattern 4: Hardcoded Style Profiles
+**What:** Embedding style rules in code
+**Why bad:** Inflexible, requires code changes
+**Instead:** Store profiles as data (JSON/DB), load dynamically
 
-### Anti-Pattern 2: Enrichment in Frontend
-
-**What:** Sending raw CSV data to frontend, matching labels in JavaScript
-
-**Why bad:** Large payload, duplicated logic, CSV exposure
-
-**Instead:** Enrich in backend, send enriched JSON
-
-### Anti-Pattern 3: Separate Enrichment Endpoint
-
-**What:** /api/profile returns basic data, /api/enrich adds metadata
-
-**Why bad:** Two round trips, complex state management
-
-**Instead:** /api/profile returns fully enriched data in one call
-
-### Anti-Pattern 4: Hardcoded Scale Meanings
-
-**What:** Mapping levels to meanings in code: `{1: "Lowest", 5: "Highest"}`
-
-**Why bad:** Incorrect for different scales (Frequency uses different meanings)
-
-**Instead:** Load from CSV, respect per-scale definitions
-
-### Anti-Pattern 5: Grid View as Separate Page
-
-**What:** /search shows cards, /search/grid shows table
-
-**Why bad:** State duplication, back button confusion
-
-**Instead:** Single page, toggle component switches display mode
-
-## Data Model Extensions
-
-### Extended NOCStatement
-
-```python
-class NOCStatement(BaseModel):
-    """v1.1: Extended with CSV enrichment"""
-    # v1.0 fields
-    text: str
-    source_attribute: str  # "Main Duties", "Skills", etc.
-    source_url: str
-
-    # v1.1 enrichment fields
-    description: Optional[str] = None  # From guide.csv
-    proficiency_level: Optional[int] = None  # Extracted from text
-    scale_meaning: Optional[str] = None  # From guide.csv
-    dimension: Optional[str] = None  # "Frequency", "Duration", etc.
-```
-
-### Extended ProfileResponse
-
-```python
-class ProfileResponse(BaseModel):
-    """v1.1: Extended with hierarchy and reference attributes"""
-    # v1.0 fields
-    noc_code: str
-    title: str
-    key_activities: JDElementData
-    skills: JDElementData
-    effort: JDElementData
-    responsibility: JDElementData
-    working_conditions: JDElementData
-    metadata: SourceMetadata
-
-    # v1.1 fields
-    noc_hierarchy: Optional[NOCHierarchy] = None
-    reference_attributes: Optional[ReferenceAttributes] = None
-
-class NOCHierarchy(BaseModel):
-    teer: str  # Training, Education, Experience, Responsibilities
-    broad_category: str
-    major_group: str
-
-class ReferenceAttributes(BaseModel):
-    """Annex-bound attributes"""
-    example_titles: List[str] = []
-    interests: List[str] = []
-    personal_attributes: List[str] = []
-    career_mobility: Optional[str] = None
-```
-
-### Extended ExportData
-
-```python
-class ExportData(BaseModel):
-    """v1.1: Extended with Annex section"""
-    # v1.0 fields
-    noc_code: str
-    job_title: str
-    general_overview: Optional[str]
-    jd_elements: List[JDElementExport]
-    manager_selections: List[SelectionMetadata]
-    ai_metadata: Optional[AIMetadata]
-    source_metadata: SourceMetadataExport
-    compliance_sections: List[ComplianceSection]
-    generated_at: datetime
-
-    # v1.1 fields
-    reference_attributes: Optional[ReferenceAttributes] = None
-```
-
-## Technology Verification
-
-### Existing Stack (No Changes)
-
-| Component | Technology | Status | Notes |
-|-----------|-----------|--------|-------|
-| Backend | Flask 3.1.0 | ✓ Continues | No version change |
-| HTML Parser | BeautifulSoup + lxml | ✓ Continues | Handles Work Context dimension parsing |
-| PDF | WeasyPrint | ✓ Continues | Can render Annex section |
-| DOCX | python-docx | ✓ Continues | Already implemented in v1.0 |
-| Frontend | Vanilla JS | ✓ Continues | Grid view uses plain JS/CSS |
-| State | localStorage | ✓ Continues | Persist grid view preference |
-
-### New Dependencies (v1.1)
-
-| Component | Technology | Version | Purpose |
-|-----------|-----------|---------|---------|
-| CSV parsing | Python csv module | Built-in | Parse guide.csv (standard library) |
-
-**No new external dependencies required.** All v1.1 features use existing stack.
-
-## File Structure Impact
-
-### New Files
+## File Structure
 
 ```
-jd-builder-lite/
-|
-+-- data/                      # NEW directory
-|   +-- guide.csv              # Open Canada CSV
-|
-+-- src/services/
-|   +-- csv_loader.py          # NEW
-|   +-- enrichment_service.py  # NEW
-|
-+-- static/js/
-|   +-- grid-view.js           # NEW
-|   +-- statement-display.js   # NEW (refactored from existing)
-|   +-- profile-header.js      # NEW
-|
-+-- static/css/
-    +-- grid.css               # NEW
-    +-- statement-enhancements.css  # NEW
+src/
+  services/
+    style_analyzer.py     # NEW: Parse example JDs
+    vocabulary_index.py   # NEW: Build vocab index from parquet
+    style_generator.py    # NEW: Constrained LLM generation
+    style_service.py      # NEW: Orchestrator
+    llm_service.py        # EXTEND: Add styled generation function
+    labels_loader.py      # REFERENCE: Pattern template
+  models/
+    style.py              # NEW: StyleProfile, StyledVariant, etc.
+    ai.py                 # EXTEND: Add styled generation metadata
+  routes/
+    api.py                # EXTEND: Add /generate-styled, /style-profiles
+static/
+  js/
+    style_toggle.js       # NEW: Style enhancement toggle
+    profile_tabs.js       # EXTEND: Dual display rendering
+  css/
+    style.css             # EXTEND: Styled variant CSS
+data/
+  style_profiles/         # NEW: Stored style profiles (JSON)
+    professional-formal.json
+    concise-active.json
 ```
 
-### Modified Files
+## Scalability Considerations
 
-```
-src/models/noc.py              # Add fields to NOCStatement
-src/models/responses.py        # Add NOCHierarchy, ReferenceAttributes
-src/services/parser.py         # Extract Work Context dimensions
-src/services/mapper.py         # Call enrichment, fix filters
-src/routes/api.py              # Enrich in /api/profile
-src/services/export_service.py # Include reference_attributes
-src/services/pdf_generator.py  # Render Annex section
-src/services/docx_generator.py # Render Annex section
-static/js/search.js            # Grid view integration
-static/js/accordion.js         # Render enriched statements
-templates/index.html           # Grid toggle button
-```
-
-**Modification Risk:** LOW - all changes extend existing patterns without breaking v1.0 functionality
-
-## Testing Strategy
-
-### Unit Tests (Backend)
-
-```python
-# test_csv_loader.py
-def test_load_guide()
-def test_get_category_definition()
-def test_get_scale_meaning()
-
-# test_enrichment.py
-def test_enrich_statement_with_proficiency()
-def test_enrich_work_context_with_dimension()
-def test_enrich_missing_csv_data()
-
-# test_parser.py (extended)
-def test_extract_work_context_dimension()
-```
-
-### Integration Tests (API)
-
-```bash
-# Profile returns enriched data
-curl localhost:5000/api/profile?code=21232
-# Verify: statements have description, proficiency_level, scale_meaning
-
-# Export includes Annex
-curl -X POST localhost:5000/api/export/pdf -d '{...}'
-# Verify: PDF contains "Annex: Reference Attributes"
-```
-
-### Manual Testing (Frontend)
-
-- Search results grid toggle
-- Statement display with stars and descriptions
-- Profile header shows NOC hierarchy
-- Category definitions visible at tab tops
-- Export Annex in PDF and DOCX
-
-## Performance Considerations
-
-| Operation | v1.0 Baseline | v1.1 Impact | Mitigation |
-|-----------|---------------|-------------|------------|
-| /api/profile | ~2-3s (scraping) | +50-100ms (enrichment) | Acceptable - enrichment is in-memory lookups |
-| CSV loading | N/A | ~200ms (startup) | One-time cost, not per-request |
-| Grid view rendering | N/A | ~10ms (100 results) | Vanilla JS, no framework overhead |
-| Export | ~500ms (PDF) | +50ms (Annex) | Negligible - Annex is small section |
-
-**Overall Impact:** Minimal - enrichment adds <5% to request time
-
-## Rollback Plan
-
-If v1.1 issues occur, rollback is straightforward:
-
-1. **Code rollback:** Git revert to v1.0 tag
-2. **Data rollback:** Remove data/ directory (CSV)
-3. **Frontend rollback:** Remove grid-view.js, statement-enhancements.css
-
-**Risk:** LOW - all v1.1 features are additive, not replacing v1.0 functionality
+| Concern | At 10 JDs | At 100 JDs | At 1000 JDs |
+|---------|-----------|------------|-------------|
+| Vocabulary index load | Lazy load once | Same | Same |
+| Style profile storage | JSON files | JSON files | Consider SQLite |
+| Generation latency | ~2s per statement | Batch parallel | Rate limiting needed |
+| Cache size | Negligible | ~50MB | Consider LRU eviction |
 
 ## Sources
 
-**High Confidence Sources:**
-
-- Existing v1.0 codebase examination (src/routes/api.py, src/services/*, src/models/*)
-- Open Canada NOC Dataset: [https://open.canada.ca/data/en/dataset/eeb3e442-9f19-4d12-8b38-c488fe4f6e5e](https://open.canada.ca/data/en/dataset/eeb3e442-9f19-4d12-8b38-c488fe4f6e5e)
-- Flask documentation (patterns already used in v1.0)
-- Python csv module (standard library, well-documented)
-
-**Medium Confidence Sources:**
-
-- v1.1 requirements from PROJECT.md (SRCH-04 through OUT-07)
-
-**Architectural Patterns Confidence:**
-
-- CSV singleton pattern: HIGH (matches existing scraper/mapper pattern)
-- Optional enrichment: HIGH (standard Pydantic pattern)
-- Grid view component: HIGH (vanilla JS, no framework complexity)
-- Annex export: HIGH (extends existing export_service pattern)
-
----
-
-*Architecture research complete. Ready for roadmap phase structure planning.*
+- Existing codebase analysis (HIGH confidence)
+  - `src/services/llm_service.py` - OpenAI integration patterns
+  - `src/services/labels_loader.py` - Parquet loading patterns
+  - `src/services/enrichment_service.py` - Service composition
+  - `src/routes/api.py` - API endpoint patterns
+- JobForge 2.0 data structure verified via filesystem (HIGH confidence)
+  - Parquet files: abilities, skills, knowledge, work activities, work context
+- OpenAI API patterns from existing implementation (HIGH confidence)
+  - Temperature conventions: 0 (deterministic), 0.3 (controlled), 0.7 (creative)
+  - SSE streaming for long-running generation
