@@ -9,10 +9,10 @@ Requirements for style-enhanced JD generation with vocabulary constraints.
 
 ### Style Infrastructure
 
-- [ ] **STYLE-01**: Style patterns documented from analysis of example JD corpus (`Examples of Job Descriptions/`)
-- [ ] **STYLE-02**: Few-shot examples created from corpus for generation prompts
-- [ ] **STYLE-03**: System builds vocabulary index from JobForge parquet files (abilities, skills, knowledges, work activities)
-- [ ] **STYLE-04**: Style rules implemented as code constants for runtime prompt construction
+- [x] **STYLE-01**: Style patterns documented from analysis of example JD corpus (`Examples of Job Descriptions/`)
+- [x] **STYLE-02**: Few-shot examples created from corpus for generation prompts
+- [x] **STYLE-03**: System builds vocabulary index from JobForge parquet files (abilities, skills, knowledges, work activities)
+- [x] **STYLE-04**: Style rules implemented as code constants for runtime prompt construction
 
 ### Constrained Generation
 
@@ -67,10 +67,10 @@ Requirements for style-enhanced JD generation with vocabulary constraints.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| STYLE-01 | Phase 10 | Pending |
-| STYLE-02 | Phase 10 | Pending |
+| STYLE-01 | Phase 10 | Complete |
+| STYLE-02 | Phase 10 | Complete |
 | STYLE-03 | Phase 9 | Complete |
-| STYLE-04 | Phase 10 | Pending |
+| STYLE-04 | Phase 10 | Complete |
 | GEN-01 | Phase 12 | Pending |
 | GEN-02 | Phase 12 | Pending |
 | GEN-03 | Phase 12 | Pending |
