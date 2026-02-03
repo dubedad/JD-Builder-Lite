@@ -3,7 +3,26 @@
 from flask import Flask, render_template
 from flask_cors import CORS
 from src.routes.api import api_bp
-from src.config import SECRET_KEY
+from src.config import SECRET_KEY, JOBFORGE_BRONZE_PATH
+from src.vocabulary import VocabularyIndex, start_vocabulary_watcher
+
+# Module-level vocabulary state
+vocab_index = None
+vocab_observer = None
+
+
+def initialize_vocabulary():
+    """Initialize vocabulary index and file watcher.
+
+    Loads NOC vocabulary from JobForge parquet files and starts
+    file watcher for automatic hot-reload on changes.
+    """
+    global vocab_index, vocab_observer
+
+    vocab_index = VocabularyIndex(JOBFORGE_BRONZE_PATH)
+    vocab_observer = start_vocabulary_watcher(vocab_index, JOBFORGE_BRONZE_PATH)
+
+    print(f"[Vocabulary] Loaded: {vocab_index.get_term_count()} terms")
 
 
 def create_app():
@@ -21,6 +40,9 @@ def create_app():
 
     # Enable CORS for frontend cross-origin requests
     CORS(app)
+
+    # Initialize vocabulary index and watcher
+    initialize_vocabulary()
 
     # Disable caching for static files in development
     @app.after_request
