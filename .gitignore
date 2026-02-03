@@ -1,1 +1,20 @@
+# Planning intel (sensitive)
 .planning/intel/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Claude Code config
+.claude/
+
+# Test files
+test_*.json
+
+# Windows artifacts
+nul
+
+# User documents (not code)
+overview for job lite process*/
+*.pptx
