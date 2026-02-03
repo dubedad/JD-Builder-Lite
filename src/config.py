@@ -15,3 +15,6 @@ OPENAI_TEMPERATURE = 0.7  # Balanced creativity
 
 # Flask session
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-change-in-production")
+
+# JobForge vocabulary source
+JOBFORGE_BRONZE_PATH = "C:/Users/Administrator/Dropbox/++ Results Kit/JobForge 2.0/data/bronze"
