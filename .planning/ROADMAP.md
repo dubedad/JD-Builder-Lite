@@ -16,7 +16,7 @@ v3.0 adds style-enhanced writing capabilities to JD Builder Lite. The milestone 
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 9: Vocabulary Foundation** - Build term index from JobForge parquet for constraint enforcement
+- [x] **Phase 9: Vocabulary Foundation** - Build term index from JobForge parquet for constraint enforcement
 - [ ] **Phase 10: Style Analysis Pipeline** - Analyze example JD corpus, document patterns, build few-shot examples
 - [ ] **Phase 11: Provenance Architecture** - Extended audit trail schema for styled content
 - [ ] **Phase 12: Constrained Generation** - Few-shot styling with vocabulary validation and retry
@@ -36,7 +36,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 1 plan
 
 Plans:
-- [ ] 09-01-PLAN.md - VocabularyIndex + VocabularyValidator + hot-reload watcher
+- [x] 09-01-PLAN.md - VocabularyIndex + VocabularyValidator + hot-reload watcher
 
 ### Phase 10: Style Analysis Pipeline
 **Goal**: Style patterns documented and few-shot examples ready for generation prompts
@@ -110,7 +110,7 @@ Note: Phases 9, 10, 11 can execute in parallel; Phase 12 requires 9, 10, and 11 
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 9. Vocabulary Foundation | 0/1 | Planned | - |
+| 9. Vocabulary Foundation | 1/1 | Complete | 2026-02-03 |
 | 10. Style Analysis Pipeline | 0/2 | Planned | - |
 | 11. Provenance Architecture | 0/2 | Not started | - |
 | 12. Constrained Generation | 0/3 | Not started | - |
@@ -118,5 +118,5 @@ Note: Phases 9, 10, 11 can execute in parallel; Phase 12 requires 9, 10, and 11 
 
 ---
 *Roadmap created: 2026-02-03*
-*Last updated: 2026-02-03 - Phase 10 planned (2 plans in 2 waves)*
+*Last updated: 2026-02-03 - Phase 9 complete*
 *Milestone: v3.0 Style-Enhanced Writing*
