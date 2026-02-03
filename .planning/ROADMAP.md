@@ -33,10 +33,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. System can check if a given word exists in the NOC vocabulary index
   3. System can identify non-NOC words in any input text
   4. Vocabulary index loads at app startup without blocking user interaction
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 09-01: Vocabulary index implementation
+- [ ] 09-01-PLAN.md - VocabularyIndex + VocabularyValidator + hot-reload watcher
 
 ### Phase 10: Style Analysis Pipeline
 **Goal**: User can upload example JDs and view extracted style characteristics
@@ -111,7 +111,7 @@ Note: Phases 9, 10, 11 can execute in parallel; Phase 12 requires 9 and 11 compl
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 9. Vocabulary Foundation | 0/1 | Not started | - |
+| 9. Vocabulary Foundation | 0/1 | Planned | - |
 | 10. Style Analysis Pipeline | 0/2 | Not started | - |
 | 11. Provenance Architecture | 0/2 | Not started | - |
 | 12. Constrained Generation | 0/3 | Not started | - |
