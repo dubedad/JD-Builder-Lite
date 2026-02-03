@@ -69,35 +69,35 @@ Requirements for style-enhanced JD generation with vocabulary constraints.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| STYLE-01 | TBD | Pending |
-| STYLE-02 | TBD | Pending |
-| STYLE-03 | TBD | Pending |
-| STYLE-04 | TBD | Pending |
-| STYLE-05 | TBD | Pending |
-| STYLE-06 | TBD | Pending |
-| STYLE-07 | TBD | Pending |
-| GEN-01 | TBD | Pending |
-| GEN-02 | TBD | Pending |
-| GEN-03 | TBD | Pending |
-| GEN-04 | TBD | Pending |
-| GEN-05 | TBD | Pending |
-| GEN-06 | TBD | Pending |
-| GEN-07 | TBD | Pending |
-| GEN-08 | TBD | Pending |
-| PROV-01 | TBD | Pending |
-| PROV-02 | TBD | Pending |
-| PROV-03 | TBD | Pending |
-| PROV-04 | TBD | Pending |
-| PROV-05 | TBD | Pending |
-| EXP-01 | TBD | Pending |
-| EXP-02 | TBD | Pending |
-| EXP-03 | TBD | Pending |
+| STYLE-01 | Phase 10 | Pending |
+| STYLE-02 | Phase 10 | Pending |
+| STYLE-03 | Phase 9 | Pending |
+| STYLE-04 | Phase 10 | Pending |
+| STYLE-05 | Phase 10 | Pending |
+| STYLE-06 | Phase 10 | Pending |
+| STYLE-07 | Phase 10 | Pending |
+| GEN-01 | Phase 12 | Pending |
+| GEN-02 | Phase 12 | Pending |
+| GEN-03 | Phase 12 | Pending |
+| GEN-04 | Phase 12 | Pending |
+| GEN-05 | Phase 12 | Pending |
+| GEN-06 | Phase 12 | Pending |
+| GEN-07 | Phase 12 | Pending |
+| GEN-08 | Phase 12 | Pending |
+| PROV-01 | Phase 11 | Pending |
+| PROV-02 | Phase 11 | Pending |
+| PROV-03 | Phase 11 | Pending |
+| PROV-04 | Phase 11 | Pending |
+| PROV-05 | Phase 11 | Pending |
+| EXP-01 | Phase 13 | Pending |
+| EXP-02 | Phase 13 | Pending |
+| EXP-03 | Phase 13 | Pending |
 
 **Coverage:**
 - v3.0 requirements: 23 total
-- Mapped to phases: 0
-- Unmapped: 23
+- Mapped to phases: 23
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-03*
-*Last updated: 2026-02-03 after initial definition*
+*Last updated: 2026-02-03 - Traceability updated with phase mappings*

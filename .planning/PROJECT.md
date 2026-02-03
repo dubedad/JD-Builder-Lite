@@ -68,7 +68,16 @@ Every piece of content in the final job description can be traced back to its au
 
 ### Active
 
-**v2.1 (Planned):**
+**v3.0 Style-Enhanced Writing (In Progress):**
+See `.planning/REQUIREMENTS.md` for full requirements (23 total).
+
+Key capabilities:
+- Style Infrastructure: Parse example JDs, build vocabulary index, persist style profiles
+- Constrained Generation: Few-shot styling with vocabulary validation, dual-format display
+- Compliance: Extended provenance, differentiated AI disclosure, vocabulary audit
+- Export: Styled PDF/DOCX with full compliance metadata
+
+**Deferred to v3.1+:**
 - SRCH-06: Grid view shows columns: Broad category, Training/Education, Lead statement
 - SRCH-07: Filter items by Job Family
 - SRCH-08: Filter items by Organizational Unit
@@ -77,6 +86,7 @@ Every piece of content in the final job description can be traced back to its au
 - DISP-13: "Learn More" links to OASIS source for each statement
 - OUT-09: "Include Annex" checkbox toggle in export options
 - OUT-10: Custom compliance styling in DOCX (matching PDF quality)
+- OGM-01 through OGM-05: Occupational Group Matching (v3.1 scope)
 
 ### Out of Scope
 
@@ -147,6 +157,10 @@ This tool demonstrates compliance with the Treasury Board's Directive on Automat
 | CSS ::after tooltips over JS library | Simpler, faster, no dependencies | ✓ Good |
 | ARIA tab pattern with automatic activation | Arrow keys navigate and activate in single operation | ✓ Good |
 | Single Create button | Removes dual-button confusion, overview generation in Create flow | ✓ Good |
+| Few-shot prompting for style | No fine-tuning needed; learns style from 2-5 examples in prompt | — Pending |
+| Post-validation over constrained decoding | OpenAI API limits logit_bias to ~300 tokens; validation + retry more reliable | — Pending |
+| Provenance before generation | Research warns retrofit is difficult; design audit trail schema first | — Pending |
+| pdfplumber for PDF extraction | MIT license, verified PyPI version, handles text-based PDFs | — Pending |
 
 ---
-*Last updated: 2026-01-25 — v2.0 UI Redesign milestone shipped*
+*Last updated: 2026-02-03 — v3.0 Style-Enhanced Writing milestone started*
