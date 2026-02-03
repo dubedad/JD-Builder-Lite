@@ -7,6 +7,11 @@ from src.models.vocabulary_audit import (
     ConfidenceLevel,
     CONFIDENCE_THRESHOLDS,
 )
+from src.models.styled_content import (
+    StyledStatement,
+    GenerationAttempt,
+    StyleVersionHistory,
+)
 
 __all__ = [
     "StyleContentType",
@@ -14,4 +19,7 @@ __all__ = [
     "VocabularyAudit",
     "ConfidenceLevel",
     "CONFIDENCE_THRESHOLDS",
+    "StyledStatement",
+    "GenerationAttempt",
+    "StyleVersionHistory",
 ]
