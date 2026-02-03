@@ -149,8 +149,11 @@ class NOCHierarchy(BaseModel):
     teer_category: int           # Second digit (0-5)
     teer_description: str        # From TEER_CATEGORIES
     major_group: str             # First 2 digits
-    minor_group: str             # First 3 digits
-    unit_group: str              # First 4 digits
+    major_group_name: Optional[str] = None  # From OASIS HTML
+    minor_group: str             # First 3 digits (sub-major in NOC 2021 terms)
+    minor_group_name: Optional[str] = None  # From OASIS HTML
+    unit_group: str              # First 4 digits (minor in NOC 2021 terms)
+    unit_group_name: Optional[str] = None   # From OASIS HTML
 
     model_config = ConfigDict(from_attributes=True)
 

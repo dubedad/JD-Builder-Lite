@@ -25,6 +25,12 @@ api_bp = Blueprint('api', __name__, url_prefix='/api')
 NOC_CODE_PATTERN = re.compile(r'^\d{5}(?:\.\d{2})?$')
 
 
+@api_bp.route('/ping')
+def ping():
+    """Simple health check endpoint."""
+    return jsonify({"status": "ok"})
+
+
 @api_bp.route('/search')
 def search():
     """Search OASIS for NOC profiles by query string.

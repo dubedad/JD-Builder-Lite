@@ -179,6 +179,28 @@
     font-size: 0.8rem;
 }
 
+.loading-text.error {
+    color: #d32f2f;
+}
+
+/* Grid cell content styling */
+.grid-cell br {
+    margin-bottom: 0.25rem;
+}
+
+/* Grid profile info with example titles */
+.grid-profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.grid-example-titles {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    font-style: italic;
+}
+
 /* ===========================================
    Grid View Styles
    =========================================== */
@@ -192,10 +214,10 @@
     overflow: hidden;
 }
 
-/* Grid Header */
+/* Grid Header - 6 columns for JD categories */
 .grid-header {
     display: grid;
-    grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr 1.5fr;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
     background: var(--highlight);
     border-bottom: 2px solid var(--border);
 }
@@ -213,10 +235,10 @@
     border-right: none;
 }
 
-/* Grid Rows */
+/* Grid Rows - 6 columns for JD categories */
 .grid-row {
     display: grid;
-    grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr 1.5fr;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
     border-bottom: 1px solid var(--border-light, #f0f0f0);
     cursor: pointer;
     transition: background-color 0.15s;

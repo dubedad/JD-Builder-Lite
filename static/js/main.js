@@ -1,11 +1,17 @@
 // Main application initialization
+console.log('[DEBUG main.js] Script loaded');
+console.log('[DEBUG main.js] api object:', typeof api);
+console.log('[DEBUG main.js] storage object:', typeof storage);
+console.log('[DEBUG main.js] filterModule:', typeof filterModule);
+
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('[DEBUG main.js] DOMContentLoaded fired');
     // Cache DOM references
     const searchInput = document.getElementById('search-input');
     const searchButton = document.getElementById('search-button');
     const searchResults = document.getElementById('search-results');
     const resultsList = document.getElementById('results-list');
-    const profileInfo = document.getElementById('profile-info');
+    const profileInfo = document.getElementById('profile-header');
     const jdSections = document.getElementById('jd-sections');
     const actionBar = document.getElementById('action-bar');
     const sidebar = document.getElementById('sidebar');
@@ -18,12 +24,70 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Profile info elements
     const profileTitle = document.getElementById('profile-title');
-    const profileNoc = document.getElementById('profile-noc');
+    const profileNoc = document.getElementById('profile-code-badge');
     const profileLink = document.getElementById('profile-link');
     const profileTimestamp = document.getElementById('profile-timestamp');
 
     // Global profile data storage
     window.currentProfile = null;
+
+    // NOC Minor Group (3-digit) to Icon mapping for specific occupations
+    const NOC_MINOR_GROUP_ICONS = {
+        '726': 'fa-plane',      // Air pilots, flight engineers
+        '727': 'fa-ship',       // Marine/ship officers
+        '728': 'fa-train',      // Rail transport
+        '721': 'fa-truck',      // Truck/bus drivers
+        '722': 'fa-truck',      // Heavy equipment operators
+        '731': 'fa-hard-hat',   // Construction helpers
+        '732': 'fa-hard-hat',   // Construction labourers
+        '301': 'fa-user-md',    // Physicians
+        '302': 'fa-user-nurse', // Nursing
+        '311': 'fa-user-nurse', // Nursing coordinators
+        '321': 'fa-stethoscope',// Medical technologists
+        '217': 'fa-laptop-code',// IT professionals
+        '212': 'fa-laptop-code' // Software engineers
+    };
+
+    // NOC Broad Category (1-digit) fallback mapping
+    const NOC_BROAD_ICONS = {
+        0: 'fa-landmark',       // Legislative and senior management
+        1: 'fa-briefcase',      // Business, finance and administration
+        2: 'fa-atom',           // Natural and applied sciences
+        3: 'fa-heartbeat',      // Health
+        4: 'fa-graduation-cap', // Education, law, social, community, government
+        5: 'fa-palette',        // Art, culture, recreation, sport
+        6: 'fa-handshake',      // Sales and service
+        7: 'fa-tools',          // Trades (fallback for category 7)
+        8: 'fa-tractor',        // Natural resources, agriculture
+        9: 'fa-industry'        // Manufacturing and utilities
+    };
+
+    /**
+     * Get semantic icon based on NOC code - checks minor group first, then broad category
+     * @param {number|string} nocCodeOrCategory - NOC code string or broad category number
+     * @returns {string} - Font Awesome icon class
+     */
+    function getNocCategoryIcon(nocCodeOrCategory) {
+        if (nocCodeOrCategory == null) return 'fa-briefcase';
+
+        // If passed a number (broad category), use it directly
+        if (typeof nocCodeOrCategory === 'number') {
+            return NOC_BROAD_ICONS[nocCodeOrCategory] || 'fa-briefcase';
+        }
+
+        // Extract base code (remove decimal: 72600.01 -> 72600)
+        const baseCode = String(nocCodeOrCategory).split('.')[0];
+
+        // Try minor group (first 3 digits) for specific match
+        const minorGroup = baseCode.substring(0, 3);
+        if (NOC_MINOR_GROUP_ICONS[minorGroup]) {
+            return NOC_MINOR_GROUP_ICONS[minorGroup];
+        }
+
+        // Fall back to broad category (first digit)
+        const broadCategory = parseInt(baseCode.charAt(0), 10);
+        return NOC_BROAD_ICONS[broadCategory] || 'fa-briefcase';
+    }
 
     // View toggle state
     let currentView = storage.get('viewMode', 'card');
@@ -36,6 +100,9 @@ document.addEventListener('DOMContentLoaded', function() {
     initSectionSearch();
     initGenerate();
     initExport();
+
+    // Initialize JD Stepper navigation
+    initStepper();
 
     // Initialize filter module
     filterModule.init(function(filteredResults) {
@@ -238,7 +305,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 ${result.broad_category_name ? `
                 <div class="card-row">
-                    <i class="fa fa-truck card-icon" aria-hidden="true"></i>
+                    <i class="fa ${getNocCategoryIcon(result.noc_code)} card-icon" aria-hidden="true"></i>
                     <span class="card-text">${escapeHtml(result.broad_category_name)}</span>
                 </div>
                 ` : ''}
@@ -270,28 +337,31 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Cache for loaded profile summaries
+    const profileCache = new Map();
+
     /**
-     * Render grid view with placeholder for profile-dependent columns
-     * Note: Skills/Abilities/Knowledge require profile fetch - shows placeholder
+     * Render grid view with JD category headers and lazy-load content
      * @param {Array} results - Array of EnrichedSearchResult objects
      */
     function renderGridView(results) {
         resultsList.className = 'results-list grid-view';
 
-        // Grid header
+        // Grid header with JD category names
         const header = document.createElement('div');
         header.className = 'grid-header';
         header.setAttribute('role', 'row');
         header.innerHTML = `
             <div class="grid-header-cell" role="columnheader">OaSIS Profile</div>
-            <div class="grid-header-cell" role="columnheader">Top Skills</div>
-            <div class="grid-header-cell" role="columnheader">Top Abilities</div>
-            <div class="grid-header-cell" role="columnheader">Top Knowledge</div>
-            <div class="grid-header-cell" role="columnheader">Matching Criteria</div>
+            <div class="grid-header-cell" role="columnheader">Key Activities</div>
+            <div class="grid-header-cell" role="columnheader">Skills</div>
+            <div class="grid-header-cell" role="columnheader">Effort</div>
+            <div class="grid-header-cell" role="columnheader">Responsibility</div>
+            <div class="grid-header-cell" role="columnheader">Working Conditions</div>
         `;
         resultsList.appendChild(header);
 
-        // Grid rows (skills/abilities/knowledge require profile fetch - show placeholder)
+        // Grid rows with loading state
         results.forEach(function(result) {
             const row = document.createElement('div');
             row.className = 'grid-row';
@@ -302,13 +372,138 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="grid-cell" role="cell">
                     <a href="#" class="grid-profile-link">${escapeHtml(result.noc_code)} - ${escapeHtml(result.title)}</a>
                 </div>
-                <div class="grid-cell" role="cell">${result.top_skills ? result.top_skills.slice(0, 3).join(', ') : '<span class="loading-text">Load profile for skills</span>'}</div>
-                <div class="grid-cell" role="cell">${result.top_abilities ? result.top_abilities.slice(0, 3).join(', ') : '<span class="loading-text">Load profile for abilities</span>'}</div>
-                <div class="grid-cell" role="cell">${result.top_knowledge ? result.top_knowledge.slice(0, 3).join(', ') : '<span class="loading-text">Load profile for knowledge</span>'}</div>
-                <div class="grid-cell" role="cell">${escapeHtml(result.matching_criteria || '-')}</div>
+                <div class="grid-cell grid-cell-activities" role="cell"><span class="loading-text">Loading...</span></div>
+                <div class="grid-cell grid-cell-skills" role="cell"><span class="loading-text">Loading...</span></div>
+                <div class="grid-cell grid-cell-effort" role="cell"><span class="loading-text">Loading...</span></div>
+                <div class="grid-cell grid-cell-responsibility" role="cell"><span class="loading-text">Loading...</span></div>
+                <div class="grid-cell grid-cell-conditions" role="cell"><span class="loading-text">Loading...</span></div>
             `;
             resultsList.appendChild(row);
         });
+
+        // Lazy load profile data for each result
+        loadGridProfileData(results);
+    }
+
+    /**
+     * Lazy load profile data for grid view cells
+     * @param {Array} results - Search results to load profiles for
+     */
+    async function loadGridProfileData(results) {
+        // Process in batches to avoid overwhelming the server
+        const batchSize = 3;
+        for (let i = 0; i < results.length; i += batchSize) {
+            const batch = results.slice(i, i + batchSize);
+            await Promise.all(batch.map(result => loadSingleGridProfile(result.noc_code)));
+        }
+    }
+
+    /**
+     * Load a single profile and update grid row
+     * @param {string} nocCode - NOC code to fetch
+     */
+    async function loadSingleGridProfile(nocCode) {
+        const row = resultsList.querySelector(`.grid-row[data-code="${nocCode}"]`);
+        if (!row) return;
+
+        // Check cache first
+        if (profileCache.has(nocCode)) {
+            updateGridRow(row, profileCache.get(nocCode));
+            return;
+        }
+
+        try {
+            const profile = await api.getProfile(nocCode);
+
+            // Extract top 2 items from each JD category (statements are in .statements array)
+            const summary = {
+                example_titles: profile.example_titles || [],
+                key_activities: extractTopItems(profile.key_activities?.statements, 2),
+                skills: extractTopItems(profile.skills?.statements, 2),
+                effort: extractTopItems(profile.effort?.statements, 2),
+                responsibility: extractTopItems(profile.responsibility?.statements, 2),
+                working_conditions: extractTopItems(profile.working_conditions?.statements, 2)
+            };
+
+            // Cache the summary
+            profileCache.set(nocCode, summary);
+
+            // Update the row (including the profile cell with example titles)
+            updateGridRow(row, summary, profile);
+        } catch (error) {
+            console.error(`Failed to load profile ${nocCode}:`, error);
+            // Show error state
+            const cells = row.querySelectorAll('.grid-cell:not(:first-child)');
+            cells.forEach(cell => {
+                cell.innerHTML = '<span class="loading-text error">Error</span>';
+            });
+        }
+    }
+
+    /**
+     * Extract top N items from a JD section
+     * @param {Array} section - Array of statement objects
+     * @param {number} count - Number of items to extract
+     * @returns {Array} - Array of text strings
+     */
+    function extractTopItems(section, count) {
+        if (!section || !Array.isArray(section)) return [];
+
+        // Dimension type labels to filter out (from Work Context parsing issues)
+        const dimensionLabels = ['importance', 'frequency', 'duration', 'level', 'proficiency'];
+
+        return section
+            .map(stmt => {
+                // Handle both string and object formats
+                if (typeof stmt === 'string') return stmt;
+                return stmt.text || stmt.statement || '';
+            })
+            .filter(text => {
+                if (!text || text.length === 0) return false;
+                // Filter out dimension labels that got captured as text
+                const lowerText = text.toLowerCase().trim();
+                if (dimensionLabels.includes(lowerText)) return false;
+                // Filter out very short text (likely parsing errors)
+                if (text.length < 10) return false;
+                return true;
+            })
+            .slice(0, count);
+    }
+
+    /**
+     * Update a grid row with profile summary data
+     * @param {HTMLElement} row - Grid row element
+     * @param {Object} summary - Summary data object
+     * @param {Object} profile - Full profile data (optional, for example titles)
+     */
+    function updateGridRow(row, summary, profile) {
+        const formatCell = (items) => {
+            if (!items || items.length === 0) return '<span class="loading-text">None</span>';
+            // Truncate long text and join with line break
+            return items.map(text => {
+                const truncated = text.length > 50 ? text.substring(0, 47) + '...' : text;
+                return escapeHtml(truncated);
+            }).join('<br>');
+        };
+
+        // Update profile cell with example titles if available
+        if (profile && summary.example_titles && summary.example_titles.length > 0) {
+            const profileCell = row.querySelector('.grid-cell:first-child');
+            const link = profileCell.querySelector('.grid-profile-link');
+            const exampleTitlesHtml = summary.example_titles.slice(0, 3).map(t => escapeHtml(t)).join(', ');
+            profileCell.innerHTML = `
+                <div class="grid-profile-info">
+                    <a href="#" class="grid-profile-link">${link.textContent}</a>
+                    <div class="grid-example-titles">${exampleTitlesHtml}</div>
+                </div>
+            `;
+        }
+
+        row.querySelector('.grid-cell-activities').innerHTML = formatCell(summary.key_activities);
+        row.querySelector('.grid-cell-skills').innerHTML = formatCell(summary.skills);
+        row.querySelector('.grid-cell-effort').innerHTML = formatCell(summary.effort);
+        row.querySelector('.grid-cell-responsibility').innerHTML = formatCell(summary.responsibility);
+        row.querySelector('.grid-cell-conditions').innerHTML = formatCell(summary.working_conditions);
     }
 
     /**
@@ -340,6 +535,7 @@ document.addEventListener('DOMContentLoaded', function() {
      * Handle search form submission
      */
     async function handleSearch() {
+        console.log('[DEBUG] handleSearch started');
         const query = searchInput.value.trim();
 
         // Validate minimum length
@@ -356,19 +552,39 @@ document.addEventListener('DOMContentLoaded', function() {
         jdSections.innerHTML = '';
 
         try {
+            console.log('[DEBUG] Calling api.search...');
             const response = await api.search(query, currentSearchType);
+            console.log('[DEBUG] api.search returned:', response?.count, 'results');
 
             // Update filter options with new results
+            console.log('[DEBUG] Updating filter options...');
             filterModule.updateOptions(response.results);
 
             // Clear any previous filters when doing new search
+            console.log('[DEBUG] Clearing filters...');
             filterModule.clear();
 
+            console.log('[DEBUG] Rendering results...');
             renderSearchResults(response.results);
             searchResults.classList.remove('hidden');
+
+            // Show explore section below results
+            const exploreSection = document.getElementById('explore-section');
+            if (exploreSection) {
+                exploreSection.classList.remove('hidden');
+            }
+
+            // Dispatch search-complete event for stepper
+            document.dispatchEvent(new CustomEvent('search-complete', {
+                detail: { count: response.results.length }
+            }));
+
+            console.log('[DEBUG] Search complete!');
         } catch (error) {
+            console.error('[DEBUG] Search error:', error);
             showError(searchResults.parentElement, error.message);
         } finally {
+            console.log('[DEBUG] Finally block - resetting button');
             searchButton.disabled = false;
             searchButton.textContent = 'Search';
         }
@@ -379,8 +595,16 @@ document.addEventListener('DOMContentLoaded', function() {
      * @param {string} code - NOC code to fetch
      */
     async function handleResultClick(code) {
-        // Hide search results and show skeleton
+        // Hide search results, welcome section, and explore section
         searchResults.classList.add('hidden');
+        const welcomeSection = document.getElementById('welcome-section');
+        if (welcomeSection) {
+            welcomeSection.classList.add('hidden');
+        }
+        const exploreSection = document.getElementById('explore-section');
+        if (exploreSection) {
+            exploreSection.classList.add('hidden');
+        }
         showSkeleton(jdSections);
 
         try {
@@ -500,4 +724,138 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize view state
     handleViewportChange(mediaQuery);
+
+    /**
+     * Initialize JD Stepper navigation
+     * Steps: 1=Search, 2=Select Profile, 3=Build JD, 4=Export
+     */
+    function initStepper() {
+        const stepper = document.getElementById('jd-stepper');
+        if (!stepper) return;
+
+        const steps = stepper.querySelectorAll('.jd-stepper__step');
+        const buttons = stepper.querySelectorAll('.jd-stepper__btn');
+        let currentStep = 1;
+
+        // Step navigation handlers
+        buttons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetStep = parseInt(btn.dataset.step, 10);
+                navigateToStep(targetStep);
+            });
+        });
+
+        /**
+         * Navigate to a specific step
+         * @param {number} step - Target step (1-4)
+         */
+        function navigateToStep(step) {
+            if (step < 1 || step > 4) return;
+
+            // Navigation logic based on target step
+            switch (step) {
+                case 1: // Search
+                    // Show search results, hide profile
+                    searchResults.classList.remove('hidden');
+                    profileInfo.classList.add('hidden');
+                    jdSections.innerHTML = '';
+                    actionBar.classList.add('hidden');
+                    const welcomeSection = document.getElementById('welcome-section');
+                    if (welcomeSection && lastResults.length === 0) {
+                        welcomeSection.classList.remove('hidden');
+                    }
+                    break;
+                case 2: // Select Profile (show search results)
+                    if (lastResults.length > 0) {
+                        searchResults.classList.remove('hidden');
+                        profileInfo.classList.add('hidden');
+                        jdSections.innerHTML = '';
+                        actionBar.classList.add('hidden');
+                    }
+                    break;
+                case 3: // Build JD
+                    // If we have a profile loaded, show it
+                    if (window.currentProfile) {
+                        searchResults.classList.add('hidden');
+                        profileInfo.classList.remove('hidden');
+                        actionBar.classList.remove('hidden');
+                    }
+                    break;
+                case 4: // Export
+                    // Navigate to export - trigger sidebar or modal
+                    if (window.currentProfile) {
+                        sidebar.classList.add('open');
+                        sidebar.classList.remove('collapsed');
+                        document.body.classList.add('sidebar-open');
+                    }
+                    break;
+            }
+
+            updateStepperState(step);
+        }
+
+        /**
+         * Update stepper visual state
+         * @param {number} activeStep - Current active step
+         */
+        function updateStepperState(activeStep) {
+            currentStep = activeStep;
+
+            steps.forEach((step, index) => {
+                const stepNum = index + 1;
+                const btn = step.querySelector('.jd-stepper__btn');
+
+                // Remove all states
+                step.classList.remove('jd-stepper__step--active', 'jd-stepper__step--completed');
+
+                if (stepNum < activeStep) {
+                    // Completed steps
+                    step.classList.add('jd-stepper__step--completed');
+                    btn.disabled = false;
+                } else if (stepNum === activeStep) {
+                    // Current step
+                    step.classList.add('jd-stepper__step--active');
+                    btn.disabled = false;
+                } else {
+                    // Future steps - enabled if previous step allows
+                    btn.disabled = !canAccessStep(stepNum);
+                }
+            });
+        }
+
+        /**
+         * Check if a step can be accessed based on app state
+         * @param {number} step - Step to check
+         * @returns {boolean}
+         */
+        function canAccessStep(step) {
+            switch (step) {
+                case 1: return true; // Always can search
+                case 2: return lastResults.length > 0; // Need search results
+                case 3: return window.currentProfile !== null; // Need profile selected
+                case 4: return window.currentProfile !== null; // Need profile for export
+                default: return false;
+            }
+        }
+
+        // Expose stepper API globally for other modules
+        window.jdStepper = {
+            goToStep: navigateToStep,
+            updateState: updateStepperState,
+            getCurrentStep: () => currentStep
+        };
+
+        // Listen for app events to auto-update stepper
+        // After search completes - move to step 2
+        document.addEventListener('search-complete', () => {
+            updateStepperState(2);
+        });
+
+        // After profile is loaded - move to step 3
+        document.addEventListener('profile-loaded', () => {
+            updateStepperState(3);
+        });
+
+        console.log('[DEBUG] JD Stepper initialized');
+    }
 });

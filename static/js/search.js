@@ -1,7 +1,12 @@
 // Per-section text filtering
 const initSectionSearch = () => {
     // Event delegation for search inputs
-    document.querySelector('.jd-sections').addEventListener('input', (e) => {
+    const jdSections = document.querySelector('.jd-sections');
+    if (!jdSections) {
+        console.warn('initSectionSearch: .jd-sections not found');
+        return;
+    }
+    jdSections.addEventListener('input', (e) => {
         if (e.target.classList.contains('jd-section__search')) {
             filterSection(e.target);
         }

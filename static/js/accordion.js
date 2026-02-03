@@ -15,6 +15,15 @@ const PROFICIENCY_LABELS = {
     5: 'Highest Level'
 };
 
+// Category definitions from guide.csv - displayed beside section titles
+const CATEGORY_DEFINITIONS = {
+    'Work Activities': 'Work activities are general types of job behaviours occurring on multiple jobs. For each work activity statement a worker indicates the level of the activity that is required to perform a job.',
+    'Skills': 'Skills are developed capacities that facilitate learning or the more rapid acquisition of knowledge. Skills can be thought of as the "how to" for accomplishing job tasks.',
+    'Abilities': 'Abilities are enduring attributes of the individual that influence performance. Abilities are categorized according to the different kinds of behaviours they influence.',
+    'Knowledge': 'Knowledge is organized sets of principles and facts applying in general domains. Knowledge describes what must be learned prior to performing on the job.',
+    'Work Context': 'Work context describes the physical and social factors that influence the nature of work. For each work context element, a worker rates how often or to what extent the descriptor applies to the context of work.'
+};
+
 // NOC Minor Group (3-digit) to Icon mapping for specific occupations
 const NOC_MINOR_GROUP_ICONS = {
     // Transport occupations (72x) - more specific than broad category
@@ -166,14 +175,26 @@ const renderOverviewContent = (profile) => {
 
     let html = '';
 
-    // Example titles / Also known as (top-level field in API response)
-    // Display as prominent tags for visibility
+    // Also known as - OaSIS panel card format (matches OaSIS welcome page)
+    // Display as panel with icon header and bullet list of job titles
     if (profile.example_titles?.length) {
+        const titlesToShow = profile.example_titles.slice(0, 8);
+        const hasMore = profile.example_titles.length > 8;
+
         html += `
-            <div class="tab-panel__section also-known-as-section">
-                <h3 class="tab-panel__section-title">Also Known As</h3>
-                <div class="also-known-as-tags">
-                    ${profile.example_titles.map(t => `<span class="aka-tag">${escapeHtml(t)}</span>`).join('')}
+            <div class="oasis-panel also-known-as-panel">
+                <div class="oasis-panel__heading">
+                    <span class="fas fa-project-diagram oasis-panel__icon"></span>
+                    <h3 class="oasis-panel__title">Also known as</h3>
+                </div>
+                <div class="oasis-panel__body">
+                    <ul class="aka-list">
+                        ${titlesToShow.map(t => `<li class="aka-list__item">${escapeHtml(t)}</li>`).join('')}
+                    </ul>
+                    ${hasMore ? `<button class="aka-see-more btn btn-link" data-expanded="false">See more – Job titles (${profile.example_titles.length - 8} more)</button>` : ''}
+                    ${hasMore ? `<ul class="aka-list aka-list--hidden">
+                        ${profile.example_titles.slice(8).map(t => `<li class="aka-list__item">${escapeHtml(t)}</li>`).join('')}
+                    </ul>` : ''}
                 </div>
             </div>
         `;
@@ -191,49 +212,87 @@ const renderOverviewContent = (profile) => {
         `;
     }
 
-    // NOC Hierarchy - complete structure per NOC 2021
-    // Structure: Broad Category (1) → Major Group (2) → Sub-Major Group (3) → Minor Group (4) → Unit Group (5)
+    // NOC Hierarchy - complete structure per NOC 2021 with Level column
+    // Structure: Broad Category (1) → TEER → Major Group (2) → Sub-Major Group (3) → Minor Group (4) → Unit Group (5) → Labels (6) → Example Titles (7)
     if (hierarchy.broad_category_name || hierarchy.noc_code) {
+        // Get Labels from profile (if available from Labels 2025 CSV)
+        const labels = profile.labels || profile.noc_hierarchy?.labels || [];
+        const exampleTitles = profile.example_titles || [];
+
         html += `
             <div class="tab-panel__section">
                 <h3 class="tab-panel__section-title">NOC Hierarchy</h3>
                 <table class="noc-hierarchy-table">
+                    <thead>
+                        <tr>
+                            <th>Level</th>
+                            <th>Type</th>
+                            <th>Code</th>
+                            <th>Name</th>
+                        </tr>
+                    </thead>
                     <tbody>
                         ${hierarchy.broad_category_name ? `
                         <tr>
+                            <td class="noc-level">1</td>
                             <th>Broad Category</th>
                             <td class="noc-code">${hierarchy.broad_category}</td>
                             <td class="noc-name">${escapeHtml(hierarchy.broad_category_name)}</td>
                         </tr>` : ''}
                         ${hierarchy.teer_description ? `
                         <tr>
+                            <td class="noc-level">-</td>
                             <th>TEER</th>
                             <td class="noc-code">${hierarchy.teer_category}</td>
                             <td class="noc-name">${escapeHtml(hierarchy.teer_description)}</td>
                         </tr>` : ''}
                         ${hierarchy.major_group ? `
                         <tr>
+                            <td class="noc-level">2</td>
                             <th>Major Group</th>
                             <td class="noc-code">${hierarchy.major_group}</td>
                             <td class="noc-name">${hierarchy.major_group_name ? escapeHtml(hierarchy.major_group_name) : '-'}</td>
                         </tr>` : ''}
                         ${hierarchy.minor_group ? `
                         <tr>
+                            <td class="noc-level">3</td>
                             <th>Sub-Major Group</th>
                             <td class="noc-code">${hierarchy.minor_group}</td>
                             <td class="noc-name">${hierarchy.minor_group_name ? escapeHtml(hierarchy.minor_group_name) : '-'}</td>
                         </tr>` : ''}
                         ${hierarchy.unit_group ? `
                         <tr>
+                            <td class="noc-level">4</td>
                             <th>Minor Group</th>
                             <td class="noc-code">${hierarchy.unit_group}</td>
                             <td class="noc-name">${hierarchy.unit_group_name ? escapeHtml(hierarchy.unit_group_name) : '-'}</td>
                         </tr>` : ''}
                         ${hierarchy.noc_code ? `
                         <tr>
+                            <td class="noc-level">5</td>
                             <th>Unit Group</th>
                             <td class="noc-code">${escapeHtml(hierarchy.noc_code)}</td>
                             <td class="noc-name">${profile.title ? escapeHtml(profile.title) : '-'}</td>
+                        </tr>` : ''}
+                        ${labels.length > 0 ? `
+                        <tr>
+                            <td class="noc-level">6</td>
+                            <th>Labels</th>
+                            <td class="noc-code">-</td>
+                            <td class="noc-name">${labels.map(l => escapeHtml(l)).join(', ')}</td>
+                        </tr>` : `
+                        <tr>
+                            <td class="noc-level">6</td>
+                            <th>Labels</th>
+                            <td class="noc-code">-</td>
+                            <td class="noc-name"><em>Available in Labels 2025 v1.0</em></td>
+                        </tr>`}
+                        ${exampleTitles.length > 0 ? `
+                        <tr>
+                            <td class="noc-level">7</td>
+                            <th>Example Titles</th>
+                            <td class="noc-code">-</td>
+                            <td class="noc-name">${exampleTitles.slice(0, 5).map(t => escapeHtml(t)).join(', ')}${exampleTitles.length > 5 ? '...' : ''}</td>
                         </tr>` : ''}
                     </tbody>
                 </table>
@@ -254,9 +313,16 @@ const renderStatementsPanel = (statements, sections, sectionId, selectedIds) => 
 
         if (filtered.length === 0) return;
 
+        // Get category definition for section title
+        const categoryDef = CATEGORY_DEFINITIONS[section.title] || '';
+        const definitionHtml = categoryDef
+            ? `<p class="tab-panel__section-definition">${escapeHtml(categoryDef)}</p>`
+            : '';
+
         html += `
             <div class="tab-panel__section">
                 <h3 class="tab-panel__section-title">${section.title}</h3>
+                ${definitionHtml}
                 <ul class="tab-panel__list jd-section__list">
         `;
 
@@ -265,9 +331,9 @@ const renderStatementsPanel = (statements, sections, sectionId, selectedIds) => 
             const isSelected = selectedIds.includes(stmtId);
             const proficiencyHtml = stmt.proficiency ? renderProficiency(stmt.proficiency) : '';
 
-            // Build tooltip attribute if description exists
-            const tooltipAttr = stmt.description
-                ? `data-tooltip="${escapeHtml(stmt.description)}" tabindex="0"`
+            // Build description HTML if description exists (from guide.csv)
+            const descriptionHtml = stmt.description
+                ? `<span class="statement__description">${escapeHtml(stmt.description)}</span>`
                 : '';
 
             html += `
@@ -278,7 +344,8 @@ const renderStatementsPanel = (statements, sections, sectionId, selectedIds) => 
                                data-id="${stmtId}"
                                ${isSelected ? 'checked' : ''}>
                         <span class="statement__content">
-                            <span class="statement__text" ${tooltipAttr}>${escapeHtml(stmt.text)}</span>
+                            <span class="statement__text">${escapeHtml(stmt.text)}</span>
+                            ${descriptionHtml}
                             <span class="statement__source">from ${escapeHtml(stmt.source_attribute || 'Unknown')}</span>
                         </span>
                         ${proficiencyHtml}
@@ -307,6 +374,190 @@ const renderCareerContent = (profile) => {
     `;
 };
 
+const renderOtherJobInfoContent = (profile) => {
+    const otherInfo = profile.other_job_info || {};
+    const ref = profile.reference_attributes || {};
+    let html = '';
+
+    // Employment Requirements section
+    if (otherInfo.employment_requirements?.length) {
+        html += `
+            <div class="oasis-panel">
+                <div class="oasis-panel__heading">
+                    <span class="fas fa-graduation-cap oasis-panel__icon"></span>
+                    <h3 class="oasis-panel__title">Employment Requirements</h3>
+                </div>
+                <div class="oasis-panel__body">
+                    <ul class="other-info-list">
+                        ${otherInfo.employment_requirements.map(r => `<li class="other-info-list__item">${escapeHtml(r)}</li>`).join('')}
+                    </ul>
+                </div>
+            </div>
+        `;
+    }
+
+    // Workplaces/Employers section
+    if (otherInfo.workplaces?.length) {
+        html += `
+            <div class="oasis-panel">
+                <div class="oasis-panel__heading">
+                    <span class="fas fa-building oasis-panel__icon"></span>
+                    <h3 class="oasis-panel__title">Workplaces & Employers</h3>
+                </div>
+                <div class="oasis-panel__body">
+                    <ul class="other-info-list other-info-list--inline">
+                        ${otherInfo.workplaces.map(w => `<li class="other-info-list__item other-info-list__item--tag">${escapeHtml(w)}</li>`).join('')}
+                    </ul>
+                </div>
+            </div>
+        `;
+    }
+
+    // Interests (Holland Codes) section
+    if (otherInfo.interests?.length) {
+        html += `
+            <div class="oasis-panel">
+                <div class="oasis-panel__heading">
+                    <span class="fas fa-compass oasis-panel__icon"></span>
+                    <h3 class="oasis-panel__title">Interests (Holland Codes)</h3>
+                </div>
+                <div class="oasis-panel__body">
+                    <div class="holland-codes">
+                        ${otherInfo.interests.map(i => `
+                            <div class="holland-code">
+                                <span class="holland-code__badge holland-code__badge--${i.code.toLowerCase()}">${escapeHtml(i.code)}</span>
+                                <div class="holland-code__content">
+                                    <span class="holland-code__title">${escapeHtml(i.title)}</span>
+                                    <span class="holland-code__rank">#${i.rank}</span>
+                                    <p class="holland-code__description">${escapeHtml(i.description)}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Personal Attributes section
+    if (otherInfo.personal_attributes?.length) {
+        html += `
+            <div class="oasis-panel">
+                <div class="oasis-panel__heading">
+                    <span class="fas fa-user-check oasis-panel__icon"></span>
+                    <h3 class="oasis-panel__title">Personal Attributes</h3>
+                </div>
+                <div class="oasis-panel__body">
+                    <div class="attributes-grid">
+                        ${otherInfo.personal_attributes.map(a => `
+                            <div class="attribute-item">
+                                <span class="attribute-item__name">${escapeHtml(a.name)}</span>
+                                <span class="attribute-item__level">${renderAttributeLevel(a.level)}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Exclusions section
+    if (otherInfo.exclusions?.length) {
+        html += `
+            <div class="oasis-panel">
+                <div class="oasis-panel__heading">
+                    <span class="fas fa-times-circle oasis-panel__icon"></span>
+                    <h3 class="oasis-panel__title">Exclusions</h3>
+                </div>
+                <div class="oasis-panel__body">
+                    <p class="exclusions-note">The following job titles are classified elsewhere:</p>
+                    <ul class="exclusions-list">
+                        ${otherInfo.exclusions.map(e => `
+                            <li class="exclusions-list__item">
+                                <span class="exclusions-list__title">${escapeHtml(e.title)}</span>
+                                <span class="exclusions-list__code">(${escapeHtml(e.code)})</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            </div>
+        `;
+    }
+
+    // Work Context from parquet - Responsibility
+    if (otherInfo.work_context_responsibility?.length) {
+        html += `
+            <div class="oasis-panel">
+                <div class="oasis-panel__heading">
+                    <span class="fas fa-clipboard-check oasis-panel__icon"></span>
+                    <h3 class="oasis-panel__title">Work Context - Decision & Responsibility</h3>
+                </div>
+                <div class="oasis-panel__body">
+                    <div class="work-context-grid">
+                        ${otherInfo.work_context_responsibility.map(wc => `
+                            <div class="work-context-item">
+                                <span class="work-context-item__name">${escapeHtml(wc.name)}</span>
+                                <span class="work-context-item__level">${renderAttributeLevel(wc.level)}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Work Context from parquet - Effort
+    if (otherInfo.work_context_effort?.length) {
+        html += `
+            <div class="oasis-panel">
+                <div class="oasis-panel__heading">
+                    <span class="fas fa-running oasis-panel__icon"></span>
+                    <h3 class="oasis-panel__title">Work Context - Physical Effort</h3>
+                </div>
+                <div class="oasis-panel__body">
+                    <div class="work-context-grid">
+                        ${otherInfo.work_context_effort.map(wc => `
+                            <div class="work-context-item">
+                                <span class="work-context-item__name">${escapeHtml(wc.name)}</span>
+                                <span class="work-context-item__level">${renderAttributeLevel(wc.level)}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Data Sources section
+    html += `
+        <div class="oasis-panel">
+            <div class="oasis-panel__heading">
+                <span class="fas fa-database oasis-panel__icon"></span>
+                <h3 class="oasis-panel__title">Data Sources</h3>
+            </div>
+            <div class="oasis-panel__body">
+                <p class="tab-panel__text">
+                    This occupational profile is sourced from ESDC OaSIS 2025 NOC v1.0 (Published: 2024-11-15)
+                    and enriched with O*NET 27.2 Database descriptors from USDOL/ETA.
+                </p>
+                <p class="tab-panel__text">
+                    <strong>NOC Code:</strong> ${profile.noc_code || 'N/A'}<br>
+                    <strong>Profile URL:</strong> <a href="${profile.metadata?.profile_url || '#'}" target="_blank" rel="noopener noreferrer">View on OaSIS</a>
+                </p>
+            </div>
+        </div>
+    `;
+
+    return html || '<p>No additional job information available.</p>';
+};
+
+const renderAttributeLevel = (level) => {
+    const max = 5;
+    const filledCircles = '<span class="level-filled">●</span>'.repeat(level);
+    const emptyCircles = '<span class="level-empty">○</span>'.repeat(max - level);
+    return `<span class="attribute-level">${filledCircles}${emptyCircles}</span>`;
+};
+
 const renderTabContent = (profile) => {
     const state = store.getState();
 
@@ -314,6 +565,23 @@ const renderTabContent = (profile) => {
     const overviewPanel = document.getElementById('panel-overview');
     if (overviewPanel) {
         overviewPanel.innerHTML = renderOverviewContent(profile);
+
+        // Attach "See more" button handler for Also Known As section
+        const seeMoreBtn = overviewPanel.querySelector('.aka-see-more');
+        if (seeMoreBtn) {
+            seeMoreBtn.addEventListener('click', function() {
+                const hiddenList = overviewPanel.querySelector('.aka-list--hidden');
+                const isExpanded = this.getAttribute('data-expanded') === 'true';
+
+                if (hiddenList) {
+                    hiddenList.classList.toggle('visible', !isExpanded);
+                }
+                this.setAttribute('data-expanded', !isExpanded);
+                this.textContent = isExpanded
+                    ? `See more – Job titles (${profile.example_titles.length - 8} more)`
+                    : 'See less – Job titles';
+            });
+        }
     }
 
     // Key Activities tab
@@ -338,32 +606,108 @@ const renderTabContent = (profile) => {
         );
     }
 
-    // Effort tab
+    // Effort tab - with Work Context definition
     const effortPanel = document.getElementById('panel-effort');
     if (effortPanel) {
-        effortPanel.innerHTML = renderStatementsPanel(
-            profile.effort?.statements || [],
-            [{ key: 'effort', title: 'Work Context - Effort' }],
-            'effort',
-            state.selections.effort || []
-        );
+        const effortStatements = profile.effort?.statements || [];
+        const workContextDef = CATEGORY_DEFINITIONS['Work Context'];
+
+        let effortHtml = `
+            <div class="tab-panel__section">
+                <h3 class="tab-panel__section-title">Effort</h3>
+                <p class="tab-panel__section-definition">${escapeHtml(workContextDef)}</p>
+        `;
+
+        if (effortStatements.length > 0) {
+            effortHtml += '<ul class="tab-panel__list jd-section__list">';
+            effortStatements.forEach((stmt, idx) => {
+                const stmtId = `effort-${idx}`;
+                const isSelected = (state.selections.effort || []).includes(stmtId);
+                const proficiencyHtml = stmt.proficiency ? renderProficiency(stmt.proficiency) : '';
+                const descriptionHtml = stmt.description ? `<span class="statement__description">${escapeHtml(stmt.description)}</span>` : '';
+
+                effortHtml += `
+                    <li class="statement tab-panel__item${isSelected ? ' statement--selected' : ''}" data-id="${stmtId}">
+                        <label class="statement__label">
+                            <input type="checkbox" class="statement__checkbox"
+                                   data-section="effort"
+                                   data-id="${stmtId}"
+                                   ${isSelected ? 'checked' : ''}>
+                            <span class="statement__content">
+                                <span class="statement__text">${escapeHtml(stmt.text)}</span>
+                                ${descriptionHtml}
+                                <span class="statement__source">from ${escapeHtml(stmt.source_attribute || 'Work Context')}</span>
+                            </span>
+                            ${proficiencyHtml}
+                        </label>
+                    </li>
+                `;
+            });
+            effortHtml += '</ul>';
+        } else {
+            effortHtml += '<p class="tab-panel__empty">No effort-related Work Context items available for this occupation.</p>';
+        }
+
+        effortHtml += '</div>';
+        effortPanel.innerHTML = effortHtml;
     }
 
-    // Responsibility tab
+    // Responsibility tab - with Work Context definition
     const responsibilityPanel = document.getElementById('panel-responsibility');
     if (responsibilityPanel) {
-        responsibilityPanel.innerHTML = renderStatementsPanel(
-            profile.responsibility?.statements || [],
-            [{ key: 'responsibility', title: 'Work Context - Responsibility' }],
-            'responsibility',
-            state.selections.responsibility || []
-        );
+        const respStatements = profile.responsibility?.statements || [];
+        const workContextDef = CATEGORY_DEFINITIONS['Work Context'];
+
+        let respHtml = `
+            <div class="tab-panel__section">
+                <h3 class="tab-panel__section-title">Responsibility</h3>
+                <p class="tab-panel__section-definition">${escapeHtml(workContextDef)}</p>
+        `;
+
+        if (respStatements.length > 0) {
+            respHtml += '<ul class="tab-panel__list jd-section__list">';
+            respStatements.forEach((stmt, idx) => {
+                const stmtId = `responsibility-${idx}`;
+                const isSelected = (state.selections.responsibility || []).includes(stmtId);
+                const proficiencyHtml = stmt.proficiency ? renderProficiency(stmt.proficiency) : '';
+                const descriptionHtml = stmt.description ? `<span class="statement__description">${escapeHtml(stmt.description)}</span>` : '';
+
+                respHtml += `
+                    <li class="statement tab-panel__item${isSelected ? ' statement--selected' : ''}" data-id="${stmtId}">
+                        <label class="statement__label">
+                            <input type="checkbox" class="statement__checkbox"
+                                   data-section="responsibility"
+                                   data-id="${stmtId}"
+                                   ${isSelected ? 'checked' : ''}>
+                            <span class="statement__content">
+                                <span class="statement__text">${escapeHtml(stmt.text)}</span>
+                                ${descriptionHtml}
+                                <span class="statement__source">from ${escapeHtml(stmt.source_attribute || 'Work Context')}</span>
+                            </span>
+                            ${proficiencyHtml}
+                        </label>
+                    </li>
+                `;
+            });
+            respHtml += '</ul>';
+        } else {
+            respHtml += '<p class="tab-panel__empty">No responsibility-related Work Context items available for this occupation.</p>';
+        }
+
+        respHtml += '</div>';
+        responsibilityPanel.innerHTML = respHtml;
     }
 
     // Career tab
     const careerPanel = document.getElementById('panel-career');
     if (careerPanel) {
         careerPanel.innerHTML = renderCareerContent(profile);
+    }
+
+    // Other Job Information tab
+    const otherPanel = document.getElementById('panel-other');
+    if (otherPanel) {
+        otherPanel.innerHTML = renderOtherJobInfoContent(profile);
     }
 
     // Show tabs container

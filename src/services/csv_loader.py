@@ -119,35 +119,68 @@ class GuideCSVLoader:
     def load(self, path: Path):
         """Load CSV with utf-8-sig encoding (handles Windows BOM).
 
+        Supports two formats:
+        1. Original: element_id, title, description, category, category_definition
+        2. JobForge 2.0: Code, Name, Structure type, Category, Description
+
         Args:
-            path: Path to guide.csv file
+            path: Path to guide CSV file
         """
         with path.open("r", encoding="utf-8-sig", newline="") as f:
             reader = csv.DictReader(f)
 
             # Log column names for debugging
             columns = reader.fieldnames or []
-            logger.info(f"Loading guide.csv with columns: {columns}")
+            logger.info(f"Loading guide CSV with columns: {columns}")
 
-            # Check for expected columns
-            expected = {"element_id", "title", "description", "category", "category_definition"}
-            missing = expected - set(columns)
-            if missing:
-                logger.warning(f"Expected columns missing from guide.csv: {missing}")
+            # Detect format based on columns
+            is_jobforge_format = "Code" in columns and "Name" in columns
 
             # Build lookup dictionaries
             for row in reader:
-                element_id = row.get("element_id", "").strip()
-                title = row.get("title", "").strip()
+                if is_jobforge_format:
+                    # JobForge 2.0 format: Code, Name, Structure type, Category, Description
+                    element_id = row.get("Code", "").strip()
+                    title = row.get("Name", "").strip()
+                    description = row.get("Description", "").strip()
+                    category = row.get("Category", "").strip()
+                    structure_type = row.get("Structure type", "").strip()
+
+                    # Normalize to standard format
+                    normalized = {
+                        "element_id": element_id,
+                        "title": title,
+                        "description": description,
+                        "category": category,
+                        "structure_type": structure_type,
+                        "category_definition": self._get_category_def(category)
+                    }
+                else:
+                    # Original format
+                    element_id = row.get("element_id", "").strip()
+                    title = row.get("title", "").strip()
+                    normalized = row
 
                 if element_id:
-                    self._by_element_id[element_id] = row
+                    self._by_element_id[element_id] = normalized
                 if title:
                     # Case-insensitive title lookup
-                    self._by_title[title.lower()] = row
+                    self._by_title[title.lower()] = normalized
 
             self._loaded_at = datetime.utcnow().isoformat()
-            logger.info(f"Loaded {len(self._by_element_id)} elements from guide.csv")
+            logger.info(f"Loaded {len(self._by_element_id)} elements from guide CSV")
+
+    def _get_category_def(self, category: str) -> str:
+        """Get category definition for JobForge format."""
+        CATEGORY_DEFS = {
+            "Abilities": "Abilities are enduring attributes of the individual that influence performance. Abilities are categorized according to the different kinds of behaviours they influence.",
+            "Skills": "Skills are developed capacities that facilitate learning or the more rapid acquisition of knowledge. Skills can be thought of as the 'how to' for accomplishing job tasks.",
+            "Knowledge": "Knowledge is organized sets of principles and facts applying in general domains. Knowledge describes what must be learned prior to performing on the job.",
+            "Work Activities": "Work activities are general types of job behaviours occurring on multiple jobs. For each work activity statement a worker indicates the level of the activity that is required to perform a job.",
+            "Work Context": "Work context describes the physical and social factors that influence the nature of work. For each work context element, a worker rates how often or to what extent the descriptor applies to the context of work.",
+            "Personal Attributes": "Personal attributes describe the importance of skills for success in the workplace that apply across a broad range of jobs."
+        }
+        return CATEGORY_DEFS.get(category, "")
 
     def lookup(self, element_id: str = None, title: str = None) -> Optional[dict]:
         """Lookup by element_id (primary) or title (fallback).
@@ -252,9 +285,15 @@ class GuideCSVLoader:
 # Module-level singleton
 guide_csv = GuideCSVLoader()
 
-# Load on module import
-_data_path = Path(__file__).parent.parent / 'data' / 'guide.csv'
-if _data_path.exists():
-    guide_csv.load(_data_path)
+# Load on module import - prefer JobForge 2.0 guide (423 entries) over original (12 entries)
+_data_path_new = Path(__file__).parent.parent / 'data' / 'guide_oasis.csv'
+_data_path_old = Path(__file__).parent.parent / 'data' / 'guide.csv'
+
+if _data_path_new.exists():
+    guide_csv.load(_data_path_new)
+    logger.info("Loaded JobForge 2.0 guide (423 element descriptions)")
+elif _data_path_old.exists():
+    guide_csv.load(_data_path_old)
+    logger.info("Loaded original guide.csv (fallback)")
 else:
-    logger.warning(f"guide.csv not found at {_data_path}")
+    logger.warning(f"No guide CSV found at {_data_path_new} or {_data_path_old}")

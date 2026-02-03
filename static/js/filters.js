@@ -77,35 +77,35 @@
     function updateFilterOptions(results) {
         allResults = results;
 
-        // Build Minor Group options from results
-        const minorGroups = new Map();
+        // Build Broad Category options from results (has actual names unlike minor_group)
+        const broadCategories = new Map();
         results.forEach(r => {
-            if (r.minor_group) {
-                const key = r.minor_group;
-                if (!minorGroups.has(key)) {
-                    minorGroups.set(key, {
-                        code: key,
-                        name: r.minor_group_name || `Minor Group ${key}`,
+            if (r.broad_category_name) {
+                const key = r.broad_category_name;
+                if (!broadCategories.has(key)) {
+                    broadCategories.set(key, {
+                        name: key,
+                        code: r.broad_category || '',
                         count: 0
                     });
                 }
-                minorGroups.get(key).count++;
+                broadCategories.get(key).count++;
             }
         });
 
-        // Render Minor Group checkboxes
+        // Render Broad Category checkboxes (using minorGroup filter name for compatibility)
         if (minorGroupOptions) {
-            if (minorGroups.size === 0) {
-                minorGroupOptions.innerHTML = '<p class="filter-empty">No minor groups in results</p>';
+            if (broadCategories.size === 0) {
+                minorGroupOptions.innerHTML = '<p class="filter-empty">No categories in results</p>';
             } else {
-                const sorted = Array.from(minorGroups.values()).sort((a, b) => a.code.localeCompare(b.code));
-                minorGroupOptions.innerHTML = sorted.map(group => `
+                const sorted = Array.from(broadCategories.values()).sort((a, b) => a.name.localeCompare(b.name));
+                minorGroupOptions.innerHTML = sorted.map(cat => `
                     <label class="filter-checkbox">
-                        <input type="checkbox" name="minorGroup" value="${escapeHtml(group.code)}"
-                               ${filters.minorGroup.has(group.code) ? 'checked' : ''}>
+                        <input type="checkbox" name="minorGroup" value="${escapeHtml(cat.name)}"
+                               ${filters.minorGroup.has(cat.name) ? 'checked' : ''}>
                         <span class="filter-checkbox-label">
-                            ${escapeHtml(group.code)} - ${escapeHtml(group.name)}
-                            <span class="filter-checkbox-count">(${group.count})</span>
+                            ${escapeHtml(cat.name)}
+                            <span class="filter-checkbox-count">(${cat.count})</span>
                         </span>
                     </label>
                 `).join('');
@@ -122,10 +122,10 @@
         }
 
         // Clear existing filters that no longer apply
-        const validMinorGroups = new Set(minorGroups.keys());
-        filters.minorGroup.forEach(mg => {
-            if (!validMinorGroups.has(mg)) {
-                filters.minorGroup.delete(mg);
+        const validCategories = new Set(broadCategories.keys());
+        filters.minorGroup.forEach(cat => {
+            if (!validCategories.has(cat)) {
+                filters.minorGroup.delete(cat);
             }
         });
 
@@ -160,9 +160,9 @@
      */
     function applyFilters() {
         const filtered = allResults.filter(result => {
-            // Check minor group filter (OR logic - any checked group matches)
+            // Check broad category filter (OR logic - any checked category matches)
             if (filters.minorGroup.size > 0) {
-                if (!result.minor_group || !filters.minorGroup.has(result.minor_group)) {
+                if (!result.broad_category_name || !filters.minorGroup.has(result.broad_category_name)) {
                     return false;
                 }
             }

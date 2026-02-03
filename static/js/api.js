@@ -3,16 +3,27 @@ const api = {
     baseUrl: '/api',
 
     async search(query, searchType = 'Keyword') {
+        console.log('[DEBUG api.js] search called with:', query, searchType);
         const params = new URLSearchParams({
             q: query,
             type: searchType
         });
-        const response = await fetch(`${this.baseUrl}/search?${params}`);
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.detail || error.error || 'Search failed');
+        const url = `${this.baseUrl}/search?${params}`;
+        console.log('[DEBUG api.js] Fetching URL:', url);
+        try {
+            const response = await fetch(url);
+            console.log('[DEBUG api.js] Fetch response received, status:', response.status);
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.detail || error.error || 'Search failed');
+            }
+            const data = await response.json();
+            console.log('[DEBUG api.js] JSON parsed, count:', data?.count);
+            return data;
+        } catch (err) {
+            console.error('[DEBUG api.js] Fetch error:', err);
+            throw err;
         }
-        return response.json();
     },
 
     async getProfile(code) {

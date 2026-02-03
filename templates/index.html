@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JD Builder Lite</title>
+    <title>JobForge - Job Description Builder</title>
     <link rel="stylesheet" href="/static/css/main.css">
     <link rel="stylesheet" href="/static/css/accordion.css">
     <link rel="stylesheet" href="/static/css/sidebar.css">
@@ -14,35 +14,120 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
-    <header class="header">
-        <div class="container">
-            <h1>JD Builder Lite</h1>
+    <!-- GC CDTS Header (Official Format) -->
+    <header class="gc-header">
+        <div class="gc-header__top">
+            <div class="container gc-header__container">
+                <div class="gc-header__brand">
+                    <div class="gc-header__flag">
+                        <div class="gc-flag">
+                            <div class="gc-flag__red"></div>
+                            <div class="gc-flag__white"><span class="gc-flag__leaf">&#127809;</span></div>
+                            <div class="gc-flag__red"></div>
+                        </div>
+                    </div>
+                    <div class="gc-header__titles">
+                        <span class="gc-header__title-en">Government of Canada</span>
+                        <span class="gc-header__title-fr">Gouvernement du Canada</span>
+                    </div>
+                </div>
+                <div class="gc-header__search">
+                    <input type="search" placeholder="Search Canada.ca" class="gc-header__search-input">
+                    <button type="button" class="gc-header__search-btn" aria-label="Search">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                <div class="gc-header__lang">
+                    <a href="#" lang="fr" hreflang="fr">Français</a>
+                </div>
+            </div>
         </div>
-    </header>
-
-    <main class="container">
-        <!-- Search Section -->
-        <section class="search-container">
-            <div class="search-type-toggle" role="tablist">
-                <button role="tab" class="pill-btn active" data-search-type="Keyword" aria-selected="true">
-                    Keyword
-                </button>
-                <button role="tab" class="pill-btn" data-search-type="Code" aria-selected="false">
-                    Code
+        <nav class="gc-header__nav">
+            <div class="container">
+                <button class="gc-menu-btn" type="button">
+                    MENU <i class="fas fa-chevron-down"></i>
                 </button>
             </div>
-            <input
-                type="search"
-                id="search-input"
-                placeholder="Search job titles..."
-                aria-label="Search job titles"
-            >
-            <button id="search-button" type="button">Search</button>
-        </section>
+        </nav>
+    </header>
 
-        <p class="authoritative-sources">
-            Authoritative Sources: ESDC OaSIS 2025 NOC v1.0 / ONET (R) 27.2 Database (USDOL/ETA)
-        </p>
+    <!-- JD Building Progress Stepper (always visible) -->
+    <nav class="jd-stepper" id="jd-stepper" role="navigation" aria-label="Job Description building progress">
+        <div class="container">
+            <ol class="jd-stepper__steps">
+                <li class="jd-stepper__step jd-stepper__step--active" data-step="1">
+                    <button class="jd-stepper__btn" data-step="1">
+                        <span class="jd-stepper__number">1</span>
+                        <span class="jd-stepper__label">Search</span>
+                    </button>
+                </li>
+                <li class="jd-stepper__step" data-step="2">
+                    <button class="jd-stepper__btn" data-step="2" disabled>
+                        <span class="jd-stepper__number">2</span>
+                        <span class="jd-stepper__label">Select Profile</span>
+                    </button>
+                </li>
+                <li class="jd-stepper__step" data-step="3">
+                    <button class="jd-stepper__btn" data-step="3" disabled>
+                        <span class="jd-stepper__number">3</span>
+                        <span class="jd-stepper__label">Build JD</span>
+                    </button>
+                </li>
+                <li class="jd-stepper__step" data-step="4">
+                    <button class="jd-stepper__btn" data-step="4" disabled>
+                        <span class="jd-stepper__number">4</span>
+                        <span class="jd-stepper__label">Export</span>
+                    </button>
+                </li>
+            </ol>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- Welcome Section (OaSIS-style: image left, content right) -->
+        <section id="welcome-section" class="welcome-section">
+            <div class="welcome-layout">
+                <div class="welcome-image">
+                    <img src="/static/images/jobforge-logo.png" alt="JobForge Logo">
+                </div>
+                <div class="welcome-content">
+                    <h1 class="welcome-title">Welcome to JobForge</h1>
+                    <p class="welcome-subtitle">Job Description Builder</p>
+
+                    <!-- Search Container -->
+                    <div class="search-container">
+                        <div class="search-type-toggle" role="tablist">
+                            <button role="tab" class="pill-btn active" data-search-type="Keyword" aria-selected="true">
+                                Keyword
+                            </button>
+                            <button role="tab" class="pill-btn" data-search-type="Code" aria-selected="false">
+                                Code
+                            </button>
+                            <button role="tab" class="pill-btn disabled" data-search-type="JobFamily" aria-selected="false" disabled title="Coming soon">
+                                Job Family
+                            </button>
+                        </div>
+                        <div class="search-input-row">
+                            <input
+                                type="search"
+                                id="search-input"
+                                placeholder="Search job titles..."
+                                aria-label="Search job titles"
+                            >
+                            <button id="search-button" type="button">Search</button>
+                        </div>
+                    </div>
+
+                    <p class="authoritative-sources">
+                        Authoritative Sources: ESDC OaSIS 2025 NOC v1.0 (Published: 2024-11-15) / O*NET 27.2 Database (USDOL/ETA)
+                    </p>
+
+                    <p class="provenance-description">
+                        Job Description content is traceable to its sources, data stewards, and publishing dates for full medallion provenance that complies with the Directive on Automated Decision Making requirements.
+                    </p>
+                </div>
+            </div>
+        </section>
 
         <!-- Profile Header (blue banner, initially hidden) -->
         <section id="profile-header" class="profile-header blueBG hidden">
@@ -86,6 +171,10 @@
                 </button>
 
                 <span id="results-count" class="results-count"></span>
+                <span id="results-meta" class="results-meta">
+                    <span class="results-meta__date">Published: 2024-11-15</span>
+                    <span class="results-meta__steward">Data Steward: ESDC</span>
+                </span>
             </div>
 
             <!-- Filter Toggle (mobile) -->
@@ -117,7 +206,7 @@
                         <fieldset>
                             <legend>Filter by Feeder Group Mobility</legend>
                             <div id="filter-feeder-options" class="filter-options">
-                                <p class="filter-empty">Select a profile to enable mobility filtering</p>
+                                <p class="filter-empty">Click a result card to view profile and enable mobility filtering</p>
                             </div>
                         </fieldset>
                     </details>
@@ -128,7 +217,7 @@
                         <fieldset>
                             <legend>Filter by Career Progression</legend>
                             <div id="filter-progression-options" class="filter-options">
-                                <p class="filter-empty">Select a profile to enable progression filtering</p>
+                                <p class="filter-empty">Click a result card to view profile and enable progression filtering</p>
                             </div>
                         </fieldset>
                     </details>
@@ -142,6 +231,16 @@
                 <div class="results-main">
                     <div id="results-list" class="results-cards-container" role="list"></div>
                 </div>
+            </div>
+
+            <!-- Authoritative Sources Footer (same as welcome section) -->
+            <div class="results-footer">
+                <p class="authoritative-sources">
+                    Authoritative Sources: ESDC OaSIS 2025 NOC v1.0 (Published: 2024-11-15) / O*NET 27.2 Database (USDOL/ETA)
+                </p>
+                <p class="provenance-description">
+                    Job Description content is traceable to its sources, data stewards, and publishing dates for full medallion provenance that complies with the Directive on Automated Decision Making requirements.
+                </p>
             </div>
         </section>
 
@@ -184,6 +283,12 @@
                         Feeder Group Mobility & Career Progression
                     </button>
                 </li>
+                <li role="presentation">
+                    <button role="tab" id="tab-other" aria-selected="false"
+                            aria-controls="panel-other" tabindex="-1" class="tab-button">
+                        Other Job Information
+                    </button>
+                </li>
             </ul>
 
             <!-- Tab Panels -->
@@ -204,6 +309,9 @@
             </div>
             <div id="panel-career" role="tabpanel" aria-labelledby="tab-career" tabindex="0" class="tab-panel" hidden>
                 <!-- Career content -->
+            </div>
+            <div id="panel-other" role="tabpanel" aria-labelledby="tab-other" tabindex="0" class="tab-panel" hidden>
+                <!-- Other Job Information content -->
             </div>
         </nav>
 
@@ -241,6 +349,53 @@
 
             <div id="overview-error" class="overview-error hidden" role="alert"></div>
         </section>
+
+        <!-- Explore Other JobForge Agents (shown after search results) -->
+        <section id="explore-section" class="explore-section hidden">
+            <h2 class="explore-title">Explore other JobForge Agents</h2>
+            <div class="explore-grid">
+                <div class="explore-card" tabindex="0">
+                    <div class="explore-card__icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3 class="explore-card__title">WiQ Workforce Intelligence</h3>
+                    <p class="explore-card__desc">Identify, assess, and mitigate anticipated workforce shortages or surpluses (gaps) using Labor Market Intelligence integrated with internal workforce gaps for improved foresight that informs evidence-based interventions.</p>
+                    <span class="explore-card__badge">Coming Soon</span>
+                </div>
+                <div class="explore-card" tabindex="0">
+                    <div class="explore-card__icon">
+                        <i class="fas fa-shield-halved"></i>
+                    </div>
+                    <h3 class="explore-card__title">Data Governance</h3>
+                    <p class="explore-card__desc">Medallion provenance and Directive on Service and Digital compliance</p>
+                    <span class="explore-card__badge">Coming Soon</span>
+                </div>
+                <div class="explore-card" tabindex="0">
+                    <div class="explore-card__icon">
+                        <i class="fas fa-file-signature"></i>
+                    </div>
+                    <h3 class="explore-card__title">Job Notice Creator</h3>
+                    <p class="explore-card__desc">PSRS format automation for Statement of Merit Criteria</p>
+                    <span class="explore-card__badge">Coming Soon</span>
+                </div>
+                <div class="explore-card" tabindex="0">
+                    <div class="explore-card__icon">
+                        <i class="fas fa-tags"></i>
+                    </div>
+                    <h3 class="explore-card__title">Classification Helper</h3>
+                    <p class="explore-card__desc">Dry classification automation using GC job standards</p>
+                    <span class="explore-card__badge">Coming Soon</span>
+                </div>
+                <div class="explore-card" tabindex="0">
+                    <div class="explore-card__icon">
+                        <i class="fas fa-sitemap"></i>
+                    </div>
+                    <h3 class="explore-card__title">GC Job Architecture</h3>
+                    <p class="explore-card__desc">Government of Canada job titles and organizational structure</p>
+                    <span class="explore-card__badge">Coming Soon</span>
+                </div>
+            </div>
+        </section>
     </main>
 
     <!-- Collapsible Sidebar -->
@@ -258,9 +413,36 @@
 
     <!-- Sticky Action Bar (Phase 08-D: Single consolidated button) -->
     <footer id="action-bar" class="action-bar hidden">
-        <button id="create-btn" class="btn btn--primary" disabled>
+        <button id="create-btn" class="btn btn--primary" disabled onclick="handleCreateClick()">
             Create Job Description (select statements first)
         </button>
+    </footer>
+
+    <!-- Toast notification container -->
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+    <!-- GC CDTS Footer -->
+    <footer class="gc-footer">
+        <div class="gc-footer__main">
+            <div class="container">
+                <nav class="gc-footer__nav" aria-label="Footer navigation">
+                    <h2 class="visually-hidden">About this site</h2>
+                    <ul class="gc-footer__links">
+                        <li><a href="#">Contact us</a></li>
+                        <li><a href="#">Terms and conditions</a></li>
+                        <li><a href="#">Privacy</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="gc-footer__brand">
+            <div class="container">
+                <div class="gc-footer__wordmark">
+                    <span class="gc-wordmark__text">Canada</span>
+                    <span class="gc-wordmark__flag">&#127809;</span>
+                </div>
+            </div>
+        </div>
     </footer>
 
     <!-- SortableJS CDN for drag-and-drop reordering -->

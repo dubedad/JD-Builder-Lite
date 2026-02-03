@@ -315,6 +315,19 @@ details.jd-section[open] summary.jd-section__header {
 .statement__text {
     display: block;
     line-height: 1.5;
+    font-weight: 500;
+}
+
+.statement__description {
+    display: block;
+    font-size: 0.8125rem;
+    color: #555;
+    margin-top: 0.375rem;
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-left: 2px solid var(--gc-blue, #26374a);
+    border-radius: 0 4px 4px 0;
+    line-height: 1.4;
 }
 
 .statement__source {

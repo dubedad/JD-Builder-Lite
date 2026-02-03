@@ -190,19 +190,20 @@ class OASISParser:
 
         return results
 
-    def extract_noc_hierarchy(self, noc_code: str) -> NOCHierarchy:
-        """Extract NOC hierarchy from 5 or 7-digit code.
+    def extract_noc_hierarchy(self, noc_code: str, soup: BeautifulSoup = None) -> NOCHierarchy:
+        """Extract NOC hierarchy from code and optionally from HTML.
 
         NOC code structure: 72600 or 72600.01
           - 7 = Broad occupational category (first digit)
           - 2 = TEER category (second digit)
           - 72 = Major group (first 2 digits)
-          - 726 = Minor group (first 3 digits)
-          - 7260 = Unit group (first 4 digits)
-          - 72600 = Full 5-digit NOC (can have .XX suffix)
+          - 726 = Sub-major group (first 3 digits)
+          - 7260 = Minor group (first 4 digits)
+          - 72600 = Unit group (can have .XX suffix)
 
         Args:
             noc_code: NOC code string (e.g., "72600.01" or "21232")
+            soup: Optional BeautifulSoup object to extract names from HTML
 
         Returns:
             NOCHierarchy with all breakdown fields
@@ -216,6 +217,17 @@ class OASISParser:
         broad = int(base_code[0])
         teer = int(base_code[1])
 
+        # Extract names from HTML if available
+        major_name = None
+        minor_name = None  # sub-major in OASIS
+        unit_name = None   # minor in OASIS
+
+        if soup:
+            hierarchy_names = self._extract_hierarchy_names_from_html(soup)
+            major_name = hierarchy_names.get('major_group')
+            minor_name = hierarchy_names.get('sub_major_group')
+            unit_name = hierarchy_names.get('minor_group')
+
         return NOCHierarchy(
             noc_code=noc_code,
             broad_category=broad,
@@ -223,9 +235,47 @@ class OASISParser:
             teer_category=teer,
             teer_description=TEER_CATEGORIES.get(teer, "Unknown TEER category"),
             major_group=base_code[:2],
+            major_group_name=major_name,
             minor_group=base_code[:3],
-            unit_group=base_code[:4]
+            minor_group_name=minor_name,
+            unit_group=base_code[:4],
+            unit_group_name=unit_name
         )
+
+    def _extract_hierarchy_names_from_html(self, soup: BeautifulSoup) -> Dict[str, str]:
+        """Extract NOC hierarchy names from profile HTML.
+
+        The OASIS profile page has a hierarchy section with h4 headers followed by
+        anchor tags containing "CODE – NAME" format.
+
+        Returns:
+            Dict with keys: major_group, sub_major_group, minor_group, unit_group
+        """
+        result = {}
+
+        # Map h4 text to our result keys
+        header_map = {
+            'Major group': 'major_group',
+            'Sub-major group': 'sub_major_group',
+            'Minor group': 'minor_group',
+            'Unit group': 'unit_group'
+        }
+
+        for header_text, key in header_map.items():
+            # Find h4 with this text
+            h4 = soup.find('h4', string=lambda s: s and header_text.lower() in s.lower())
+            if h4:
+                # Find the next anchor tag after this h4
+                next_elem = h4.find_next('a', class_='displayBlock')
+                if next_elem:
+                    # Extract name from "CODE – NAME" format
+                    text = next_elem.get_text(strip=True)
+                    # Split on " – " (en-dash) or " - " (hyphen)
+                    parts = re.split(r'\s*[–-]\s*', text, maxsplit=1)
+                    if len(parts) >= 2:
+                        result[key] = parts[1]  # The name part
+
+        return result
 
     def parse_profile(self, html: str, code: str) -> Dict[str, Any]:
         """Parse profile HTML into structured data dict.
@@ -262,7 +312,7 @@ class OASISParser:
         return {
             'noc_code': code,
             'title': self._extract_profile_title(soup),
-            'noc_hierarchy': self.extract_noc_hierarchy(code),
+            'noc_hierarchy': self.extract_noc_hierarchy(code, soup),
             'main_duties': self._extract_section_list(soup, 'Main duties'),
             'work_activities': self._extract_rating_items_with_levels(soup, 'Work Activities'),
             'skills': self._extract_rating_items_with_levels(soup, 'Skills'),

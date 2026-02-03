@@ -22,6 +22,14 @@ CLASSIFICATION_PATTERNS = {
     "effort": ["effort"]
 }
 
+# Source attribute display labels (for frontend filtering)
+SOURCE_ATTRIBUTE_LABELS = {
+    "skills": "Skills",
+    "abilities": "Abilities",
+    "knowledge": "Knowledge",
+    "work_activities": "Work Activities",  # Must match frontend filter
+}
+
 
 class EnrichmentService:
     """Service for enriching parsed statements with CSV data and classification."""
@@ -141,10 +149,12 @@ class EnrichmentService:
                     dimension=scale_data["dimension"]
                 )
 
-        # Create enriched statement
+        # Create enriched statement with proper label
+        source_label = SOURCE_ATTRIBUTE_LABELS.get(category, category.title())
+
         return EnrichedNOCStatement(
             text=text,
-            source_attribute=category.title(),
+            source_attribute=source_label,
             source_url=source_url,
             element_id=element_id,
             description=description,
