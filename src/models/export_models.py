@@ -31,14 +31,27 @@ def parse_flexible_datetime(value):
     raise ValueError(f"Cannot parse datetime: {value}")
 
 
+class ProficiencyData(BaseModel):
+    """Proficiency/importance level for a statement."""
+    level: Optional[int] = None  # 1-5 scale
+    max: int = 5
+    label: Optional[str] = None  # e.g., "High Level"
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class SelectionMetadata(BaseModel):
     """Manager's selection with audit trail data."""
     id: str  # e.g., "key_activities-0"
     text: str
     jd_element: str  # "key_activities", "skills", etc.
     source_attribute: str  # NOC attribute name (e.g., "Main Duties")
-    source_url: str
+    source_url: Optional[str] = None
     selected_at: datetime  # When manager selected (for Directive 6.2.7)
+    description: Optional[str] = None  # Element description from guide.csv
+    proficiency: Optional[ProficiencyData] = None  # Importance/proficiency level
+    publication_date: Optional[str] = None  # OaSIS table publication date (e.g., "2025-10-30")
+    source_table_url: Optional[str] = None  # URL to OaSIS table on open.canada.ca
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -91,11 +104,23 @@ class ExportRequest(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class StatementExport(BaseModel):
+    """Individual statement for export with full metadata."""
+    text: str
+    source_attribute: str  # e.g., "Main Duties", "Skills"
+    description: Optional[str] = None  # Element description from guide.csv
+    proficiency: Optional[ProficiencyData] = None  # Importance/proficiency level
+    publication_date: Optional[str] = None  # OaSIS table publication date
+    source_table_url: Optional[str] = None  # URL to OaSIS table on open.canada.ca
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class JDElementExport(BaseModel):
     """JD Element section for export."""
     name: str  # Display name (e.g., "Key Activities")
     key: str  # Internal key (e.g., "key_activities")
-    statements: List[str]
+    statements: List[StatementExport]  # Structured statements with metadata
 
     model_config = ConfigDict(from_attributes=True)
 

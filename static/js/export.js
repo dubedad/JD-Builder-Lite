@@ -66,9 +66,12 @@ const exportModule = {
             text: stmt.text,
             jd_element: sectionId,
             source_attribute: stmt.source_attribute,
-            source_url: stmt.source_url,
+            source_url: stmt.source_url || null,
             // Use stored timestamp or current time
-            selected_at: state.selectionTimestamps?.[stmtId] || now
+            selected_at: state.selectionTimestamps?.[stmtId] || now,
+            // Include description and proficiency for export display
+            description: stmt.description || null,
+            proficiency: stmt.proficiency || null
           });
         }
       });
@@ -112,8 +115,11 @@ const exportModule = {
    * Navigate to preview page
    */
   async showPreview() {
+    console.log('[DEBUG export.js] showPreview called');
     try {
+      console.log('[DEBUG export.js] Building export request...');
       const exportData = this.buildExportRequest();
+      console.log('[DEBUG export.js] Export data built:', exportData);
 
       // Store for downloads
       this.currentExportData = exportData;
@@ -164,7 +170,8 @@ const exportModule = {
       }
 
     } catch (error) {
-      console.error('Preview error:', error);
+      console.error('[DEBUG export.js] Preview error:', error);
+      console.error('[DEBUG export.js] Error stack:', error.stack);
       showToast('Failed to generate preview: ' + error.message, 'error');
     }
   },
@@ -358,13 +365,44 @@ const exportModule = {
 window.exportModule = exportModule;
 
 /**
+ * Global click handler for Create button (backup for event listener)
+ */
+function handleCreateClick() {
+  console.log('[DEBUG export.js] handleCreateClick called via onclick');
+  const createBtn = document.getElementById('create-btn');
+  if (createBtn && createBtn.disabled) {
+    console.log('[DEBUG export.js] Button is disabled, returning');
+    alert('Please select some statements first by checking the checkboxes.');
+    return;
+  }
+  console.log('[DEBUG export.js] Calling showPreview...');
+  try {
+    exportModule.showPreview();
+  } catch (error) {
+    console.error('[DEBUG export.js] Error in showPreview:', error);
+    alert('Error: ' + error.message);
+  }
+}
+
+// Make it globally available
+window.handleCreateClick = handleCreateClick;
+
+/**
  * Initialize export functionality
  */
 function initExport() {
+  console.log('[DEBUG export.js] initExport called');
   // Listen for Create button click
   const createBtn = document.getElementById('create-btn');
+  console.log('[DEBUG export.js] createBtn found:', !!createBtn);
   if (createBtn) {
-    createBtn.addEventListener('click', () => exportModule.showPreview());
+    createBtn.addEventListener('click', () => {
+      console.log('[DEBUG export.js] Create button clicked via addEventListener!');
+      console.log('[DEBUG export.js] Button disabled:', createBtn.disabled);
+      if (!createBtn.disabled) {
+        exportModule.showPreview();
+      }
+    });
   }
 }
 

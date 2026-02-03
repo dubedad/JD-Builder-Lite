@@ -1,11 +1,17 @@
 // Selection handling with state updates
 const initSelection = () => {
-    // Event delegation for checkbox changes
-    document.querySelector('.jd-sections').addEventListener('change', (e) => {
+    console.log('[DEBUG selection.js] initSelection called');
+
+    // Event delegation for checkbox changes - use document-level delegation
+    // to capture checkboxes in both old accordion (.jd-sections) AND new tab panels
+    document.addEventListener('change', (e) => {
         if (e.target.classList.contains('statement__checkbox')) {
+            console.log('[DEBUG selection.js] Checkbox changed:', e.target.checked, 'section:', e.target.dataset.section);
             handleSelection(e.target);
         }
     });
+
+    console.log('[DEBUG selection.js] Document-level change listener attached');
 
     // Subscribe to state changes for UI updates
     store.subscribe((state) => {
@@ -15,6 +21,9 @@ const initSelection = () => {
         updateSidebar(state);
         updateActionBar(state);
     });
+
+    // Trigger initial state update for action bar (in case there are persisted selections)
+    updateActionBar(store.getState());
 };
 
 const handleSelection = (checkbox) => {
@@ -61,17 +70,22 @@ const updateActionBar = (state) => {
     const totalSelections = Object.values(state.selections)
         .reduce((sum, arr) => sum + arr.length, 0);
 
+    console.log('[DEBUG selection.js] updateActionBar called, totalSelections:', totalSelections);
+
     // Update button text and state based on selection count
     if (totalSelections > 0) {
         actionBar.classList.remove('hidden');
         createBtn.disabled = false;
+        createBtn.classList.remove('btn--disabled');
         createBtn.textContent = `Create Job Description (${totalSelections} selected)`;
     } else {
         actionBar.classList.remove('hidden'); // Keep visible but disabled
         createBtn.disabled = true;
+        createBtn.classList.add('btn--disabled');
         createBtn.textContent = 'Create Job Description (select statements first)';
     }
 };
 
 // Export
 window.initSelection = initSelection;
+window.updateActionBar = updateActionBar;

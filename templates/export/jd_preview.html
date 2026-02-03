@@ -81,7 +81,21 @@
         <h2>{{ element.name }}</h2>
         <ul class="jd-statements">
           {% for statement in element.statements %}
-          <li>{{ statement }}</li>
+          <li class="jd-statement">
+            <div class="jd-statement__main">
+              <span class="jd-statement__text">{{ statement.text }}</span>
+              {% if statement.proficiency and statement.proficiency.level %}
+              <span class="jd-statement__level" title="Importance Level {{ statement.proficiency.level }}/{{ statement.proficiency.max }}">
+                {% for i in range(statement.proficiency.level) %}●{% endfor %}{% for i in range(statement.proficiency.max - statement.proficiency.level) %}○{% endfor %}
+                <span class="jd-statement__level-label">L{{ statement.proficiency.level }}</span>
+              </span>
+              {% endif %}
+            </div>
+            {% if statement.description %}
+            <p class="jd-statement__description">{{ statement.description }}</p>
+            {% endif %}
+            <span class="jd-statement__source">Source: {{ statement.source_attribute }}</span>
+          </li>
           {% endfor %}
         </ul>
       </section>
@@ -131,31 +145,55 @@
           </table>
 
           {% elif section.section_id == "6.2.7" %}
-          <!-- Manager Decisions -->
+          <!-- Manager Decisions with Provenance -->
           <p>{{ section.content.description }}</p>
           <p><strong>Total selections:</strong> {{ section.content.total_selections }}</p>
+          <p><strong>OaSIS Dataset:</strong> <a href="{{ section.content.oasis_dataset_url }}" target="_blank" rel="noopener">Open Canada Data Portal</a></p>
 
           {% if section.content.selections %}
-          <table class="compliance-table selections-table">
+          <table class="compliance-table selections-table provenance-table">
             <thead>
               <tr>
-                <th>JD Element</th>
-                <th>Statement</th>
+                <th>Job Factor</th>
+                <th>Job Description Statement</th>
                 <th>Source</th>
-                <th>Selected At</th>
+                <th>Publication Date</th>
+                <th>URL</th>
               </tr>
             </thead>
             <tbody>
               {% for sel in section.content.selections %}
               <tr>
                 <td>{{ sel.jd_element }}</td>
-                <td>{{ sel.statement[:150] }}{% if sel.statement|length > 150 %}...{% endif %}</td>
+                <td class="statement-cell">{{ sel.statement[:120] }}{% if sel.statement|length > 120 %}...{% endif %}</td>
                 <td>{{ sel.source_attribute }}</td>
-                <td>{{ sel.selected_at[:19] }}</td>
+                <td>{{ sel.publication_date }}</td>
+                <td><a href="{{ sel.source_url }}" target="_blank" rel="noopener" title="View source table on Open Canada">View</a></td>
               </tr>
               {% endfor %}
             </tbody>
           </table>
+
+          <!-- Selection Audit Trail (separate table for compliance) -->
+          <details class="audit-details">
+            <summary>Selection Audit Trail</summary>
+            <table class="compliance-table audit-table">
+              <thead>
+                <tr>
+                  <th>Statement (excerpt)</th>
+                  <th>Selected At (UTC)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for sel in section.content.selections %}
+                <tr>
+                  <td>{{ sel.statement[:80] }}{% if sel.statement|length > 80 %}...{% endif %}</td>
+                  <td>{{ sel.selected_at[:19] }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </details>
           {% endif %}
 
           {% elif section.section_id == "6.3.5" %}

@@ -120,13 +120,54 @@ body {
 }
 
 .jd-statements {
-  list-style-type: disc;
-  margin-left: 1.5em;
+  list-style-type: none;
+  margin-left: 0;
+  padding-left: 0;
 }
 
-.jd-statements li {
-  margin-bottom: 0.5em;
+.jd-statements li.jd-statement {
+  margin-bottom: 1em;
+  padding: 0.75em;
+  background: #fafafa;
+  border-left: 2pt solid #26374a;
   page-break-inside: avoid;
+}
+
+.jd-statement__main {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5em;
+}
+
+.jd-statement__text {
+  flex: 1;
+  line-height: 1.5;
+}
+
+.jd-statement__level {
+  flex-shrink: 0;
+  font-size: 9pt;
+  color: #26374a;
+  font-family: monospace;
+  white-space: nowrap;
+}
+
+.jd-statement__description {
+  margin: 0.5em 0 0.25em 0;
+  padding: 0.25em 0.5em;
+  font-size: 10pt;
+  line-height: 1.4;
+  color: #666666;
+  background: #fff;
+  font-style: italic;
+}
+
+.jd-statement__source {
+  display: block;
+  margin-top: 0.25em;
+  font-size: 8pt;
+  color: #888888;
 }
 
 /* Overview text */
@@ -210,8 +251,44 @@ body {
 }
 
 .selections-table .statement-cell {
-  max-width: 200pt;
+  max-width: 150pt;
   word-wrap: break-word;
+}
+
+/* Provenance table styles */
+.provenance-table {
+  font-size: 8pt;
+}
+
+.provenance-table th {
+  background-color: #26374a;
+  color: white;
+  white-space: nowrap;
+  padding: 0.4em;
+}
+
+.provenance-table td {
+  padding: 0.3em;
+}
+
+.provenance-table .url-cell {
+  font-size: 7pt;
+  word-break: break-all;
+  max-width: 100pt;
+}
+
+/* Audit table for selection timestamps */
+.audit-note {
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+}
+
+.audit-table {
+  font-size: 8pt;
+}
+
+.audit-table th {
+  background-color: #f5f5f5;
 }
 
 /* Avoid breaks */

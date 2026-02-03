@@ -3,10 +3,13 @@
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 from src.models.export_models import (
-    ExportRequest, ExportData, JDElementExport,
-    SelectionMetadata, ComplianceSection
+    ExportRequest, ExportData, JDElementExport, StatementExport,
+    SelectionMetadata, ComplianceSection, ProficiencyData
 )
 from src.services.annex_builder import build_annex_data
+from src.utils.oasis_provenance import (
+    get_publication_date, get_source_table_url, OASIS_DATASET_URL
+)
 
 
 # JD Element display names
@@ -34,12 +37,22 @@ def build_export_data(request: ExportRequest, raw_noc_data: Optional[Dict[str, A
         request: ExportRequest with selections and metadata
         raw_noc_data: Optional raw NOC profile data for Annex generation
     """
-    # Group selections by JD element
-    selections_by_element: Dict[str, List[str]] = {}
+    # Group selections by JD element (with full metadata)
+    selections_by_element: Dict[str, List[StatementExport]] = {}
     for selection in request.selections:
         if selection.jd_element not in selections_by_element:
             selections_by_element[selection.jd_element] = []
-        selections_by_element[selection.jd_element].append(selection.text)
+
+        # Build StatementExport with description, proficiency, and provenance
+        stmt_export = StatementExport(
+            text=selection.text,
+            source_attribute=selection.source_attribute,
+            description=selection.description,
+            proficiency=selection.proficiency,
+            publication_date=selection.publication_date or get_publication_date(selection.source_attribute),
+            source_table_url=selection.source_table_url or get_source_table_url(selection.source_attribute)
+        )
+        selections_by_element[selection.jd_element].append(stmt_export)
 
     # Build JD element sections in order
     jd_elements = []
@@ -103,13 +116,19 @@ def build_compliance_sections(request: ExportRequest) -> List[ComplianceSection]
         }
     ))
 
-    # Section 6.2.7: Manager Decisions
+    # Section 6.2.7: Manager Decisions with full provenance
     selections_data = []
     for sel in request.selections:
+        # Get provenance data for this selection
+        pub_date = sel.publication_date or get_publication_date(sel.source_attribute)
+        source_url = sel.source_table_url or get_source_table_url(sel.source_attribute)
+
         selections_data.append({
             "jd_element": JD_ELEMENT_LABELS.get(sel.jd_element, sel.jd_element),
             "statement": sel.text,
             "source_attribute": sel.source_attribute,
+            "publication_date": pub_date,
+            "source_url": source_url,
             "selected_at": sel.selected_at.isoformat()
         })
 
@@ -119,9 +138,10 @@ def build_compliance_sections(request: ExportRequest) -> List[ComplianceSection]
         content={
             "description": "This job description was created using the JD Builder Lite tool. "
                           "All content selections were made by the hiring manager from "
-                          "authoritative NOC data.",
+                          "authoritative NOC data published on Open Canada.",
             "total_selections": len(request.selections),
-            "selections": selections_data
+            "selections": selections_data,
+            "oasis_dataset_url": OASIS_DATASET_URL
         }
     ))
 
