@@ -43,14 +43,15 @@ Plans:
 **Depends on**: Nothing (can parallel Phase 9)
 **Requirements**: STYLE-01, STYLE-02, STYLE-04
 **Success Criteria** (what must be TRUE):
-  1. Example JD corpus analyzed (`Examples of Job Descriptions/` - 18 files)
+  1. Example JD corpus analyzed (`Examples of Job Descriptions/` - 42 files, ~20 unique)
   2. Style patterns documented in `.planning/` (sentence structure, vocabulary patterns, section formatting)
   3. Few-shot examples created from corpus for generation prompts
   4. Key style rules implemented as code constants in `src/` for runtime prompt construction
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 10-01: Corpus analysis and style documentation
+- [ ] 10-01-PLAN.md - Corpus analysis and style documentation
+- [ ] 10-02-PLAN.md - Style constants and few-shot examples as code
 
 ### Phase 11: Provenance Architecture
 **Goal**: Audit trail schema supports styled content with differentiated AI disclosure
@@ -70,7 +71,7 @@ Plans:
 
 ### Phase 12: Constrained Generation
 **Goal**: System generates styled sentences using few-shot prompting with vocabulary validation
-**Depends on**: Phase 9 (vocabulary), Phase 11 (provenance)
+**Depends on**: Phase 9 (vocabulary), Phase 10 (style constants), Phase 11 (provenance)
 **Requirements**: GEN-01, GEN-02, GEN-03, GEN-04, GEN-05, GEN-06, GEN-07, GEN-08
 **Success Criteria** (what must be TRUE):
   1. System generates styled variants for selected NOC statements using few-shot prompting
@@ -105,17 +106,17 @@ Plans:
 
 **Execution Order:**
 Phases execute in numeric order: 9 -> 10 -> 11 -> 12 -> 13
-Note: Phases 9, 10, 11 can execute in parallel; Phase 12 requires 9 and 11 complete.
+Note: Phases 9, 10, 11 can execute in parallel; Phase 12 requires 9, 10, and 11 complete.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 9. Vocabulary Foundation | 0/1 | Planned | - |
-| 10. Style Analysis Pipeline | 0/1 | Not started | - |
+| 10. Style Analysis Pipeline | 0/2 | Planned | - |
 | 11. Provenance Architecture | 0/2 | Not started | - |
 | 12. Constrained Generation | 0/3 | Not started | - |
 | 13. Export Enhancement | 0/1 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-03*
-*Last updated: 2026-02-03 - Phase 10 scope revised (no user upload, development-time style learning)*
+*Last updated: 2026-02-03 - Phase 10 planned (2 plans in 2 waves)*
 *Milestone: v3.0 Style-Enhanced Writing*
