@@ -63,11 +63,11 @@ Plans:
   3. Original NOC statements are always preserved alongside styled variants
   4. Export includes vocabulary audit section showing which NOC terms were used
   5. Export includes generation metadata (confidence scores, retry counts, vocabulary coverage)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 11-01: Extended provenance schema
-- [ ] 11-02: AI disclosure differentiation
+- [ ] 11-01-PLAN.md - Foundation provenance models (StyleContentType, VocabularyAudit, ConfidenceLevel)
+- [ ] 11-02-PLAN.md - Styled content models (StyledStatement, GenerationAttempt, StyleVersionHistory)
 
 ### Phase 12: Constrained Generation
 **Goal**: System generates styled sentences using few-shot prompting with vocabulary validation
@@ -118,5 +118,5 @@ Note: Phases 9, 10, 11 can execute in parallel; Phase 12 requires 9, 10, and 11 
 
 ---
 *Roadmap created: 2026-02-03*
-*Last updated: 2026-02-03 - Phase 10 complete*
+*Last updated: 2026-02-03 - Phase 11 planned*
 *Milestone: v3.0 Style-Enhanced Writing*
