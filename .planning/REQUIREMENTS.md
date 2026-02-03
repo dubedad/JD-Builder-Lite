@@ -27,11 +27,11 @@ Requirements for style-enhanced JD generation with vocabulary constraints.
 
 ### Compliance & Provenance
 
-- [ ] **PROV-01**: Audit trail extends to track styled output linked to original NOC statement ID
-- [ ] **PROV-02**: Export includes differentiated AI disclosure ("AI-styled" vs "AI-generated")
-- [ ] **PROV-03**: Original NOC statements always preserved in export alongside styled variants
-- [ ] **PROV-04**: Export includes vocabulary audit section showing NOC terms used
-- [ ] **PROV-05**: Export includes generation metadata (confidence scores, retry counts, vocabulary coverage)
+- [x] **PROV-01**: Audit trail extends to track styled output linked to original NOC statement ID
+- [x] **PROV-02**: Export includes differentiated AI disclosure ("AI-styled" vs "AI-generated")
+- [x] **PROV-03**: Original NOC statements always preserved in export alongside styled variants
+- [x] **PROV-04**: Export includes vocabulary audit section showing NOC terms used
+- [x] **PROV-05**: Export includes generation metadata (confidence scores, retry counts, vocabulary coverage)
 
 ### Export Enhancement
 
@@ -79,11 +79,11 @@ Requirements for style-enhanced JD generation with vocabulary constraints.
 | GEN-06 | Phase 12 | Pending |
 | GEN-07 | Phase 12 | Pending |
 | GEN-08 | Phase 12 | Pending |
-| PROV-01 | Phase 11 | Pending |
-| PROV-02 | Phase 11 | Pending |
-| PROV-03 | Phase 11 | Pending |
-| PROV-04 | Phase 11 | Pending |
-| PROV-05 | Phase 11 | Pending |
+| PROV-01 | Phase 11 | Complete |
+| PROV-02 | Phase 11 | Complete |
+| PROV-03 | Phase 11 | Complete |
+| PROV-04 | Phase 11 | Complete |
+| PROV-05 | Phase 11 | Complete |
 | EXP-01 | Phase 13 | Pending |
 | EXP-02 | Phase 13 | Pending |
 | EXP-03 | Phase 13 | Pending |
