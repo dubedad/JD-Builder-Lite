@@ -82,12 +82,12 @@ Plans:
   6. System shows confidence score for each styled sentence
   7. User can regenerate individual styled sentences
   8. System verifies semantic equivalence is preserved during styling
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 12-01: Few-shot prompt construction
-- [ ] 12-02: Vocabulary validation and retry logic
-- [ ] 12-03: Dual-format UI and per-statement controls
+- [ ] 12-01-PLAN.md - Semantic checker + Generation service with retry logic
+- [ ] 12-02-PLAN.md - API endpoint for styled statement generation
+- [ ] 12-03-PLAN.md - Dual-format UI with per-statement controls
 
 ### Phase 13: Export Enhancement
 **Goal**: PDF/DOCX exports include styled statements with full compliance metadata
@@ -113,10 +113,10 @@ Note: Phases 9, 10, 11 can execute in parallel; Phase 12 requires 9, 10, and 11 
 | 9. Vocabulary Foundation | 1/1 | Complete | 2026-02-03 |
 | 10. Style Analysis Pipeline | 2/2 | Complete | 2026-02-03 |
 | 11. Provenance Architecture | 2/2 | Complete | 2026-02-03 |
-| 12. Constrained Generation | 0/3 | Not started | - |
+| 12. Constrained Generation | 0/3 | Planned | - |
 | 13. Export Enhancement | 0/1 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-03*
-*Last updated: 2026-02-03 - Phase 11 complete*
+*Last updated: 2026-02-03 - Phase 12 planned*
 *Milestone: v3.0 Style-Enhanced Writing*
