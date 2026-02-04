@@ -10,12 +10,12 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Milestone: v4.0 Occupational Group Allocation
-Phase: 14 of 17 (Data Layer) - COMPLETE
-Plan: 3 of 3 complete
-Status: Phase 14 complete, ready for Phase 15
-Last activity: 2026-02-04 - Completed 14-03-PLAN.md (ETL orchestration and CLI)
+Phase: 15 of 17 (Matching Engine)
+Plan: 1 of 3 complete
+Status: In progress
+Last activity: 2026-02-04 - Completed 15-01-PLAN.md (Data contracts and access layer)
 
-Progress: [##         ] 25% (3/12 plans in v4.0)
+Progress: [###        ] 33% (4/12 plans in v4.0)
 
 ## Milestone History
 
@@ -31,9 +31,9 @@ Progress: [##         ] 25% (3/12 plans in v4.0)
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 14 (v3.0 + v4.0)
-- Average duration: 8min
-- Total execution time: ~3h 17min
+- Total plans completed: 15 (v3.0 + v4.0)
+- Average duration: 8.3min
+- Total execution time: ~3h 28min
 
 **By Phase (v3.0):**
 
@@ -52,6 +52,7 @@ Progress: [##         ] 25% (3/12 plans in v4.0)
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 14-data-layer | 3/3 | 26min | 8.7min |
+| 15-matching-engine | 1/3 | 11min | 11min |
 
 ## Accumulated Context
 
@@ -72,6 +73,9 @@ Recent decisions affecting current work:
 - [14-03]: Validation accepts alphanumeric codes (OM2, PR2, SRC, etc.)
 - [14-03]: Groups with empty definitions skipped with warning (PM/MCO)
 - [14-03]: Definition-centric merge (definitions have content, table has URLs)
+- [15-01]: Models use simple types for OpenAI structured output compatibility
+- [15-01]: Repository loads statements eagerly (single query pattern)
+- [15-01]: Confidence breakdown exposed as dict for transparency
 
 ### Pending Todos
 
@@ -84,9 +88,9 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-04
-Stopped at: Completed 14-03-PLAN.md (Phase 14 complete)
+Stopped at: Completed 15-01-PLAN.md
 Resume file: None
-Next: Begin Phase 15 (Matching Engine)
+Next: Continue Phase 15 (15-02: Semantic matching implementation)
 
 ---
-*Last updated: 2026-02-04 - 14-03 complete, Phase 14 complete*
+*Last updated: 2026-02-04 - 15-01 complete*
