@@ -19,7 +19,7 @@ v4.0 implements Classification Step 1: Occupational Group Allocation. The milest
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 14: Data Layer** - Scrape DIM_OCCUPATIONAL table from TBS with definitions, inclusions, exclusions
-- [ ] **Phase 15: Matching Engine** - OccupationalGroupAllocator with holistic definition matching
+- [x] **Phase 15: Matching Engine** - OccupationalGroupAllocator with holistic definition matching
 - [ ] **Phase 16: API Layer** - POST /api/allocate endpoint with provenance response
 - [ ] **Phase 17: UI Layer** - Recommendations display with rationale and evidence links
 
@@ -55,11 +55,11 @@ Plans:
   7. System handles edge cases: AP vs TC disambiguation, multiple groups plausible, invalid combination
 **Plans**: 5 plans
 Plans:
-- [ ] 15-01-PLAN.md - Pydantic output models and repository extensions for statements
-- [ ] 15-02-PLAN.md - Semantic shortlisting with sentence-transformers and labels boost
-- [ ] 15-03-PLAN.md - Multi-factor confidence scoring and evidence linking
-- [ ] 15-04-PLAN.md - LLM classifier with structured outputs and instructor library
-- [ ] 15-05-PLAN.md - Main allocator orchestration and edge case handling
+- [x] 15-01-PLAN.md - Pydantic output models and repository extensions for statements
+- [x] 15-02-PLAN.md - Semantic shortlisting with sentence-transformers and labels boost
+- [x] 15-03-PLAN.md - Multi-factor confidence scoring and evidence linking
+- [x] 15-04-PLAN.md - LLM classifier with structured outputs and instructor library
+- [x] 15-05-PLAN.md - Main allocator orchestration and edge case handling
 
 ### Phase 16: API Layer
 **Goal**: Allocation endpoint returns recommendations with full provenance map
@@ -96,11 +96,11 @@ Note: Phase 15 requires Phase 14; Phases 16-17 are sequential.
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 14. Data Layer | 3/3 | Complete | 2026-02-04 |
-| 15. Matching Engine | 0/5 | Planned | - |
+| 15. Matching Engine | 5/5 | Complete | 2026-02-04 |
 | 16. API Layer | 0/2 | Planned | - |
 | 17. UI Layer | 0/TBD | Pending | - |
 
 ---
 *Roadmap created: 2026-02-04*
-*Last updated: 2026-02-04 - Phase 16 planned (2 plans in 2 waves)*
+*Last updated: 2026-02-04 - Phase 15 complete, ready for Phase 16*
 *Milestone: v4.0 Occupational Group Allocation*
