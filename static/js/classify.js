@@ -495,9 +495,15 @@ const classifyModule = (function() {
      * @returns {string} - HTML string
      */
     function renderProvenanceSection(provenance, groupCode, fallbackUrl) {
-        const url = provenance?.url || fallbackUrl;
+        let url = provenance?.url || fallbackUrl;
         if (!url) {
             return '';
+        }
+
+        // Add anchor to TBS definitions page for direct navigation to group
+        // TBS page uses lowercase group codes as anchors (e.g., #as, #cm)
+        if (url.includes('definitions.html') && groupCode && !url.includes('#')) {
+            url = `${url}#${groupCode.toLowerCase()}`;
         }
 
         const sourceType = provenance?.source_type || 'TBS Occupational Group Definition';
