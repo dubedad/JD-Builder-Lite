@@ -27,10 +27,10 @@ OccupationalGroupAllocator that compares job descriptions against TBS occupation
 - **Title-duty mismatch:** Use duties for matching, but surface title mismatch as observation (e.g., "Clerk" title with PM-like duties)
 
 ### Confidence scoring
-- **High confidence (0.85+):** Multi-factor match — definition alignment + inclusions + no exclusion conflicts + labels.csv support
+- **High confidence (0.85+):** Multi-factor match — definition alignment + no exclusion conflicts + labels.csv support
 - **Relative scoring:** Show both absolute confidence AND margin indicator showing gap to next best group
 - **Match context:** Include contextual indicator — "dominant match" vs "competitive field" vs "only viable option"
-- **Component breakdown:** Yes — show transparent breakdown (definition fit, inclusion support, exclusion status)
+- **Component breakdown:** Yes — show transparent breakdown (definition fit, semantic similarity, exclusion status)
 - **Low confidence warning:** Explicit warning for recommendations scoring 0.3-0.4 (borderline inclusion threshold)
 - **Calibration:** Aspirational human alignment — aim for scores reflecting how classifiers would assess, but don't formally calibrate in v4.0
 
@@ -71,7 +71,11 @@ OccupationalGroupAllocator that compares job descriptions against TBS occupation
 <deferred>
 ## Deferred Ideas
 
-None — discussion stayed within phase scope
+### MATCH-06: Benchmark position comparison
+**Requirement:** "Perform comparative checks with benchmark positions when doubt exists"
+**Deferred reason:** Phase 14 data layer does not include benchmark position data. The TBS occupational group definitions scraped in Phase 14 contain group definitions, inclusions, and exclusions, but not benchmark/exemplar positions for each group.
+**Future work:** If benchmark position data becomes available (e.g., from TBS position classification examples, sample JDs per group, or historical classification decisions), implement comparative matching when borderline_flag is True.
+**Mitigation in v4.0:** The borderline_flag already triggers "needs expert review" warning, directing users to consult human classifiers for ambiguous cases where benchmark comparison would have helped.
 
 </deferred>
 
