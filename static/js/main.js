@@ -109,6 +109,16 @@ document.addEventListener('DOMContentLoaded', function() {
         renderSearchResults(filteredResults);
     });
 
+    // Auto-load profile if one was previously loaded (for page reload/back navigation)
+    const savedState = store.getState();
+    if (savedState.currentProfileCode) {
+        console.log('[DEBUG main.js] Found saved profile code, auto-loading:', savedState.currentProfileCode);
+        // Defer to allow other initializations to complete
+        setTimeout(() => {
+            handleProfileClick(savedState.currentProfileCode);
+        }, 100);
+    }
+
     // Search type toggle state
     let currentSearchType = 'Keyword';
 

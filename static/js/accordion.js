@@ -627,7 +627,14 @@ const renderTabContent = (profile) => {
 
         let effortHtml = `
             <div class="tab-panel__section">
-                <h3 class="tab-panel__section-title">Effort</h3>
+                <div class="tab-panel__section-header">
+                    <h3 class="tab-panel__section-title">Effort</h3>
+                    <button class="style-selected-btn"
+                            onclick="styleSelectedStatements('effort')"
+                            title="Generate styled versions of selected statements">
+                        <i class="fas fa-magic"></i> Style Selected
+                    </button>
+                </div>
                 <p class="tab-panel__section-definition">${escapeHtml(workContextDef)}</p>
         `;
 
@@ -677,7 +684,14 @@ const renderTabContent = (profile) => {
 
         let respHtml = `
             <div class="tab-panel__section">
-                <h3 class="tab-panel__section-title">Responsibility</h3>
+                <div class="tab-panel__section-header">
+                    <h3 class="tab-panel__section-title">Responsibility</h3>
+                    <button class="style-selected-btn"
+                            onclick="styleSelectedStatements('responsibility')"
+                            title="Generate styled versions of selected statements">
+                        <i class="fas fa-magic"></i> Style Selected
+                    </button>
+                </div>
                 <p class="tab-panel__section-definition">${escapeHtml(workContextDef)}</p>
         `;
 
