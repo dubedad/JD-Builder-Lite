@@ -1836,3 +1836,162 @@ body.sidebar-open .action-bar {
     padding: 0.25rem;
     margin-left: auto;
 }
+
+/* ==========================================================================
+   Styled Statement Display (Phase 12)
+   ========================================================================== */
+
+/* Confidence indicator dots - per CONTEXT.md color scheme */
+.confidence-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+.confidence-dot.high {
+    background-color: #28a745; /* Green - >= 0.8 */
+}
+
+.confidence-dot.medium {
+    background-color: #ffc107; /* Yellow - >= 0.5 */
+}
+
+.confidence-dot.low {
+    background-color: #dc3545; /* Red - < 0.5 */
+}
+
+/* Styled statement container */
+.styled-statement-container {
+    margin-top: 8px;
+    padding: 12px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    border-left: 3px solid #0d6efd;
+}
+
+.styled-statement-container.is-fallback {
+    border-left-color: #6c757d;
+    background-color: #f5f5f5;
+}
+
+/* Primary styled text display */
+.styled-text {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 8px;
+}
+
+/* Collapsible original text - per CONTEXT.md: expandable/collapsible */
+.original-text-toggle {
+    font-size: 0.8rem;
+    color: #6c757d;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.original-text-toggle:hover {
+    color: #495057;
+}
+
+.original-text-content {
+    display: none;
+    margin-top: 8px;
+    padding: 8px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    color: #495057;
+}
+
+.original-text-content.show {
+    display: block;
+}
+
+/* AI-Styled label - per CONTEXT.md */
+.ai-styled-label {
+    font-size: 0.75rem;
+    color: #6c757d;
+    font-style: italic;
+    margin-top: 4px;
+}
+
+/* Statement controls row */
+.statement-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #dee2e6;
+}
+
+/* Regenerate button - inline icon style per CONTEXT.md discretion */
+.regenerate-btn {
+    background: none;
+    border: none;
+    color: #0d6efd;
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 4px 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.regenerate-btn:hover {
+    color: #0a58ca;
+    text-decoration: underline;
+}
+
+.regenerate-btn:disabled {
+    color: #adb5bd;
+    cursor: not-allowed;
+}
+
+.regenerate-btn .spinner {
+    display: none;
+    width: 14px;
+    height: 14px;
+    border: 2px solid #0d6efd;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.regenerate-btn.loading .spinner {
+    display: inline-block;
+}
+
+.regenerate-btn.loading .btn-text {
+    display: none;
+}
+
+/* Opt-out toggle - per CONTEXT.md user decision */
+.use-original-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: #495057;
+}
+
+.use-original-toggle input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+/* Confidence score tooltip */
+.confidence-info {
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
