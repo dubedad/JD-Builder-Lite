@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="/static/css/skeleton.css">
     <link rel="stylesheet" href="/static/css/overview.css">
     <link rel="stylesheet" href="/static/css/results-cards.css">
+    <link rel="stylesheet" href="/static/css/classify.css">
     <link rel="stylesheet" href="/static/css/filters.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
@@ -77,6 +78,12 @@
                     <button class="jd-stepper__btn" data-step="4" disabled>
                         <span class="jd-stepper__number">4</span>
                         <span class="jd-stepper__label">Export</span>
+                    </button>
+                </li>
+                <li class="jd-stepper__step" data-step="5">
+                    <button class="jd-stepper__btn" data-step="5" disabled>
+                        <span class="jd-stepper__number">5</span>
+                        <span class="jd-stepper__label">Classify</span>
                     </button>
                 </li>
             </ol>
@@ -241,6 +248,59 @@
                 <p class="provenance-description">
                     Job Description content is traceable to its sources, data stewards, and publishing dates for full medallion provenance that complies with the Directive on Automated Decision Making requirements.
                 </p>
+            </div>
+        </section>
+
+        <!-- Classification Results Section (initially hidden) -->
+        <section id="classify-section" class="classify-section hidden">
+            <header class="classify-header">
+                <h2>Classification Step 1: Occupational Group Allocation</h2>
+                <span id="classify-status-badge" class="classify-status-badge">Analyzing...</span>
+            </header>
+
+            <div id="classify-loading" class="classify-loading">
+                <div class="classify-loading-spinner"></div>
+                <p>Analyzing job description against TBS occupational group definitions...</p>
+            </div>
+
+            <div id="classify-error" class="classify-error hidden" role="alert"></div>
+
+            <!-- Recommendations container - populated by JS -->
+            <div id="classify-results" class="classify-results hidden">
+                <!-- Split view: recommendations left, JD right -->
+                <div class="classify-layout">
+                    <div id="recommendations-panel" class="recommendations-panel">
+                        <!-- Recommendation cards inserted here -->
+                    </div>
+                    <div id="evidence-panel" class="evidence-panel hidden">
+                        <header class="evidence-panel-header">
+                            <h3>Job Description</h3>
+                            <button id="evidence-close" class="evidence-close" aria-label="Close evidence view">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </header>
+                        <div id="jd-text-viewer" class="jd-text-viewer">
+                            <!-- JD text with highlights inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Next steps after classification -->
+            <div id="classify-complete" class="classify-complete hidden">
+                <div class="classify-complete-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3>Classification Step 1 Complete</h3>
+                <p>The occupational group allocation has been determined based on your job description.</p>
+                <div class="classify-next-steps">
+                    <h4>Next Steps</h4>
+                    <ul>
+                        <li>Review the recommended occupational group(s) and their rationale</li>
+                        <li>Consult with a classification specialist if borderline or unclear</li>
+                        <li>Proceed to Step 2: Apply Job Evaluation Standard for the selected group</li>
+                    </ul>
+                </div>
             </div>
         </section>
 
