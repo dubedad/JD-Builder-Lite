@@ -8,6 +8,7 @@ from src.services.scraper import scraper
 from src.services.parser import parser
 from src.services.mapper import mapper
 from src.services.llm_service import generate_stream, get_model_name, get_prompt_version, select_occupation_icon, generate_occupation_description
+from src.services.generation_service import get_generation_service
 from src.services.export_service import build_export_data
 from src.services.pdf_generator import generate_pdf, render_preview
 from src.services.docx_generator import generate_docx
@@ -496,3 +497,95 @@ def occupation_description():
             error="Description generation failed",
             detail=str(e)
         ).model_dump()), 500
+
+
+@api_bp.route('/style', methods=['POST'])
+def style_statement():
+    """Generate styled variant of a NOC statement.
+
+    Request JSON:
+        {
+            "statement_id": str,  # e.g., "key_activities-0"
+            "text": str,          # Original NOC statement text
+            "section": str        # JD element: key_activities, skills, effort, working_conditions
+        }
+
+    Response JSON (success):
+        {
+            "success": true,
+            "styled_statement": {
+                "original_noc_statement_id": str,
+                "original_noc_text": str,
+                "styled_text": str,
+                "content_type": str,  # "ai_styled" or "original_noc"
+                "confidence_score": float,
+                "vocabulary_coverage": float,
+                "retry_count": int,
+                "is_fallback": bool
+            }
+        }
+
+    Response JSON (error):
+        {
+            "success": false,
+            "error": str
+        }
+    """
+    try:
+        data = request.get_json()
+
+        # Validate required fields
+        required = ['statement_id', 'text', 'section']
+        for field in required:
+            if field not in data:
+                return jsonify({"success": False, "error": f"Missing required field: {field}"}), 400
+
+        statement_id = data['statement_id']
+        text = data['text']
+        section = data['section']
+
+        # Validate section
+        valid_sections = ['key_activities', 'skills', 'effort', 'working_conditions']
+        if section not in valid_sections:
+            return jsonify({
+                "success": False,
+                "error": f"Invalid section. Must be one of: {', '.join(valid_sections)}"
+            }), 400
+
+        # Get generation service via singleton (initialized at app startup)
+        # Import vocab_index from app inside function to avoid circular import
+        from src.app import vocab_index
+        gen_service = get_generation_service(vocab_index)
+
+        # Generate styled statement
+        styled = gen_service.generate_styled_statement(
+            noc_statement_id=statement_id,
+            noc_text=text,
+            section=section
+        )
+
+        # Convert to response format
+        response_data = {
+            "success": True,
+            "styled_statement": {
+                "original_noc_statement_id": styled.original_noc_statement_id,
+                "original_noc_text": styled.original_noc_text,
+                "styled_text": styled.styled_text,
+                "content_type": styled.content_type.value,  # Enum to string
+                "confidence_score": styled.confidence_score,
+                "vocabulary_coverage": styled.vocabulary_coverage,
+                "retry_count": styled.retry_count,
+                "is_fallback": styled.content_type.value == "original_noc"
+            }
+        }
+
+        return jsonify(response_data)
+
+    except Exception as e:
+        # Log the error for debugging
+        current_app.logger.error(f"Style generation error: {str(e)}")
+
+        return jsonify({
+            "success": False,
+            "error": "Failed to generate styled statement. Please try again."
+        }), 500
