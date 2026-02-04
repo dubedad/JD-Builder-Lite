@@ -19,7 +19,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 9: Vocabulary Foundation** - Build term index from JobForge parquet for constraint enforcement
 - [x] **Phase 10: Style Analysis Pipeline** - Analyze example JD corpus, document patterns, build few-shot examples
 - [x] **Phase 11: Provenance Architecture** - Extended audit trail schema for styled content
-- [ ] **Phase 12: Constrained Generation** - Few-shot styling with vocabulary validation and retry
+- [x] **Phase 12: Constrained Generation** - Few-shot styling with vocabulary validation and retry
 - [ ] **Phase 13: Export Enhancement** - Styled statements in PDF/DOCX with dual-format display
 
 ## Phase Details
@@ -85,9 +85,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 12-01-PLAN.md - Semantic checker + Generation service with retry logic
-- [ ] 12-02-PLAN.md - API endpoint for styled statement generation
-- [ ] 12-03-PLAN.md - Dual-format UI with per-statement controls
+- [x] 12-01-PLAN.md - Semantic checker + Generation service with retry logic
+- [x] 12-02-PLAN.md - API endpoint for styled statement generation
+- [x] 12-03-PLAN.md - Dual-format UI with per-statement controls
 
 ### Phase 13: Export Enhancement
 **Goal**: PDF/DOCX exports include styled statements with full compliance metadata
@@ -115,10 +115,10 @@ Note: Phases 9, 10, 11 can execute in parallel; Phase 12 requires 9, 10, and 11 
 | 9. Vocabulary Foundation | 1/1 | Complete | 2026-02-03 |
 | 10. Style Analysis Pipeline | 2/2 | Complete | 2026-02-03 |
 | 11. Provenance Architecture | 2/2 | Complete | 2026-02-03 |
-| 12. Constrained Generation | 0/3 | Planned | - |
+| 12. Constrained Generation | 3/3 | Complete | 2026-02-03 |
 | 13. Export Enhancement | 0/3 | Planned | - |
 
 ---
 *Roadmap created: 2026-02-03*
-*Last updated: 2026-02-03 - Phase 13 planned*
+*Last updated: 2026-02-03 - Phase 12 complete*
 *Milestone: v3.0 Style-Enhanced Writing*

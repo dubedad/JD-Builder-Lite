@@ -16,14 +16,14 @@ Requirements for style-enhanced JD generation with vocabulary constraints.
 
 ### Constrained Generation
 
-- [ ] **GEN-01**: System generates styled sentence for each selected NOC statement using few-shot prompting
-- [ ] **GEN-02**: System validates generated text against NOC vocabulary index (reject non-NOC words)
-- [ ] **GEN-03**: System retries generation (up to N attempts) when vocabulary validation fails
-- [ ] **GEN-04**: System falls back to original NOC statement when retry budget exhausted (graceful degradation)
-- [ ] **GEN-05**: UI displays dual-format: authoritative NOC statement alongside styled variant
-- [ ] **GEN-06**: System performs semantic equivalence checking to verify meaning preserved
-- [ ] **GEN-07**: User can regenerate individual styled sentences (per-statement control)
-- [ ] **GEN-08**: System displays confidence score for each styled sentence
+- [x] **GEN-01**: System generates styled sentence for each selected NOC statement using few-shot prompting
+- [x] **GEN-02**: System validates generated text against NOC vocabulary index (reject non-NOC words)
+- [x] **GEN-03**: System retries generation (up to N attempts) when vocabulary validation fails
+- [x] **GEN-04**: System falls back to original NOC statement when retry budget exhausted (graceful degradation)
+- [x] **GEN-05**: UI displays dual-format: authoritative NOC statement alongside styled variant
+- [x] **GEN-06**: System performs semantic equivalence checking to verify meaning preserved
+- [x] **GEN-07**: User can regenerate individual styled sentences (per-statement control)
+- [x] **GEN-08**: System displays confidence score for each styled sentence
 
 ### Compliance & Provenance
 
@@ -71,14 +71,14 @@ Requirements for style-enhanced JD generation with vocabulary constraints.
 | STYLE-02 | Phase 10 | Complete |
 | STYLE-03 | Phase 9 | Complete |
 | STYLE-04 | Phase 10 | Complete |
-| GEN-01 | Phase 12 | Pending |
-| GEN-02 | Phase 12 | Pending |
-| GEN-03 | Phase 12 | Pending |
-| GEN-04 | Phase 12 | Pending |
-| GEN-05 | Phase 12 | Pending |
-| GEN-06 | Phase 12 | Pending |
-| GEN-07 | Phase 12 | Pending |
-| GEN-08 | Phase 12 | Pending |
+| GEN-01 | Phase 12 | Complete |
+| GEN-02 | Phase 12 | Complete |
+| GEN-03 | Phase 12 | Complete |
+| GEN-04 | Phase 12 | Complete |
+| GEN-05 | Phase 12 | Complete |
+| GEN-06 | Phase 12 | Complete |
+| GEN-07 | Phase 12 | Complete |
+| GEN-08 | Phase 12 | Complete |
 | PROV-01 | Phase 11 | Complete |
 | PROV-02 | Phase 11 | Complete |
 | PROV-03 | Phase 11 | Complete |
