@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** Classification Step 1 — Match job descriptions to occupational groups using the prescribed TBS allocation method with full policy provenance.
-**Current focus:** v4.0 Occupational Group Allocation - Phase 14 pending
+**Current focus:** v4.0 Occupational Group Allocation - Phase 14 in progress
 
 ## Current Position
 
 Milestone: v4.0 Occupational Group Allocation
-Phase: 14 of 17 (Data Layer) - PENDING
-Plan: None started
-Status: Ready for phase research
-Last activity: 2026-02-04 - v4.0 requirements and roadmap defined
+Phase: 14 of 17 (Data Layer) - IN PROGRESS
+Plan: 1 of 3 complete
+Status: Plan 14-01 complete, ready for 14-02
+Last activity: 2026-02-04 - Completed 14-01-PLAN.md (SQLite database foundation)
 
-Progress: [           ] 0% (0/4 phases)
+Progress: [###        ] 8% (1/12 plans in v4.0)
 
 ## Milestone History
 
@@ -47,6 +47,12 @@ Progress: [           ] 0% (0/4 phases)
 
 *Updated after each plan completion*
 
+**By Phase (v4.0):**
+
+| Phase | Plans | Total | Avg/Plan |
+|-------|-------|-------|----------|
+| 14-data-layer | 1/3 | 4min | 4min |
+
 ## Accumulated Context
 
 ### Decisions
@@ -58,6 +64,8 @@ Recent decisions affecting current work:
 - [v4.0 Data]: Scrape TBS occupational groups table + linked definition pages
 - [v4.0 Matching]: Holistic definition matching, not keyword matching
 - [v4.0 Provenance]: Traceable to TBS Classification Policy AND DADM
+- [14-01]: Append-only temporal design with effective_from/effective_to for all tables
+- [14-01]: WAL journal mode for concurrent reads, FK enforcement via pragma
 
 ### Pending Todos
 
@@ -70,9 +78,9 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-04
-Stopped at: v4.0 planning documents created
+Stopped at: Completed 14-01-PLAN.md
 Resume file: None
-Next: /gsd:discuss-phase 14 - gather context before planning Data Layer phase
+Next: Execute 14-02-PLAN.md (TBS scraper implementation)
 
 ---
-*Last updated: 2026-02-04 - v4.0 milestone started*
+*Last updated: 2026-02-04 - 14-01 complete*
