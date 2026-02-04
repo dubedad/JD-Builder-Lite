@@ -1491,7 +1491,20 @@ body.sidebar-open .action-bar {
 
 .jd-stepper__btn:disabled {
     cursor: not-allowed;
-    opacity: 0.6;
+    opacity: 0.5;
+}
+
+/* Enabled but not active - show as clickable */
+.jd-stepper__btn:not(:disabled) {
+    opacity: 1;
+}
+
+.jd-stepper__btn:not(:disabled) .jd-stepper__number {
+    background: var(--gc-blue, #26374a);
+}
+
+.jd-stepper__btn:not(:disabled) .jd-stepper__label {
+    color: var(--gc-blue, #26374a);
 }
 
 .jd-stepper__number {
