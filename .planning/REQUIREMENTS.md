@@ -91,11 +91,11 @@ Classification Step 1: Match JD inclusions/exclusions against TBS occupational g
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DATA-01 | Phase 1 | Pending |
-| DATA-02 | Phase 1 | Pending |
-| DATA-03 | Phase 1 | Pending |
-| DATA-04 | Phase 1 | Pending |
-| DATA-05 | Phase 1 | Pending |
+| DATA-01 | Phase 14 | Complete |
+| DATA-02 | Phase 14 | Complete |
+| DATA-03 | Phase 14 | Complete |
+| DATA-04 | Phase 14 | Complete |
+| DATA-05 | Phase 14 | Complete |
 | MATCH-01 | Phase 2 | Pending |
 | MATCH-02 | Phase 2 | Pending |
 | MATCH-03 | Phase 2 | Pending |

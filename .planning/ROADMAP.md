@@ -18,7 +18,7 @@ v4.0 implements Classification Step 1: Occupational Group Allocation. The milest
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 14: Data Layer** - Scrape DIM_OCCUPATIONAL table from TBS with definitions, inclusions, exclusions
+- [x] **Phase 14: Data Layer** - Scrape DIM_OCCUPATIONAL table from TBS with definitions, inclusions, exclusions
 - [ ] **Phase 15: Matching Engine** - OccupationalGroupAllocator with holistic definition matching
 - [ ] **Phase 16: API Layer** - POST /api/allocate endpoint with provenance response
 - [ ] **Phase 17: UI Layer** - Recommendations display with rationale and evidence links
@@ -37,9 +37,9 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. Table of Concordance links group definitions to job evaluation standards
 **Plans**: 3 plans
 Plans:
-- [ ] 14-01-PLAN.md - Database foundation with SQLite schema, connection manager, repository
-- [ ] 14-02-PLAN.md - HTTP client with rate limiting, HTML archiver, TBS page parsers
-- [ ] 14-03-PLAN.md - ETL orchestrator with validation and CLI refresh command
+- [x] 14-01-PLAN.md - Database foundation with SQLite schema, connection manager, repository
+- [x] 14-02-PLAN.md - HTTP client with rate limiting, HTML archiver, TBS page parsers
+- [x] 14-03-PLAN.md - ETL orchestrator with validation and CLI refresh command
 
 ### Phase 15: Matching Engine
 **Goal**: OccupationalGroupAllocator produces ranked recommendations with provenance
@@ -86,12 +86,12 @@ Note: Phase 15 requires Phase 14; Phases 16-17 are sequential.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 14. Data Layer | 0/3 | Planned | - |
+| 14. Data Layer | 3/3 | Complete | 2026-02-04 |
 | 15. Matching Engine | 0/TBD | Pending | - |
 | 16. API Layer | 0/TBD | Pending | - |
 | 17. UI Layer | 0/TBD | Pending | - |
 
 ---
 *Roadmap created: 2026-02-04*
-*Last updated: 2026-02-04 - Phase 14 planned with 3 plans*
+*Last updated: 2026-02-04 - Phase 14 complete (3/3 plans, verified)*
 *Milestone: v4.0 Occupational Group Allocation*
