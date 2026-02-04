@@ -68,14 +68,20 @@ Every piece of content in the final job description can be traced back to its au
 
 ### Active
 
-**v3.0 Style-Enhanced Writing (In Progress):**
-See `.planning/REQUIREMENTS.md` for full requirements (23 total).
+**v4.0 Occupational Group Allocation (In Progress):**
+See `.planning/REQUIREMENTS.md` for full requirements (38 total).
 
 Key capabilities:
-- Style Infrastructure: Parse example JDs, build vocabulary index, persist style profiles
-- Constrained Generation: Few-shot styling with vocabulary validation, dual-format display
+- Data Layer: DIM_OCCUPATIONAL table with definitions, inclusions, exclusions from TBS
+- Matching Engine: OccupationalGroupAllocator with holistic definition matching
+- Policy Provenance: Traceable to TBS Classification Policy and DADM
+- Recommendations UI: Top-3 ranked groups with confidence, rationale, evidence links
+
+**v3.0 Style-Enhanced Writing (SHIPPED 2026-02-03):**
+- Style Infrastructure: Vocabulary index from JobForge parquet, style analysis pipeline
+- Constrained Generation: Few-shot styling with vocabulary validation and retry
 - Compliance: Extended provenance, differentiated AI disclosure, vocabulary audit
-- Export: Styled PDF/DOCX with full compliance metadata
+- Export: Styled PDF/DOCX with dual-format display and compliance metadata
 
 **Deferred to v3.1+:**
 - SRCH-06: Grid view shows columns: Broad category, Training/Education, Lead statement
@@ -163,4 +169,4 @@ This tool demonstrates compliance with the Treasury Board's Directive on Automat
 | pdfplumber for PDF extraction | MIT license, verified PyPI version, handles text-based PDFs | — Pending |
 
 ---
-*Last updated: 2026-02-03 — v3.0 Style-Enhanced Writing milestone started*
+*Last updated: 2026-02-04 — v4.0 Occupational Group Allocation milestone started*
