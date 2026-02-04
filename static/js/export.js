@@ -221,26 +221,15 @@ const exportModule = {
 
   /**
    * Return to edit page with state preserved
+   *
+   * Note: We reload the page because innerHTML restoration doesn't properly
+   * reinitialize the stepper, tabs, and accordion modules. State is preserved
+   * in localStorage so selections will be restored.
    */
   backToEdit() {
-    if (this.savedPageContent) {
-      // Restore original page content
-      document.body.innerHTML = this.savedPageContent;
-      document.body.className = '';
-
-      // Re-initialize all modules that need event listeners
-      if (typeof initExport === 'function') initExport();
-      if (typeof initSelection === 'function') initSelection();
-      if (typeof initSidebar === 'function') initSidebar();
-      if (typeof initSectionSearch === 'function') initSectionSearch();
-      if (typeof initGenerate === 'function') initGenerate();
-
-      // Clear saved state
-      this.savedPageContent = null;
-    } else {
-      // Fallback to reload if no saved state
-      window.location.reload();
-    }
+    // Reload page - state is persisted in localStorage so selections restore
+    // This ensures stepper, tabs, and all modules initialize correctly
+    window.location.reload();
   },
 
   /**
