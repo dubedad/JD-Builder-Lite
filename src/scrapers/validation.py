@@ -142,7 +142,7 @@ def validate_accuracy(data: Dict[str, Any]) -> List[str]:
     Per DAMA-DMBOK 2.0: "Accurate data correctly represents the real-world entity."
 
     Checks:
-    - group_code format (2-4 uppercase letters)
+    - group_code format (2-4 uppercase alphanumeric, starts with letter)
     - URL format (starts with http:// or https://)
     - Timestamp format (ISO 8601)
 
@@ -155,11 +155,13 @@ def validate_accuracy(data: Dict[str, Any]) -> List[str]:
     errors = []
 
     # Validate group_code format
+    # TBS codes can include numbers (e.g., OM2, PR2, SRC, SRE, SRW)
+    # Format: 2-4 uppercase alphanumeric characters, must start with a letter
     group_code = data.get("group_code")
     if group_code is not None and group_code != "":
-        if not re.match(r"^[A-Z]{2,4}$", group_code):
+        if not re.match(r"^[A-Z][A-Z0-9]{1,3}$", group_code):
             errors.append(
-                f"Invalid group_code format '{group_code}': must be 2-4 uppercase letters"
+                f"Invalid group_code format '{group_code}': must be 2-4 uppercase alphanumeric starting with letter"
             )
 
     # Validate URL fields

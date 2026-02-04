@@ -236,6 +236,9 @@ class TBSScraper:
         Combines URLs from the concordance table with
         definitions/inclusions/exclusions from the definitions page.
 
+        Groups without definitions are skipped with warnings, per CONTEXT.md:
+        "Fail explicitly, keep existing data (log error, don't update that group)"
+
         Args:
             table_groups: Groups parsed from concordance table
             definitions: Groups parsed from definitions page
@@ -252,6 +255,7 @@ class TBSScraper:
             defn_lookup[key] = defn
 
         merged = []
+        skipped_count = 0
 
         for table_group in table_groups:
             code = table_group.get("group_code", "")
@@ -262,11 +266,24 @@ class TBSScraper:
             defn = defn_lookup.get(key)
 
             if defn:
+                definition_text = defn.get("definition", "")
+
+                # Skip groups with empty definitions
+                # Per CONTEXT.md: "Never insert partial or corrupt data"
+                if not definition_text or not definition_text.strip():
+                    logger.warning(
+                        "Skipping %s%s: empty definition (subgroup may inherit from parent)",
+                        code, f"/{subgroup}" if subgroup else ""
+                    )
+                    print(f"  Warning: Skipping {code}{f'/{subgroup}' if subgroup else ''} (empty definition)")
+                    skipped_count += 1
+                    continue
+
                 # Merge table URLs with definition content
                 merged.append({
                     "group_code": code,
                     "subgroup": subgroup,
-                    "definition": defn.get("definition", ""),
+                    "definition": definition_text,
                     "inclusions": defn.get("inclusions", []),
                     "exclusions": defn.get("exclusions", []),
                     # URLs from table
@@ -276,14 +293,13 @@ class TBSScraper:
                     "job_evaluation_standard_url": table_group.get("job_evaluation_standard_url"),
                 })
             else:
-                # No definition found - log warning but include with empty definition
-                # This allows the data to be captured even if definition page is incomplete
+                # No definition found - log warning and skip
+                # Per CONTEXT.md: "Fail explicitly, keep existing data"
                 logger.warning(
-                    "No definition found for %s%s",
+                    "Skipping %s%s: no definition found in definitions page",
                     code, f"/{subgroup}" if subgroup else ""
                 )
-                # Skip groups without definitions (can't pass validation anyway)
-                # Per CONTEXT.md: "Never insert partial or corrupt data"
+                skipped_count += 1
 
         # Also check for definitions not in table (orphan definitions)
         table_keys = {f"{g.get('group_code', '')}|{g.get('subgroup') or ''}" for g in table_groups}
@@ -293,6 +309,9 @@ class TBSScraper:
                     "Definition found without table entry: %s",
                     defn.get("group_code")
                 )
+
+        if skipped_count > 0:
+            logger.info("Skipped %d groups with missing/empty definitions", skipped_count)
 
         return merged
 
