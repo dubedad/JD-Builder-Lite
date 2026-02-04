@@ -358,3 +358,147 @@ class OccupationalGroupRepository:
             return cursor.lastrowid
         except sqlite3.Error as e:
             raise RuntimeError(f"Failed to record verification: {e}") from e
+
+    def get_groups_with_statements(self) -> List[Dict[str, Any]]:
+        """Get all current groups with their inclusion/exclusion statements.
+
+        Loads complete group data including definition, inclusions, and exclusions
+        for semantic matching against job descriptions.
+
+        Returns:
+            List of dicts, each containing:
+                - id: Group ID
+                - group_code: e.g., "AI", "CS"
+                - subgroup: Optional subgroup classification
+                - definition: Group definition text
+                - source_url: TBS policy URL
+                - inclusions: List[str] ordered by order_num
+                - exclusions: List[str] ordered by order_num
+        """
+        conn = self._get_conn()
+
+        try:
+            # Get all current groups
+            groups = self.get_current_groups()
+
+            # For each group, load inclusions and exclusions
+            for group in groups:
+                group_id = group["id"]
+
+                # Load inclusions ordered by order_num
+                cursor = conn.execute(
+                    """
+                    SELECT statement, order_num, paragraph_label
+                    FROM dim_occupational_inclusion
+                    WHERE group_id = ?
+                    ORDER BY order_num
+                    """,
+                    (group_id,),
+                )
+                inclusions = cursor.fetchall()
+                group["inclusions"] = [row["statement"] for row in inclusions]
+
+                # Load exclusions ordered by order_num
+                cursor = conn.execute(
+                    """
+                    SELECT statement, order_num, paragraph_label
+                    FROM dim_occupational_exclusion
+                    WHERE group_id = ?
+                    ORDER BY order_num
+                    """,
+                    (group_id,),
+                )
+                exclusions = cursor.fetchall()
+                group["exclusions"] = [row["statement"] for row in exclusions]
+
+            return groups
+        except sqlite3.Error as e:
+            raise RuntimeError(f"Failed to get groups with statements: {e}") from e
+
+    def get_group_provenance(self, group_id: int) -> Optional[Dict[str, Any]]:
+        """Get full provenance metadata for a group.
+
+        Args:
+            group_id: ID of occupational group
+
+        Returns:
+            Dict with provenance data or None if group not found:
+                - url: TBS source URL
+                - scraped_at: ISO 8601 timestamp
+                - content_hash: SHA-256 hash
+                - archive_path: Path to archived HTML
+        """
+        conn = self._get_conn()
+
+        try:
+            cursor = conn.execute(
+                """
+                SELECT p.url, p.scraped_at, p.content_hash, p.archive_path
+                FROM dim_occupational_group g
+                JOIN scrape_provenance p ON g.source_provenance_id = p.id
+                WHERE g.id = ?
+                """,
+                (group_id,),
+            )
+            row = cursor.fetchone()
+            return dict(row) if row else None
+        except sqlite3.Error as e:
+            raise RuntimeError(f"Failed to get group provenance: {e}") from e
+
+    def get_inclusions_for_group(self, group_id: int) -> List[Dict[str, Any]]:
+        """Get inclusion statements for a specific group.
+
+        Args:
+            group_id: ID of occupational group
+
+        Returns:
+            List of dicts with inclusion data:
+                - statement: Inclusion statement text
+                - order_num: Original list position
+                - paragraph_label: Optional label (e.g., "I1")
+        """
+        conn = self._get_conn()
+
+        try:
+            cursor = conn.execute(
+                """
+                SELECT statement, order_num, paragraph_label
+                FROM dim_occupational_inclusion
+                WHERE group_id = ?
+                ORDER BY order_num
+                """,
+                (group_id,),
+            )
+            rows = cursor.fetchall()
+            return [dict(row) for row in rows]
+        except sqlite3.Error as e:
+            raise RuntimeError(f"Failed to get inclusions: {e}") from e
+
+    def get_exclusions_for_group(self, group_id: int) -> List[Dict[str, Any]]:
+        """Get exclusion statements for a specific group.
+
+        Args:
+            group_id: ID of occupational group
+
+        Returns:
+            List of dicts with exclusion data:
+                - statement: Exclusion statement text
+                - order_num: Original list position
+                - paragraph_label: Optional label (e.g., "E1")
+        """
+        conn = self._get_conn()
+
+        try:
+            cursor = conn.execute(
+                """
+                SELECT statement, order_num, paragraph_label
+                FROM dim_occupational_exclusion
+                WHERE group_id = ?
+                ORDER BY order_num
+                """,
+                (group_id,),
+            )
+            rows = cursor.fetchall()
+            return [dict(row) for row in rows]
+        except sqlite3.Error as e:
+            raise RuntimeError(f"Failed to get exclusions: {e}") from e
