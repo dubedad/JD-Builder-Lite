@@ -97,10 +97,12 @@ Plans:
   1. PDF export includes styled statements with dual-format display (original + styled)
   2. DOCX export includes styled statements with dual-format display (original + styled)
   3. Compliance appendix includes style-enhanced content metadata and vocabulary audit
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 13-01: Styled export implementation
+- [ ] 13-01-PLAN.md - Export data model extension with StyledStatementExport
+- [ ] 13-02-PLAN.md - PDF template and CSS for dual-format styled content
+- [ ] 13-03-PLAN.md - DOCX generator for dual-format styled content
 
 ## Progress
 
@@ -114,9 +116,9 @@ Note: Phases 9, 10, 11 can execute in parallel; Phase 12 requires 9, 10, and 11 
 | 10. Style Analysis Pipeline | 2/2 | Complete | 2026-02-03 |
 | 11. Provenance Architecture | 2/2 | Complete | 2026-02-03 |
 | 12. Constrained Generation | 0/3 | Planned | - |
-| 13. Export Enhancement | 0/1 | Not started | - |
+| 13. Export Enhancement | 0/3 | Planned | - |
 
 ---
 *Roadmap created: 2026-02-03*
-*Last updated: 2026-02-03 - Phase 12 planned*
+*Last updated: 2026-02-03 - Phase 13 planned*
 *Milestone: v3.0 Style-Enhanced Writing*
