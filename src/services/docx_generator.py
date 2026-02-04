@@ -6,10 +6,31 @@ from docx.shared import Inches, Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_TABLE_ALIGNMENT
 from src.models.export_models import ExportData
+from src.models.ai import StyleContentType
+from src.models.vocabulary_audit import CONFIDENCE_THRESHOLDS
 
 
 # Government of Canada primary color
 GC_PRIMARY = RGBColor(0x26, 0x37, 0x4a)
+
+# Confidence indicator colors (matching PDF CSS)
+CONFIDENCE_COLORS = {
+    "high": RGBColor(0x4c, 0xaf, 0x50),    # Green #4caf50
+    "medium": RGBColor(0xff, 0x98, 0x00),  # Amber #ff9800
+    "low": RGBColor(0xf4, 0x43, 0x36),     # Red #f44336
+}
+
+# AI disclosure blue (matching PDF CSS)
+AI_DISCLOSURE_BLUE = RGBColor(0x19, 0x76, 0xd2)
+
+
+def _get_confidence_level(score: float) -> str:
+    """Map confidence score to level string for color lookup."""
+    if score >= CONFIDENCE_THRESHOLDS["high"]:
+        return "high"
+    elif score >= CONFIDENCE_THRESHOLDS["medium"]:
+        return "medium"
+    return "low"
 
 
 def generate_docx(data: ExportData) -> bytes:
@@ -78,7 +99,11 @@ def generate_docx(data: ExportData) -> bytes:
     for element in data.jd_elements:
         doc.add_heading(element.name, 1)
         for statement in element.statements:
-            doc.add_paragraph(statement, style='List Bullet')
+            if statement.styled_variant:
+                _add_styled_statement(doc, statement)
+            else:
+                # Original rendering (existing behavior)
+                doc.add_paragraph(statement.text, style='List Bullet')
 
     # Page break before compliance appendix
     doc.add_page_break()
@@ -181,6 +206,53 @@ def _add_key_value_table(doc, items):
 
 # Text color constant for light gray
 TEXT_LIGHT = RGBColor(0x66, 0x66, 0x66)
+
+
+def _add_styled_statement(doc, statement):
+    """Add statement with styled content and original below.
+
+    Args:
+        doc: Document object
+        statement: StatementExport with styled_variant
+    """
+    styled = statement.styled_variant
+
+    # Primary: Styled text as bullet point
+    para = doc.add_paragraph()
+    para.style = 'List Bullet'
+    text_run = para.add_run(styled.styled_text)
+
+    # Confidence dot (only for AI_STYLED, not ORIGINAL_NOC fallback)
+    if styled.content_type == StyleContentType.AI_STYLED:
+        dot_run = para.add_run(" \u25cf")  # Unicode filled circle
+        dot_run.font.color.rgb = CONFIDENCE_COLORS.get(
+            _get_confidence_level(styled.confidence_score),
+            CONFIDENCE_COLORS["low"]
+        )
+        dot_run.font.size = Pt(8)
+
+    # Original NOC text (only for AI_STYLED, not ORIGINAL_NOC fallback)
+    if styled.content_type == StyleContentType.AI_STYLED:
+        orig_para = doc.add_paragraph()
+        orig_para.paragraph_format.left_indent = Inches(0.5)
+
+        label_run = orig_para.add_run("Original NOC: ")
+        label_run.font.size = Pt(9)
+        label_run.font.color.rgb = RGBColor(0x88, 0x88, 0x88)
+        label_run.bold = True
+
+        text_run = orig_para.add_run(styled.original_noc_text)
+        text_run.font.size = Pt(9)
+        text_run.font.color.rgb = TEXT_LIGHT
+        text_run.italic = True
+
+    # AI disclosure label (for any styled variant)
+    label_para = doc.add_paragraph()
+    label_para.paragraph_format.left_indent = Inches(0.25)
+    label_run = label_para.add_run(styled.disclosure_label)
+    label_run.font.size = Pt(8)
+    label_run.font.color.rgb = AI_DISCLOSURE_BLUE
+    label_run.italic = True
 
 
 def _add_annex_section(doc, data):
