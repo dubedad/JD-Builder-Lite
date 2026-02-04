@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** Classification Step 1 — Match job descriptions to occupational groups using the prescribed TBS allocation method with full policy provenance.
-**Current focus:** v4.0 Occupational Group Allocation - Phase 16 in progress
+**Current focus:** v4.0 Occupational Group Allocation - Phase 16 COMPLETE
 
 ## Current Position
 
 Milestone: v4.0 Occupational Group Allocation
-Phase: 16 of 17 (API Layer)
-Plan: 1 of 2 complete
-Status: In progress - API request/response models complete
-Last activity: 2026-02-04 - Completed 16-01-PLAN.md (API allocation models)
+Phase: 16 of 17 (API Layer) - COMPLETE
+Plan: 2 of 2 complete
+Status: Phase 16 complete - API layer ready
+Last activity: 2026-02-04 - Completed 16-02-PLAN.md (API allocation endpoint)
 
-Progress: [######     ] 75% (9/12 plans in v4.0)
+Progress: [#######    ] 83% (10/12 plans in v4.0)
 
 ## Milestone History
 
@@ -31,9 +31,9 @@ Progress: [######     ] 75% (9/12 plans in v4.0)
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 17 (v3.0 + v4.0)
-- Average duration: 8.4min
-- Total execution time: ~3h 46min
+- Total plans completed: 18 (v3.0 + v4.0)
+- Average duration: 8.6min
+- Total execution time: ~3h 57min
 
 **By Phase (v3.0):**
 
@@ -53,7 +53,7 @@ Progress: [######     ] 75% (9/12 plans in v4.0)
 |-------|-------|-------|----------|
 | 14-data-layer | 3/3 | 26min | 8.7min |
 | 15-matching-engine | 5/5 | 66min | 13.2min |
-| 16-api-layer | 1/2 | 2min | 2min |
+| 16-api-layer | 2/2 | 13min | 6.5min |
 
 ## Accumulated Context
 
@@ -98,6 +98,7 @@ Recent decisions affecting current work:
 - [16-01]: AllocationStatus as Literal type union for type-safe status values
 - [16-01]: ProvenanceDetail flat structure (2 levels max) per RESEARCH.md
 - [16-01]: Field validators for CSR/key_activities in AllocationRequest model
+- [16-02]: In-memory dict cache with SHA256 content hash key for allocation results
 
 ### Pending Todos
 
@@ -110,9 +111,9 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-04
-Stopped at: Completed 16-01-PLAN.md
+Stopped at: Completed 16-02-PLAN.md
 Resume file: None
-Next: 16-02 (API endpoint implementation)
+Next: 17-01 (UI integration)
 
 ---
-*Last updated: 2026-02-04 - API models complete, endpoint implementation next*
+*Last updated: 2026-02-04 - Phase 16 API layer complete, ready for Phase 17 UI integration*
