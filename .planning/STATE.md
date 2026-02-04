@@ -10,12 +10,12 @@ See: .planning/PROJECT.md (updated 2026-01-25)
 ## Current Position
 
 Milestone: v3.0 Style-Enhanced Writing
-Phase: 12 of 13 (Constrained Generation) - IN PROGRESS
-Plan: 12-01 complete
-Status: In progress
-Last activity: 2026-02-03 - Completed 12-01-PLAN.md
+Phase: 12 of 13 (Constrained Generation) - COMPLETE
+Plan: 12-02 complete (Phase 12 complete)
+Status: Ready for Phase 13
+Last activity: 2026-02-03 - Completed 12-02-PLAN.md
 
-Progress: [######....] 60% (6/10 plans)
+Progress: [#######...] 70% (7/10 plans)
 
 ## Milestone History
 
@@ -30,9 +30,9 @@ Progress: [######....] 60% (6/10 plans)
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6 (v3.0)
-- Average duration: 4.9min
-- Total execution time: 29.5min
+- Total plans completed: 7 (v3.0)
+- Average duration: 5.6min
+- Total execution time: 39.5min
 
 **By Phase:**
 
@@ -41,11 +41,11 @@ Progress: [######....] 60% (6/10 plans)
 | 09-vocabulary-foundation | 1 | 10min | 10min |
 | 10-style-analysis-pipeline | 2 | 9min | 4.5min |
 | 11-provenance-architecture | 2 | 4.5min | 2.25min |
-| 12-constrained-generation | 1 | 6min | 6min |
+| 12-constrained-generation | 2 | 16min | 8min |
 
 **Recent Trend:**
-- Last 5 plans: 10-02 (4min), 11-01 (2.5min), 11-02 (2min), 12-01 (6min)
-- Trend: 12-01 slightly longer due to sentence-transformers library installation
+- Last 5 plans: 11-01 (2.5min), 11-02 (2min), 12-01 (6min), 12-02 (10min)
+- Trend: 12-02 slightly longer due to careful circular import handling
 
 *Updated after each plan completion*
 
@@ -76,6 +76,8 @@ Recent decisions affecting current work:
 - [Phase 12-01]: 3 retry attempts with exponential backoff (1-10 sec)
 - [Phase 12-01]: Fall back to ORIGINAL_NOC content type on validation failure
 - [Phase 12-01]: Temperature 0.3 for generation (lower than overview's 0.7)
+- [Phase 12-02]: Function-scope import for circular dependency avoidance
+- [Phase 12-02]: is_fallback boolean in response for easy frontend detection
 
 ### Pending Todos
 
@@ -88,9 +90,9 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-03
-Stopped at: Completed 12-01-PLAN.md
+Stopped at: Completed 12-02-PLAN.md (Phase 12 complete)
 Resume file: None
-Next: Phase 12-02 (Generation API endpoints)
+Next: Phase 13 (UI Integration)
 
 ---
-*Last updated: 2026-02-03 - Completed 12-01-PLAN.md*
+*Last updated: 2026-02-03 - Completed 12-02-PLAN.md*
