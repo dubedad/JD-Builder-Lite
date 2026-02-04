@@ -4,8 +4,10 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime
 from src.models.export_models import (
     ExportRequest, ExportData, JDElementExport, StatementExport,
-    SelectionMetadata, ComplianceSection, ProficiencyData
+    SelectionMetadata, ComplianceSection, ProficiencyData, StyledStatementExport
 )
+from src.models.ai import StyleContentType
+from src.models.styled_content import StyledStatement
 from src.services.annex_builder import build_annex_data
 from src.utils.oasis_provenance import (
     get_publication_date, get_source_table_url, OASIS_DATASET_URL
@@ -185,3 +187,78 @@ def build_compliance_sections(request: ExportRequest) -> List[ComplianceSection]
         ))
 
     return sections
+
+
+def build_styled_content_disclosure(
+    styled_statements: List[StyledStatement]
+) -> Optional[Dict[str, Any]]:
+    """Build styled content metadata for compliance appendix.
+
+    Creates a disclosure dictionary containing aggregate statistics about
+    AI-styled content, including vocabulary coverage, confidence distribution,
+    and generation metadata for compliance documentation.
+
+    Args:
+        styled_statements: List of StyledStatement objects from session
+
+    Returns:
+        Dictionary with styled content disclosure data, or None if no styled content
+    """
+    if not styled_statements:
+        return None
+
+    ai_styled_count = sum(
+        1 for s in styled_statements
+        if s.content_type == StyleContentType.AI_STYLED
+    )
+    original_fallback_count = sum(
+        1 for s in styled_statements
+        if s.content_type == StyleContentType.ORIGINAL_NOC
+    )
+
+    # Aggregate vocabulary coverage (only for AI_STYLED)
+    coverage_values = [
+        s.vocabulary_coverage for s in styled_statements
+        if s.content_type == StyleContentType.AI_STYLED
+    ]
+    avg_coverage = sum(coverage_values) / len(coverage_values) if coverage_values else 0.0
+    min_coverage = min(coverage_values) if coverage_values else 0.0
+
+    # Aggregate confidence (only for AI_STYLED)
+    confidence_values = [
+        s.confidence_score for s in styled_statements
+        if s.content_type == StyleContentType.AI_STYLED
+    ]
+    avg_confidence = sum(confidence_values) / len(confidence_values) if confidence_values else 0.0
+
+    # Confidence distribution using thresholds from Phase 11 (0.8/0.5)
+    high_count = sum(1 for c in confidence_values if c >= 0.8)
+    medium_count = sum(1 for c in confidence_values if 0.5 <= c < 0.8)
+    low_count = sum(1 for c in confidence_values if c < 0.5)
+
+    return {
+        "description": "Job description statements were AI-styled from original NOC content "
+                      "using curated job description samples as style templates.",
+        "disclosure_label": "AI-Styled using Job Description Samples",
+        "total_statements": len(styled_statements),
+        "ai_styled_count": ai_styled_count,
+        "original_fallback_count": original_fallback_count,
+        "vocabulary_audit": {
+            "average_coverage": f"{avg_coverage:.1f}%",
+            "minimum_coverage": f"{min_coverage:.1f}%",
+            "noc_vocabulary_source": "ESDC OaSIS Skills, Abilities, Knowledge, Work Activities tables"
+        },
+        "confidence_summary": {
+            "average_confidence": f"{avg_confidence:.2f}",
+            "high_confidence_count": high_count,
+            "medium_confidence_count": medium_count,
+            "low_confidence_count": low_count
+        },
+        "generation_metadata": {
+            "model": "GPT-4o",
+            "prompt_version": "v3.0",
+            "max_retries": 3,
+            "vocabulary_threshold": "95%",
+            "semantic_similarity_threshold": "0.75"
+        }
+    }
