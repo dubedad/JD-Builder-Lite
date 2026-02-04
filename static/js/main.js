@@ -727,7 +727,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     /**
      * Initialize JD Stepper navigation
-     * Steps: 1=Search, 2=Select Profile, 3=Build JD, 4=Export
+     * Steps: 1=Search, 2=Select Profile, 3=Build JD, 4=Export, 5=Classify
      */
     function initStepper() {
         const stepper = document.getElementById('jd-stepper');
@@ -747,10 +747,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         /**
          * Navigate to a specific step
-         * @param {number} step - Target step (1-4)
+         * @param {number} step - Target step (1-5)
          */
         function navigateToStep(step) {
-            if (step < 1 || step > 4) return;
+            if (step < 1 || step > 5) return;
 
             // Navigation logic based on target step
             switch (step) {
@@ -758,6 +758,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Show search results, hide profile
                     searchResults.classList.remove('hidden');
                     profileInfo.classList.add('hidden');
+                    document.getElementById('profile-tabs-container')?.classList.add('hidden');
+                    document.getElementById('classify-section')?.classList.add('hidden');
                     jdSections.innerHTML = '';
                     actionBar.classList.add('hidden');
                     const welcomeSection = document.getElementById('welcome-section');
@@ -769,6 +771,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (lastResults.length > 0) {
                         searchResults.classList.remove('hidden');
                         profileInfo.classList.add('hidden');
+                        document.getElementById('profile-tabs-container')?.classList.add('hidden');
+                        document.getElementById('classify-section')?.classList.add('hidden');
                         jdSections.innerHTML = '';
                         actionBar.classList.add('hidden');
                     }
@@ -778,6 +782,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (window.currentProfile) {
                         searchResults.classList.add('hidden');
                         profileInfo.classList.remove('hidden');
+                        document.getElementById('profile-tabs-container')?.classList.remove('hidden');
+                        document.getElementById('classify-section')?.classList.add('hidden');
                         actionBar.classList.remove('hidden');
                     }
                     break;
@@ -787,6 +793,22 @@ document.addEventListener('DOMContentLoaded', function() {
                         sidebar.classList.add('open');
                         sidebar.classList.remove('collapsed');
                         document.body.classList.add('sidebar-open');
+                    }
+                    break;
+                case 5: // Classify
+                    // Hide other sections, show classify
+                    searchResults.classList.add('hidden');
+                    profileInfo.classList.add('hidden');
+                    document.getElementById('profile-tabs-container')?.classList.add('hidden');
+                    jdSections.innerHTML = '';
+                    actionBar.classList.add('hidden');
+
+                    // Show classify section
+                    const classifySection = document.getElementById('classify-section');
+                    if (classifySection) {
+                        classifySection.classList.remove('hidden');
+                        // Trigger allocation if we have JD data
+                        triggerClassification();
                     }
                     break;
             }
@@ -834,6 +856,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 case 2: return lastResults.length > 0; // Need search results
                 case 3: return window.currentProfile !== null; // Need profile selected
                 case 4: return window.currentProfile !== null; // Need profile for export
+                case 5:
+                    // Enable when Client-Service Results and Key Activities are filled
+                    // Per CONTEXT.md: Step 5 enabled when JD has CSR/Key Activities content
+                    if (!window.currentProfile) return false;
+                    const state = store.getState();
+                    const hasSelections = state.selections?.key_activities?.length > 0;
+                    const hasLeadStatement = window.currentProfile?.reference_attributes?.lead_statement?.length > 10;
+                    return hasSelections || hasLeadStatement;
                 default: return false;
             }
         }
@@ -856,6 +886,34 @@ document.addEventListener('DOMContentLoaded', function() {
             updateStepperState(3);
         });
 
-        console.log('[DEBUG] JD Stepper initialized');
+        console.log('[DEBUG] JD Stepper initialized with 5 steps');
     }
+
+    /**
+     * Trigger allocation API call when navigating to Step 5
+     * Full implementation in classify.js (Plan 02)
+     */
+    async function triggerClassification() {
+        const classifySection = document.getElementById('classify-section');
+        const loadingEl = document.getElementById('classify-loading');
+        const resultsEl = document.getElementById('classify-results');
+        const errorEl = document.getElementById('classify-error');
+
+        // Show loading state
+        loadingEl?.classList.remove('hidden');
+        resultsEl?.classList.add('hidden');
+        errorEl?.classList.add('hidden');
+
+        // Classification logic implemented in classify.js
+        // This function dispatches event for classify.js to handle
+        document.dispatchEvent(new CustomEvent('classify-requested', {
+            detail: {
+                profile: window.currentProfile,
+                selections: store.getState().selections
+            }
+        }));
+    }
+
+    // Expose triggerClassification globally for other modules
+    window.triggerClassification = triggerClassification;
 });
