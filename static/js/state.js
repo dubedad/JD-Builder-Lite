@@ -73,10 +73,12 @@ const initialState = persistedState || defaultState;
 // Create the store
 const store = createStore(initialState);
 
-// Reset selections when profile changes
+// Reset selections when profile changes, always save current profile code
 const resetSelectionsForProfile = (nocCode) => {
     const state = store.getState();
     if (state.currentProfileCode !== nocCode) {
+        // Different profile - clear selections
+        console.log('[DEBUG state.js] Profile changed from', state.currentProfileCode, 'to', nocCode, '- clearing selections');
         store.setState({
             selections: {
                 key_activities: [],
@@ -87,6 +89,12 @@ const resetSelectionsForProfile = (nocCode) => {
             },
             currentProfileCode: nocCode
         });
+    } else if (!state.currentProfileCode) {
+        // First time setting profile code
+        console.log('[DEBUG state.js] Setting initial profile code:', nocCode);
+        store.setState({ currentProfileCode: nocCode });
+    } else {
+        console.log('[DEBUG state.js] Same profile', nocCode, '- preserving selections');
     }
 };
 

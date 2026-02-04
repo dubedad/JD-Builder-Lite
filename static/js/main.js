@@ -111,12 +111,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Auto-load profile if one was previously loaded (for page reload/back navigation)
     const savedState = store.getState();
+    console.log('[DEBUG main.js] Checking for saved profile. State:', JSON.stringify({
+        currentProfileCode: savedState.currentProfileCode,
+        selectionsCount: Object.values(savedState.selections || {}).flat().length
+    }));
     if (savedState.currentProfileCode) {
         console.log('[DEBUG main.js] Found saved profile code, auto-loading:', savedState.currentProfileCode);
         // Defer to allow other initializations to complete
         setTimeout(() => {
+            console.log('[DEBUG main.js] Calling handleProfileClick for:', savedState.currentProfileCode);
             handleProfileClick(savedState.currentProfileCode);
         }, 100);
+    } else {
+        console.log('[DEBUG main.js] No saved profile code found');
     }
 
     // Search type toggle state
