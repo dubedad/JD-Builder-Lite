@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** Classification Step 1 — Match job descriptions to occupational groups using the prescribed TBS allocation method with full policy provenance.
-**Current focus:** v4.0 Occupational Group Allocation - Phase 14 in progress
+**Current focus:** v4.0 Occupational Group Allocation - Phase 14 COMPLETE
 
 ## Current Position
 
 Milestone: v4.0 Occupational Group Allocation
-Phase: 14 of 17 (Data Layer) - IN PROGRESS
-Plan: 2 of 3 complete
-Status: Plan 14-02 complete, ready for 14-03
-Last activity: 2026-02-04 - Completed 14-02-PLAN.md (TBS scraper infrastructure)
+Phase: 14 of 17 (Data Layer) - COMPLETE
+Plan: 3 of 3 complete
+Status: Phase 14 complete, ready for Phase 15
+Last activity: 2026-02-04 - Completed 14-03-PLAN.md (ETL orchestration and CLI)
 
-Progress: [#####      ] 17% (2/12 plans in v4.0)
+Progress: [##         ] 25% (3/12 plans in v4.0)
 
 ## Milestone History
 
@@ -31,9 +31,9 @@ Progress: [#####      ] 17% (2/12 plans in v4.0)
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 11 (v3.0)
-- Average duration: 7min
-- Total execution time: ~2h 51min
+- Total plans completed: 14 (v3.0 + v4.0)
+- Average duration: 8min
+- Total execution time: ~3h 17min
 
 **By Phase (v3.0):**
 
@@ -51,7 +51,7 @@ Progress: [#####      ] 17% (2/12 plans in v4.0)
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 14-data-layer | 2/3 | 14min | 7min |
+| 14-data-layer | 3/3 | 26min | 8.7min |
 
 ## Accumulated Context
 
@@ -69,6 +69,9 @@ Recent decisions affecting current work:
 - [14-02]: Rate limit 1 req/sec via time.sleep, retry on 429/5xx with exponential backoff
 - [14-02]: Archive filenames use URL slug, timestamp, and hash prefix for provenance
 - [14-02]: TBS HTML uses section elements; parsers handle nested structure
+- [14-03]: Validation accepts alphanumeric codes (OM2, PR2, SRC, etc.)
+- [14-03]: Groups with empty definitions skipped with warning (PM/MCO)
+- [14-03]: Definition-centric merge (definitions have content, table has URLs)
 
 ### Pending Todos
 
@@ -81,9 +84,9 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-04
-Stopped at: Completed 14-02-PLAN.md
+Stopped at: Completed 14-03-PLAN.md (Phase 14 complete)
 Resume file: None
-Next: Execute 14-03-PLAN.md (Scraper orchestration and ETL)
+Next: Begin Phase 15 (Matching Engine)
 
 ---
-*Last updated: 2026-02-04 - 14-02 complete*
+*Last updated: 2026-02-04 - 14-03 complete, Phase 14 complete*
