@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 Milestone: v4.0 Occupational Group Allocation
 Phase: 15 of 17 (Matching Engine)
-Plan: 1 of 3 complete
-Status: In progress
-Last activity: 2026-02-04 - Completed 15-01-PLAN.md (Data contracts and access layer)
+Plan: 3 of 5 complete
+Status: In progress - Confidence scoring and evidence linking complete
+Last activity: 2026-02-04 - Completed 15-03-PLAN.md (Confidence scoring and evidence linking)
 
-Progress: [###        ] 33% (4/12 plans in v4.0)
+Progress: [###        ] 50% (6/12 plans in v4.0)
 
 ## Milestone History
 
@@ -31,9 +31,9 @@ Progress: [###        ] 33% (4/12 plans in v4.0)
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 15 (v3.0 + v4.0)
-- Average duration: 8.3min
-- Total execution time: ~3h 28min
+- Total plans completed: 17 (v3.0 + v4.0)
+- Average duration: 8.4min
+- Total execution time: ~3h 46min
 
 **By Phase (v3.0):**
 
@@ -52,7 +52,7 @@ Progress: [###        ] 33% (4/12 plans in v4.0)
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 14-data-layer | 3/3 | 26min | 8.7min |
-| 15-matching-engine | 1/3 | 11min | 11min |
+| 15-matching-engine | 3/5 | 27min | 9min |
 
 ## Accumulated Context
 
@@ -76,6 +76,11 @@ Recent decisions affecting current work:
 - [15-01]: Models use simple types for OpenAI structured output compatibility
 - [15-01]: Repository loads statements eagerly (single query pattern)
 - [15-01]: Confidence breakdown exposed as dict for transparency
+- [15-03]: NO inclusion weight in confidence scoring (inclusions for shortlisting only per CONTEXT.md)
+- [15-03]: Exclusion conflict applies 0.3 multiplier penalty
+- [15-03]: Borderline detection at 10% margin between top scores
+- [15-03]: Evidence extraction uses difflib SequenceMatcher for fuzzy matching
+- [15-03]: Provenance returns archive_path for audit verification
 
 ### Pending Todos
 
@@ -88,9 +93,9 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-04
-Stopped at: Completed 15-01-PLAN.md
+Stopped at: Completed 15-03-PLAN.md
 Resume file: None
-Next: Continue Phase 15 (15-02: Semantic matching implementation)
+Next: Continue Phase 15 (15-04: LLM integration, 15-05: Allocator assembly)
 
 ---
-*Last updated: 2026-02-04 - 15-01 complete*
+*Last updated: 2026-02-04 - 15-03 complete*
