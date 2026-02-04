@@ -39,9 +39,19 @@
       <h2>{{ element.name }}</h2>
       <ul class="jd-statements">
         {% for statement in element.statements %}
-        <li class="jd-statement">
+        <li class="jd-statement{% if statement.styled_variant %} jd-statement--styled{% endif %}">
           <div class="jd-statement__main">
-            <span class="jd-statement__text">{{ statement.text }}</span>
+            <!-- Primary text: styled or original -->
+            <span class="jd-statement__text">
+              {{ statement.styled_variant.styled_text if statement.styled_variant else statement.text }}
+            </span>
+
+            <!-- Confidence indicator (AI_STYLED only, not ORIGINAL_NOC fallback) -->
+            {% if statement.styled_variant and statement.styled_variant.content_type.value == 'ai_styled' %}
+            <span class="jd-confidence-dot jd-confidence-dot--{{ statement.styled_variant.confidence_level }}"></span>
+            {% endif %}
+
+            <!-- Proficiency level (existing) -->
             {% if statement.proficiency and statement.proficiency.level %}
             <span class="jd-statement__level">
               {% for i in range(statement.proficiency.level) %}●{% endfor %}{% for i in range(statement.proficiency.max - statement.proficiency.level) %}○{% endfor %}
@@ -49,9 +59,26 @@
             </span>
             {% endif %}
           </div>
+
+          <!-- Original NOC text (AI_STYLED only, not for ORIGINAL_NOC fallback) -->
+          {% if statement.styled_variant and statement.styled_variant.content_type.value == 'ai_styled' %}
+          <div class="jd-statement__original">
+            <span class="jd-statement__original-label">Original NOC:</span>
+            {{ statement.styled_variant.original_noc_text }}
+          </div>
+          {% endif %}
+
+          <!-- AI disclosure label (for any styled variant) -->
+          {% if statement.styled_variant %}
+          <span class="jd-statement__ai-label">{{ statement.styled_variant.disclosure_label }}</span>
+          {% endif %}
+
+          <!-- Element description (existing) -->
           {% if statement.description %}
           <p class="jd-statement__description">{{ statement.description }}</p>
           {% endif %}
+
+          <!-- Source attribution (existing) -->
           <span class="jd-statement__source">Source: {{ statement.source_attribute }}</span>
         </li>
         {% endfor %}
@@ -145,6 +172,40 @@
           <tr><th>Input Statement Count</th><td>{{ section.content.input_count }}</td></tr>
           <tr><th>Modified by User</th><td>{{ "Yes" if section.content.modified_by_user else "No" }}</td></tr>
           <tr><th>Purpose</th><td>{{ section.content.purpose }}</td></tr>
+        </table>
+
+        {% elif section.section_id == "styled_content_disclosure" %}
+        <p>{{ section.content.description }}</p>
+
+        <table class="compliance-table">
+          <tr><th>Content Disclosure</th><td>{{ section.content.disclosure_label }}</td></tr>
+          <tr><th>Total Styled Statements</th><td>{{ section.content.total_statements }}</td></tr>
+          <tr><th>AI-Styled Count</th><td>{{ section.content.ai_styled_count }}</td></tr>
+          <tr><th>Original Fallback Count</th><td>{{ section.content.original_fallback_count }}</td></tr>
+        </table>
+
+        <h3>Vocabulary Audit Summary</h3>
+        <table class="compliance-table">
+          <tr><th>Average NOC Coverage</th><td>{{ section.content.vocabulary_audit.average_coverage }}</td></tr>
+          <tr><th>Minimum Coverage</th><td>{{ section.content.vocabulary_audit.minimum_coverage }}</td></tr>
+          <tr><th>Vocabulary Source</th><td>{{ section.content.vocabulary_audit.noc_vocabulary_source }}</td></tr>
+        </table>
+
+        <h3>Confidence Distribution</h3>
+        <table class="compliance-table">
+          <tr><th>Average Confidence</th><td>{{ section.content.confidence_summary.average_confidence }}</td></tr>
+          <tr><th>High Confidence (>=0.8)</th><td>{{ section.content.confidence_summary.high_confidence_count }}</td></tr>
+          <tr><th>Medium Confidence (0.5-0.8)</th><td>{{ section.content.confidence_summary.medium_confidence_count }}</td></tr>
+          <tr><th>Low Confidence (<0.5)</th><td>{{ section.content.confidence_summary.low_confidence_count }}</td></tr>
+        </table>
+
+        <h3>Generation Parameters</h3>
+        <table class="compliance-table">
+          <tr><th>Model</th><td>{{ section.content.generation_metadata.model }}</td></tr>
+          <tr><th>Prompt Version</th><td>{{ section.content.generation_metadata.prompt_version }}</td></tr>
+          <tr><th>Max Retries</th><td>{{ section.content.generation_metadata.max_retries }}</td></tr>
+          <tr><th>Vocabulary Threshold</th><td>{{ section.content.generation_metadata.vocabulary_threshold }}</td></tr>
+          <tr><th>Semantic Similarity Threshold</th><td>{{ section.content.generation_metadata.semantic_similarity_threshold }}</td></tr>
         </table>
         {% endif %}
       </div>
