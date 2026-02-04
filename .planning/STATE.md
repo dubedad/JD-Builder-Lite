@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 Milestone: v4.0 Occupational Group Allocation
 Phase: 14 of 17 (Data Layer) - IN PROGRESS
-Plan: 1 of 3 complete
-Status: Plan 14-01 complete, ready for 14-02
-Last activity: 2026-02-04 - Completed 14-01-PLAN.md (SQLite database foundation)
+Plan: 2 of 3 complete
+Status: Plan 14-02 complete, ready for 14-03
+Last activity: 2026-02-04 - Completed 14-02-PLAN.md (TBS scraper infrastructure)
 
-Progress: [###        ] 8% (1/12 plans in v4.0)
+Progress: [#####      ] 17% (2/12 plans in v4.0)
 
 ## Milestone History
 
@@ -51,7 +51,7 @@ Progress: [###        ] 8% (1/12 plans in v4.0)
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 14-data-layer | 1/3 | 4min | 4min |
+| 14-data-layer | 2/3 | 14min | 7min |
 
 ## Accumulated Context
 
@@ -66,6 +66,9 @@ Recent decisions affecting current work:
 - [v4.0 Provenance]: Traceable to TBS Classification Policy AND DADM
 - [14-01]: Append-only temporal design with effective_from/effective_to for all tables
 - [14-01]: WAL journal mode for concurrent reads, FK enforcement via pragma
+- [14-02]: Rate limit 1 req/sec via time.sleep, retry on 429/5xx with exponential backoff
+- [14-02]: Archive filenames use URL slug, timestamp, and hash prefix for provenance
+- [14-02]: TBS HTML uses section elements; parsers handle nested structure
 
 ### Pending Todos
 
@@ -78,9 +81,9 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-04
-Stopped at: Completed 14-01-PLAN.md
+Stopped at: Completed 14-02-PLAN.md
 Resume file: None
-Next: Execute 14-02-PLAN.md (TBS scraper implementation)
+Next: Execute 14-03-PLAN.md (Scraper orchestration and ETL)
 
 ---
-*Last updated: 2026-02-04 - 14-01 complete*
+*Last updated: 2026-02-04 - 14-02 complete*
