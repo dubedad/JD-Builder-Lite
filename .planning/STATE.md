@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** Classification Step 1 — Match job descriptions to occupational groups using the prescribed TBS allocation method with full policy provenance.
-**Current focus:** v4.0 Occupational Group Allocation - Phase 14 COMPLETE
+**Current focus:** v4.0 Occupational Group Allocation - Phase 16 in progress
 
 ## Current Position
 
 Milestone: v4.0 Occupational Group Allocation
-Phase: 15 of 17 (Matching Engine) - COMPLETE
-Plan: 5 of 5 complete
-Status: Phase 15 complete - Full allocation pipeline ready for API integration
-Last activity: 2026-02-04 - Completed 15-05-PLAN.md (Allocator assembly)
+Phase: 16 of 17 (API Layer)
+Plan: 1 of 2 complete
+Status: In progress - API request/response models complete
+Last activity: 2026-02-04 - Completed 16-01-PLAN.md (API allocation models)
 
-Progress: [#####      ] 67% (8/12 plans in v4.0)
+Progress: [######     ] 75% (9/12 plans in v4.0)
 
 ## Milestone History
 
@@ -53,6 +53,7 @@ Progress: [#####      ] 67% (8/12 plans in v4.0)
 |-------|-------|-------|----------|
 | 14-data-layer | 3/3 | 26min | 8.7min |
 | 15-matching-engine | 5/5 | 66min | 13.2min |
+| 16-api-layer | 1/2 | 2min | 2min |
 
 ## Accumulated Context
 
@@ -94,6 +95,9 @@ Recent decisions affecting current work:
 - [15-05]: Edge case detection surfaces actionable guidance, not silent failures
 - [15-05]: AP/TC disambiguation uses TBS-based indicators (theoretical vs practical)
 - [15-05]: Evidence linking uses fuzzy matching to handle LLM paraphrasing
+- [16-01]: AllocationStatus as Literal type union for type-safe status values
+- [16-01]: ProvenanceDetail flat structure (2 levels max) per RESEARCH.md
+- [16-01]: Field validators for CSR/key_activities in AllocationRequest model
 
 ### Pending Todos
 
@@ -106,9 +110,9 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-04
-Stopped at: Completed 15-05-PLAN.md
+Stopped at: Completed 16-01-PLAN.md
 Resume file: None
-Next: Phase 16 (API Layer) - HTTP endpoints for occupational group allocation
+Next: 16-02 (API endpoint implementation)
 
 ---
-*Last updated: 2026-02-04 - Phase 15 complete, matching engine ready for API integration*
+*Last updated: 2026-02-04 - API models complete, endpoint implementation next*
