@@ -20,7 +20,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 14: Data Layer** - Scrape DIM_OCCUPATIONAL table from TBS with definitions, inclusions, exclusions
 - [x] **Phase 15: Matching Engine** - OccupationalGroupAllocator with holistic definition matching
-- [ ] **Phase 16: API Layer** - POST /api/allocate endpoint with provenance response
+- [x] **Phase 16: API Layer** - POST /api/allocate endpoint with provenance response
 - [ ] **Phase 17: UI Layer** - Recommendations display with rationale and evidence links
 
 ## Phase Details
@@ -72,8 +72,8 @@ Plans:
   4. API handles edge cases: "Needs Work Description Clarification", "Invalid Combination of Work"
 **Plans**: 2 plans
 Plans:
-- [ ] 16-01-PLAN.md - Request/response Pydantic models with JD validation and provenance structure
-- [ ] 16-02-PLAN.md - POST /api/allocate endpoint with provenance builder and caching
+- [x] 16-01-PLAN.md - Request/response Pydantic models with JD validation and provenance structure
+- [x] 16-02-PLAN.md - POST /api/allocate endpoint with provenance builder and caching
 
 ### Phase 17: UI Layer
 **Goal**: User can view allocation recommendations with evidence and provenance
@@ -97,10 +97,10 @@ Note: Phase 15 requires Phase 14; Phases 16-17 are sequential.
 |-------|----------------|--------|-----------|
 | 14. Data Layer | 3/3 | Complete | 2026-02-04 |
 | 15. Matching Engine | 5/5 | Complete | 2026-02-04 |
-| 16. API Layer | 0/2 | Planned | - |
+| 16. API Layer | 2/2 | Complete | 2026-02-04 |
 | 17. UI Layer | 0/TBD | Pending | - |
 
 ---
 *Roadmap created: 2026-02-04*
-*Last updated: 2026-02-04 - Phase 15 complete, ready for Phase 16*
+*Last updated: 2026-02-04 - Phase 16 complete, ready for Phase 17*
 *Milestone: v4.0 Occupational Group Allocation*
