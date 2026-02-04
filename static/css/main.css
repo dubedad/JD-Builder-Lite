@@ -1494,16 +1494,17 @@ body.sidebar-open .action-bar {
     opacity: 0.5;
 }
 
-/* Enabled but not active - show as clickable */
+/* Enabled but not active/completed - show as clickable */
 .jd-stepper__btn:not(:disabled) {
     opacity: 1;
 }
 
-.jd-stepper__btn:not(:disabled) .jd-stepper__number {
+/* Only style enabled buttons that are NOT in completed or active steps */
+.jd-stepper__step:not(.jd-stepper__step--completed):not(.jd-stepper__step--active) .jd-stepper__btn:not(:disabled) .jd-stepper__number {
     background: var(--gc-blue, #26374a);
 }
 
-.jd-stepper__btn:not(:disabled) .jd-stepper__label {
+.jd-stepper__step:not(.jd-stepper__step--completed):not(.jd-stepper__step--active) .jd-stepper__btn:not(:disabled) .jd-stepper__label {
     color: var(--gc-blue, #26374a);
 }
 
