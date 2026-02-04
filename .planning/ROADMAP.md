@@ -85,7 +85,11 @@ Plans:
   3. UI shows evidence links to JD text spans (highlight on click)
   4. UI shows provenance chain to authoritative source
   5. UI displays "Classification Step 1 Complete" status with next steps
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 17-01-PLAN.md - Step 5 stepper navigation and API client method
+- [ ] 17-02-PLAN.md - Recommendation cards with confidence visualization
+- [ ] 17-03-PLAN.md - Evidence highlighting and provenance display
 
 ## Progress
 
@@ -98,9 +102,9 @@ Note: Phase 15 requires Phase 14; Phases 16-17 are sequential.
 | 14. Data Layer | 3/3 | Complete | 2026-02-04 |
 | 15. Matching Engine | 5/5 | Complete | 2026-02-04 |
 | 16. API Layer | 2/2 | Complete | 2026-02-04 |
-| 17. UI Layer | 0/TBD | Pending | - |
+| 17. UI Layer | 0/3 | Planned | - |
 
 ---
 *Roadmap created: 2026-02-04*
-*Last updated: 2026-02-04 - Phase 16 complete, ready for Phase 17*
+*Last updated: 2026-02-04 - Phase 17 plans created*
 *Milestone: v4.0 Occupational Group Allocation*
