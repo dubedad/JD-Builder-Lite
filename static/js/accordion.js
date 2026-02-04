@@ -319,10 +319,25 @@ const renderStatementsPanel = (statements, sections, sectionId, selectedIds) => 
             ? `<p class="tab-panel__section-definition">${escapeHtml(categoryDef)}</p>`
             : '';
 
+        // Count how many are selected in this section
+        const sectionSelectedCount = filtered.filter((stmt) => {
+            const stmtId = `${sectionId}-${statements.indexOf(stmt)}`;
+            return selectedIds.includes(stmtId);
+        }).length;
+        const allSelected = sectionSelectedCount === filtered.length && filtered.length > 0;
+
         html += `
-            <div class="tab-panel__section">
+            <div class="tab-panel__section" data-section-id="${sectionId}">
                 <div class="tab-panel__section-header">
-                    <h3 class="tab-panel__section-title">${section.title}</h3>
+                    <div class="tab-panel__section-title-row">
+                        <label class="select-all-label" title="Select/deselect all statements in this section">
+                            <input type="checkbox" class="select-all-checkbox"
+                                   data-section="${sectionId}"
+                                   ${allSelected ? 'checked' : ''}>
+                            <span class="select-all-text">Select All</span>
+                        </label>
+                        <h3 class="tab-panel__section-title">${section.title} (${filtered.length})</h3>
+                    </div>
                     <button class="style-selected-btn"
                             onclick="styleSelectedStatements('${sectionId}')"
                             title="Generate styled versions of selected statements">
@@ -624,11 +639,23 @@ const renderTabContent = (profile) => {
     if (effortPanel) {
         const effortStatements = profile.effort?.statements || [];
         const workContextDef = CATEGORY_DEFINITIONS['Work Context'];
+        const effortSelectedCount = effortStatements.filter((_, idx) =>
+            (state.selections.effort || []).includes(`effort-${idx}`)
+        ).length;
+        const effortAllSelected = effortSelectedCount === effortStatements.length && effortStatements.length > 0;
 
         let effortHtml = `
-            <div class="tab-panel__section">
+            <div class="tab-panel__section" data-section-id="effort">
                 <div class="tab-panel__section-header">
-                    <h3 class="tab-panel__section-title">Effort</h3>
+                    <div class="tab-panel__section-title-row">
+                        <label class="select-all-label" title="Select/deselect all statements in this section">
+                            <input type="checkbox" class="select-all-checkbox"
+                                   data-section="effort"
+                                   ${effortAllSelected ? 'checked' : ''}>
+                            <span class="select-all-text">Select All</span>
+                        </label>
+                        <h3 class="tab-panel__section-title">Effort (${effortStatements.length})</h3>
+                    </div>
                     <button class="style-selected-btn"
                             onclick="styleSelectedStatements('effort')"
                             title="Generate styled versions of selected statements">
@@ -681,11 +708,23 @@ const renderTabContent = (profile) => {
     if (responsibilityPanel) {
         const respStatements = profile.responsibility?.statements || [];
         const workContextDef = CATEGORY_DEFINITIONS['Work Context'];
+        const respSelectedCount = respStatements.filter((_, idx) =>
+            (state.selections.responsibility || []).includes(`responsibility-${idx}`)
+        ).length;
+        const respAllSelected = respSelectedCount === respStatements.length && respStatements.length > 0;
 
         let respHtml = `
-            <div class="tab-panel__section">
+            <div class="tab-panel__section" data-section-id="responsibility">
                 <div class="tab-panel__section-header">
-                    <h3 class="tab-panel__section-title">Responsibility</h3>
+                    <div class="tab-panel__section-title-row">
+                        <label class="select-all-label" title="Select/deselect all statements in this section">
+                            <input type="checkbox" class="select-all-checkbox"
+                                   data-section="responsibility"
+                                   ${respAllSelected ? 'checked' : ''}>
+                            <span class="select-all-text">Select All</span>
+                        </label>
+                        <h3 class="tab-panel__section-title">Responsibility (${respStatements.length})</h3>
+                    </div>
                     <button class="style-selected-btn"
                             onclick="styleSelectedStatements('responsibility')"
                             title="Generate styled versions of selected statements">

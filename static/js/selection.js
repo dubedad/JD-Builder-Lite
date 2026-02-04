@@ -9,6 +9,11 @@ const initSelection = () => {
             console.log('[DEBUG selection.js] Checkbox changed:', e.target.checked, 'section:', e.target.dataset.section);
             handleSelection(e.target);
         }
+        // Handle Select All checkbox
+        if (e.target.classList.contains('select-all-checkbox')) {
+            console.log('[DEBUG selection.js] Select All changed:', e.target.checked, 'section:', e.target.dataset.section);
+            handleSelectAll(e.target);
+        }
     });
 
     console.log('[DEBUG selection.js] Document-level change listener attached');
@@ -59,6 +64,48 @@ const handleSelection = (checkbox) => {
     if (li) {
         li.classList.toggle('statement--selected', checkbox.checked);
     }
+};
+
+/**
+ * Handle Select All checkbox - select or deselect all statements in a section
+ */
+const handleSelectAll = (selectAllCheckbox) => {
+    const sectionId = selectAllCheckbox.dataset.section;
+    const isChecked = selectAllCheckbox.checked;
+    const state = store.getState();
+
+    // Find all statement checkboxes in this section
+    const sectionCheckboxes = document.querySelectorAll(
+        `input.statement__checkbox[data-section="${sectionId}"]`
+    );
+
+    const newSelections = [];
+    const now = new Date().toISOString();
+    const timestamps = { ...state.selectionTimestamps } || {};
+
+    sectionCheckboxes.forEach(checkbox => {
+        const stmtId = checkbox.dataset.id;
+        checkbox.checked = isChecked;
+
+        // Update visual highlight
+        const li = checkbox.closest('.statement');
+        if (li) {
+            li.classList.toggle('statement--selected', isChecked);
+        }
+
+        if (isChecked) {
+            newSelections.push(stmtId);
+            timestamps[stmtId] = now;
+        }
+    });
+
+    // Update store with all selections at once
+    store.setSelections(sectionId, newSelections);
+    if (isChecked) {
+        store.setState({ selectionTimestamps: timestamps });
+    }
+
+    console.log('[DEBUG selection.js] Select All:', isChecked ? 'selected' : 'deselected', newSelections.length, 'items in', sectionId);
 };
 
 const updateActionBar = (state) => {
