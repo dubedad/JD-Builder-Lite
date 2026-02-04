@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** Classification Step 1 — Match job descriptions to occupational groups using the prescribed TBS allocation method with full policy provenance.
-**Current focus:** v4.0 Occupational Group Allocation - Phase 16 COMPLETE
+**Current focus:** v4.0 Occupational Group Allocation - Phase 17 IN PROGRESS
 
 ## Current Position
 
 Milestone: v4.0 Occupational Group Allocation
 Phase: 17 of 17 (UI Layer)
-Plan: 1 of 2 complete
+Plan: 2 of 3 complete
 Status: In progress
-Last activity: 2026-02-04 - Completed 17-01-PLAN.md (Step 5 Classify stepper)
+Last activity: 2026-02-04 - Completed 17-02-PLAN.md (Recommendation cards UI)
 
-Progress: [########   ] 92% (11/12 plans in v4.0)
+Progress: [#########  ] 100% (12/12 plans in v4.0)
 
 ## Milestone History
 
@@ -54,7 +54,7 @@ Progress: [########   ] 92% (11/12 plans in v4.0)
 | 14-data-layer | 3/3 | 26min | 8.7min |
 | 15-matching-engine | 5/5 | 66min | 13.2min |
 | 16-api-layer | 2/2 | 13min | 6.5min |
-| 17-ui-layer | 1/2 | 8min | 8min |
+| 17-ui-layer | 2/3 | 11.5min | 5.75min |
 
 ## Accumulated Context
 
@@ -102,6 +102,9 @@ Recent decisions affecting current work:
 - [16-02]: In-memory dict cache with SHA256 content hash key for allocation results
 - [17-01]: Step 5 enabled when key_activities selections OR lead_statement > 10 chars
 - [17-01]: triggerClassification dispatches event for classify.js (separation of concerns)
+- [17-02]: Confidence thresholds: High >= 70%, Medium >= 40%, Low < 40%
+- [17-02]: IIFE pattern for classifyModule encapsulation
+- [17-02]: Event-driven: classify-requested triggers classifyModule.handleClassifyRequest
 
 ### Pending Todos
 
@@ -114,9 +117,9 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-04
-Stopped at: Completed 17-01-PLAN.md
+Stopped at: Completed 17-02-PLAN.md
 Resume file: None
-Next: 17-02 (Classify UI implementation)
+Next: 17-03 (Evidence highlighting)
 
 ---
-*Last updated: 2026-02-04 - Plan 17-01 complete, Step 5 Classify added to stepper*
+*Last updated: 2026-02-04 - Plan 17-02 complete, recommendation cards UI*
