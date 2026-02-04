@@ -336,6 +336,11 @@ const renderStatementsPanel = (statements, sections, sectionId, selectedIds) => 
                 ? `<span class="statement__description">${escapeHtml(stmt.description)}</span>`
                 : '';
 
+            // Build styled statement container HTML (Phase 12 - dual-format display)
+            const styledContainerHtml = window.createStyledStatementContainer
+                ? window.createStyledStatementContainer(stmtId, sectionId)
+                : '';
+
             html += `
                 <li class="statement tab-panel__item${isSelected ? ' statement--selected' : ''}" data-id="${stmtId}">
                     <label class="statement__label">
@@ -350,6 +355,7 @@ const renderStatementsPanel = (statements, sections, sectionId, selectedIds) => 
                         </span>
                         ${proficiencyHtml}
                     </label>
+                    ${styledContainerHtml}
                 </li>
             `;
         });
@@ -625,6 +631,9 @@ const renderTabContent = (profile) => {
                 const isSelected = (state.selections.effort || []).includes(stmtId);
                 const proficiencyHtml = stmt.proficiency ? renderProficiency(stmt.proficiency) : '';
                 const descriptionHtml = stmt.description ? `<span class="statement__description">${escapeHtml(stmt.description)}</span>` : '';
+                const styledContainerHtml = window.createStyledStatementContainer
+                    ? window.createStyledStatementContainer(stmtId, 'effort')
+                    : '';
 
                 effortHtml += `
                     <li class="statement tab-panel__item${isSelected ? ' statement--selected' : ''}" data-id="${stmtId}">
@@ -640,6 +649,7 @@ const renderTabContent = (profile) => {
                             </span>
                             ${proficiencyHtml}
                         </label>
+                        ${styledContainerHtml}
                     </li>
                 `;
             });
@@ -671,6 +681,9 @@ const renderTabContent = (profile) => {
                 const isSelected = (state.selections.responsibility || []).includes(stmtId);
                 const proficiencyHtml = stmt.proficiency ? renderProficiency(stmt.proficiency) : '';
                 const descriptionHtml = stmt.description ? `<span class="statement__description">${escapeHtml(stmt.description)}</span>` : '';
+                const styledContainerHtml = window.createStyledStatementContainer
+                    ? window.createStyledStatementContainer(stmtId, 'responsibility')
+                    : '';
 
                 respHtml += `
                     <li class="statement tab-panel__item${isSelected ? ' statement--selected' : ''}" data-id="${stmtId}">
@@ -686,6 +699,7 @@ const renderTabContent = (profile) => {
                             </span>
                             ${proficiencyHtml}
                         </label>
+                        ${styledContainerHtml}
                     </li>
                 `;
             });
