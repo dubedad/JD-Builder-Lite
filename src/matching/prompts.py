@@ -59,7 +59,7 @@ Classification principles:
 Output structured results with reasoning steps, evidence spans, and confidence scores.'''
 
 
-def build_user_prompt(jd_data: Dict, candidates: List[Dict]) -> str:
+def build_user_prompt(jd_data: Dict, candidates: List[Dict], max_activities: int = 15) -> str:
     """
     Build user prompt with JD data and shortlisted candidate groups.
 
@@ -68,6 +68,7 @@ def build_user_prompt(jd_data: Dict, candidates: List[Dict]) -> str:
         candidates: List of candidate dicts from shortlister, each containing:
             - group: dict with group_code, definition, inclusions, exclusions, source_url
             - semantic_similarity: float
+        max_activities: Maximum number of activities to include (prevents token overflow)
 
     Returns:
         Formatted prompt string with JD content and candidates
@@ -75,7 +76,7 @@ def build_user_prompt(jd_data: Dict, candidates: List[Dict]) -> str:
     # Extract JD content
     title = jd_data.get("position_title", "Unknown")
     results = jd_data.get("client_service_results", "")
-    activities = jd_data.get("key_activities", [])
+    activities = jd_data.get("key_activities", [])[:max_activities]  # Limit to prevent token overflow
 
     # Format key activities list
     activities_str = "\n".join([f"- {act}" for act in activities]) if activities else "None specified"

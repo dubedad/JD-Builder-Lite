@@ -666,7 +666,9 @@ def allocate():
         try:
             from src.matching.allocator import OccupationalGroupAllocator
             allocator = OccupationalGroupAllocator()
+            current_app.logger.info(f"Starting allocation for '{allocation_request.position_title}' with {len(allocation_request.key_activities)} activities")
             result = allocator.allocate(allocation_request.model_dump())
+            current_app.logger.info(f"Allocation complete: {len(result.top_recommendations)} recommendations")
         except ImportError:
             # Allocator not yet implemented - return helpful error
             current_app.logger.warning("OccupationalGroupAllocator not yet available")
@@ -674,6 +676,15 @@ def allocate():
                 error="Allocation engine not available",
                 detail="Phase 15 allocator implementation in progress"
             ).model_dump(mode='json')), 503
+        except Exception as e:
+            # Catch all other exceptions from allocator
+            import traceback
+            current_app.logger.error(f"Allocation engine error: {str(e)}")
+            current_app.logger.error(traceback.format_exc())
+            return jsonify(ErrorResponse(
+                error="Allocation engine error",
+                detail=str(e)
+            ).model_dump(mode='json')), 500
 
         # Build provenance map (API-02)
         provenance_map = build_provenance_map(result)
