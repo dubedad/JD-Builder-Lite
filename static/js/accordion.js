@@ -321,7 +321,14 @@ const renderStatementsPanel = (statements, sections, sectionId, selectedIds) => 
 
         html += `
             <div class="tab-panel__section">
-                <h3 class="tab-panel__section-title">${section.title}</h3>
+                <div class="tab-panel__section-header">
+                    <h3 class="tab-panel__section-title">${section.title}</h3>
+                    <button class="style-selected-btn"
+                            onclick="styleSelectedStatements('${sectionId}')"
+                            title="Generate styled versions of selected statements">
+                        <i class="fas fa-magic"></i> Style Selected
+                    </button>
+                </div>
                 ${definitionHtml}
                 <ul class="tab-panel__list jd-section__list">
         `;

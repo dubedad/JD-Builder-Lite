@@ -1841,6 +1841,40 @@ body.sidebar-open .action-bar {
    Styled Statement Display (Phase 12)
    ========================================================================== */
 
+/* Section header with Style Selected button */
+.tab-panel__section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.style-selected-btn {
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.2s;
+}
+
+.style-selected-btn:hover {
+    background-color: #0a58ca;
+}
+
+.style-selected-btn:active {
+    background-color: #084298;
+}
+
+.style-selected-btn i {
+    font-size: 0.9rem;
+}
+
 /* Confidence indicator dots - per CONTEXT.md color scheme */
 .confidence-dot {
     display: inline-block;
