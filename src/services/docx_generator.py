@@ -178,6 +178,54 @@ def generate_docx(data: ExportData) -> bytes:
                 ("Purpose", section.content.get("purpose", ""))
             ])
 
+        elif section.section_id == "styled_content_disclosure":
+            # Styled Content Disclosure
+            doc.add_paragraph(section.content.get("description", ""))
+
+            # Summary table
+            _add_key_value_table(doc, [
+                ("Content Disclosure", section.content.get("disclosure_label", "")),
+                ("Total Styled Statements", str(section.content.get("total_statements", 0))),
+                ("AI-Styled Count", str(section.content.get("ai_styled_count", 0))),
+                ("Original Fallback Count", str(section.content.get("original_fallback_count", 0)))
+            ])
+
+            # Vocabulary Audit subsection
+            vocab_heading = doc.add_heading("Vocabulary Audit Summary", 2)
+            for run in vocab_heading.runs:
+                run.font.size = Pt(11)
+            vocab_audit = section.content.get("vocabulary_audit", {})
+            _add_key_value_table(doc, [
+                ("Average NOC Coverage", vocab_audit.get("average_coverage", "")),
+                ("Minimum Coverage", vocab_audit.get("minimum_coverage", "")),
+                ("Vocabulary Source", vocab_audit.get("noc_vocabulary_source", ""))
+            ])
+
+            # Confidence Distribution subsection
+            conf_heading = doc.add_heading("Confidence Distribution", 2)
+            for run in conf_heading.runs:
+                run.font.size = Pt(11)
+            conf_summary = section.content.get("confidence_summary", {})
+            _add_key_value_table(doc, [
+                ("Average Confidence", str(conf_summary.get("average_confidence", ""))),
+                ("High Confidence (>=0.8)", str(conf_summary.get("high_confidence_count", 0))),
+                ("Medium Confidence (0.5-0.8)", str(conf_summary.get("medium_confidence_count", 0))),
+                ("Low Confidence (<0.5)", str(conf_summary.get("low_confidence_count", 0)))
+            ])
+
+            # Generation Parameters subsection
+            gen_heading = doc.add_heading("Generation Parameters", 2)
+            for run in gen_heading.runs:
+                run.font.size = Pt(11)
+            gen_meta = section.content.get("generation_metadata", {})
+            _add_key_value_table(doc, [
+                ("Model", gen_meta.get("model", "")),
+                ("Prompt Version", gen_meta.get("prompt_version", "")),
+                ("Max Retries", str(gen_meta.get("max_retries", ""))),
+                ("Vocabulary Threshold", gen_meta.get("vocabulary_threshold", "")),
+                ("Semantic Similarity Threshold", gen_meta.get("semantic_similarity_threshold", ""))
+            ])
+
     # Add Annex section if data available
     _add_annex_section(doc, data)
 
