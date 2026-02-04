@@ -12,8 +12,8 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 Milestone: v4.0 Occupational Group Allocation
 Phase: 15 of 17 (Matching Engine)
 Plan: 3 of 5 complete
-Status: In progress - Confidence scoring and evidence linking complete
-Last activity: 2026-02-04 - Completed 15-03-PLAN.md (Confidence scoring and evidence linking)
+Status: In progress - Data contracts, shortlisting, and confidence scoring complete
+Last activity: 2026-02-04 - Completed 15-02-PLAN.md (Shortlisting module)
 
 Progress: [###        ] 50% (6/12 plans in v4.0)
 
@@ -52,7 +52,7 @@ Progress: [###        ] 50% (6/12 plans in v4.0)
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 14-data-layer | 3/3 | 26min | 8.7min |
-| 15-matching-engine | 3/5 | 27min | 9min |
+| 15-matching-engine | 3/5 | 46min | 15.3min |
 
 ## Accumulated Context
 
@@ -76,6 +76,11 @@ Recent decisions affecting current work:
 - [15-01]: Models use simple types for OpenAI structured output compatibility
 - [15-01]: Repository loads statements eagerly (single query pattern)
 - [15-01]: Confidence breakdown exposed as dict for transparency
+- [15-02]: Use all-MiniLM-L6-v2 model (fast, good accuracy, no GPU needed)
+- [15-02]: Cache definition embeddings for performance (definitions don't change often)
+- [15-02]: Labels boost gracefully degrades to 0.0 when no OaSIS->TBS mapping exists
+- [15-02]: Inclusions used for shortlist filtering ONLY, not for combined_score ranking
+- [15-02]: Combined score = semantic_similarity + labels_boost (no inclusion weight)
 - [15-03]: NO inclusion weight in confidence scoring (inclusions for shortlisting only per CONTEXT.md)
 - [15-03]: Exclusion conflict applies 0.3 multiplier penalty
 - [15-03]: Borderline detection at 10% margin between top scores
@@ -93,9 +98,9 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-04
-Stopped at: Completed 15-03-PLAN.md
+Stopped at: Completed 15-02-PLAN.md
 Resume file: None
 Next: Continue Phase 15 (15-04: LLM integration, 15-05: Allocator assembly)
 
 ---
-*Last updated: 2026-02-04 - 15-03 complete*
+*Last updated: 2026-02-04 - 15-02 complete, 3 of 5 plans in Phase 15 complete*
