@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 Milestone: v4.0 Occupational Group Allocation
 Phase: 15 of 17 (Matching Engine)
-Plan: 3 of 5 complete
-Status: In progress - Data contracts, shortlisting, and confidence scoring complete
-Last activity: 2026-02-04 - Completed 15-02-PLAN.md (Shortlisting module)
+Plan: 4 of 5 complete
+Status: In progress - Data contracts, shortlisting, confidence scoring, and LLM classification complete
+Last activity: 2026-02-04 - Completed 15-04-PLAN.md (LLM integration)
 
-Progress: [###        ] 50% (6/12 plans in v4.0)
+Progress: [####       ] 58% (7/12 plans in v4.0)
 
 ## Milestone History
 
@@ -52,7 +52,7 @@ Progress: [###        ] 50% (6/12 plans in v4.0)
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 14-data-layer | 3/3 | 26min | 8.7min |
-| 15-matching-engine | 3/5 | 46min | 15.3min |
+| 15-matching-engine | 4/5 | 59min | 14.75min |
 
 ## Accumulated Context
 
@@ -86,6 +86,10 @@ Recent decisions affecting current work:
 - [15-03]: Borderline detection at 10% margin between top scores
 - [15-03]: Evidence extraction uses difflib SequenceMatcher for fuzzy matching
 - [15-03]: Provenance returns archive_path for audit verification
+- [15-04]: Temperature=0 for deterministic classification (no randomness in occupational group matching)
+- [15-04]: Fallback creates minimal 0.0-confidence recommendation when LLM fails but candidates exist
+- [15-04]: Chain-of-thought prompts explicitly request quoted evidence with quotation marks
+- [15-04]: PROMPT_VERSION tracking for provenance and prompt evolution monitoring
 
 ### Pending Todos
 
@@ -98,9 +102,9 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-04
-Stopped at: Completed 15-02-PLAN.md
+Stopped at: Completed 15-04-PLAN.md
 Resume file: None
-Next: Continue Phase 15 (15-04: LLM integration, 15-05: Allocator assembly)
+Next: Continue Phase 15 (15-05: Allocator assembly)
 
 ---
-*Last updated: 2026-02-04 - 15-02 complete, 3 of 5 plans in Phase 15 complete*
+*Last updated: 2026-02-04 - 15-04 complete, 4 of 5 plans in Phase 15 complete*
