@@ -268,10 +268,14 @@
 
             <!-- Recommendations container - populated by JS -->
             <div id="classify-results" class="classify-results hidden">
+                <!-- Recommendations section -->
+                <h3 class="recommendations-heading">Recommended Occupational Groups</h3>
+                <p class="recommendations-subheading">Click a card to expand and see full rationale, evidence, and provenance.</p>
+
                 <!-- Split view: recommendations left, JD right -->
                 <div class="classify-layout">
                     <div id="recommendations-panel" class="recommendations-panel">
-                        <!-- Recommendation cards inserted here -->
+                        <!-- Recommendation cards inserted here by JS -->
                     </div>
                     <div id="evidence-panel" class="evidence-panel hidden">
                         <header class="evidence-panel-header">
@@ -285,22 +289,22 @@
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Next steps after classification -->
-            <div id="classify-complete" class="classify-complete hidden">
-                <div class="classify-complete-icon">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <h3>Classification Step 1 Complete</h3>
-                <p>The occupational group allocation has been determined based on your job description.</p>
-                <div class="classify-next-steps">
-                    <h4>Next Steps</h4>
-                    <ul>
-                        <li>Review the recommended occupational group(s) and their rationale</li>
-                        <li>Consult with a classification specialist if borderline or unclear</li>
-                        <li>Proceed to Step 2: Apply Job Evaluation Standard for the selected group</li>
-                    </ul>
+                <!-- Next steps after classification (inside results so it appears below recommendations) -->
+                <div id="classify-complete" class="classify-complete hidden">
+                    <div class="classify-complete-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h3>Classification Step 1 Complete</h3>
+                    <p>Review the recommendations above. The occupational group allocation is based on your job description content.</p>
+                    <div class="classify-next-steps">
+                        <h4>Next Steps</h4>
+                        <ul>
+                            <li>Review the recommended occupational group(s) and their rationale above</li>
+                            <li>Consult with a classification specialist if borderline or unclear</li>
+                            <li>Proceed to Step 2: Apply Job Evaluation Standard for the selected group</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </section>

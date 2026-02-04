@@ -189,6 +189,31 @@
     max-width: 600px;
 }
 
+/* Recommendations headings */
+.recommendations-heading {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--gc-blue, #26374a);
+    margin: 0 0 0.5rem 0;
+}
+
+.recommendations-subheading {
+    font-size: 0.875rem;
+    color: var(--text-light);
+    margin: 0 0 1.5rem 0;
+}
+
+/* No recommendations message */
+.no-recommendations {
+    padding: 2rem;
+    background: #fff3e0;
+    border: 1px solid #ffcc80;
+    border-radius: 8px;
+    text-align: center;
+    color: #e65100;
+    font-size: 1rem;
+}
+
 .evidence-panel {
     flex: 1;
     position: sticky;

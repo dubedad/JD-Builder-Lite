@@ -207,6 +207,13 @@ const classifyModule = (function() {
      * @param {Object} jdData - Original JD data sent to API
      */
     function renderResults(response, jdData) {
+        console.log('[classify.js] renderResults called with:', {
+            status: response.status,
+            recommendationsCount: response.recommendations?.length || 0,
+            borderlineFlag: response.borderline_flag,
+            hasProvenanceMap: !!response.provenance_map
+        });
+
         if (elements.loading) elements.loading.classList.add('hidden');
         if (elements.error) elements.error.classList.add('hidden');
         if (elements.results) elements.results.classList.remove('hidden');
@@ -217,7 +224,17 @@ const classifyModule = (function() {
         // Clear and render recommendation cards
         if (elements.recommendationsPanel) {
             elements.recommendationsPanel.innerHTML = '';
-            renderRecommendationCards(response.recommendations, response.provenance_map);
+
+            // Show recommendations or "no recommendations" message
+            if (response.recommendations && response.recommendations.length > 0) {
+                renderRecommendationCards(response.recommendations, response.provenance_map);
+            } else {
+                // Create no-recommendations message dynamically
+                const noRecsMsg = document.createElement('p');
+                noRecsMsg.className = 'no-recommendations';
+                noRecsMsg.textContent = 'No occupational group recommendations could be determined. Try selecting more activities or skills.';
+                elements.recommendationsPanel.appendChild(noRecsMsg);
+            }
         }
 
         // Store JD text for evidence highlighting
@@ -297,7 +314,12 @@ const classifyModule = (function() {
      * @param {Object} provenanceMap - Dict keyed by group_code
      */
     function renderRecommendationCards(recommendations, provenanceMap) {
-        if (!elements.recommendationsPanel) return;
+        console.log('[classify.js] renderRecommendationCards called with', recommendations?.length, 'recommendations');
+
+        if (!elements.recommendationsPanel) {
+            console.error('[classify.js] recommendationsPanel element not found!');
+            return;
+        }
 
         if (!recommendations || recommendations.length === 0) {
             elements.recommendationsPanel.innerHTML = `
