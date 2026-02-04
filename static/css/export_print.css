@@ -376,3 +376,71 @@ body {
   font-style: italic;
   text-align: right;
 }
+
+/* Styled Content Support (Phase 13) */
+
+/* Styled statement modifier */
+.jd-statement--styled {
+  /* Keep same base styling, modifier for JS hooks if needed */
+}
+
+/* Confidence indicator dots */
+.jd-confidence-dot {
+  display: inline-block;
+  width: 8pt;
+  height: 8pt;
+  border-radius: 50%;
+  margin-left: 0.5em;
+  vertical-align: middle;
+}
+
+.jd-confidence-dot--high {
+  background-color: #4caf50;  /* Green */
+}
+
+.jd-confidence-dot--medium {
+  background-color: #ff9800;  /* Yellow/Amber */
+}
+
+.jd-confidence-dot--low {
+  background-color: #f44336;  /* Red */
+}
+
+/* Original NOC text stacked below styled (muted style) */
+.jd-statement__original {
+  margin-top: 0.5em;
+  padding: 0.4em 0.6em;
+  font-size: 9pt;
+  line-height: 1.4;
+  color: #666666;
+  background: #f5f5f5;
+  border-left: 2pt solid #cccccc;
+}
+
+.jd-statement__original-label {
+  font-weight: 600;
+  color: #888888;
+  margin-right: 0.5em;
+}
+
+/* AI disclosure label for individual statements */
+.jd-statement__ai-label {
+  display: block;
+  margin-top: 0.25em;
+  font-size: 8pt;
+  color: #1976d2;
+  font-style: italic;
+}
+
+/* Styled content disclosure section in compliance appendix */
+.styled-disclosure-section {
+  margin-top: 1.5em;
+  page-break-inside: avoid;
+}
+
+.styled-disclosure-section h3 {
+  font-size: 11pt;
+  color: #26374a;
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+}
