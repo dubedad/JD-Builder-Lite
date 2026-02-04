@@ -886,6 +886,19 @@ document.addEventListener('DOMContentLoaded', function() {
             updateStepperState(3);
         });
 
+        // Re-evaluate step accessibility when selections change
+        // This enables Step 5 when user selects key activities
+        store.subscribe((state) => {
+            // Re-run canAccessStep checks without changing current step
+            steps.forEach((step, index) => {
+                const stepNum = index + 1;
+                const btn = step.querySelector('.jd-stepper__btn');
+                if (stepNum > currentStep) {
+                    btn.disabled = !canAccessStep(stepNum);
+                }
+            });
+        });
+
         console.log('[DEBUG] JD Stepper initialized with 5 steps');
     }
 
