@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-01-25)
 
 **Core value:** Every piece of content in the final job description can be traced back to its authoritative source (NOC/OASIS), with clear documentation of human decisions and AI involvement.
-**Current focus:** v3.0 Style-Enhanced Writing - Phase 12 Complete, Ready for Phase 13
+**Current focus:** v3.0 Style-Enhanced Writing - Phase 13 in progress
 
 ## Current Position
 
 Milestone: v3.0 Style-Enhanced Writing
-Phase: 12 of 13 (Constrained Generation) - COMPLETE
-Plan: 12-03 complete (Phase 12 complete)
-Status: Ready for Phase 13
-Last activity: 2026-02-04 - Completed 12-03-PLAN.md
+Phase: 13 of 13 (Export Enhancement)
+Plan: 13-01 complete
+Status: In progress
+Last activity: 2026-02-03 - Completed 13-01-PLAN.md
 
-Progress: [########..] 80% (8/10 plans)
+Progress: [#########.] 90% (9/10 plans)
 
 ## Milestone History
 
@@ -30,9 +30,9 @@ Progress: [########..] 80% (8/10 plans)
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8 (v3.0)
-- Average duration: 7.4min
-- Total execution time: ~2h 40min
+- Total plans completed: 9 (v3.0)
+- Average duration: 7.2min
+- Total execution time: ~2h 46min
 
 **By Phase:**
 
@@ -42,10 +42,11 @@ Progress: [########..] 80% (8/10 plans)
 | 10-style-analysis-pipeline | 2 | 9min | 4.5min |
 | 11-provenance-architecture | 2 | 4.5min | 2.25min |
 | 12-constrained-generation | 3 | ~2h | ~40min |
+| 13-export-enhancement | 1 | 6min | 6min |
 
 **Recent Trend:**
-- Last 5 plans: 11-02 (2min), 12-01 (6min), 12-02 (10min), 12-03 (~2h)
-- Trend: 12-03 longer due to human verification checkpoint
+- Last 5 plans: 12-01 (6min), 12-02 (10min), 12-03 (~2h), 13-01 (6min)
+- Trend: 13-01 quick model/service extension
 
 *Updated after each plan completion*
 
@@ -80,6 +81,9 @@ Recent decisions affecting current work:
 - [Phase 12-02]: is_fallback boolean in response for easy frontend detection
 - [Phase 12-03]: Style Selected button in section headers for batch styling
 - [Phase 12-03]: Styled containers hidden by default, shown after styling (progressive enhancement)
+- [Phase 13-01]: StyledStatementExport uses confidence thresholds from vocabulary_audit (0.8/0.5)
+- [Phase 13-01]: TYPE_CHECKING import pattern for forward references avoiding circular imports
+- [Phase 13-01]: Factory method pattern for model conversion (from_styled_statement)
 
 ### Pending Todos
 
@@ -91,10 +95,10 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-04
-Stopped at: Completed 12-03-PLAN.md (Phase 12 complete)
+Last session: 2026-02-03
+Stopped at: Completed 13-01-PLAN.md
 Resume file: None
-Next: Phase 13 (UI Integration)
+Next: 13-02-PLAN.md (PDF generation with styled content)
 
 ---
-*Last updated: 2026-02-04 - Completed 12-03-PLAN.md*
+*Last updated: 2026-02-03 - Completed 13-01-PLAN.md*
