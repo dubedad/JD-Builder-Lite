@@ -10,12 +10,12 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Milestone: v4.0 Occupational Group Allocation
-Phase: 15 of 17 (Matching Engine)
-Plan: 4 of 5 complete
-Status: In progress - Data contracts, shortlisting, confidence scoring, and LLM classification complete
-Last activity: 2026-02-04 - Completed 15-04-PLAN.md (LLM integration)
+Phase: 15 of 17 (Matching Engine) - COMPLETE
+Plan: 5 of 5 complete
+Status: Phase 15 complete - Full allocation pipeline ready for API integration
+Last activity: 2026-02-04 - Completed 15-05-PLAN.md (Allocator assembly)
 
-Progress: [####       ] 58% (7/12 plans in v4.0)
+Progress: [#####      ] 67% (8/12 plans in v4.0)
 
 ## Milestone History
 
@@ -52,7 +52,7 @@ Progress: [####       ] 58% (7/12 plans in v4.0)
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 14-data-layer | 3/3 | 26min | 8.7min |
-| 15-matching-engine | 4/5 | 59min | 14.75min |
+| 15-matching-engine | 5/5 | 66min | 13.2min |
 
 ## Accumulated Context
 
@@ -90,6 +90,10 @@ Recent decisions affecting current work:
 - [15-04]: Fallback creates minimal 0.0-confidence recommendation when LLM fails but candidates exist
 - [15-04]: Chain-of-thought prompts explicitly request quoted evidence with quotation marks
 - [15-04]: PROMPT_VERSION tracking for provenance and prompt evolution monitoring
+- [15-05]: Empty top_recommendations allowed for edge cases (no viable candidates)
+- [15-05]: Edge case detection surfaces actionable guidance, not silent failures
+- [15-05]: AP/TC disambiguation uses TBS-based indicators (theoretical vs practical)
+- [15-05]: Evidence linking uses fuzzy matching to handle LLM paraphrasing
 
 ### Pending Todos
 
@@ -102,9 +106,9 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-04
-Stopped at: Completed 15-04-PLAN.md
+Stopped at: Completed 15-05-PLAN.md
 Resume file: None
-Next: Continue Phase 15 (15-05: Allocator assembly)
+Next: Phase 16 (API Layer) - HTTP endpoints for occupational group allocation
 
 ---
-*Last updated: 2026-02-04 - 15-04 complete, 4 of 5 plans in Phase 15 complete*
+*Last updated: 2026-02-04 - Phase 15 complete, matching engine ready for API integration*
