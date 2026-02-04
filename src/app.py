@@ -5,10 +5,14 @@ from flask_cors import CORS
 from src.routes.api import api_bp
 from src.config import SECRET_KEY, JOBFORGE_BRONZE_PATH
 from src.vocabulary import VocabularyIndex, start_vocabulary_watcher
+from src.services.generation_service import GenerationService, get_generation_service
 
 # Module-level vocabulary state
 vocab_index = None
 vocab_observer = None
+
+# Module-level generation service state
+generation_service = None
 
 
 def initialize_vocabulary():
@@ -17,12 +21,17 @@ def initialize_vocabulary():
     Loads NOC vocabulary from JobForge parquet files and starts
     file watcher for automatic hot-reload on changes.
     """
-    global vocab_index, vocab_observer
+    global vocab_index, vocab_observer, generation_service
 
     vocab_index = VocabularyIndex(JOBFORGE_BRONZE_PATH)
     vocab_observer = start_vocabulary_watcher(vocab_index, JOBFORGE_BRONZE_PATH)
 
     print(f"[Vocabulary] Loaded: {vocab_index.get_term_count()} terms")
+
+    # Initialize generation service with vocabulary index (for styled statement generation)
+    # Uses lazy initialization - actual model loading happens on first generation request
+    generation_service = get_generation_service(vocab_index)
+    print("[Generation] Service initialized (lazy loading enabled)")
 
 
 def create_app():
