@@ -59,14 +59,15 @@ const classifyModule = (function() {
         // Build JD data from profile and selections
         const jdData = buildJdDataFromProfile(profile, selections);
 
-        if (!jdData.client_service_results || jdData.client_service_results.length < 10) {
-            showError('Client-Service Results must have at least 10 characters. Please add more detail in Step 3.');
-            return;
-        }
-
         if (!jdData.key_activities || jdData.key_activities.length === 0) {
             showError('At least one Key Activity is required. Please select activities in Step 3.');
             return;
+        }
+
+        // v4.0: Client-Service Results is optional - use position title as fallback
+        if (!jdData.client_service_results || jdData.client_service_results.length < 10) {
+            // Construct fallback from position title for classification context
+            jdData.client_service_results = `Position: ${jdData.position_title}`;
         }
 
         // Show loading state

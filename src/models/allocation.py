@@ -40,8 +40,8 @@ class AllocationRequest(BaseModel):
         description="Job position title"
     )
     client_service_results: str = Field(
-        min_length=10,
-        description="Primary purpose statement - why this position exists"
+        default="",
+        description="Primary purpose statement - why this position exists. Optional for v4.0."
     )
     key_activities: List[str] = Field(
         min_length=1,
@@ -65,10 +65,8 @@ class AllocationRequest(BaseModel):
     @field_validator("client_service_results")
     @classmethod
     def validate_client_service_results(cls, v: str) -> str:
-        """Ensure Client-Service Results has substantive content."""
-        if len(v.strip()) < 10:
-            raise ValueError("Client-Service Results must have at least 10 characters of content")
-        return v.strip()
+        """Clean Client-Service Results. Optional for v4.0 - can be empty."""
+        return v.strip() if v else ""
 
     @field_validator("key_activities")
     @classmethod
