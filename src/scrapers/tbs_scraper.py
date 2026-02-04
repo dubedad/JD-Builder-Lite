@@ -233,11 +233,9 @@ class TBSScraper:
     ) -> List[Dict[str, Any]]:
         """Merge data from table and definitions page.
 
-        Combines URLs from the concordance table with
-        definitions/inclusions/exclusions from the definitions page.
-
-        Groups without definitions are skipped with warnings, per CONTEXT.md:
-        "Fail explicitly, keep existing data (log error, don't update that group)"
+        Uses definitions as the primary source (they have actual content),
+        enriched with URLs from the concordance table where we can match
+        by group_code (table rows without subgroup are the canonical entries).
 
         Args:
             table_groups: Groups parsed from concordance table
@@ -246,72 +244,67 @@ class TBSScraper:
         Returns:
             Merged list of group dicts ready for validation
         """
-        # Create lookup by group_code+subgroup from definitions
-        defn_lookup: Dict[str, Dict] = {}
-        for defn in definitions:
-            code = defn.get("group_code", "")
-            subgroup = defn.get("subgroup")
-            key = f"{code}|{subgroup or ''}"
-            defn_lookup[key] = defn
+        # Build lookup from table for URLs - use only rows without subgroup
+        # (these are the canonical group entries with URLs)
+        table_lookup: Dict[str, Dict] = {}
+        for tg in table_groups:
+            code = tg.get("group_code", "")
+            subgroup = tg.get("subgroup")
+            # Only use parent entries (no subgroup) for URL lookup
+            # Subgroup rows have different naming conventions
+            if not subgroup and code:
+                table_lookup[code] = tg
 
         merged = []
         skipped_count = 0
 
-        for table_group in table_groups:
-            code = table_group.get("group_code", "")
-            subgroup = table_group.get("subgroup")
-            key = f"{code}|{subgroup or ''}"
+        # Iterate over definitions (the primary content source)
+        for defn in definitions:
+            code = defn.get("group_code", "")
+            subgroup = defn.get("subgroup")
+            definition_text = defn.get("definition", "")
 
-            # Try to find matching definition
-            defn = defn_lookup.get(key)
-
-            if defn:
-                definition_text = defn.get("definition", "")
-
-                # Skip groups with empty definitions
-                # Per CONTEXT.md: "Never insert partial or corrupt data"
-                if not definition_text or not definition_text.strip():
-                    logger.warning(
-                        "Skipping %s%s: empty definition (subgroup may inherit from parent)",
-                        code, f"/{subgroup}" if subgroup else ""
-                    )
-                    print(f"  Warning: Skipping {code}{f'/{subgroup}' if subgroup else ''} (empty definition)")
-                    skipped_count += 1
-                    continue
-
-                # Merge table URLs with definition content
-                merged.append({
-                    "group_code": code,
-                    "subgroup": subgroup,
-                    "definition": definition_text,
-                    "inclusions": defn.get("inclusions", []),
-                    "exclusions": defn.get("exclusions", []),
-                    # URLs from table
-                    "qualification_standard_url": table_group.get("qualification_standard_url"),
-                    "rates_of_pay_represented_url": table_group.get("rates_of_pay_represented_url"),
-                    "rates_of_pay_unrepresented_url": table_group.get("rates_of_pay_unrepresented_url"),
-                    "job_evaluation_standard_url": table_group.get("job_evaluation_standard_url"),
-                })
-            else:
-                # No definition found - log warning and skip
-                # Per CONTEXT.md: "Fail explicitly, keep existing data"
+            # Skip groups with empty definitions
+            # Per CONTEXT.md: "Never insert partial or corrupt data"
+            if not definition_text or not definition_text.strip():
                 logger.warning(
-                    "Skipping %s%s: no definition found in definitions page",
+                    "Skipping %s%s: empty definition (subgroup may inherit from parent)",
                     code, f"/{subgroup}" if subgroup else ""
                 )
+                print(f"  Warning: Skipping {code}{f'/{subgroup}' if subgroup else ''} (empty definition)")
                 skipped_count += 1
+                continue
 
-        # Also check for definitions not in table (orphan definitions)
-        table_keys = {f"{g.get('group_code', '')}|{g.get('subgroup') or ''}" for g in table_groups}
-        for key, defn in defn_lookup.items():
-            if key not in table_keys:
-                logger.warning(
-                    "Definition found without table entry: %s",
-                    defn.get("group_code")
+            # Look up URLs from table (use parent group code)
+            table_entry = table_lookup.get(code, {})
+
+            # Build merged record
+            merged.append({
+                "group_code": code,
+                "subgroup": subgroup,
+                "definition": definition_text,
+                "inclusions": defn.get("inclusions", []),
+                "exclusions": defn.get("exclusions", []),
+                # URLs from table (parent group entry)
+                "qualification_standard_url": table_entry.get("qualification_standard_url"),
+                "rates_of_pay_represented_url": table_entry.get("rates_of_pay_represented_url"),
+                "rates_of_pay_unrepresented_url": table_entry.get("rates_of_pay_unrepresented_url"),
+                "job_evaluation_standard_url": table_entry.get("job_evaluation_standard_url"),
+            })
+
+            if not table_entry:
+                logger.debug(
+                    "No table entry found for %s%s (definition-only)",
+                    code, f"/{subgroup}" if subgroup else ""
                 )
 
         if skipped_count > 0:
-            logger.info("Skipped %d groups with missing/empty definitions", skipped_count)
+            logger.info("Skipped %d groups with empty definitions", skipped_count)
+
+        logger.info(
+            "Merged %d definitions with %d table entries",
+            len(merged), len(table_lookup)
+        )
 
         return merged
 
