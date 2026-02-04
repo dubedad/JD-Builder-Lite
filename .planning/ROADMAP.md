@@ -47,13 +47,19 @@ Plans:
 **Requirements**: MATCH-01 through MATCH-08, OUT-01 through OUT-07, EDGE-01 through EDGE-04
 **Success Criteria** (what must be TRUE):
   1. System extracts primary purpose from JD using Client-Service Results and Key Activities
-  2. System shortlists candidate groups based on JD inclusions (labels.csv)
+  2. System shortlists candidate groups based on semantic similarity + labels boost
   3. System evaluates definition fit holistically (not keyword matching)
   4. System checks inclusion statements and links to definition when used
   5. System checks exclusion statements to confirm they don't reflect primary purpose
   6. System produces ranked top-3 recommendations with confidence scores (0.0-1.0)
   7. System handles edge cases: AP vs TC disambiguation, multiple groups plausible, invalid combination
-**Plans**: TBD
+**Plans**: 5 plans
+Plans:
+- [ ] 15-01-PLAN.md - Pydantic output models and repository extensions for statements
+- [ ] 15-02-PLAN.md - Semantic shortlisting with sentence-transformers and labels boost
+- [ ] 15-03-PLAN.md - Multi-factor confidence scoring and evidence linking
+- [ ] 15-04-PLAN.md - LLM classifier with structured outputs and instructor library
+- [ ] 15-05-PLAN.md - Main allocator orchestration and edge case handling
 
 ### Phase 16: API Layer
 **Goal**: Allocation endpoint returns recommendations with full provenance map
@@ -87,11 +93,11 @@ Note: Phase 15 requires Phase 14; Phases 16-17 are sequential.
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 14. Data Layer | 3/3 | Complete | 2026-02-04 |
-| 15. Matching Engine | 0/TBD | Pending | - |
+| 15. Matching Engine | 0/5 | Planned | - |
 | 16. API Layer | 0/TBD | Pending | - |
 | 17. UI Layer | 0/TBD | Pending | - |
 
 ---
 *Roadmap created: 2026-02-04*
-*Last updated: 2026-02-04 - Phase 14 complete (3/3 plans, verified)*
+*Last updated: 2026-02-04 - Phase 15 planned (5 plans in 3 waves)*
 *Milestone: v4.0 Occupational Group Allocation*
