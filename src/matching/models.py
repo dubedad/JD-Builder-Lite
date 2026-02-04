@@ -135,9 +135,11 @@ class AllocationResult(BaseModel):
     @field_validator("top_recommendations")
     @classmethod
     def validate_top_recommendations(cls, v: List[GroupRecommendation]) -> List[GroupRecommendation]:
-        """Ensure top_recommendations has 1-3 entries."""
-        if not v:
-            raise ValueError("top_recommendations must have at least 1 entry")
+        """Ensure top_recommendations has 0-3 entries.
+
+        Empty list is valid for edge cases where no groups meet confidence threshold
+        or database has no occupational groups.
+        """
         if len(v) > 3:
             raise ValueError("top_recommendations must have at most 3 entries")
         return v
