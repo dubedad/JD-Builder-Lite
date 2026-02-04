@@ -80,30 +80,60 @@ class LLMClassifier:
         """
         Classify with graceful fallback on LLM failure.
 
-        If LLM fails (API error, validation error, etc.), returns valid
-        AllocationResult with:
-        - Empty recommendations
-        - Error message in primary_purpose_summary
-        - warnings list with error details
+        If LLM fails but candidates exist, creates minimal fallback result
+        using first candidate with low confidence and error warning.
+
+        If no candidates or critical error, re-raises with better context.
 
         Args:
             jd_data: Dict with position_title, client_service_results, key_activities
             candidates: Shortlisted candidates from semantic matching
 
         Returns:
-            AllocationResult (either successful or error fallback)
+            AllocationResult (either successful or minimal fallback)
+
+        Raises:
+            Exception: If LLM fails and no fallback possible
         """
         try:
             return self.classify(jd_data, candidates)
         except Exception as e:
-            # Return valid but empty result with error
+            # If no candidates, can't create valid fallback
+            if not candidates:
+                raise Exception(f"LLM classification failed and no candidates available: {str(e)}")
+
+            # Create minimal fallback using first candidate
+            from src.matching.models import GroupRecommendation
+            first_candidate = candidates[0]
+            group = first_candidate["group"]
+
+            fallback_rec = GroupRecommendation(
+                group_code=group.get("group_code", "UNKNOWN"),
+                group_id=group.get("id", 0),
+                confidence=0.0,  # Zero confidence for error state
+                confidence_breakdown={
+                    "definition_fit": 0.0,
+                    "semantic_similarity": first_candidate.get("semantic_similarity", 0.0),
+                    "exclusion_clear": 1.0,
+                    "inclusion_support": 0.0,
+                    "labels_boost": 0.0
+                },
+                definition_fit_rationale="Classification failed due to LLM error",
+                reasoning_steps=[],
+                evidence_spans=[],
+                inclusion_check="Unable to evaluate due to error",
+                exclusion_check="Unable to evaluate due to error",
+                provenance_url=group.get("source_url", ""),
+                provenance_paragraph=None
+            )
+
             return AllocationResult(
                 primary_purpose_summary=f"Classification failed: {str(e)}",
-                top_recommendations=[],
+                top_recommendations=[fallback_rec],
                 rejected_groups=[],
                 borderline_flag=False,
                 match_context="error",
-                warnings=[f"LLM classification error: {str(e)}"]
+                warnings=[f"LLM classification error: {str(e)}", "Fallback recommendation has zero confidence"]
             )
 
 
