@@ -35,9 +35,9 @@ Requirements for style-enhanced JD generation with vocabulary constraints.
 
 ### Export Enhancement
 
-- [ ] **EXP-01**: PDF export includes styled statements with dual-format display
-- [ ] **EXP-02**: DOCX export includes styled statements with dual-format display
-- [ ] **EXP-03**: Export compliance appendix updated for style-enhanced content
+- [x] **EXP-01**: PDF export includes styled statements with dual-format display
+- [x] **EXP-02**: DOCX export includes styled statements with dual-format display
+- [x] **EXP-03**: Export compliance appendix updated for style-enhanced content
 
 ## Future Requirements (v3.1+)
 
@@ -84,9 +84,9 @@ Requirements for style-enhanced JD generation with vocabulary constraints.
 | PROV-03 | Phase 11 | Complete |
 | PROV-04 | Phase 11 | Complete |
 | PROV-05 | Phase 11 | Complete |
-| EXP-01 | Phase 13 | Pending |
-| EXP-02 | Phase 13 | Pending |
-| EXP-03 | Phase 13 | Pending |
+| EXP-01 | Phase 13 | Complete |
+| EXP-02 | Phase 13 | Complete |
+| EXP-03 | Phase 13 | Complete |
 
 **Coverage:**
 - v3.0 requirements: 20 total
@@ -95,4 +95,4 @@ Requirements for style-enhanced JD generation with vocabulary constraints.
 
 ---
 *Requirements defined: 2026-02-03*
-*Last updated: 2026-02-03 - Phase 10 scope revised (no user upload, development-time style learning)*
+*Last updated: 2026-02-03 - v3.0 requirements complete (20/20)*
