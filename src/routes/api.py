@@ -1,5 +1,9 @@
 """API routes for NOC data search and profile fetching."""
 
+from typing import List, Dict
+from functools import wraps
+import hashlib
+import json
 from flask import Blueprint, jsonify, request, current_app, Response, stream_with_context, session, send_file
 from io import BytesIO
 import requests
@@ -21,6 +25,26 @@ from datetime import datetime
 
 # Create API blueprint
 api_bp = Blueprint('api', __name__, url_prefix='/api')
+
+# Simple in-memory cache for allocation results
+# Per CONTEXT.md: Cache results with invalidation when JD changes
+_allocation_cache: Dict[str, dict] = {}
+
+
+def _cache_key(data: dict) -> str:
+    """Generate cache key from request data.
+
+    Key changes when JD content changes, invalidating cache.
+    """
+    # Sort keys for consistent hashing
+    normalized = json.dumps(data, sort_keys=True)
+    return hashlib.sha256(normalized.encode()).hexdigest()[:16]
+
+
+def clear_allocation_cache():
+    """Clear allocation cache (for testing or manual invalidation)."""
+    global _allocation_cache
+    _allocation_cache.clear()
 
 # Regex pattern for NOC code validation (5 digits, optional .2 digits)
 NOC_CODE_PATTERN = re.compile(r'^\d{5}(?:\.\d{2})?$')
@@ -589,3 +613,143 @@ def style_statement():
             "success": False,
             "error": "Failed to generate styled statement. Please try again."
         }), 500
+
+
+@api_bp.route('/allocate', methods=['POST'])
+def allocate():
+    """Allocate JD to occupational groups with provenance.
+
+    Implements API-01, API-02, API-03, API-04 requirements.
+
+    Request JSON:
+        AllocationRequest with position_title, client_service_results,
+        key_activities (required), skills, labels (optional)
+
+    Response JSON (200):
+        AllocationResponse with recommendations, provenance_map,
+        confidence_summary, and edge case fields if applicable.
+
+    Per CONTEXT.md:
+    - Return HTTP 200 for all responses including edge cases
+    - Edge cases use status field ("needs_clarification", "invalid_combination")
+    - Full provenance embedded in each recommendation
+    """
+    from pydantic import ValidationError
+    from src.models.allocation import (
+        AllocationRequest,
+        AllocationResponse,
+        ALLOCATION_STATUS_SUCCESS,
+        ALLOCATION_STATUS_NEEDS_CLARIFICATION,
+        ALLOCATION_STATUS_INVALID_COMBINATION,
+    )
+    from src.models.responses import ErrorResponse
+    from src.matching.provenance_builder import build_provenance_map, build_confidence_summary
+
+    try:
+        # Validate request body exists
+        data = request.get_json()
+        if not data:
+            return jsonify(ErrorResponse(
+                error="Request body required"
+            ).model_dump(mode='json')), 400
+
+        # Validate request schema (API-01)
+        allocation_request = AllocationRequest(**data)
+
+        # Check cache (per CONTEXT.md: cache with invalidation)
+        cache_key = _cache_key(allocation_request.model_dump())
+        if cache_key in _allocation_cache:
+            current_app.logger.info(f"Returning cached allocation for {cache_key}")
+            return jsonify(_allocation_cache[cache_key]), 200
+
+        # Call matching engine (Phase 15)
+        try:
+            from src.matching.allocator import OccupationalGroupAllocator
+            allocator = OccupationalGroupAllocator()
+            result = allocator.allocate(allocation_request.model_dump())
+        except ImportError:
+            # Allocator not yet implemented - return helpful error
+            current_app.logger.warning("OccupationalGroupAllocator not yet available")
+            return jsonify(ErrorResponse(
+                error="Allocation engine not available",
+                detail="Phase 15 allocator implementation in progress"
+            ).model_dump(mode='json')), 503
+
+        # Build provenance map (API-02)
+        provenance_map = build_provenance_map(result)
+
+        # Build confidence summary (API-03)
+        confidence_summary = build_confidence_summary(result)
+
+        # Determine response status based on edge cases (API-04)
+        status = ALLOCATION_STATUS_SUCCESS
+        clarification_needed = None
+        conflicting_duties = None
+
+        if result.match_context and "split duties detected" in result.match_context.lower():
+            status = ALLOCATION_STATUS_INVALID_COMBINATION
+            conflicting_duties = result.duty_split
+        elif not result.top_recommendations:
+            status = ALLOCATION_STATUS_NEEDS_CLARIFICATION
+            clarification_needed = _detect_missing_fields(allocation_request)
+        elif confidence_summary and max(confidence_summary.values()) < allocation_request.minimum_confidence:
+            status = ALLOCATION_STATUS_NEEDS_CLARIFICATION
+            clarification_needed = ["Insufficient confidence - provide more detail in Client-Service Results and Key Activities"]
+
+        # Build response (API-01, API-02, API-03)
+        response = AllocationResponse(
+            status=status,
+            recommendations=result.top_recommendations,
+            provenance_map=provenance_map,
+            primary_purpose_summary=result.primary_purpose_summary,
+            match_context=result.match_context,
+            borderline_flag=result.borderline_flag,
+            confidence_summary=confidence_summary,
+            clarification_needed=clarification_needed,
+            conflicting_duties=conflicting_duties,
+            warnings=result.warnings if result.warnings else None,
+            constraints_compliance=result.constraints_compliance
+        )
+
+        # Cache the response (invalidated when JD changes)
+        response_dict = response.model_dump(mode='json')
+        _allocation_cache[cache_key] = response_dict
+
+        # Per CONTEXT.md: Return HTTP 200 for all cases including edge cases
+        return jsonify(response_dict), 200
+
+    except ValidationError as e:
+        # Field-specific validation errors
+        current_app.logger.warning(f"Validation error in /allocate: {e.errors()}")
+        return jsonify(ErrorResponse(
+            error="Invalid request data",
+            detail=str(e.errors())
+        ).model_dump(mode='json')), 400
+
+    except Exception as e:
+        current_app.logger.error(f"Allocation failed: {e}", exc_info=True)
+        return jsonify(ErrorResponse(
+            error="Allocation failed",
+            detail=None  # Don't expose internals
+        ).model_dump(mode='json')), 500
+
+
+def _detect_missing_fields(req: 'AllocationRequest') -> List[str]:
+    """Detect which fields need more detail for successful allocation.
+
+    Per API-04: Generate helpful guidance when clarification needed.
+
+    Args:
+        req: The validated allocation request
+
+    Returns:
+        List of fields needing more detail
+    """
+    missing = []
+    if not req.client_service_results or len(req.client_service_results) < 50:
+        missing.append("Client-Service Results (needs more detail about position's primary purpose)")
+    if not req.key_activities or len(req.key_activities) < 2:
+        missing.append("Key Activities (needs at least 2 substantive activities)")
+    if not missing:
+        missing.append("Work description needs more detail overall")
+    return missing
