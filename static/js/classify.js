@@ -10,6 +10,81 @@ const classifyModule = (function() {
         MEDIUM: 0.40
     };
 
+    // TBS Occupational Group names lookup
+    // Source: https://www.canada.ca/en/treasury-board-secretariat/services/collective-agreements/occupational-groups/definitions.html
+    const OCCUPATIONAL_GROUP_NAMES = {
+        'AC': 'Actuarial Science',
+        'AI': 'Air Traffic Control',
+        'AO': 'Aircraft Operations',
+        'AR': 'Architecture and Town Planning',
+        'AS': 'Administrative Services',
+        'AU': 'Auditing',
+        'BI': 'Biological Sciences',
+        'CH': 'Chemistry',
+        'CM': 'Communications',
+        'CO': 'Commerce',
+        'CR': 'Clerical and Regulatory',
+        'CS': 'Computer Systems',
+        'CX': 'Correctional Services',
+        'DA': 'Data Processing',
+        'DD': 'Drafting and Illustration',
+        'DE': 'Dentistry',
+        'DS': 'Defence Scientific Services',
+        'EC': 'Economics and Social Science Services',
+        'ED': 'Education',
+        'EG': 'Engineering and Scientific Support',
+        'EL': 'Electronics',
+        'EN': 'Engineering',
+        'ES': 'Economics, Sociology and Statistics',
+        'EU': 'Engineering and Land Survey',
+        'EX': 'Executive',
+        'FB': 'Border Services',
+        'FI': 'Financial Administration',
+        'FO': 'Forestry',
+        'FR': 'Firefighters',
+        'FS': 'Foreign Service',
+        'GL': 'General Labour and Trades',
+        'GS': 'General Services',
+        'GT': 'General Technical',
+        'HP': 'Heating, Power and Stationary Plant Operations',
+        'HR': 'Historical Research',
+        'HS': 'Health Services',
+        'IT': 'Information Technology',
+        'LA': 'Law',
+        'LS': 'Library Science',
+        'MA': 'Mathematics',
+        'MD': 'Medicine',
+        'MT': 'Meteorology',
+        'ND': 'Nutrition and Dietetics',
+        'NU': 'Nursing',
+        'OM': 'Organization and Methods',
+        'OP': 'Occupational and Physical Therapy',
+        'PC': 'Physical Sciences',
+        'PE': 'Personnel Administration',
+        'PG': 'Purchasing and Supply',
+        'PH': 'Pharmacy',
+        'PI': 'Primary Products Inspection',
+        'PM': 'Programme Administration',
+        'PO': 'Police Operations Support',
+        'PR': 'Printing Operations',
+        'PS': 'Psychology',
+        'RE': 'Research',
+        'RO': 'Radio Operations',
+        'SC': 'Ships\' Crews',
+        'SE': 'Scientific Research',
+        'SG': 'Scientific Regulation',
+        'SI': 'Social Work',
+        'SO': 'Ships\' Officers',
+        'SR': 'Scientific Research',
+        'ST': 'Secretarial, Stenographic and Typing',
+        'SW': 'Social Work',
+        'TI': 'Technical Inspection',
+        'TR': 'Translation',
+        'UT': 'University Teaching',
+        'VM': 'Veterinary Medicine',
+        'WP': 'Welfare Programmes'
+    };
+
     // DOM element cache
     let elements = {};
 
@@ -218,6 +293,12 @@ const classifyModule = (function() {
         if (elements.error) elements.error.classList.add('hidden');
         if (elements.results) elements.results.classList.remove('hidden');
 
+        // Show position title being classified
+        const positionTitleEl = document.getElementById('classify-position-title');
+        if (positionTitleEl && jdData.position_title) {
+            positionTitleEl.textContent = `Classifying: ${jdData.position_title}`;
+        }
+
         // Update status badge based on response status
         updateStatusBadge(response.status, response.borderline_flag);
 
@@ -398,9 +479,8 @@ const classifyModule = (function() {
      * @returns {string} - Group name or code as fallback
      */
     function getGroupName(rec) {
-        // The API may include group_name in future, for now use code
-        // This is a placeholder - actual names come from TBS definitions
-        return rec.group_code;
+        // Look up full group name from TBS definitions
+        return OCCUPATIONAL_GROUP_NAMES[rec.group_code] || rec.group_code;
     }
 
     /**
@@ -413,19 +493,26 @@ const classifyModule = (function() {
             return '';
         }
 
-        const quotes = evidenceSpans.map((span, idx) => `
-            <blockquote>
-                "${escapeHtml(span.text)}"
-                <footer>
-                    <cite>- ${escapeHtml(span.field)}</cite>
-                    ${span.start_char !== null ? `
-                        <button class="evidence-link" data-start="${span.start_char}" data-end="${span.end_char}" data-text="${escapeHtml(span.text)}">
-                            <i class="fas fa-highlight"></i> Highlight in JD
-                        </button>
-                    ` : ''}
-                </footer>
-            </blockquote>
-        `).join('');
+        const quotes = evidenceSpans.map((span, idx) => {
+            // Format field source - show helpful text instead of "Unknown"
+            const fieldSource = span.field && span.field !== 'Unknown'
+                ? span.field
+                : 'Job Description';
+
+            return `
+                <blockquote>
+                    "${escapeHtml(span.text)}"
+                    <footer>
+                        <cite>from ${escapeHtml(fieldSource)}</cite>
+                        ${span.start_char !== null ? `
+                            <button class="evidence-link" data-start="${span.start_char}" data-end="${span.end_char}" data-text="${escapeHtml(span.text)}">
+                                <i class="fas fa-highlight"></i> Highlight in JD
+                            </button>
+                        ` : ''}
+                    </footer>
+                </blockquote>
+            `;
+        }).join('');
 
         return `
             <div class="detail-section">
@@ -436,50 +523,92 @@ const classifyModule = (function() {
     }
 
     /**
-     * Render inclusion/exclusion check section
+     * Render inclusion/exclusion check section with explanatory context
      * @param {Object} rec - GroupRecommendation object
      * @returns {string} - HTML string
      */
     function renderInclusionExclusionSection(rec) {
+        // Format inclusion check with context
+        const inclusionText = rec.inclusion_check || 'Not evaluated';
+        const inclusionExplanation = inclusionText.toLowerCase().includes('none applies')
+            ? 'No specific inclusion statements matched. The job was classified based on definition fit alone.'
+            : inclusionText;
+
+        // Format exclusion check with context
+        const exclusionText = rec.exclusion_check || 'Not evaluated';
+        const exclusionExplanation = exclusionText.toLowerCase().includes('no exclusion')
+            ? 'No exclusion criteria conflict with this classification. The job duties are compatible with this group.'
+            : exclusionText;
+
         return `
             <div class="detail-section">
                 <h4><i class="fas fa-check-circle"></i> Allocation Checks</h4>
-                <p><strong>Inclusions:</strong> ${escapeHtml(rec.inclusion_check || 'Not specified')}</p>
-                <p><strong>Exclusions:</strong> ${escapeHtml(rec.exclusion_check || 'Not specified')}</p>
+                <div class="allocation-check">
+                    <p>
+                        <strong title="Inclusion statements describe work that typically belongs to this group">Inclusions:</strong>
+                        <span class="allocation-check-text">${escapeHtml(inclusionExplanation)}</span>
+                    </p>
+                </div>
+                <div class="allocation-check">
+                    <p>
+                        <strong title="Exclusion statements describe work that does NOT belong to this group">Exclusions:</strong>
+                        <span class="allocation-check-text">${escapeHtml(exclusionExplanation)}</span>
+                    </p>
+                </div>
             </div>
         `;
     }
 
     /**
-     * Render confidence breakdown grid
+     * Render confidence breakdown grid with tooltips
      * @param {Object} breakdown - Dict of component scores
      * @returns {string} - HTML string
      */
     function renderConfidenceBreakdown(breakdown) {
         if (!breakdown) return '';
 
-        const labels = {
-            definition_fit: 'Definition Fit',
-            semantic_similarity: 'Semantic Match',
-            labels_boost: 'Labels Boost',
-            inclusion_support: 'Inclusion Support',
-            exclusion_clear: 'Exclusion Clear'
+        // Labels and tooltips for each confidence component
+        const metrics = {
+            definition_fit: {
+                label: 'Definition Fit',
+                tooltip: 'How well the job duties match the occupational group definition (LLM assessment)'
+            },
+            semantic_similarity: {
+                label: 'Semantic Match',
+                tooltip: 'Text similarity between job description and group definition (algorithmic score)'
+            },
+            labels_boost: {
+                label: 'Labels Boost',
+                tooltip: 'Additional confidence from matching NOC labels or occupation codes'
+            },
+            inclusion_support: {
+                label: 'Inclusion Support',
+                tooltip: 'Whether specific inclusion criteria for this group were met'
+            },
+            exclusion_clear: {
+                label: 'Exclusion Clear',
+                tooltip: 'Confirms no exclusion criteria disqualify this classification'
+            }
         };
 
         const items = Object.entries(breakdown)
             .filter(([key, value]) => value !== undefined && value !== null)
-            .map(([key, value]) => `
-                <div class="breakdown-item">
-                    <span class="breakdown-label">${labels[key] || key}</span>
-                    <span class="breakdown-value">${typeof value === 'number' ? (value * 100).toFixed(0) + '%' : value}</span>
-                </div>
-            `).join('');
+            .map(([key, value]) => {
+                const metric = metrics[key] || { label: key, tooltip: '' };
+                return `
+                    <div class="breakdown-item" title="${escapeHtml(metric.tooltip)}">
+                        <span class="breakdown-label">${metric.label}</span>
+                        <span class="breakdown-value">${typeof value === 'number' ? (value * 100).toFixed(0) + '%' : value}</span>
+                    </div>
+                `;
+            }).join('');
 
         if (!items) return '';
 
         return `
             <div class="detail-section">
                 <h4><i class="fas fa-chart-bar"></i> Confidence Breakdown</h4>
+                <p class="breakdown-hint">Hover over each metric for explanation</p>
                 <div class="confidence-breakdown">
                     ${items}
                 </div>
