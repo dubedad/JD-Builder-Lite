@@ -21,7 +21,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 14: Data Layer** - Scrape DIM_OCCUPATIONAL table from TBS with definitions, inclusions, exclusions
 - [x] **Phase 15: Matching Engine** - OccupationalGroupAllocator with holistic definition matching
 - [x] **Phase 16: API Layer** - POST /api/allocate endpoint with provenance response
-- [ ] **Phase 17: UI Layer** - Recommendations display with rationale and evidence links
+- [x] **Phase 17: UI Layer** - Recommendations display with rationale and evidence links
 
 ## Phase Details
 
@@ -85,11 +85,11 @@ Plans:
   3. UI shows evidence links to JD text spans (highlight on click)
   4. UI shows provenance chain to authoritative source
   5. UI displays "Classification Step 1 Complete" status with next steps
-**Plans**: 3 plans
+**Plans**: 3 plans + UAT fixes
 Plans:
-- [ ] 17-01-PLAN.md - Step 5 stepper navigation and API client method
-- [ ] 17-02-PLAN.md - Recommendation cards with confidence visualization
-- [ ] 17-03-PLAN.md - Evidence highlighting and provenance display
+- [x] 17-01-PLAN.md - Step 5 stepper navigation and API client method
+- [x] 17-02-PLAN.md - Recommendation cards with confidence visualization
+- [x] 17-03-UAT.md - UAT fixes: de-duplication, keyword boost, Select All, tooltips
 
 ## Progress
 
@@ -102,9 +102,11 @@ Note: Phase 15 requires Phase 14; Phases 16-17 are sequential.
 | 14. Data Layer | 3/3 | Complete | 2026-02-04 |
 | 15. Matching Engine | 5/5 | Complete | 2026-02-04 |
 | 16. API Layer | 2/2 | Complete | 2026-02-04 |
-| 17. UI Layer | 0/3 | Planned | - |
+| 17. UI Layer | 3/3 | **Complete** | 2026-02-04 |
+
+**Milestone Status: SHIPPED**
 
 ---
 *Roadmap created: 2026-02-04*
-*Last updated: 2026-02-04 - Phase 17 plans created*
-*Milestone: v4.0 Occupational Group Allocation*
+*Last updated: 2026-02-04 - v4.0 milestone shipped*
+*Milestone: v4.0 Occupational Group Allocation - COMPLETE*
