@@ -588,6 +588,10 @@ const classifyModule = (function() {
             exclusion_clear: {
                 label: 'Exclusion Clear',
                 tooltip: 'Confirms no exclusion criteria disqualify this classification'
+            },
+            exclusion_penalty: {
+                label: 'Exclusion Penalty',
+                tooltip: 'Confidence reduction applied when job duties partially match an exclusion statement'
             }
         };
 
