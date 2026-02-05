@@ -9,10 +9,56 @@ supports the match"
 """
 
 from typing import List, Dict
+import re
 
 # Lazy imports to avoid loading heavy models unless needed
 _semantic_matcher = None
 _labels_booster = None
+
+# Keyword-based group code matching for obvious job titles
+# This helps when semantic matching fails due to definition preamble
+# Format: { 'group_code': ['keyword1', 'keyword2', ...] }
+TITLE_KEYWORD_GROUPS = {
+    'AS': ['administrative', 'admin assistant', 'administrative assistant', 'executive assistant', 'clerical'],
+    'IT': ['software', 'developer', 'programmer', 'information technology', 'it specialist', 'systems analyst', 'computer'],
+    'PR': ['printer', 'printing', 'press operator', 'print technician'],
+    'EC': ['economist', 'policy analyst', 'socio-economic', 'statistician'],
+    'CR': ['clerk', 'data entry', 'records', 'registry'],
+    'ST': ['secretary', 'stenographer', 'typist'],
+    'PM': ['program manager', 'project manager', 'program officer'],
+    'PE': ['human resources', 'hr specialist', 'staffing', 'personnel'],
+    'FI': ['accountant', 'financial', 'finance officer', 'comptroller'],
+    'EN': ['engineer', 'engineering'],
+    'NU': ['nurse', 'nursing', 'registered nurse', 'rn'],
+    'LS': ['librarian', 'library', 'archivist'],
+    'TR': ['translator', 'translation', 'interpreter'],
+}
+
+
+def _get_keyword_boost(group_code: str, jd_text: str) -> float:
+    """
+    Return a boost (0.0-0.15) if JD text contains keywords associated with group.
+
+    This helps with obvious matches where semantic similarity fails due to
+    bureaucratic definition text.
+
+    Args:
+        group_code: TBS group code
+        jd_text: Job description text (title + activities)
+
+    Returns:
+        Boost value: 0.15 for strong match, 0.0 for no match
+    """
+    keywords = TITLE_KEYWORD_GROUPS.get(group_code, [])
+    if not keywords:
+        return 0.0
+
+    jd_lower = jd_text.lower()
+    for keyword in keywords:
+        if keyword in jd_lower:
+            return 0.15  # Significant boost for keyword match
+
+    return 0.0
 
 
 def _get_semantic_matcher():
@@ -101,13 +147,17 @@ def shortlist_with_all_signals(
         group_code = group.get('group_code', '')
         labels_boost = booster.get_boost(group_code, jd_text)
 
+        # Get keyword boost for obvious title matches (0.0-0.15 range)
+        keyword_boost = _get_keyword_boost(group_code, jd_text)
+
         # Calculate effective similarity: max of definition or best inclusion
         # This ensures groups with clear inclusions rank higher even if
         # their definition has bureaucratic preamble
         effective_similarity = max(semantic_similarity, best_inclusion_sim)
 
         # Calculate combined score for ranking
-        combined_score = effective_similarity + labels_boost
+        # Keyword boost helps obvious matches like "Administrative Assistant" -> AS
+        combined_score = effective_similarity + labels_boost + keyword_boost
 
         # Include candidate if:
         # 1. Definition similarity >= min_similarity, OR
@@ -125,8 +175,19 @@ def shortlist_with_all_signals(
     # Sort by combined_score descending
     candidates.sort(key=lambda x: x['combined_score'], reverse=True)
 
-    # Return top max_candidates
-    return candidates[:max_candidates]
+    # De-duplicate by group_code - keep only the best-scoring entry per group
+    # This prevents groups with many subgroup entries (SRE has 40, SRW has 40)
+    # from dominating the shortlist
+    seen_codes = set()
+    unique_candidates = []
+    for candidate in candidates:
+        code = candidate['group'].get('group_code', '')
+        if code not in seen_codes:
+            seen_codes.add(code)
+            unique_candidates.append(candidate)
+
+    # Return top max_candidates from de-duplicated list
+    return unique_candidates[:max_candidates]
 
 
 __all__ = ['shortlist_with_all_signals']
