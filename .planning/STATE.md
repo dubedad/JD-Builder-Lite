@@ -59,6 +59,16 @@ Progress: [##########] 100% (17/17 phases complete)
 | 16-api-layer | 2/2 | 13min | 6.5min |
 | 17-ui-layer | 3/3 | ~15min | 5min |
 
+## Gap Closure: 08-C-04 (2026-02-04)
+
+Arrow key navigation added to TabController:
+- ArrowRight/ArrowLeft with wrap-around
+- Home/End for first/last tab
+- Roving tabindex (active=0, inactive=-1)
+- W3C ARIA Authoring Practices compliant
+
+See: `.planning/phases/08-C-profile-page-tabs/08-C-04-SUMMARY.md`
+
 ## Phase 17 UAT Fixes (2026-02-04)
 
 Critical algorithm fixes applied during UAT:
