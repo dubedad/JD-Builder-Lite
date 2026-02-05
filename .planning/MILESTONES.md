@@ -1,5 +1,58 @@
 # Project Milestones: JD Builder Lite
 
+## v4.0 Occupational Group Allocation (Shipped: 2026-02-04)
+
+**Delivered:** Classification Step 1 — matching engine that compares job descriptions against TBS occupational group definitions using the prescribed allocation method with full policy provenance, confidence scoring, and evidence linking.
+
+**Phases completed:** 14-17 (13 plans total)
+
+**Key accomplishments:**
+
+- DIM_OCCUPATIONAL data layer with 426 groups, 900 inclusions, 330 exclusions scraped from TBS
+- OccupationalGroupAllocator with semantic shortlisting (sentence-transformers) and LLM classification (instructor)
+- Multi-factor confidence scoring (60% definition fit, 30% semantic similarity, 10% labels boost)
+- POST /api/allocate endpoint with full provenance map and edge case handling
+- Recommendation cards UI with confidence bars, expandable rationale, and evidence highlighting
+- Policy provenance chain traceable to TBS Classification Policy and DADM
+
+**Stats:**
+
+- 89 files created/modified
+- 12,030 lines of Python (total codebase)
+- 4 phases, 13 plans, 38 requirements
+- 1 day from milestone start to ship (2026-02-04)
+
+**Git range:** `feat(14-01)` → `feat(17-03)`
+
+**What's next:** v5.0 for Classification Step 2 (Job Evaluation Standards scoring)
+
+---
+
+## v3.0 Style-Enhanced Writing (Shipped: 2026-02-03)
+
+**Delivered:** Vocabulary-constrained generation using JobForge parquet data, style analysis pipeline, and differentiated AI disclosure with dual-format display in PDF/DOCX exports.
+
+**Phases completed:** 09-13 (11 plans total)
+
+**Key accomplishments:**
+
+- Vocabulary foundation with 50,000+ terms from JobForge parquet files
+- Style analysis pipeline with few-shot prompting and vocabulary validation
+- Extended provenance architecture with differentiated AI disclosure
+- Constrained generation with retry logic and vocabulary audit
+- Enhanced PDF/DOCX export with dual-format styled content
+
+**Stats:**
+
+- 4 phases, 11 plans
+- Shipped: 2026-02-03
+
+**Git range:** `feat(09-01)` → `feat(13-03)`
+
+**What's next:** v4.0 Occupational Group Allocation
+
+---
+
 ## v2.0 UI Redesign (Shipped: 2026-01-25)
 
 **Delivered:** Complete UI redesign mirroring OaSIS website interface with Keyword/Code search toggle, OaSIS-style result cards, LLM-powered profile headers, ARIA-compliant tab navigation, and accessible statement selection with tooltips.

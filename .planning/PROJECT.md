@@ -66,24 +66,29 @@ Every piece of content in the final job description can be traced back to its au
 - ✓ SEL-04: Description tooltip on hover with keyboard accessibility — v2.0
 - ✓ SEL-05: Single Create JD button with selection count — v2.0
 
-### Active
-
-**v4.0 Occupational Group Allocation (In Progress):**
-See `.planning/REQUIREMENTS.md` for full requirements (38 total).
-
-Key capabilities:
-- Data Layer: DIM_OCCUPATIONAL table with definitions, inclusions, exclusions from TBS
-- Matching Engine: OccupationalGroupAllocator with holistic definition matching
-- Policy Provenance: Traceable to TBS Classification Policy and DADM
-- Recommendations UI: Top-3 ranked groups with confidence, rationale, evidence links
+**v4.0 Occupational Group Allocation (SHIPPED 2026-02-04):**
+- ✓ DATA-01 through DATA-05: DIM_OCCUPATIONAL table with 426 groups, 900 inclusions, 330 exclusions — v4.0
+- ✓ MATCH-01 through MATCH-08: OccupationalGroupAllocator with semantic shortlisting and LLM classification — v4.0
+- ✓ OUT-01 through OUT-07: Ranked recommendations with confidence, rationale, evidence — v4.0
+- ✓ PROV-01 through PROV-05: Policy provenance traceable to TBS Classification Policy and DADM — v4.0
+- ✓ API-01 through API-04: POST /api/allocate with provenance map and edge case handling — v4.0
+- ✓ UI-01 through UI-05: Recommendation cards with confidence bars, expandable details, evidence highlighting — v4.0
+- ✓ EDGE-01 through EDGE-04: AP/TC disambiguation, split duties, invalid combination detection — v4.0
 
 **v3.0 Style-Enhanced Writing (SHIPPED 2026-02-03):**
-- Style Infrastructure: Vocabulary index from JobForge parquet, style analysis pipeline
-- Constrained Generation: Few-shot styling with vocabulary validation and retry
-- Compliance: Extended provenance, differentiated AI disclosure, vocabulary audit
-- Export: Styled PDF/DOCX with dual-format display and compliance metadata
+- ✓ Style Infrastructure: Vocabulary index from JobForge parquet, style analysis pipeline — v3.0
+- ✓ Constrained Generation: Few-shot styling with vocabulary validation and retry — v3.0
+- ✓ Compliance: Extended provenance, differentiated AI disclosure, vocabulary audit — v3.0
+- ✓ Export: Styled PDF/DOCX with dual-format display and compliance metadata — v3.0
 
-**Deferred to v3.1+:**
+### Active
+
+**v5.0 Classification Step 2 (Planned):**
+- Job Evaluation Standards scoring
+- Benchmark position comparison UI
+- Manager consultation workflow
+
+**Deferred:
 - SRCH-06: Grid view shows columns: Broad category, Training/Education, Lead statement
 - SRCH-07: Filter items by Job Family
 - SRCH-08: Filter items by Organizational Unit
@@ -107,14 +112,14 @@ Key capabilities:
 
 ## Context
 
-**Current State (v2.0):**
-- Shipped v2.0 with 10,370 LOC (Python, HTML, CSS, JS)
-- Tech stack: Flask, BeautifulSoup, OpenAI SDK, WeasyPrint, python-docx, vanilla JS
+**Current State (v4.0):**
+- Shipped v4.0 with 12,030 LOC Python + HTML/CSS/JS
+- Tech stack: Flask, BeautifulSoup, OpenAI SDK, WeasyPrint, python-docx, sentence-transformers, instructor, vanilla JS
 - Full TBS Directive compliance (sections 6.2.3, 6.2.7, 6.3.5)
-- Provenance chain complete from OASIS scrape to PDF/DOCX export
-- OaSIS-mirrored interface with Keyword/Code search, result cards, LLM profile headers
-- ARIA-compliant tab navigation with keyboard accessibility
-- WCAG 2.1 Level AA compliant tooltips and proficiency circles
+- Classification Step 1: Occupational Group Allocation with 426 groups, semantic matching, LLM classification
+- DIM_OCCUPATIONAL SQLite database with provenance tracking
+- POST /api/allocate endpoint with confidence scoring and evidence linking
+- Recommendation cards UI with expandable rationale and evidence highlighting
 
 **Regulatory Context:**
 This tool demonstrates compliance with the Treasury Board's Directive on Automated Decision-Making (https://www.tbs-sct.canada.ca/pol/doc-eng.aspx?id=32592). The directive requires transparency, accountability, and human oversight in automated decision systems.
@@ -163,10 +168,15 @@ This tool demonstrates compliance with the Treasury Board's Directive on Automat
 | CSS ::after tooltips over JS library | Simpler, faster, no dependencies | ✓ Good |
 | ARIA tab pattern with automatic activation | Arrow keys navigate and activate in single operation | ✓ Good |
 | Single Create button | Removes dual-button confusion, overview generation in Create flow | ✓ Good |
-| Few-shot prompting for style | No fine-tuning needed; learns style from 2-5 examples in prompt | — Pending |
-| Post-validation over constrained decoding | OpenAI API limits logit_bias to ~300 tokens; validation + retry more reliable | — Pending |
-| Provenance before generation | Research warns retrofit is difficult; design audit trail schema first | — Pending |
-| pdfplumber for PDF extraction | MIT license, verified PyPI version, handles text-based PDFs | — Pending |
+| Few-shot prompting for style | No fine-tuning needed; learns style from 2-5 examples in prompt | ✓ Good |
+| Post-validation over constrained decoding | OpenAI API limits logit_bias to ~300 tokens; validation + retry more reliable | ✓ Good |
+| Provenance before generation | Research warns retrofit is difficult; design audit trail schema first | ✓ Good |
+| pdfplumber for PDF extraction | MIT license, verified PyPI version, handles text-based PDFs | ✓ Good |
+| Append-only temporal design | Provenance requires immutable history for DIM_OCCUPATIONAL | ✓ Good |
+| sentence-transformers for semantic matching | Fast local inference, no API calls needed for shortlisting | ✓ Good |
+| instructor library for structured LLM outputs | Pydantic integration, reliable schema enforcement | ✓ Good |
+| 60/30/10 confidence formula | Definition fit primary (60%), semantic verification (30%), labels boost (10%) | ✓ Good |
+| Inclusions for shortlisting only | Help identify candidates but don't boost confidence scores | ✓ Good |
 
 ---
-*Last updated: 2026-02-04 — v4.0 Occupational Group Allocation milestone started*
+*Last updated: 2026-02-04 — v4.0 Occupational Group Allocation shipped*
