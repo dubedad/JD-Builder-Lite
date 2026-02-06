@@ -46,6 +46,12 @@ Progress: [##########] 100% (v4.0 complete)
 - Administrative Assistant → AS (#1)
 - Printer → PR (#1)
 
+## Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 001 | Search relevance scoring + match-reason display | 2026-02-06 | 9597ca7 | [001-search-relevance-ranking-match-reason](./quick/001-search-relevance-ranking-match-reason/) |
+
 ## Next Up
 
 **v5.0 Classification Step 2 (Candidate)**
