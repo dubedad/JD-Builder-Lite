@@ -2,14 +2,14 @@
 phase: quick
 plan: 001
 subsystem: search
-tags: [relevance, scoring, UX, search-results]
+tags: [relevance, scoring, UX, search-results, stemming]
 dependency-graph:
   requires: []
-  provides: [search-relevance-scoring, match-reason-display]
+  provides: [search-relevance-scoring, match-reason-display, confidence-percentage]
   affects: []
 tech-stack:
   added: []
-  patterns: [route-level-scoring]
+  patterns: [route-level-scoring, word-stem-matching]
 key-files:
   created: []
   modified:
@@ -22,51 +22,78 @@ decisions:
   - id: scoring-in-route
     choice: "Score in API route, not parser"
     reason: "Parser lacks query context; route has both query and results"
+  - id: stem-matching
+    choice: "Word-stem matching for relevance scoring"
+    reason: "Exact substring fails across word forms (Printer vs Printing)"
 metrics:
-  duration: "5 minutes"
   completed: "2026-02-06"
 ---
 
-# Quick Task 001: Search Relevance Ranking + Match Reason Summary
+# Quick Task 001: Search Relevance Scoring with Confidence % and Rationale
 
-Search results now scored by relevance (title=3, lead statement=2, alternate title=1), sorted best-first, with color-coded match-reason badges on result cards.
+Search results scored by confidence percentage (95/85/60/50/10) with human-readable rationale explaining WHY each result appeared. Results sorted best-first. Word-stem matching ensures "Printer" matches "Printing" across word forms.
 
-## What Was Done
+## Problem
 
-### Task 1: Add relevance scoring fields and backend sorting logic
-- Added `relevance_score` (Optional[int]) and `match_reason` (Optional[str]) to `EnrichedSearchResult` in `src/models/noc.py`
-- Added scoring loop in `src/routes/api.py` search() function that checks where the query matches: title (score=3), lead statement (score=2), or alternate job title (score=1)
-- Sorting applied with `results.sort(key=lambda r: r.relevance_score or 0, reverse=True)` so title matches surface first
-- Commit: `a6cf9a7`
+OASIS keyword search matches on hidden example job titles using substring matching. Searching "Printer" returned "Athletes" (because "Sprinter" contains "printer") with no indication of why. All 8 results appeared equally relevant with no ranking.
 
-### Task 2: Display match reason on result cards and wire up relevance sort
-- Added match-reason badge in the card-footer template in `renderCardView()` with dynamic CSS class based on relevance score (high/medium/low)
-- Updated sort dropdown `'match'` case to sort by `relevance_score` instead of preserving original order
-- Added CSS styles for `.match-reason` badge with three color variants: green (title match), amber (description match), pink (alternate job title)
-- Commit: `7b9b90f`
+## Solution
 
-### Task 3: Update PROJECT.md with new requirement and key decision
-- Added `SRCH-13` validated requirement under v2.0 UI Redesign section
-- Added key decision row documenting scoring-in-route architectural choice
-- Updated last-updated timestamp
-- Commit: `5379c21`
+### Confidence Scoring (src/routes/api.py)
+
+5-tier confidence scoring based on where the search term matches:
+
+| Confidence | Condition | Example |
+|------------|-----------|---------|
+| 95% | Exact query in title | "Printer" in "Printer Operators" |
+| 85% | Stem match in title | "Print" in "Printing press operators" |
+| 60% | Exact query in lead statement | "Printer" in description text |
+| 50% | Stem match in lead statement | "Print" in description text |
+| 10% | No visible match | Matched via hidden alternate job title |
+
+### Word-Stem Matching
+
+Query stems computed by stripping common suffixes (-ers, -er, -ing, -tion, -ment, -ed, -ly, -s). "Printer" → "Print", which matches "Printing" in titles. Minimum stem length of 3 characters prevents over-stripping.
+
+### Rationale Display
+
+Each result includes a human-readable rationale:
+- `Title contains "Printing"` — shows the actual matched word
+- `Description mentions "printing"` — for lead statement matches
+- `Matched on alternate job title not shown` — for hidden OASIS matches
+
+### Frontend (static/js/main.js, static/css/results-cards.css)
+
+Card footer shows confidence badge with percentage and rationale:
+- Green badge (>=80%): title matches
+- Amber badge (>=40%): description matches
+- Pink badge (<40%): alternate job title matches
+
+Sort dropdown "Matching search criteria" sorts by confidence descending.
 
 ## Verification Results
 
-1. **Printer search**: "Plateless printing equipment operators" (description match, score=2) sorts above "Athletes" (alternate title match, score=1) -- the confusing "Sprinter contains printer" case is now visually explained and sorted lower
-2. **Engineer search**: All title matches (score=3) like "Engineering managers", "Software engineers and designers" sort first, before description/alternate matches
-3. All results include `relevance_score` (1-3) and `match_reason` (string) in API JSON
-4. Sort dropdown "Matching search criteria" re-sorts by relevance_score
+**"Printer" search (8 results):**
 
-## Deviations from Plan
+| Rank | NOC | Title | Confidence | Rationale |
+|------|-----|-------|------------|-----------|
+| 1 | 72022.00 | Supervisors, printing and related occupations | 85% | Title contains "printing" |
+| 2 | 73401.00 | Printing press operators | 85% | Title contains "Printing" |
+| 3 | 94150.00 | Plateless printing equipment operators | 85% | Title contains "printing" |
+| 4 | 53200.00 | Athletes | 10% | Matched on alternate job title not shown |
+| 5 | 72020.00 | Contractors and supervisors, mechanic trades | 10% | Matched on alternate job title not shown |
+| 6-8 | ... | Other low-relevance results | 10% | Matched on alternate job title not shown |
 
-None -- plan executed exactly as written.
+**"Engineer" search (83 results):** All engineering titles (Engineering managers, Software engineers, Civil engineers) rank first at 85%+ before alternate-title matches.
 
 ## Decisions Made
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
 | Relevance scoring in API route (not parser) | Parser lacks query context; route has both query and results for scoring | Good |
+| Word-stem matching over exact substring | "Printer" must match "Printing" — exact substring fails across word forms | Good |
+| 5-tier confidence (95/85/60/50/10) over 3-tier (3/2/1) | Percentage communicates meaning; rationale explains the match | Good |
+| Rationale shows matched word | "Title contains 'Printing'" more informative than "Title match" | Good |
 
 ## Commits
 
@@ -75,3 +102,5 @@ None -- plan executed exactly as written.
 | `a6cf9a7` | feat | Add relevance scoring fields and backend sorting |
 | `7b9b90f` | feat | Display match-reason badges on cards and wire relevance sort |
 | `5379c21` | docs | Add SRCH-13 requirement and scoring decision to PROJECT.md |
+| `34467a4` | fix | Use word-stem matching for relevance scoring |
+| `bdc7fb4` | feat | Confidence % scoring with rationale for search results |
