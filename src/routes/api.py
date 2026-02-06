@@ -89,12 +89,21 @@ def search():
         results = parser.parse_search_results_enhanced(html)
 
         # Score results by where the search term matches (SRCH-13)
+        # Use word stem for matching: "Printer" stems to "print" which matches "Printing"
         query_lower = query.lower()
+        query_stem = re.sub(r'(ers?|ing|tion|ment|ed|ly|s)$', '', query_lower, count=1)
+        # Ensure stem is at least 3 chars, fall back to full query
+        if len(query_stem) < 3:
+            query_stem = query_lower
+
         for result in results:
-            if query_lower in result.title.lower():
+            title_lower = result.title.lower()
+            lead_lower = (result.lead_statement or '').lower()
+
+            if query_lower in title_lower or query_stem in title_lower:
                 result.relevance_score = 3
                 result.match_reason = "Title match"
-            elif result.lead_statement and query_lower in result.lead_statement.lower():
+            elif query_lower in lead_lower or query_stem in lead_lower:
                 result.relevance_score = 2
                 result.match_reason = "Description match"
             else:
