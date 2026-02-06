@@ -60,6 +60,7 @@ Every piece of content in the final job description can be traced back to its au
 - ✓ DISP-32: LLM-generated paragraph description above tabs — v2.0
 - ✓ DISP-33: Horizontal Job Header tabs with ARIA navigation — v2.0
 - ✓ DISP-34: Tab content mapping (Key Activities, Skills, Effort, Responsibility, Career) — v2.0
+- ✓ SRCH-13: Search results scored by relevance (title > description > alternate title) and sorted best-first with match-reason indicator — v2.0
 - ✓ SEL-01: Checkboxes on all statements in all tabs — v2.0
 - ✓ SEL-02: Proficiency circles display (filled/empty) — v2.0
 - ✓ SEL-03: Provenance labels always visible — v2.0
@@ -177,6 +178,7 @@ This tool demonstrates compliance with the Treasury Board's Directive on Automat
 | instructor library for structured LLM outputs | Pydantic integration, reliable schema enforcement | ✓ Good |
 | 60/30/10 confidence formula | Definition fit primary (60%), semantic verification (30%), labels boost (10%) | ✓ Good |
 | Inclusions for shortlisting only | Help identify candidates but don't boost confidence scores | ✓ Good |
+| Relevance scoring in API route (not parser) | Parser lacks query context; route has both query and results for scoring | ✓ Good |
 
 ---
-*Last updated: 2026-02-04 — v4.0 Occupational Group Allocation shipped*
+*Last updated: 2026-02-06 — Added SRCH-13 search relevance scoring and match-reason display*
