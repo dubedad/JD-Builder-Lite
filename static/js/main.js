@@ -343,7 +343,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 <div class="card-footer">
                     ${result.match_reason ? `
-                    <span class="match-reason match-reason--${result.relevance_score === 3 ? 'high' : result.relevance_score === 2 ? 'medium' : 'low'}">
+                    <span class="match-reason match-reason--${result.relevance_score >= 80 ? 'high' : result.relevance_score >= 40 ? 'medium' : 'low'}">
+                        <span class="match-confidence">${result.relevance_score}%</span>
                         ${escapeHtml(result.match_reason)}
                     </span>
                     ` : ''}

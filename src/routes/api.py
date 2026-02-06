@@ -88,27 +88,44 @@ def search():
         html = scraper.search(query, search_type=search_type)
         results = parser.parse_search_results_enhanced(html)
 
-        # Score results by where the search term matches (SRCH-13)
-        # Use word stem for matching: "Printer" stems to "print" which matches "Printing"
+        # Score results by relevance with confidence % and rationale (SRCH-13)
+        # Stem the query: "Printer" → "Print" to match "Printing"
         query_lower = query.lower()
         query_stem = re.sub(r'(ers?|ing|tion|ment|ed|ly|s)$', '', query_lower, count=1)
-        # Ensure stem is at least 3 chars, fall back to full query
         if len(query_stem) < 3:
             query_stem = query_lower
+
+        def _find_matched_word(text, stem):
+            """Find the actual word in text that contains the stem."""
+            words = re.findall(r'\b\w*' + re.escape(stem) + r'\w*\b', text, re.IGNORECASE)
+            return words[0] if words else stem
 
         for result in results:
             title_lower = result.title.lower()
             lead_lower = (result.lead_statement or '').lower()
 
-            if query_lower in title_lower or query_stem in title_lower:
-                result.relevance_score = 3
-                result.match_reason = "Title match"
-            elif query_lower in lead_lower or query_stem in lead_lower:
-                result.relevance_score = 2
-                result.match_reason = "Description match"
+            title_has_exact = query_lower in title_lower
+            title_has_stem = query_stem in title_lower
+            lead_has_exact = query_lower in lead_lower
+            lead_has_stem = query_stem in lead_lower
+
+            if title_has_exact:
+                result.relevance_score = 95
+                result.match_reason = f"Title contains \"{query}\""
+            elif title_has_stem:
+                matched = _find_matched_word(result.title, query_stem)
+                result.relevance_score = 85
+                result.match_reason = f"Title contains \"{matched}\""
+            elif lead_has_exact:
+                result.relevance_score = 60
+                result.match_reason = f"Description mentions \"{query}\""
+            elif lead_has_stem:
+                matched = _find_matched_word(result.lead_statement, query_stem)
+                result.relevance_score = 50
+                result.match_reason = f"Description mentions \"{matched}\""
             else:
-                result.relevance_score = 1
-                result.match_reason = "Alternate job title"
+                result.relevance_score = 10
+                result.match_reason = "Matched on alternate job title not shown"
 
         # Sort by relevance score descending (best matches first)
         results.sort(key=lambda r: r.relevance_score or 0, reverse=True)
