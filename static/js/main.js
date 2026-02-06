@@ -342,6 +342,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 ` : ''}
 
                 <div class="card-footer">
+                    ${result.match_reason ? `
+                    <span class="match-reason match-reason--${result.relevance_score === 3 ? 'high' : result.relevance_score === 2 ? 'medium' : 'low'}">
+                        ${escapeHtml(result.match_reason)}
+                    </span>
+                    ` : ''}
                     <i class="fa fa-search card-icon" aria-hidden="true"></i>
                     <span class="card-text">
                         <span class="matching-label">Matching search criteria</span>
@@ -689,8 +694,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
             case 'match':
             default:
-                // Keep original order (API returns by match relevance)
-                sorted = [...lastResults];
+                // Sort by relevance score (highest first)
+                sorted.sort((a, b) => (b.relevance_score || 0) - (a.relevance_score || 0));
                 break;
         }
 

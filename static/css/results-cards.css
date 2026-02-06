@@ -282,6 +282,34 @@
     text-decoration: underline;
 }
 
+/* Match Reason Indicator */
+.match-reason {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+    margin-bottom: 0.4rem;
+    float: right;
+}
+
+.match-reason--high {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.match-reason--medium {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.match-reason--low {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
 /* Responsive: Hide grid on mobile (card view forced) */
 @media (max-width: 768px) {
     .results-list.grid-view {
