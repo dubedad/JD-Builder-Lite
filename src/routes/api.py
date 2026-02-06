@@ -88,6 +88,22 @@ def search():
         html = scraper.search(query, search_type=search_type)
         results = parser.parse_search_results_enhanced(html)
 
+        # Score results by where the search term matches (SRCH-13)
+        query_lower = query.lower()
+        for result in results:
+            if query_lower in result.title.lower():
+                result.relevance_score = 3
+                result.match_reason = "Title match"
+            elif result.lead_statement and query_lower in result.lead_statement.lower():
+                result.relevance_score = 2
+                result.match_reason = "Description match"
+            else:
+                result.relevance_score = 1
+                result.match_reason = "Alternate job title"
+
+        # Sort by relevance score descending (best matches first)
+        results.sort(key=lambda r: r.relevance_score or 0, reverse=True)
+
         # Create response with metadata
         response = SearchResponse(
             query=query,

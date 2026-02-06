@@ -68,6 +68,10 @@ class EnrichedSearchResult(BaseModel):
     top_abilities: Optional[List[str]] = None
     top_knowledge: Optional[List[str]] = None
 
+    # Relevance scoring (SRCH-13) - set by API route based on query match location
+    relevance_score: Optional[int] = None   # 3=title, 2=lead statement, 1=alternate title
+    match_reason: Optional[str] = None      # Human-readable label
+
     model_config = ConfigDict(from_attributes=True)
 
 
