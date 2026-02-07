@@ -412,7 +412,10 @@ const classifyModule = (function() {
             return;
         }
 
-        recommendations.forEach((rec, index) => {
+        // Sort by confidence descending so highest-confidence card is #1
+        const sorted = [...recommendations].sort((a, b) => b.confidence - a.confidence);
+
+        sorted.forEach((rec, index) => {
             const rank = index + 1;
             const isTop = rank === 1;
             const tier = getConfidenceTier(rec.confidence);

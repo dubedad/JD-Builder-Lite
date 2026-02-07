@@ -36,6 +36,13 @@ const evidenceModule = (function() {
     function handleHighlightRequest(event) {
         const { startChar, endChar, text } = event.detail;
 
+        console.log('[evidence.js] Highlight requested:', { startChar, endChar, textLen: text?.length });
+        console.log('[evidence.js] currentJdText:', window.currentJdText ? {
+            hasCSR: !!window.currentJdText.client_service_results,
+            csrLen: window.currentJdText.client_service_results?.length,
+            kaCount: window.currentJdText.key_activities?.length
+        } : 'NOT SET');
+
         // Ensure JD text is rendered
         if (!elements.jdTextViewer?.innerHTML || elements.jdTextViewer.innerHTML.trim() === '') {
             renderJdText();
@@ -98,6 +105,8 @@ const evidenceModule = (function() {
 
         // Clear previous active states (but keep highlights)
         clearActiveState();
+        // Clear any previous not-found banner
+        elements.jdTextViewer.querySelector('.evidence-not-found-banner')?.remove();
 
         // Try to find the text in the rendered content
         const searchResult = findTextInViewer(evidenceText, startChar, endChar);
@@ -105,12 +114,12 @@ const evidenceModule = (function() {
         if (searchResult.found) {
             insertHighlight(searchResult.node, searchResult.start, searchResult.end, evidenceText);
         } else {
-            // Try fuzzy match
+            // Try fuzzy match (word-overlap)
             const fuzzyResult = fuzzyFindText(evidenceText);
             if (fuzzyResult.found) {
                 insertHighlight(fuzzyResult.node, fuzzyResult.start, fuzzyResult.end, evidenceText, true);
             } else {
-                // Show "evidence not found" indicator
+                // Show persistent "evidence not found" indicator
                 showNotFoundIndicator(evidenceText);
             }
         }
@@ -156,7 +165,9 @@ const evidenceModule = (function() {
     }
 
     /**
-     * Fuzzy find text using similarity matching
+     * Fuzzy find text using word-overlap matching.
+     * Handles LLM paraphrasing by matching on shared words rather than
+     * character-by-character position alignment.
      * @param {string} text - Text to find
      * @returns {Object} - {found: boolean, node: Node, start: number, end: number}
      */
@@ -168,35 +179,50 @@ const evidenceModule = (function() {
             false
         );
 
-        const normalizedSearch = normalizeText(text);
-        const minLength = Math.min(normalizedSearch.length, 20);
-        let bestMatch = { found: false, similarity: 0 };
+        const searchWords = getSignificantWords(normalizeText(text));
+        if (searchWords.length === 0) return { found: false };
+
+        let bestMatch = { found: false, overlap: 0 };
 
         while (walker.nextNode()) {
             const node = walker.currentNode;
             const normalizedContent = normalizeText(node.textContent);
+            if (normalizedContent.length < 3) continue;
 
-            // Try sliding window for partial matches
-            for (let i = 0; i <= normalizedContent.length - minLength; i++) {
-                const window = normalizedContent.substring(i, i + normalizedSearch.length);
-                const similarity = calculateSimilarity(normalizedSearch, window);
+            const contentWords = getSignificantWords(normalizedContent);
+            if (contentWords.length === 0) continue;
 
-                if (similarity > 0.7 && similarity > bestMatch.similarity) {
-                    const originalIdx = mapNormalizedToOriginal(node.textContent, i);
-                    const originalEnd = mapNormalizedToOriginal(node.textContent, i + normalizedSearch.length);
+            // Count how many search words appear in this text node
+            const matched = searchWords.filter(w => contentWords.some(cw => cw.includes(w) || w.includes(cw)));
+            const overlap = matched.length / searchWords.length;
 
-                    bestMatch = {
-                        found: true,
-                        node: node,
-                        start: originalIdx,
-                        end: originalEnd,
-                        similarity: similarity
-                    };
-                }
+            if (overlap >= 0.4 && overlap > bestMatch.overlap) {
+                bestMatch = {
+                    found: true,
+                    node: node,
+                    start: 0,
+                    end: node.textContent.length,
+                    overlap: overlap
+                };
             }
         }
 
         return bestMatch;
+    }
+
+    /**
+     * Extract significant words (3+ chars, no stop words) from text
+     * @param {string} text - Normalized text
+     * @returns {string[]} - Array of significant words
+     */
+    function getSignificantWords(text) {
+        const stopWords = new Set(['the', 'and', 'for', 'are', 'but', 'not', 'you', 'all',
+            'can', 'had', 'her', 'was', 'one', 'our', 'out', 'has', 'have', 'been',
+            'this', 'that', 'with', 'from', 'they', 'will', 'would', 'there', 'their',
+            'what', 'about', 'which', 'when', 'make', 'like', 'each', 'does', 'such',
+            'into', 'than', 'them', 'then', 'these', 'other', 'some', 'could', 'also']);
+        return text.split(/\s+/)
+            .filter(w => w.length >= 3 && !stopWords.has(w));
     }
 
     /**
@@ -234,29 +260,7 @@ const evidenceModule = (function() {
         return Math.min(originalPos, original.length);
     }
 
-    /**
-     * Calculate similarity between two strings (0-1)
-     * Simple character-based similarity
-     * @param {string} a - First string
-     * @param {string} b - Second string
-     * @returns {number} - Similarity score 0-1
-     */
-    function calculateSimilarity(a, b) {
-        if (a === b) return 1;
-        if (a.length === 0 || b.length === 0) return 0;
-
-        const longer = a.length > b.length ? a : b;
-        const shorter = a.length > b.length ? b : a;
-
-        let matches = 0;
-        for (let i = 0; i < shorter.length; i++) {
-            if (shorter[i] === longer[i]) {
-                matches++;
-            }
-        }
-
-        return matches / longer.length;
-    }
+    // calculateSimilarity removed — replaced by word-overlap in fuzzyFindText
 
     /**
      * Insert highlight mark into text node
@@ -308,18 +312,18 @@ const evidenceModule = (function() {
      * @param {string} evidenceText - The quote that wasn't found
      */
     function showNotFoundIndicator(evidenceText) {
+        // Remove any previous not-found banner
+        elements.jdTextViewer?.querySelector('.evidence-not-found-banner')?.remove();
+
         const indicator = document.createElement('div');
         indicator.className = 'evidence-not-found-banner';
         indicator.innerHTML = `
             <i class="fas fa-exclamation-triangle"></i>
-            <span>Evidence quote not found in exact form: "${escapeHtml(truncateText(evidenceText, 50))}"</span>
+            <span>This evidence is from AI analysis, not directly quoted from your JD text.</span>
         `;
 
-        // Insert at top of viewer
+        // Insert at top of viewer — persists until next highlight or panel close
         elements.jdTextViewer?.prepend(indicator);
-
-        // Remove after 5 seconds
-        setTimeout(() => indicator.remove(), 5000);
     }
 
     /**
