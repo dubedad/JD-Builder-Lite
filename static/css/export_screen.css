@@ -729,3 +729,68 @@
   padding-top: 1rem;
   border-top: 2px solid #26374a;
 }
+
+/* Export Options Modal */
+.export-options-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.export-options-modal {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.export-options-modal h3 {
+  margin: 0 0 0.5rem 0;
+  color: #26374a;
+}
+
+.export-options-modal p {
+  margin: 0 0 1rem 0;
+  color: #666;
+}
+
+.export-option-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+.export-option-checkbox input[type="checkbox"] {
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+}
+
+.export-option-checkbox:hover {
+  background: #f5f5f5;
+  border-radius: 4px;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.export-options-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.export-options-actions .btn {
+  flex: 1;
+}

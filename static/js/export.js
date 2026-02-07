@@ -36,6 +36,8 @@ const exportModule = {
   // Saved page state for back navigation
   savedPageContent: null,
   savedPageStyles: null,
+  // Export options (classification inclusion)
+  _exportOptions: null,
 
   /**
    * Build export request from current state
@@ -96,7 +98,7 @@ const exportModule = {
       scrapedAt = new Date(scrapedAt).toISOString();
     }
 
-    return {
+    const request = {
       noc_code: profile.noc_code,
       job_title: profile.title,
       general_overview: overview?.generated ? overview.text : null,
@@ -109,6 +111,70 @@ const exportModule = {
         version: profile.metadata.version
       }
     };
+
+    // Add classification data if export options specify
+    if (this._exportOptions?.include_classification && this._exportOptions?.classification_result) {
+      request.classification_result = this._exportOptions.classification_result;
+      request.include_classification = true;
+    }
+
+    return request;
+  },
+
+  /**
+   * Show export options modal if classification exists, else go straight to preview
+   */
+  showExportOptions() {
+    // Check if classification data exists (from classify.js)
+    const allocation = typeof classifyModule !== 'undefined' ? classifyModule.getCurrentAllocation() : null;
+
+    // If no classification exists, export JD only (no checkboxes needed)
+    if (!allocation) {
+      this.showPreview();
+      return;
+    }
+
+    // Create checkbox modal
+    const overlay = document.createElement('div');
+    overlay.className = 'export-options-overlay';
+    overlay.innerHTML = `
+      <div class="export-options-modal">
+        <h3>Export Options</h3>
+        <p>Choose what to include in your export:</p>
+        <label class="export-option-checkbox">
+          <input type="checkbox" id="export-include-jd" checked>
+          <span>Include Job Description</span>
+        </label>
+        <label class="export-option-checkbox">
+          <input type="checkbox" id="export-include-classification" checked>
+          <span>Include Classification Results</span>
+        </label>
+        <div class="export-options-actions">
+          <button class="btn btn--primary" id="export-options-confirm">Continue to Preview</button>
+          <button class="btn btn--text" id="export-options-cancel">Cancel</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    overlay.querySelector('#export-options-confirm').addEventListener('click', () => {
+      const includeJd = overlay.querySelector('#export-include-jd').checked;
+      const includeClassification = overlay.querySelector('#export-include-classification').checked;
+      overlay.remove();
+
+      // Store choices for export request
+      this._exportOptions = {
+        include_classification: includeClassification,
+        classification_result: includeClassification ? allocation : null,
+        include_jd: includeJd
+      };
+      this.showPreview();
+    });
+
+    overlay.querySelector('#export-options-cancel').addEventListener('click', () => {
+      overlay.remove();
+    });
   },
 
   /**
@@ -389,11 +455,11 @@ function handleCreateClick() {
     alert('Please select some statements first by checking the checkboxes.');
     return;
   }
-  console.log('[DEBUG export.js] Calling showPreview...');
+  console.log('[DEBUG export.js] Calling showExportOptions...');
   try {
-    exportModule.showPreview();
+    exportModule.showExportOptions();
   } catch (error) {
-    console.error('[DEBUG export.js] Error in showPreview:', error);
+    console.error('[DEBUG export.js] Error in showExportOptions:', error);
     alert('Error: ' + error.message);
   }
 }
@@ -414,7 +480,7 @@ function initExport() {
       console.log('[DEBUG export.js] Create button clicked via addEventListener!');
       console.log('[DEBUG export.js] Button disabled:', createBtn.disabled);
       if (!createBtn.disabled) {
-        exportModule.showPreview();
+        exportModule.showExportOptions();
       }
     });
   }
