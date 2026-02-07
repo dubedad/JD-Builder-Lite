@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-06)
 
 **Core value:** Compliance-focused job description builder demonstrating TBS Directive 32592 compliance with full provenance tracking.
-**Current focus:** UAT complete, 10 fixes shipped — deciding next milestone
+**Current focus:** v4.1 Polish — exec-ready demo with UAT enhancements
 
 ## Current Position
 
-Milestone: None active
-Phase: Post-UAT — milestone decision pending
-Status: Ready for next milestone
-Last activity: 2026-02-07 — UAT triage complete, 10 fixes shipped (a9176b2)
+Milestone: v4.1 Polish
+Phase: Not started (defining requirements)
+Status: Defining requirements
+Last activity: 2026-02-06 — Milestone v4.1 started
 
-Progress: [##########] 100% (v4.0 + UAT fixes)
+Progress: ░░░░░░░░░░ 0%
 
 ## Milestone History
 
@@ -32,19 +32,20 @@ Progress: [##########] 100% (v4.0 + UAT fixes)
 - `.planning/milestones/v4.0-REQUIREMENTS.md` — 38 requirements (all complete)
 - `.planning/milestones/v4.0-MILESTONE-AUDIT.md` — Integration verification
 
-## v4.0 Summary
+## v4.1 Scope
 
-**Shipped:**
-- 4 phases (14-17), 13 plans, 38 requirements
-- DIM_OCCUPATIONAL: 426 groups, 900 inclusions, 330 exclusions
-- OccupationalGroupAllocator with semantic matching + LLM classification
-- POST /api/allocate with provenance map
-- Recommendation cards UI with confidence bars and evidence highlighting
+**11 enhancements from UAT backlog:**
 
-**Test cases that work:**
-- Software Engineer → IT (#1)
-- Administrative Assistant → AS (#1)
-- Printer → PR (#1)
+| Category | Items | UAT IDs |
+|----------|-------|---------|
+| Tab Restructure | 4 | S2-02, S2-03, S2-04, S2-05 |
+| Navigation | 2 | S3-06, S5-02 |
+| Coaching Tone | 1 | S5-01 |
+| Data Display | 2 | S2-07, S1-02 |
+| Export | 1 | S3-07 |
+| Housekeeping | 1 | S1-13 |
+
+**Goal:** Exec-ready demo for executive audience.
 
 ## UAT Results (2026-02-07)
 
@@ -54,10 +55,10 @@ Progress: [##########] 100% (v4.0 + UAT fixes)
 - S3-01 through S3-05 (preview cleanup + navigation)
 
 **31 remaining (backlog):**
-- 10 unblocked enhancements (tab restructure, navigation, coaching tone)
+- 10 unblocked enhancements → **v4.1 scope (11 items incl. README)**
 - 7 enhancements blocked by S1-10 (JobForge integration)
 - 13 SEEDs (JobForge keystone, RAG, PuMP, bubble matrix)
-- 1 housekeeping (README)
+- 1 housekeeping (README) → **v4.1 scope**
 
 Full details: `.planning/UAT-FINDINGS.md`
 
@@ -69,19 +70,14 @@ Full details: `.planning/UAT-FINDINGS.md`
 
 ## Next Up
 
-**Decision pending — two options:**
-1. **v4.1 Polish** — unblocked UAT enhancements → exec demo ready fast
-2. **v5.0 Classification Step 2** — Job Evaluation Standards → deeper feature, data dependencies
-
-User goal: exec-ready demo ASAP.
-
-Run `/gsd:new-milestone` once direction chosen.
+**v4.1 Polish** — defining requirements, then roadmap creation.
+After v4.1: **v5.0 Classification Step 2** (Job Evaluation Standards).
 
 ## Session Continuity
 
-Last session: 2026-02-07
-Stopped at: UAT complete, wake-up notes updated, awaiting milestone direction decision
+Last session: 2026-02-06
+Stopped at: v4.1 milestone scoping complete, defining requirements
 Resume file: `.planning/.continue-here.md`
 
 ---
-*Last updated: 2026-02-07 — UAT complete, 10 fixes shipped, backlog categorized*
+*Last updated: 2026-02-06 — v4.1 Polish milestone started*

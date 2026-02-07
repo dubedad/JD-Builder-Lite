@@ -84,7 +84,15 @@ Every piece of content in the final job description can be traced back to its au
 
 ### Active
 
-**v5.0 Classification Step 2 (Planned):**
+**v4.1 Polish (Current Milestone):**
+- Tab restructure: Split Skills into Skills/Abilities/Knowledge, Core Competencies own tab, consolidate Overview
+- Navigation: Classify from preview, Return to Builder from classification, fix Back to Edit
+- Coaching tone: Invalid Combination as guidance not error
+- Data display: Dimension type labels on circles, filter hierarchy headings
+- Export: Classification results exportable
+- Housekeeping: GitHub README update
+
+**v5.0 Classification Step 2 (Next):**
 - Job Evaluation Standards scoring
 - Benchmark position comparison UI
 - Manager consultation workflow
@@ -182,4 +190,4 @@ This tool demonstrates compliance with the Treasury Board's Directive on Automat
 | Word-stem matching for relevance scoring | "Printer" stems to "print" to match "Printing" — exact substring fails across word forms | ✓ Good |
 
 ---
-*Last updated: 2026-02-06 — SRCH-13 search relevance with confidence %, rationale, and stem matching*
+*Last updated: 2026-02-06 — v4.1 Polish milestone started, 11 UAT enhancements scoped*
