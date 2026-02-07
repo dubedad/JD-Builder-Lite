@@ -77,38 +77,86 @@
     function updateFilterOptions(results) {
         allResults = results;
 
-        // Build Broad Category options from results (has actual names unlike minor_group)
-        const broadCategories = new Map();
+        // Build hierarchical structure: sub-major groups with unit group children
+        const hierarchy = new Map();
+
         results.forEach(r => {
-            if (r.broad_category_name) {
-                const key = r.broad_category_name;
-                if (!broadCategories.has(key)) {
-                    broadCategories.set(key, {
-                        name: key,
-                        code: r.broad_category || '',
-                        count: 0
-                    });
-                }
-                broadCategories.get(key).count++;
+            if (!r.sub_major_group || !r.unit_group || !r.broad_category_name) {
+                return; // Skip results without hierarchy data
             }
+
+            // Get or create sub-major group
+            if (!hierarchy.has(r.sub_major_group)) {
+                hierarchy.set(r.sub_major_group, {
+                    code: r.sub_major_group,
+                    name: r.broad_category_name, // Use broad category name as parent heading
+                    children: new Map(),
+                    totalCount: 0
+                });
+            }
+
+            const subMajor = hierarchy.get(r.sub_major_group);
+
+            // Get or create unit group child
+            if (!subMajor.children.has(r.unit_group)) {
+                subMajor.children.set(r.unit_group, {
+                    code: r.unit_group,
+                    name: r.title, // Use job title as child label
+                    count: 0
+                });
+            }
+
+            // Increment counts
+            subMajor.children.get(r.unit_group).count++;
+            subMajor.totalCount++;
         });
 
-        // Render Broad Category checkboxes (using minorGroup filter name for compatibility)
+        // Render hierarchical checkboxes
         if (minorGroupOptions) {
-            if (broadCategories.size === 0) {
+            if (hierarchy.size === 0) {
                 minorGroupOptions.innerHTML = '<p class="filter-empty">No categories in results</p>';
             } else {
-                const sorted = Array.from(broadCategories.values()).sort((a, b) => a.name.localeCompare(b.name));
-                minorGroupOptions.innerHTML = sorted.map(cat => `
-                    <label class="filter-checkbox">
-                        <input type="checkbox" name="minorGroup" value="${escapeHtml(cat.name)}"
-                               ${filters.minorGroup.has(cat.name) ? 'checked' : ''}>
-                        <span class="filter-checkbox-label">
-                            ${escapeHtml(cat.name)}
-                            <span class="filter-checkbox-count">(${cat.count})</span>
-                        </span>
-                    </label>
-                `).join('');
+                let html = '';
+
+                // Sort parent groups alphabetically
+                const sorted = Array.from(hierarchy.values()).sort((a, b) => a.name.localeCompare(b.name));
+
+                sorted.forEach(subMajor => {
+                    // Sort children by name
+                    const sortedChildren = Array.from(subMajor.children.values()).sort((a, b) =>
+                        a.name.localeCompare(b.name)
+                    );
+
+                    html += `
+                        <div class="filter-group">
+                            <label class="filter-checkbox filter-checkbox--parent">
+                                <input type="checkbox" class="parent-checkbox" data-group="${escapeHtml(subMajor.code)}">
+                                <strong>${escapeHtml(subMajor.name)}</strong>
+                                <span class="filter-checkbox-count">(${subMajor.totalCount})</span>
+                            </label>
+                            <div class="filter-group__children">
+                                ${sortedChildren.map(child => `
+                                    <label class="filter-checkbox filter-checkbox--child">
+                                        <input type="checkbox" class="child-checkbox"
+                                               name="minorGroup"
+                                               value="${escapeHtml(child.code)}"
+                                               data-parent="${escapeHtml(subMajor.code)}"
+                                               ${filters.minorGroup.has(child.code) ? 'checked' : ''}>
+                                        <span class="filter-checkbox-label">
+                                            ${escapeHtml(child.name)}
+                                            <span class="filter-checkbox-count">(${child.count})</span>
+                                        </span>
+                                    </label>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                minorGroupOptions.innerHTML = html;
+
+                // Update parent checkbox states after rendering
+                updateParentStates();
             }
         }
 
@@ -122,10 +170,15 @@
         }
 
         // Clear existing filters that no longer apply
-        const validCategories = new Set(broadCategories.keys());
-        filters.minorGroup.forEach(cat => {
-            if (!validCategories.has(cat)) {
-                filters.minorGroup.delete(cat);
+        const validUnitGroups = new Set();
+        results.forEach(r => {
+            if (r.unit_group) {
+                validUnitGroups.add(r.unit_group);
+            }
+        });
+        filters.minorGroup.forEach(code => {
+            if (!validUnitGroups.has(code)) {
+                filters.minorGroup.delete(code);
             }
         });
 
@@ -140,6 +193,19 @@
         const checkbox = e.target;
         if (checkbox.type !== 'checkbox') return;
 
+        // Handle parent checkbox
+        if (checkbox.classList.contains('parent-checkbox')) {
+            handleParentCheckboxChange(checkbox);
+            return;
+        }
+
+        // Handle child checkbox
+        if (checkbox.classList.contains('child-checkbox')) {
+            handleChildCheckboxChange(checkbox);
+            return;
+        }
+
+        // Fallback for legacy checkboxes (non-hierarchical)
         const filterType = checkbox.name;
         const value = checkbox.value;
 
@@ -156,13 +222,89 @@
     }
 
     /**
+     * Handle parent checkbox change - select/deselect all children
+     * @param {HTMLInputElement} parentCheckbox
+     */
+    function handleParentCheckboxChange(parentCheckbox) {
+        const groupCode = parentCheckbox.dataset.group;
+        const children = document.querySelectorAll(
+            `input.child-checkbox[data-parent="${groupCode}"]`
+        );
+
+        children.forEach(child => {
+            child.checked = parentCheckbox.checked;
+            // Update filter state
+            if (parentCheckbox.checked) {
+                filters.minorGroup.add(child.value);
+            } else {
+                filters.minorGroup.delete(child.value);
+            }
+        });
+
+        applyFilters();
+        updateClearButton();
+    }
+
+    /**
+     * Handle child checkbox change - update parent indeterminate state
+     * @param {HTMLInputElement} childCheckbox
+     */
+    function handleChildCheckboxChange(childCheckbox) {
+        const parentCode = childCheckbox.dataset.parent;
+        const parent = document.querySelector(
+            `input.parent-checkbox[data-group="${parentCode}"]`
+        );
+
+        // Update filter state
+        if (childCheckbox.checked) {
+            filters.minorGroup.add(childCheckbox.value);
+        } else {
+            filters.minorGroup.delete(childCheckbox.value);
+        }
+
+        // Update parent checkbox state
+        if (parent) {
+            const siblings = document.querySelectorAll(
+                `input.child-checkbox[data-parent="${parentCode}"]`
+            );
+            const checkedCount = Array.from(siblings).filter(s => s.checked).length;
+
+            parent.checked = checkedCount === siblings.length;
+            parent.indeterminate = checkedCount > 0 && checkedCount < siblings.length;
+        }
+
+        applyFilters();
+        updateClearButton();
+    }
+
+    /**
+     * Update parent checkbox states (checked/indeterminate) based on children
+     */
+    function updateParentStates() {
+        const parents = document.querySelectorAll('input.parent-checkbox');
+        parents.forEach(parent => {
+            const groupCode = parent.dataset.group;
+            const children = document.querySelectorAll(
+                `input.child-checkbox[data-parent="${groupCode}"]`
+            );
+
+            if (children.length === 0) return;
+
+            const checkedCount = Array.from(children).filter(c => c.checked).length;
+
+            parent.checked = checkedCount === children.length;
+            parent.indeterminate = checkedCount > 0 && checkedCount < children.length;
+        });
+    }
+
+    /**
      * Apply current filters and trigger callback
      */
     function applyFilters() {
         const filtered = allResults.filter(result => {
-            // Check broad category filter (OR logic - any checked category matches)
+            // Check unit group filter (OR logic - any checked unit group matches)
             if (filters.minorGroup.size > 0) {
-                if (!result.broad_category_name || !filters.minorGroup.has(result.broad_category_name)) {
+                if (!result.unit_group || !filters.minorGroup.has(result.unit_group)) {
                     return false;
                 }
             }
@@ -189,9 +331,12 @@
         filters.feederMobility.clear();
         filters.careerProgression.clear();
 
-        // Uncheck all checkboxes
+        // Uncheck all checkboxes and reset indeterminate states
         const checkboxes = document.querySelectorAll('#filter-panel input[type="checkbox"]');
-        checkboxes.forEach(cb => cb.checked = false);
+        checkboxes.forEach(cb => {
+            cb.checked = false;
+            cb.indeterminate = false;
+        });
 
         applyFilters();
         updateClearButton();

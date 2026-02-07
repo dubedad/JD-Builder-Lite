@@ -32,11 +32,9 @@
     border-bottom: 1px solid var(--border);
 }
 
-/* Filter Groups (collapsible details) */
+/* Filter Groups (collapsible details and hierarchy containers) */
 .filter-group {
     margin-bottom: 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: 4px;
 }
 
 .filter-group summary {
@@ -111,6 +109,29 @@
     color: var(--text-light);
     font-size: 0.75rem;
     margin-left: 0.25rem;
+}
+
+/* Hierarchical Filter Checkboxes */
+.filter-checkbox--parent {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.filter-group__children {
+    margin-left: 1.5rem;
+    border-left: 2px solid #e0e0e0;
+    padding-left: 0.75rem;
+    margin-top: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.filter-checkbox--child {
+    font-weight: 400;
+    font-size: 0.875rem;
+}
+
+.filter-checkbox--child .filter-checkbox-label {
+    font-size: 0.8125rem;
 }
 
 /* Clear Filters Button */
