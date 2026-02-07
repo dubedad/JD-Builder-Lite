@@ -10,12 +10,12 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 ## Current Position
 
 Milestone: v4.1 Polish
-Phase: 19 of 20 (Flow and Export Polish) -- IN PROGRESS
-Plan: 1 of 3 complete
-Status: Executing Phase 19 plans
-Last activity: 2026-02-07 -- Completed 19-01-PLAN.md (Navigation Wiring and Classification Caching)
+Phase: 19 of 20 (Flow and Export Polish) -- COMPLETE
+Plan: 3 of 3 complete (19-01, 19-02, 19-03 done)
+Status: Phase 19 complete, Phase 20 partially done, v4.1 ready for final review
+Last activity: 2026-02-07 -- Completed 19-03-PLAN.md (Classification Export and Documentation)
 
-Progress: ███████████████████░ 95%
+Progress: ████████████████████ 100% (Phase 19 complete)
 
 ## Milestone History
 
@@ -75,6 +75,9 @@ Evidence highlighting depends on LLM returning exact JD quotes in evidence_spans
 | Use coaching panel with blue styling for invalid_combination | 19-02 | Multi-group results are valid outcomes needing guidance, not errors |
 | Show duty alignment percentages and key evidence in coaching panel | 19-02 | Users need to understand WHY each group was recommended |
 | No duplicate Return to Builder button in coaching panel | 19-02 | Plan 19-01 already provides top-level navigation |
+| Both export checkboxes default to checked | 19-03 | Most users want complete document (JD + classification) |
+| Classification section before compliance appendix | 19-03 | Positions classification prominently while maintaining appendix structure |
+| README leads with compliance value proposition | 19-03 | Front-loads audit-relevant information for reviewers
 
 Additional decisions logged in PROJECT.md Key Decisions table.
 
@@ -85,9 +88,9 @@ Additional decisions logged in PROJECT.md Key Decisions table.
 
 ## Session Continuity
 
-Last session: 2026-02-07 16:19 UTC
-Stopped at: Completed 19-01-PLAN.md (Navigation Wiring and Classification Caching)
+Last session: 2026-02-07 16:50 UTC
+Stopped at: Completed 19-03-PLAN.md (Classification Export and Documentation) -- Phase 19 COMPLETE
 Resume file: None
 
 ---
-*Last updated: 2026-02-07 -- Completed Phase 19 Plan 01 (Navigation Wiring and Classification Caching)*
+*Last updated: 2026-02-07 -- Completed Phase 19 (Flow and Export Polish) -- All 3 plans executed*
