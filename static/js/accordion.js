@@ -130,8 +130,12 @@ const TAB_CONFIG = {
     overview: {
         sections: [
             { key: 'also_known_as', title: 'Also Known As', source: 'reference_attributes.example_titles' },
-            { key: 'core_competencies', title: 'Core Competencies', source: 'reference_attributes.core_competencies' },
             { key: 'noc_hierarchy', title: 'NOC Hierarchy', source: 'noc_hierarchy' }
+        ]
+    },
+    core_competencies: {
+        sections: [
+            { key: 'core_competencies', title: 'Core Competencies', source: 'reference_attributes.core_competencies' }
         ]
     },
     activities: {
@@ -143,8 +147,18 @@ const TAB_CONFIG = {
     },
     skills: {
         sections: [
-            { key: 'skills', title: 'Skills', filter: s => s.source_attribute === 'Skills' },
-            { key: 'abilities', title: 'Abilities', filter: s => s.source_attribute === 'Abilities' },
+            { key: 'skills', title: 'Skills', filter: s => s.source_attribute === 'Skills' }
+        ],
+        dataKey: 'skills'
+    },
+    abilities: {
+        sections: [
+            { key: 'abilities', title: 'Abilities', filter: s => s.source_attribute === 'Abilities' }
+        ],
+        dataKey: 'skills'
+    },
+    knowledge: {
+        sections: [
             { key: 'knowledge', title: 'Knowledge', filter: s => s.source_attribute === 'Knowledge' }
         ],
         dataKey: 'skills'
@@ -160,12 +174,6 @@ const TAB_CONFIG = {
             { key: 'responsibility_context', title: 'Work Context - Responsibility' }
         ],
         dataKey: 'responsibility'
-    },
-    career: {
-        sections: [
-            { key: 'career_info', title: 'Career Progression & Mobility' }
-        ],
-        source: 'reference_attributes.additional_info'
     }
 };
 
@@ -174,6 +182,28 @@ const renderOverviewContent = (profile) => {
     const hierarchy = profile.noc_hierarchy || {};
 
     let html = '';
+
+    // NOC Icon + Title (duplicated from header)
+    const iconClass = getNocIcon(profile.noc_code);
+    html += `
+        <div class="overview-profile-header">
+            <i class="fas ${iconClass} overview-icon"></i>
+            <div class="overview-header-text">
+                <h2>${escapeHtml(profile.title)}</h2>
+                <span class="noc-badge">${escapeHtml(profile.noc_code)}</span>
+            </div>
+        </div>
+    `;
+
+    // Navy blue description (moved from above-tabs area)
+    const descEl = document.getElementById('profile-description');
+    if (descEl && descEl.textContent) {
+        html += `
+            <div class="overview-description">
+                <p class="navy-description">${escapeHtml(descEl.textContent)}</p>
+            </div>
+        `;
+    }
 
     // Also known as - OaSIS panel card format (matches OaSIS welcome page)
     // Display as panel with icon header and bullet list of job titles
@@ -196,18 +226,6 @@ const renderOverviewContent = (profile) => {
                         ${profile.example_titles.slice(8).map(t => `<li class="aka-list__item">${escapeHtml(t)}</li>`).join('')}
                     </ul>` : ''}
                 </div>
-            </div>
-        `;
-    }
-
-    // Core competencies
-    if (ref.core_competencies?.length) {
-        html += `
-            <div class="tab-panel__section">
-                <h3 class="tab-panel__section-title">Core Competencies</h3>
-                <ul class="tab-panel__list">
-                    ${ref.core_competencies.map(c => `<li class="tab-panel__item">${escapeHtml(c)}</li>`).join('')}
-                </ul>
             </div>
         `;
     }
@@ -300,7 +318,44 @@ const renderOverviewContent = (profile) => {
         `;
     }
 
+    // Feeder Group Mobility & Career Progression (moved from removed career tab)
+    const additionalInfo = ref.additional_info;
+    if (additionalInfo) {
+        html += `
+            <div class="oasis-panel">
+                <div class="oasis-panel__heading">
+                    <span class="fas fa-route oasis-panel__icon"></span>
+                    <h3 class="oasis-panel__title">Feeder Group Mobility & Career Progression</h3>
+                </div>
+                <div class="oasis-panel__body">
+                    <div class="career-content">${escapeHtml(additionalInfo)}</div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Other Job Information sections (moved from removed other tab)
+    html += renderOtherJobInfoContent(profile);
+
     return html || '<p>No overview information available.</p>';
+};
+
+const renderCoreCompetenciesContent = (profile) => {
+    const ref = profile.reference_attributes || {};
+    let html = '';
+
+    if (ref.core_competencies?.length) {
+        html += `
+            <div class="tab-panel__section">
+                <h3 class="tab-panel__section-title">Core Competencies</h3>
+                <ul class="tab-panel__list">
+                    ${ref.core_competencies.map(c => `<li class="tab-panel__item">${escapeHtml(c)}</li>`).join('')}
+                </ul>
+            </div>
+        `;
+    }
+
+    return html || '<p>No core competencies information available.</p>';
 };
 
 const renderStatementsPanel = (statements, sections, sectionId, selectedIds) => {
@@ -351,7 +406,7 @@ const renderStatementsPanel = (statements, sections, sectionId, selectedIds) => 
         filtered.forEach((stmt, idx) => {
             const stmtId = `${sectionId}-${statements.indexOf(stmt)}`;
             const isSelected = selectedIds.includes(stmtId);
-            const proficiencyHtml = stmt.proficiency ? renderProficiency(stmt.proficiency) : '';
+            const proficiencyHtml = stmt.proficiency ? renderProficiency(stmt.proficiency, stmt.source_attribute) : '';
 
             // Build description HTML if description exists (from guide.csv)
             const descriptionHtml = stmt.description
@@ -586,11 +641,11 @@ const renderOtherJobInfoContent = (profile) => {
     return html || '<p>No additional job information available.</p>';
 };
 
-const renderAttributeLevel = (level) => {
+const renderAttributeLevel = (level, dimensionType = 'Importance') => {
     const max = 5;
     const filledCircles = '<span class="level-filled">●</span>'.repeat(level);
     const emptyCircles = '<span class="level-empty">○</span>'.repeat(max - level);
-    return `<span class="attribute-level">${filledCircles}${emptyCircles}</span>`;
+    return `<span class="attribute-level" title="${dimensionType} ${level}/${max}">${filledCircles}${emptyCircles} <span class="attribute-dimension">${dimensionType} ${level}/${max}</span></span>`;
 };
 
 const renderTabContent = (profile) => {
@@ -619,6 +674,12 @@ const renderTabContent = (profile) => {
         }
     }
 
+    // Core Competencies tab - NEW
+    const coreCompPanel = document.getElementById('panel-core-competencies');
+    if (coreCompPanel) {
+        coreCompPanel.innerHTML = renderCoreCompetenciesContent(profile);
+    }
+
     // Key Activities tab
     const activitiesPanel = document.getElementById('panel-activities');
     if (activitiesPanel) {
@@ -630,7 +691,7 @@ const renderTabContent = (profile) => {
         );
     }
 
-    // Skills tab
+    // Skills tab - now only Skills statements
     const skillsPanel = document.getElementById('panel-skills');
     if (skillsPanel) {
         skillsPanel.innerHTML = renderStatementsPanel(
@@ -638,6 +699,28 @@ const renderTabContent = (profile) => {
             TAB_CONFIG.skills.sections,
             'skills',
             state.selections.skills || []
+        );
+    }
+
+    // Abilities tab - NEW
+    const abilitiesPanel = document.getElementById('panel-abilities');
+    if (abilitiesPanel) {
+        abilitiesPanel.innerHTML = renderStatementsPanel(
+            profile.skills?.statements || [],
+            TAB_CONFIG.abilities.sections,
+            'abilities',
+            state.selections.abilities || []
+        );
+    }
+
+    // Knowledge tab - NEW
+    const knowledgePanel = document.getElementById('panel-knowledge');
+    if (knowledgePanel) {
+        knowledgePanel.innerHTML = renderStatementsPanel(
+            profile.skills?.statements || [],
+            TAB_CONFIG.knowledge.sections,
+            'knowledge',
+            state.selections.knowledge || []
         );
     }
 
@@ -677,7 +760,7 @@ const renderTabContent = (profile) => {
             effortStatements.forEach((stmt, idx) => {
                 const stmtId = `effort-${idx}`;
                 const isSelected = (state.selections.effort || []).includes(stmtId);
-                const proficiencyHtml = stmt.proficiency ? renderProficiency(stmt.proficiency) : '';
+                const proficiencyHtml = stmt.proficiency ? renderProficiency(stmt.proficiency, stmt.source_attribute) : '';
                 const descriptionHtml = stmt.description ? `<span class="statement__description">${escapeHtml(stmt.description)}</span>` : '';
                 const styledContainerHtml = window.createStyledStatementContainer
                     ? window.createStyledStatementContainer(stmtId, 'effort')
@@ -746,7 +829,7 @@ const renderTabContent = (profile) => {
             respStatements.forEach((stmt, idx) => {
                 const stmtId = `responsibility-${idx}`;
                 const isSelected = (state.selections.responsibility || []).includes(stmtId);
-                const proficiencyHtml = stmt.proficiency ? renderProficiency(stmt.proficiency) : '';
+                const proficiencyHtml = stmt.proficiency ? renderProficiency(stmt.proficiency, stmt.source_attribute) : '';
                 const descriptionHtml = stmt.description ? `<span class="statement__description">${escapeHtml(stmt.description)}</span>` : '';
                 const styledContainerHtml = window.createStyledStatementContainer
                     ? window.createStyledStatementContainer(stmtId, 'responsibility')
@@ -777,18 +860,6 @@ const renderTabContent = (profile) => {
 
         respHtml += '</div>';
         responsibilityPanel.innerHTML = respHtml;
-    }
-
-    // Career tab
-    const careerPanel = document.getElementById('panel-career');
-    if (careerPanel) {
-        careerPanel.innerHTML = renderCareerContent(profile);
-    }
-
-    // Other Job Information tab
-    const otherPanel = document.getElementById('panel-other');
-    if (otherPanel) {
-        otherPanel.innerHTML = renderOtherJobInfoContent(profile);
     }
 
     // Show tabs container
@@ -932,7 +1003,20 @@ const escapeHtml = (text) => {
     return div.innerHTML;
 };
 
-const renderProficiency = (proficiency) => {
+// Map source_attribute to dimension type for rating labels
+const getDimensionType = (sourceAttribute) => {
+    const dimensionMap = {
+        'Skills': 'Proficiency',
+        'Abilities': 'Proficiency',
+        'Knowledge': 'Knowledge Level',
+        'Work Activities': 'Complexity',
+        'Personal Attributes': 'Importance',
+        'Main Duties': 'Proficiency'
+    };
+    return dimensionMap[sourceAttribute] || 'Level';
+};
+
+const renderProficiency = (proficiency, sourceAttribute) => {
     // Handle missing or invalid proficiency
     if (!proficiency || proficiency.level === null || proficiency.level === undefined) {
         return `
@@ -944,7 +1028,7 @@ const renderProficiency = (proficiency) => {
 
     const level = proficiency.level;
     const max = proficiency.max || 5;
-    const label = proficiency.label || PROFICIENCY_LABELS[level] || `Level ${level}`;
+    const dimensionType = proficiency.dimension || getDimensionType(sourceAttribute);
 
     // Build circles string: filled circles then empty circles
     const filledCircles = '<span class="filled">●</span>'.repeat(level);
@@ -952,11 +1036,11 @@ const renderProficiency = (proficiency) => {
 
     return `
         <div class="proficiency-rating"
-             aria-label="Level ${level}"
-             data-full-label="${level} - ${escapeHtml(label)}"
+             aria-label="${dimensionType} ${level} of ${max}"
+             data-full-label="${dimensionType} ${level}/${max}"
              tabindex="0">
             <span class="rating-circles" aria-hidden="true">${filledCircles}${emptyCircles}</span>
-            <span class="rating-label">L${level}</span>
+            <span class="rating-label">${dimensionType} ${level}/${max}</span>
         </div>
     `;
 };
