@@ -11,9 +11,9 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 
 Milestone: v4.1 Polish
 Phase: 19 of 20 (Flow and Export Polish) -- IN PROGRESS
-Plan: 2 of 3 complete
+Plan: 1 of 3 complete
 Status: Executing Phase 19 plans
-Last activity: 2026-02-07 -- Completed 19-02-PLAN.md (Multi-Group Coaching UX)
+Last activity: 2026-02-07 -- Completed 19-01-PLAN.md (Navigation Wiring and Classification Caching)
 
 Progress: ███████████████████░ 95%
 
@@ -68,6 +68,10 @@ Evidence highlighting depends on LLM returning exact JD quotes in evidence_spans
 | Sort recommendation cards client-side by confidence | 20-02 | LLM doesn't guarantee sort order |
 | Show complete section on any recommendations | 20-02 | API may return needs_clarification with recommendations present |
 | Defer 20-02 UAT to after Phase 19 | 20-02 | Evidence highlighting needs allocator prompt fixes or v5.0+ grid |
+| Use sessionStorage flags for navigation intent | 19-01 | Preserves existing localStorage state while controlling screen to show |
+| Cache classification results with JD hash | 19-01 | Avoid redundant API calls, detect stale cache when selections change |
+| Use CustomEvent for classify-complete | 19-01 | Decouples cache write from classification logic, maintains separation of concerns |
+| Show stale warning banner instead of auto-invalidating | 19-01 | Preserves user's classification results while alerting to potential staleness |
 | Use coaching panel with blue styling for invalid_combination | 19-02 | Multi-group results are valid outcomes needing guidance, not errors |
 | Show duty alignment percentages and key evidence in coaching panel | 19-02 | Users need to understand WHY each group was recommended |
 | No duplicate Return to Builder button in coaching panel | 19-02 | Plan 19-01 already provides top-level navigation |
@@ -81,9 +85,9 @@ Additional decisions logged in PROJECT.md Key Decisions table.
 
 ## Session Continuity
 
-Last session: 2026-02-07
-Stopped at: Completed 19-02-PLAN.md (Multi-Group Coaching UX)
+Last session: 2026-02-07 16:19 UTC
+Stopped at: Completed 19-01-PLAN.md (Navigation Wiring and Classification Caching)
 Resume file: None
 
 ---
-*Last updated: 2026-02-07 -- Completed Phase 19 Plan 02 (Multi-Group Coaching UX)*
+*Last updated: 2026-02-07 -- Completed Phase 19 Plan 01 (Navigation Wiring and Classification Caching)*
