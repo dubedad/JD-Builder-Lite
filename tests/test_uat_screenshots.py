@@ -16,7 +16,7 @@ import time
 SCREENSHOT_DIR = Path(__file__).parent / "screenshots"
 SCREENSHOT_DIR.mkdir(exist_ok=True)
 
-BASE_URL = "http://localhost:5000"
+BASE_URL = "http://127.0.0.1:5000"
 
 
 def save_screenshot(page: Page, name: str):
@@ -42,19 +42,21 @@ class TestClassificationFlow:
         """Complete flow: Search -> Select Profile -> Select Activity -> Classify"""
 
         # Step 1: Load homepage
-        page.goto(BASE_URL)
+        page.goto(BASE_URL, timeout=60000)
         page.wait_for_load_state("networkidle")
         save_screenshot(page, "01_homepage")
 
         # Step 2: Search for a job
         search_input = page.locator("#search-input")
-        search_input.fill("policy analyst")
+        search_input.fill("analyst")
         page.locator("#search-button").click()
-        page.wait_for_load_state("networkidle")
-        time.sleep(1)  # Wait for results to render
+        # Wait for search to complete (button changes from "Searching..." back to "Search")
+        page.wait_for_selector("#search-button:has-text('Search')", timeout=30000)
+        time.sleep(2)  # Wait for results to render
         save_screenshot(page, "02_search_results")
 
         # Step 3: Select first profile
+        page.wait_for_selector(".oasis-card", timeout=30000)
         first_result = page.locator(".oasis-card").first
         first_result.click()
         page.wait_for_load_state("networkidle")

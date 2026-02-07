@@ -153,6 +153,55 @@
     text-align: center;
 }
 
+/* Scoring Legend (S1-16) */
+.scoring-legend {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+.scoring-legend__title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.scoring-legend__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.scoring-legend__list li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.78rem;
+    color: var(--text);
+    padding: 0.2rem 0;
+    line-height: 1.3;
+}
+
+.scoring-legend__pct {
+    display: inline-block;
+    min-width: 2.8rem;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.7rem;
+    padding: 0.1rem 0.35rem;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.scoring-legend__pct--100 { background: #c8e6c9; color: #1b5e20; }
+.scoring-legend__pct--95  { background: #d4edda; color: #155724; }
+.scoring-legend__pct--85  { background: #d4edda; color: #155724; }
+.scoring-legend__pct--60  { background: #fff3cd; color: #856404; }
+.scoring-legend__pct--50  { background: #fff3cd; color: #856404; }
+
 /* Responsive: Hide filter panel on mobile */
 @media (max-width: 768px) {
     .results-layout {

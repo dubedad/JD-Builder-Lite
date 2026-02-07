@@ -363,6 +363,13 @@ const renderStatementsPanel = (statements, sections, sectionId, selectedIds) => 
                 ? window.createStyledStatementContainer(stmtId, sectionId)
                 : '';
 
+            // Hide redundant provenance label when source matches section header (S2-01)
+            // Keep labels on Effort/Responsibility tabs (mixed work context dimensions)
+            const sourceRedundant = (stmt.source_attribute || '') === section.title;
+            const sourceHtml = sourceRedundant
+                ? ''
+                : `<span class="statement__source">from ${escapeHtml(stmt.source_attribute || 'Unknown')}</span>`;
+
             html += `
                 <li class="statement tab-panel__item${isSelected ? ' statement--selected' : ''}" data-id="${stmtId}">
                     <label class="statement__label">
@@ -373,7 +380,7 @@ const renderStatementsPanel = (statements, sections, sectionId, selectedIds) => 
                         <span class="statement__content">
                             <span class="statement__text">${escapeHtml(stmt.text)}</span>
                             ${descriptionHtml}
-                            <span class="statement__source">from ${escapeHtml(stmt.source_attribute || 'Unknown')}</span>
+                            ${sourceHtml}
                         </span>
                         ${proficiencyHtml}
                     </label>

@@ -227,8 +227,8 @@ const exportModule = {
    * in localStorage so selections will be restored.
    */
   backToEdit() {
-    // Reload page - state is persisted in localStorage so selections restore
-    // This ensures stepper, tabs, and all modules initialize correctly
+    // Set flag so page reload restores to profile (Step 3) instead of search
+    sessionStorage.setItem('jdb_return_to_profile', '1');
     window.location.reload();
   },
 

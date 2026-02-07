@@ -100,6 +100,23 @@ def search():
             words = re.findall(r'\b\w*' + re.escape(stem) + r'\w*\b', text, re.IGNORECASE)
             return words[0] if words else stem
 
+        def _normalize_plural(text):
+            """Normalize plural suffixes for near-exact title comparison."""
+            words = text.lower().split()
+            out = []
+            for w in words:
+                if w.endswith('ies') and len(w) > 4:
+                    out.append(w[:-3] + 'y')
+                elif w.endswith('es') and len(w) > 3:
+                    out.append(w[:-2])
+                elif w.endswith('s') and len(w) > 2 and not w.endswith('ss'):
+                    out.append(w[:-1])
+                else:
+                    out.append(w)
+            return ' '.join(out)
+
+        query_norm = _normalize_plural(query_lower)
+
         for result in results:
             title_lower = result.title.lower()
             lead_lower = (result.lead_statement or '').lower()
@@ -109,7 +126,14 @@ def search():
             lead_has_exact = query_lower in lead_lower
             lead_has_stem = query_stem in lead_lower
 
-            if title_has_exact:
+            # Near-exact: query ≈ title after normalizing plurals (S1-15)
+            title_norm = _normalize_plural(title_lower)
+            is_near_exact = query_norm == title_norm
+
+            if is_near_exact:
+                result.relevance_score = 100
+                result.match_reason = f"Exact title match: \"{query}\""
+            elif title_has_exact:
                 result.relevance_score = 95
                 result.match_reason = f"Title contains \"{query}\""
             elif title_has_stem:
@@ -129,6 +153,9 @@ def search():
 
         # Sort by relevance score descending (best matches first)
         results.sort(key=lambda r: r.relevance_score or 0, reverse=True)
+
+        # Hide low-confidence results (S1-01: filter out ≤20%)
+        results = [r for r in results if (r.relevance_score or 0) > 20]
 
         # Create response with metadata
         response = SearchResponse(

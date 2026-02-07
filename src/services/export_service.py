@@ -138,9 +138,9 @@ def build_compliance_sections(request: ExportRequest) -> List[ComplianceSection]
         section_id="6.2.7",
         title="Documented Decisions (Directive 6.2.7)",
         content={
-            "description": "This job description was created using the JD Builder Lite tool. "
-                          "All content selections were made by the hiring manager from "
-                          "authoritative NOC data published on Open Canada.",
+            "description": "Created using JobForge Work Descriptions. Content selections made by "
+                          "Section 34 Authorized manager using authoritative sources compliant "
+                          "with ESDC NOC 2025v.1 and O*NET Standards.",
             "total_selections": len(request.selections),
             "selections": selections_data,
             "oasis_dataset_url": OASIS_DATASET_URL

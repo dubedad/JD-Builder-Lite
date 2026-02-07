@@ -6,8 +6,46 @@
   <title>{{ job_title }} - Job Description Preview</title>
   <link rel="stylesheet" href="/static/css/main.css">
   <link rel="stylesheet" href="/static/css/export_screen.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body class="preview-body">
+  <!-- GC CDTS Header (Official Format) -->
+  <header class="gc-header">
+      <div class="gc-header__top">
+          <div class="container gc-header__container">
+              <div class="gc-header__brand">
+                  <div class="gc-header__flag">
+                      <div class="gc-flag">
+                          <div class="gc-flag__red"></div>
+                          <div class="gc-flag__white"><span class="gc-flag__leaf">&#127809;</span></div>
+                          <div class="gc-flag__red"></div>
+                      </div>
+                  </div>
+                  <div class="gc-header__titles">
+                      <span class="gc-header__title-en">Government of Canada</span>
+                      <span class="gc-header__title-fr">Gouvernement du Canada</span>
+                  </div>
+              </div>
+              <div class="gc-header__search">
+                  <input type="search" placeholder="Search Canada.ca" class="gc-header__search-input">
+                  <button type="button" class="gc-header__search-btn" aria-label="Search">
+                      <i class="fas fa-search"></i>
+                  </button>
+              </div>
+              <div class="gc-header__lang">
+                  <a href="#" lang="fr" hreflang="fr">Français</a>
+              </div>
+          </div>
+      </div>
+      <nav class="gc-header__nav">
+          <div class="container">
+              <button class="gc-menu-btn" type="button">
+                  MENU <i class="fas fa-chevron-down"></i>
+              </button>
+          </div>
+      </nav>
+  </header>
+
   <div class="preview-container">
     <!-- Preview Header with Actions -->
     <header class="preview-header">
@@ -85,16 +123,15 @@
             <div class="jd-statement__main">
               <span class="jd-statement__text">{{ statement.text }}</span>
               {% if statement.proficiency and statement.proficiency.level %}
-              <span class="jd-statement__level" title="Importance Level {{ statement.proficiency.level }}/{{ statement.proficiency.max }}">
+              <span class="jd-statement__level" title="{{ statement.proficiency.label or ('Level ' ~ statement.proficiency.level) }}">
                 {% for i in range(statement.proficiency.level) %}●{% endfor %}{% for i in range(statement.proficiency.max - statement.proficiency.level) %}○{% endfor %}
-                <span class="jd-statement__level-label">L{{ statement.proficiency.level }}</span>
+                <span class="jd-statement__level-label">{{ statement.proficiency.label or ('L' ~ statement.proficiency.level) }}</span>
               </span>
               {% endif %}
             </div>
             {% if statement.description %}
             <p class="jd-statement__description">{{ statement.description }}</p>
             {% endif %}
-            <span class="jd-statement__source">Source: {{ statement.source_attribute }}</span>
           </li>
           {% endfor %}
         </ul>
@@ -105,15 +142,19 @@
       <section class="compliance-appendix">
         <h1>Appendix A: Compliance Metadata</h1>
         <p class="appendix-intro">
-          This job description was created in compliance with the Treasury Board of Canada's
-          <a href="https://www.tbs-sct.canada.ca/pol/doc-eng.aspx?id=32592" target="_blank">
-            Directive on Automated Decision-Making
-          </a>.
+          Created using JobForge Work Descriptions. Content selections made by Section 34 Authorized
+          manager using authoritative sources compliant with ESDC NOC 2025v.1 and O*NET Standards,
+          the <a href="https://www.tbs-sct.canada.ca/pol/doc-eng.aspx?id=32589" target="_blank" rel="noopener">Directive on Classification</a>,
+          and <a href="https://www.tbs-sct.canada.ca/pol/doc-eng.aspx?id=32592" target="_blank" rel="noopener">DADM Directive</a>.
         </p>
 
         {% for section in compliance_sections %}
         <div class="compliance-section" id="section-{{ section.section_id }}">
+          {% if section.section_id in ["6.2.3", "6.2.7", "6.3.5"] %}
+          <h2>{{ section.title.split('(')[0].strip() }} (Evidence of compliance with <a href="https://www.tbs-sct.canada.ca/pol/doc-eng.aspx?id=32592" target="_blank" rel="noopener">DADM Directive {{ section.section_id }}</a>)</h2>
+          {% else %}
           <h2>{{ section.title }}</h2>
+          {% endif %}
 
           {% if section.section_id == "6.2.3" %}
           <!-- Data Sources -->
