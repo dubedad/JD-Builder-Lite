@@ -17,38 +17,107 @@
 .preview-container {
   max-width: 900px;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 0 1rem 5rem 1rem; /* Bottom padding for sticky action bar */
 }
 
-/* Preview Header */
-.preview-header {
+/* Top Navigation Bar */
+.preview-top-nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  padding: 1.5rem;
+  padding: 1rem 1.5rem;
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2rem;
 }
 
-.preview-header-content h1 {
-  font-size: 1.5rem;
-  color: var(--primary);
-  margin: 0;
-}
-
-.preview-subtitle {
-  color: var(--text-light);
-  margin: 0.25rem 0 0 0;
-}
-
-.preview-actions {
+.btn-return-to-builder {
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0.5rem 0.75rem;
   display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: color 0.2s;
+}
+
+.btn-return-to-builder:hover {
+  color: var(--primary);
+}
+
+/* Step Indicator Breadcrumb */
+.step-indicator {
+  display: flex;
+  align-items: center;
   gap: 0.75rem;
-  flex-wrap: wrap;
+  font-size: 0.875rem;
+}
+
+.step {
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+.step--active {
+  color: var(--accent);
+  font-weight: 600;
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 0.25rem;
+}
+
+.step--completed {
+  color: var(--primary);
+}
+
+.step--completed.step--clickable {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.step--completed.step--clickable:hover {
+  color: var(--accent);
+}
+
+.step--future {
+  color: #999;
+}
+
+.step--future.step--enabled {
+  color: var(--text-light);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.step--future.step--enabled:hover {
+  color: var(--accent);
+}
+
+.step-separator {
+  color: var(--border);
+}
+
+.step-indicator-spacer {
+  width: 150px; /* Balance the left side Return button */
+}
+
+/* Bottom Action Bar (sticky footer) */
+.preview-action-bar {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-top: 1px solid var(--border);
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
+  z-index: 100;
 }
 
 /* Buttons */
@@ -590,9 +659,29 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .preview-header {
+  .preview-top-nav {
     flex-direction: column;
     align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .step-indicator-spacer {
+    display: none;
+  }
+
+  .step-indicator {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .preview-action-bar {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .preview-action-bar .btn {
+    width: 100%;
+    justify-content: center;
   }
 
   .jd-document {
