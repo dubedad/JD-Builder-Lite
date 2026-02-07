@@ -321,8 +321,8 @@ const classifyModule = (function() {
         // Store JD text for evidence highlighting
         storeJdTextForEvidence(jdData);
 
-        // Show complete section if successful
-        if (response.status === 'success' && elements.complete) {
+        // Show complete section when recommendations are present
+        if (response.recommendations && response.recommendations.length > 0 && elements.complete) {
             elements.complete.classList.remove('hidden');
         }
 
@@ -418,6 +418,18 @@ const classifyModule = (function() {
             const tier = getConfidenceTier(rec.confidence);
             const provenance = provenanceMap ? provenanceMap[rec.group_code] : null;
 
+            // DEBUG: Trace data reaching card rendering
+            console.log(`[DEBUG-20] Card ${rank} (${rec.group_code}):`, {
+                hasProvenanceMap: !!provenanceMap,
+                provenanceMapKeys: provenanceMap ? Object.keys(provenanceMap) : [],
+                provenance: provenance,
+                provenanceUrl: provenance?.url,
+                fallbackUrl: rec.provenance_url,
+                evidenceSpansCount: rec.evidence_spans?.length || 0,
+                evidenceSpans: rec.evidence_spans,
+                reasoningStepsCount: rec.reasoning_steps?.length || 0
+            });
+
             const card = document.createElement('article');
             card.className = `recommendation-card confidence-${tier}${isTop ? ' top-recommendation' : ''}`;
             card.setAttribute('aria-expanded', 'false');
@@ -504,11 +516,9 @@ const classifyModule = (function() {
                     "${escapeHtml(span.text)}"
                     <footer>
                         <cite>from ${escapeHtml(fieldSource)}</cite>
-                        ${span.start_char !== null ? `
-                            <button class="evidence-link" data-start="${span.start_char}" data-end="${span.end_char}" data-text="${escapeHtml(span.text)}">
-                                <i class="fas fa-highlight"></i> Highlight in JD
-                            </button>
-                        ` : ''}
+                        <button class="evidence-link" data-start="${span.start_char ?? ''}" data-end="${span.end_char ?? ''}" data-text="${escapeHtml(span.text)}">
+                            <i class="fas fa-highlight"></i> Highlight in JD
+                        </button>
                     </footer>
                 </blockquote>
             `;
@@ -722,8 +732,8 @@ const classifyModule = (function() {
         event.stopPropagation();
 
         const link = event.currentTarget;
-        const startChar = parseInt(link.dataset.start, 10);
-        const endChar = parseInt(link.dataset.end, 10);
+        const startChar = link.dataset.start ? parseInt(link.dataset.start, 10) : null;
+        const endChar = link.dataset.end ? parseInt(link.dataset.end, 10) : null;
         const text = link.dataset.text;
 
         // Dispatch event for Plan 03 evidence highlighting
@@ -742,6 +752,28 @@ const classifyModule = (function() {
             client_service_results: jdData.client_service_results,
             key_activities: jdData.key_activities
         };
+
+        console.log('[classify.js] Stored JD text for evidence:', {
+            hasCSR: !!jdData.client_service_results,
+            csrLen: jdData.client_service_results?.length,
+            kaCount: jdData.key_activities?.length
+        });
+
+        // Pre-render JD text in evidence panel so it's ready when user clicks highlight
+        const viewer = document.getElementById('jd-text-viewer');
+        if (viewer && window.currentJdText) {
+            let html = '';
+            if (window.currentJdText.client_service_results) {
+                html += `<div class="jd-text-section"><h4>Client-Service Results</h4><p class="jd-text-content" data-field="client_service_results">${window.currentJdText.client_service_results.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</p></div>`;
+            }
+            if (window.currentJdText.key_activities && window.currentJdText.key_activities.length > 0) {
+                html += `<div class="jd-text-section"><h4>Key Activities</h4><ul class="jd-activity-list">${window.currentJdText.key_activities.map((a, i) => `<li data-field="key_activity_${i}">${a.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</li>`).join('')}</ul></div>`;
+            }
+            if (html) {
+                viewer.innerHTML = html;
+                console.log('[classify.js] Pre-rendered JD text in evidence panel');
+            }
+        }
     }
 
     /**
