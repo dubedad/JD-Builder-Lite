@@ -28,11 +28,11 @@
   3. Navy blue description, Feeder Group Mobility, Career Progression, and Other Job Information content all live inside the Overview tab with no leftover empty tabs
   4. Every level circle on every statement shows its dimension type (e.g., "Proficiency: 4/5", "Importance: 3/5") derived from guide.csv
   5. Occupational category filter displays sub-major group and minor group hierarchy headings
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 18-01: Tab restructure (split Skills, promote Core Competencies, consolidate Overview, remove empty tabs)
-- [ ] 18-02: Dimension type labels on circles and filter hierarchy headings
+- [ ] 18-01-PLAN.md -- Tab restructure + dimension labels (split Skills into 3 tabs, promote Core Competencies, consolidate Overview, dimension-aware proficiency labels)
+- [ ] 18-02-PLAN.md -- Filter hierarchy headings (hierarchical sub-major/minor group checkboxes with parent selection)
 
 ### Phase 19: Flow and Export Polish
 **Goal**: Users can navigate fluidly between builder, preview, and classification screens with coaching guidance on invalid results, export classification alongside JD, and README reflects shipped state
@@ -59,4 +59,4 @@ Plans:
 | 19. Flow and Export Polish | v4.1 | 0/3 | Not started | - |
 
 ---
-*Roadmap updated: 2026-02-06 -- v4.1 Polish phases 18-19 created*
+*Roadmap updated: 2026-02-07 -- Phase 18 plans created (2 plans, 1 wave)*
