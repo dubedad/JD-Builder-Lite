@@ -2,7 +2,7 @@
 
 ## Milestones
 
-- **v4.1 Polish** -- Phases 18-19 (in progress)
+- **v4.1 Polish** -- Phases 18-20 (in progress)
 - ✅ **v4.0 Occupational Group Allocation** -- Phases 14-17 (shipped 2026-02-04)
 - ✅ **v3.0 Style-Enhanced Writing** -- Phases 09-13 (shipped 2026-02-03)
 - ✅ **v2.0 UI Redesign** -- Phases 08-A through 08-D (shipped 2026-01-25)
@@ -15,6 +15,7 @@
 
 - [x] **Phase 18: Profile Page Overhaul** - Restructure tabs and enhance data display on the profile page (completed 2026-02-07)
 - [ ] **Phase 19: Flow and Export Polish** - Fix navigation between screens, add coaching UX, extend export, update docs
+- [ ] **Phase 20: Evidence & Provenance Display** - Evidence highlighting with fuzzy matching, provenance tree, completion guidance (carried from v4.0 17-03)
 
 ## Phase Details
 
@@ -51,12 +52,28 @@ Plans:
 - [ ] 19-02: Invalid Combination coaching UX (restyle, add explanation and suggestions)
 - [ ] 19-03: Classification export and README update
 
+### Phase 20: Evidence & Provenance Display
+**Goal**: Users can verify classification recommendations by seeing evidence quotes highlighted in context within their JD text, trace provenance from recommendation back to TBS source, and receive completion guidance for next steps
+**Depends on**: Nothing (independent of Phases 18-19)
+**Requirements**: TBD (carried from v4.0 Phase 17-03 -- new requirement IDs to be assigned during planning)
+**Success Criteria** (what must be TRUE):
+  1. User can click evidence link to see side-by-side JD text view with evidence quote highlighted
+  2. Evidence quote is highlighted in the JD text panel using fuzzy matching when exact match fails
+  3. Multiple evidence quotes can be highlighted simultaneously
+  4. User can see expandable provenance tree from recommendation to TBS source
+  5. User sees Classification Step 1 Complete with next steps guidance
+**Plans**: TBD (to be planned from v4.0 17-03 scope: evidence.js, evidence.css, provenance tree, human-verify checkpoint)
+
+Plans:
+- [ ] TBD -- to be created during `/gsd:plan-phase 20`
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 18. Profile Page Overhaul | v4.1 | 2/2 | ✓ Complete | 2026-02-07 |
 | 19. Flow and Export Polish | v4.1 | 0/3 | Not started | - |
+| 20. Evidence & Provenance Display | v4.1 | 0/? | Not started | - |
 
 ---
-*Roadmap updated: 2026-02-07 -- Phase 18 complete (2/2 plans, verified)*
+*Roadmap updated: 2026-02-07 -- Phase 20 added (carried from v4.0 17-03)*
