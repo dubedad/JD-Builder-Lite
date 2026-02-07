@@ -180,8 +180,26 @@ const exportModule = {
    * Attach event listeners on preview page
    */
   attachPreviewListeners() {
+    // Bind Return to Builder button
+    const returnBtn = document.getElementById('return-to-builder-btn');
+    if (returnBtn) {
+      returnBtn.addEventListener('click', () => this.returnToBuilder());
+    }
+
+    // Bind Classify button
+    const classifyBtn = document.getElementById('preview-classify-btn');
+    if (classifyBtn) {
+      classifyBtn.addEventListener('click', () => this.classifyFromPreview());
+    }
+
+    // Bind breadcrumb "Builder" step click
+    const builderStep = document.querySelector('.step--completed.step--clickable');
+    if (builderStep) {
+      builderStep.addEventListener('click', () => this.returnToBuilder());
+    }
+
     // Dropdown toggle
-    const exportBtn = document.getElementById('export-btn');
+    const exportBtn = document.getElementById('preview-export-btn');
     const dropdown = document.getElementById('export-dropdown');
     const menu = dropdown?.querySelector('.export-dropdown-menu');
 
@@ -215,20 +233,27 @@ const exportModule = {
         });
       });
     }
-
-    document.getElementById('back-to-edit-btn')?.addEventListener('click', () => this.backToEdit());
   },
 
   /**
-   * Return to edit page with state preserved
+   * Return to builder (profile page) with state preserved
    *
    * Note: We reload the page because innerHTML restoration doesn't properly
    * reinitialize the stepper, tabs, and accordion modules. State is preserved
    * in localStorage so selections will be restored.
    */
-  backToEdit() {
+  returnToBuilder() {
     // Set flag so page reload restores to profile (Step 3) instead of search
     sessionStorage.setItem('jdb_return_to_profile', '1');
+    window.location.reload();
+  },
+
+  /**
+   * Navigate to classification from preview screen
+   */
+  classifyFromPreview() {
+    // Set flag so main.js knows to navigate to Step 5 on reload
+    sessionStorage.setItem('jdb_return_to_classify', '1');
     window.location.reload();
   },
 
@@ -261,7 +286,7 @@ const exportModule = {
    * Download PDF
    */
   async downloadPDF() {
-    const btn = document.getElementById('export-btn');
+    const btn = document.getElementById('preview-export-btn');
     if (!btn || !this.currentExportData) return;
 
     btn.classList.add('export-btn--loading');
@@ -307,7 +332,7 @@ const exportModule = {
    * Download Word document
    */
   async downloadDOCX() {
-    const btn = document.getElementById('export-btn');
+    const btn = document.getElementById('preview-export-btn');
     if (!btn || !this.currentExportData) return;
 
     btn.classList.add('export-btn--loading');

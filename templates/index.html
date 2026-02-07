@@ -272,6 +272,15 @@
             </header>
             <p id="classify-position-title" class="classify-position-title"></p>
 
+            <!-- Stale warning banner -->
+            <div id="classify-stale-warning" class="classify-stale-warning hidden" role="alert">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>JD changed -- re-classify for updated results</span>
+                <button onclick="document.getElementById('classify-stale-warning').classList.add('hidden'); window.jdStepper.goToStep(5);" class="btn btn--sm">
+                    Re-classify
+                </button>
+            </div>
+
             <div id="classify-loading" class="classify-loading">
                 <div class="classify-loading-spinner"></div>
                 <p>Analyzing job description against TBS occupational group definitions...</p>
@@ -317,6 +326,11 @@
                             <li>Consult with a classification specialist if borderline or unclear</li>
                             <li>Proceed to Step 2: Apply Job Evaluation Standard for the selected group</li>
                         </ul>
+                    </div>
+                    <div class="classify-nav-actions">
+                        <button class="btn btn--text" onclick="window.jdStepper.goToStep(3)">
+                            <i class="fas fa-arrow-left"></i> Return to Builder
+                        </button>
                     </div>
                 </div>
             </div>

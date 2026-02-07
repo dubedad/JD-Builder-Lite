@@ -122,6 +122,22 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Check for return to classify flag
+    const returnToClassify = sessionStorage.getItem('jdb_return_to_classify');
+    if (returnToClassify) {
+        sessionStorage.removeItem('jdb_return_to_classify');
+        const savedState = store.getState();
+        if (savedState.currentProfileCode) {
+            setTimeout(() => {
+                handleResultClick(savedState.currentProfileCode);
+                // After profile loads, navigate to Step 5
+                document.addEventListener('profile-loaded', () => {
+                    setTimeout(() => window.jdStepper.goToStep(5), 200);
+                }, { once: true });
+            }, 100);
+        }
+    }
+
     // Search type toggle state
     let currentSearchType = 'Keyword';
 
@@ -826,7 +842,25 @@ document.addEventListener('DOMContentLoaded', function() {
                     const classifySection = document.getElementById('classify-section');
                     if (classifySection) {
                         classifySection.classList.remove('hidden');
-                        // Trigger allocation if we have JD data
+
+                        // Check for cached classification result
+                        const cachedClassification = localStorage.getItem('classification_cache');
+                        if (cachedClassification) {
+                            try {
+                                const cache = JSON.parse(cachedClassification);
+                                const currentHash = btoa(JSON.stringify(store.getState().selections));
+                                if (cache.jdHash === currentHash) {
+                                    // Use cached result - dispatch cache-hit event
+                                    console.log('[DEBUG main.js] Classification cache hit, using cached result');
+                                    document.dispatchEvent(new CustomEvent('classify-cache-hit', { detail: cache.result }));
+                                    return; // Skip API call
+                                }
+                            } catch (e) {
+                                console.error('[DEBUG main.js] Failed to parse classification cache:', e);
+                            }
+                        }
+
+                        // No valid cache - proceed with API call
                         triggerClassification();
                     }
                     break;
@@ -920,6 +954,43 @@ document.addEventListener('DOMContentLoaded', function() {
 
         console.log('[DEBUG] JD Stepper initialized with 5 steps');
     }
+
+    /**
+     * Listen for classify-complete event and write to cache
+     */
+    document.addEventListener('classify-complete', (event) => {
+        const result = event.detail;
+        const hash = btoa(JSON.stringify(store.getState().selections));
+        localStorage.setItem('classification_cache', JSON.stringify({
+            result: result,
+            jdHash: hash,
+            timestamp: Date.now()
+        }));
+        console.log('[DEBUG main.js] Classification result cached');
+    });
+
+    /**
+     * Listen for selection changes and mark classification cache as stale
+     */
+    store.subscribe((state) => {
+        const cache = localStorage.getItem('classification_cache');
+        if (cache) {
+            try {
+                const parsed = JSON.parse(cache);
+                const currentHash = btoa(JSON.stringify(state.selections));
+                if (parsed.jdHash !== currentHash) {
+                    // Mark stale - show banner on classify section
+                    const banner = document.getElementById('classify-stale-warning');
+                    if (banner) {
+                        banner.classList.remove('hidden');
+                    }
+                }
+            } catch (e) {
+                console.error('[DEBUG main.js] Failed to parse classification cache for stale check:', e);
+            }
+        }
+    });
+}
 
     /**
      * Trigger allocation API call when navigating to Step 5

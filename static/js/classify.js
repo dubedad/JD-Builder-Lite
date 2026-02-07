@@ -169,6 +169,7 @@ const classifyModule = (function() {
 
             currentAllocation = response;
             renderResults(response, jdData);
+            document.dispatchEvent(new CustomEvent('classify-complete', { detail: response }));
 
         } catch (err) {
             console.error('[classify.js] Allocation failed:', err);
