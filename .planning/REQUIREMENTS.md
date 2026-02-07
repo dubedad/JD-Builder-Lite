@@ -54,13 +54,13 @@ Deferred to v5.0+ milestones.
 - **JES-02**: Benchmark position comparison UI
 - **JES-03**: Manager consultation workflow
 
-### Blocked by S1-10 — JobForge Gold Integration
+### Blocked by S1-10 -- JobForge Gold Integration
 
 - **JFG-01**: Primary data source switches from OASIS scraping to JobForge gold parquet (S1-10)
 - **JFG-02**: Match rationale specifies WHERE in NOC hierarchy match occurred (S1-03)
 - **JFG-03**: Matching search criteria shows actual matched content in result cards (S1-04)
 - **JFG-04**: Sort by matched NOC attribute (S1-05)
-- **JFG-05**: Search quality improvement — match across all NOC text fields (S1-12)
+- **JFG-05**: Search quality improvement -- match across all NOC text fields (S1-12)
 - **JFG-06**: Match Type filter (requires local data) (S1-11 partial)
 - **JFG-07**: Job Family / Managerial Level filters from JobForge (S1-11 partial)
 
@@ -68,13 +68,13 @@ Deferred to v5.0+ milestones.
 
 | Feature | Reason |
 |---------|--------|
-| JobForge gold integration (S1-10) | Architectural SEED — prerequisite for blocked enhancements, separate milestone |
-| Multi-result selection (S1-09) | Significant flow change — changes JD assembly architecture |
-| RAG enrichment (S5-03) | SEED — requires multi-source integration infrastructure |
-| Bubble matrix (S5-06) | SEED — requires JobForge gold data for granularity dimension |
-| PuMP formalization (S5-11) | SEED — measurement framework design, separate initiative |
-| CAF taxonomy (S1-08) | SEED — new taxonomy integration |
-| Search from JobForge tables (S1-06) | SEED — requires JobForge lookup table |
+| JobForge gold integration (S1-10) | Architectural SEED -- prerequisite for blocked enhancements, separate milestone |
+| Multi-result selection (S1-09) | Significant flow change -- changes JD assembly architecture |
+| RAG enrichment (S5-03) | SEED -- requires multi-source integration infrastructure |
+| Bubble matrix (S5-06) | SEED -- requires JobForge gold data for granularity dimension |
+| PuMP formalization (S5-11) | SEED -- measurement framework design, separate initiative |
+| CAF taxonomy (S1-08) | SEED -- new taxonomy integration |
+| Search from JobForge tables (S1-06) | SEED -- requires JobForge lookup table |
 | Semantic/fuzzy search | Requires local data source (S1-10) |
 
 ## Traceability
@@ -83,31 +83,31 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TAB-01 | TBD | Pending |
-| TAB-02 | TBD | Pending |
-| TAB-03 | TBD | Pending |
-| TAB-04 | TBD | Pending |
-| TAB-05 | TBD | Pending |
-| TAB-06 | TBD | Pending |
-| NAV-01 | TBD | Pending |
-| NAV-02 | TBD | Pending |
-| NAV-03 | TBD | Pending |
-| UX-01 | TBD | Pending |
-| UX-02 | TBD | Pending |
-| UX-03 | TBD | Pending |
-| UX-04 | TBD | Pending |
-| DISP-01 | TBD | Pending |
-| DISP-02 | TBD | Pending |
-| DISP-03 | TBD | Pending |
-| EXP-01 | TBD | Pending |
-| EXP-02 | TBD | Pending |
-| DOC-01 | TBD | Pending |
+| TAB-01 | Phase 18 | Pending |
+| TAB-02 | Phase 18 | Pending |
+| TAB-03 | Phase 18 | Pending |
+| TAB-04 | Phase 18 | Pending |
+| TAB-05 | Phase 18 | Pending |
+| TAB-06 | Phase 18 | Pending |
+| NAV-01 | Phase 19 | Pending |
+| NAV-02 | Phase 19 | Pending |
+| NAV-03 | Phase 19 | Pending |
+| UX-01 | Phase 19 | Pending |
+| UX-02 | Phase 19 | Pending |
+| UX-03 | Phase 19 | Pending |
+| UX-04 | Phase 19 | Pending |
+| DISP-01 | Phase 18 | Pending |
+| DISP-02 | Phase 18 | Pending |
+| DISP-03 | Phase 18 | Pending |
+| EXP-01 | Phase 19 | Pending |
+| EXP-02 | Phase 19 | Pending |
+| DOC-01 | Phase 19 | Pending |
 
 **Coverage:**
 - v4.1 requirements: 19 total
-- Mapped to phases: 0
-- Unmapped: 19 ⚠️
+- Mapped to phases: 19
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-06*
-*Last updated: 2026-02-06 after v4.1 milestone start*
+*Last updated: 2026-02-06 -- traceability filled after roadmap creation*

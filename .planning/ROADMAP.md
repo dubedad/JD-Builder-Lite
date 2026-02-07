@@ -2,30 +2,61 @@
 
 ## Milestones
 
-- ✅ **v4.0 Occupational Group Allocation** — Phases 14-17 (shipped 2026-02-04) → [archive](.planning/milestones/v4.0-ROADMAP.md)
-- ✅ **v3.0 Style-Enhanced Writing** — Phases 09-13 (shipped 2026-02-03)
-- ✅ **v2.0 UI Redesign** — Phases 08-A through 08-D (shipped 2026-01-25)
-- ✅ **v1.1 Enhanced Data Display + Export** — Phases 05-07 (shipped 2026-01-23)
-- ✅ **v1.0 MVP** — Phases 01-04 (shipped 2026-01-22)
+- **v4.1 Polish** -- Phases 18-19 (in progress)
+- ✅ **v4.0 Occupational Group Allocation** -- Phases 14-17 (shipped 2026-02-04)
+- ✅ **v3.0 Style-Enhanced Writing** -- Phases 09-13 (shipped 2026-02-03)
+- ✅ **v2.0 UI Redesign** -- Phases 08-A through 08-D (shipped 2026-01-25)
+- ✅ **v1.1 Enhanced Data Display + Export** -- Phases 05-07 (shipped 2026-01-23)
+- ✅ **v1.0 MVP** -- Phases 01-04 (shipped 2026-01-22)
 
-## Current
+## Current: v4.1 Polish
 
-No active milestone. Run `/gsd:new-milestone` to start v5.0.
+**Milestone Goal:** Exec-ready demo polish -- restructure profile tabs, improve navigation flow between screens, add coaching tone to classification, make results exportable, and update documentation.
 
-**Candidate: v5.0 Classification Step 2**
-- Job Evaluation Standards scoring
-- Benchmark position comparison UI
-- Manager consultation workflow
+- [ ] **Phase 18: Profile Page Overhaul** - Restructure tabs and enhance data display on the profile page
+- [ ] **Phase 19: Flow and Export Polish** - Fix navigation between screens, add coaching UX, extend export, update docs
+
+## Phase Details
+
+### Phase 18: Profile Page Overhaul
+**Goal**: Profile page presents NOC data in a clean, logical tab structure with meaningful dimension labels on all ratings
+**Depends on**: Nothing (no dependency on Phase 19)
+**Requirements**: TAB-01, TAB-02, TAB-03, TAB-04, TAB-05, TAB-06, DISP-01, DISP-02, DISP-03
+**Success Criteria** (what must be TRUE):
+  1. Skills, Abilities, and Knowledge each appear as separate tabs on the profile page (not lumped together)
+  2. Core Competencies has its own dedicated tab separate from Overview
+  3. Navy blue description, Feeder Group Mobility, Career Progression, and Other Job Information content all live inside the Overview tab with no leftover empty tabs
+  4. Every level circle on every statement shows its dimension type (e.g., "Proficiency: 4/5", "Importance: 3/5") derived from guide.csv
+  5. Occupational category filter displays sub-major group and minor group hierarchy headings
+**Plans**: TBD
+
+Plans:
+- [ ] 18-01: Tab restructure (split Skills, promote Core Competencies, consolidate Overview, remove empty tabs)
+- [ ] 18-02: Dimension type labels on circles and filter hierarchy headings
+
+### Phase 19: Flow and Export Polish
+**Goal**: Users can navigate fluidly between builder, preview, and classification screens with coaching guidance on invalid results, export classification alongside JD, and README reflects shipped state
+**Depends on**: Nothing (independent of Phase 18; can execute in either order)
+**Requirements**: NAV-01, NAV-02, NAV-03, UX-01, UX-02, UX-03, UX-04, EXP-01, EXP-02, DOC-01
+**Success Criteria** (what must be TRUE):
+  1. Preview screen shows Classify, Export, and Return to Builder as navigation options -- Return to Builder preserves all selections
+  2. Classification results screen has Return to Builder button that goes back to profile page with selections intact
+  3. Invalid Combination result displays in coaching style (blue/amber, not red) with explanation of why and what to adjust, plus Return to Builder button
+  4. Classification results (recommendations, confidence, rationale, evidence, provenance) appear in exported PDF/DOCX
+  5. GitHub README accurately describes v4.0 architecture, setup instructions, and shipped features
+**Plans**: TBD
+
+Plans:
+- [ ] 19-01: Navigation wiring (Classify from preview, Return to Builder from classification, fix Back to Edit)
+- [ ] 19-02: Invalid Combination coaching UX (restyle, add explanation and suggestions)
+- [ ] 19-03: Classification export and README update
 
 ## Progress
 
-| Milestone | Phases | Status | Shipped |
-|-----------|--------|--------|---------|
-| v4.0 Occupational Group Allocation | 14-17 | ✅ Complete | 2026-02-04 |
-| v3.0 Style-Enhanced Writing | 09-13 | ✅ Complete | 2026-02-03 |
-| v2.0 UI Redesign | 08-A to 08-D | ✅ Complete | 2026-01-25 |
-| v1.1 Enhanced Data Display | 05-07 | ✅ Complete | 2026-01-23 |
-| v1.0 MVP | 01-04 | ✅ Complete | 2026-01-22 |
+| Phase | Milestone | Plans Complete | Status | Completed |
+|-------|-----------|----------------|--------|-----------|
+| 18. Profile Page Overhaul | v4.1 | 0/2 | Not started | - |
+| 19. Flow and Export Polish | v4.1 | 0/3 | Not started | - |
 
 ---
-*Roadmap updated: 2026-02-04 — v4.0 archived*
+*Roadmap updated: 2026-02-06 -- v4.1 Polish phases 18-19 created*
