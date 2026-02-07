@@ -13,7 +13,7 @@
 
 **Milestone Goal:** Exec-ready demo polish -- restructure profile tabs, improve navigation flow between screens, add coaching tone to classification, make results exportable, and update documentation.
 
-- [ ] **Phase 18: Profile Page Overhaul** - Restructure tabs and enhance data display on the profile page
+- [x] **Phase 18: Profile Page Overhaul** - Restructure tabs and enhance data display on the profile page (completed 2026-02-07)
 - [ ] **Phase 19: Flow and Export Polish** - Fix navigation between screens, add coaching UX, extend export, update docs
 
 ## Phase Details
@@ -31,8 +31,8 @@
 **Plans**: 2 plans
 
 Plans:
-- [ ] 18-01-PLAN.md -- Tab restructure + dimension labels (split Skills into 3 tabs, promote Core Competencies, consolidate Overview, dimension-aware proficiency labels)
-- [ ] 18-02-PLAN.md -- Filter hierarchy headings (hierarchical sub-major/minor group checkboxes with parent selection)
+- [x] 18-01-PLAN.md -- Tab restructure + dimension labels (split Skills into 3 tabs, promote Core Competencies, consolidate Overview, dimension-aware proficiency labels)
+- [x] 18-02-PLAN.md -- Filter hierarchy headings (hierarchical sub-major/minor group checkboxes with parent selection)
 
 ### Phase 19: Flow and Export Polish
 **Goal**: Users can navigate fluidly between builder, preview, and classification screens with coaching guidance on invalid results, export classification alongside JD, and README reflects shipped state
@@ -55,8 +55,8 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 18. Profile Page Overhaul | v4.1 | 0/2 | Not started | - |
+| 18. Profile Page Overhaul | v4.1 | 2/2 | ✓ Complete | 2026-02-07 |
 | 19. Flow and Export Polish | v4.1 | 0/3 | Not started | - |
 
 ---
-*Roadmap updated: 2026-02-07 -- Phase 18 plans created (2 plans, 1 wave)*
+*Roadmap updated: 2026-02-07 -- Phase 18 complete (2/2 plans, verified)*

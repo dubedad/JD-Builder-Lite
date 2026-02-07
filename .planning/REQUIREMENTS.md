@@ -9,12 +9,12 @@ Requirements for exec-ready demo polish. Each maps to roadmap phases.
 
 ### Tab Restructure
 
-- [ ] **TAB-01**: Skills, Abilities, and Knowledge display as 3 separate profile tabs (currently lumped under Skills)
-- [ ] **TAB-02**: Core Competencies has its own dedicated profile tab (currently inside Overview section)
-- [ ] **TAB-03**: Navy blue description section moves inside the Overview tab content (currently floats above tabs)
-- [ ] **TAB-04**: Feeder Group Mobility & Career Progression content consolidates into Overview tab
-- [ ] **TAB-05**: Other Job Information content consolidates into Overview tab
-- [ ] **TAB-06**: Feeder Group Mobility, Career Progression, and Other Job Information tabs are removed after content migration
+- [x] **TAB-01**: Skills, Abilities, and Knowledge display as 3 separate profile tabs (currently lumped under Skills)
+- [x] **TAB-02**: Core Competencies has its own dedicated profile tab (currently inside Overview section)
+- [x] **TAB-03**: Navy blue description section moves inside the Overview tab content (currently floats above tabs)
+- [x] **TAB-04**: Feeder Group Mobility & Career Progression content consolidates into Overview tab
+- [x] **TAB-05**: Other Job Information content consolidates into Overview tab
+- [x] **TAB-06**: Feeder Group Mobility, Career Progression, and Other Job Information tabs are removed after content migration
 
 ### Navigation
 
@@ -31,9 +31,9 @@ Requirements for exec-ready demo polish. Each maps to roadmap phases.
 
 ### Data Display
 
-- [ ] **DISP-01**: Level circles display dimension type label alongside the rating (e.g., "Proficiency: 4/5", "Importance: 3/5", "Frequency: 5/5")
-- [ ] **DISP-02**: Dimension type derived from guide.csv scale definitions per category (Skills=Proficiency, Abilities=Proficiency, Knowledge=Knowledge Level, Work Activities=Complexity, Personal Attributes=Importance, Work Context=varies)
-- [ ] **DISP-03**: Occupational category filter shows sub-major group and minor group headings the user can filter by
+- [x] **DISP-01**: Level circles display dimension type label alongside the rating (e.g., "Proficiency: 4/5", "Importance: 3/5", "Frequency: 5/5")
+- [x] **DISP-02**: Dimension type derived from guide.csv scale definitions per category (Skills=Proficiency, Abilities=Proficiency, Knowledge=Knowledge Level, Work Activities=Complexity, Personal Attributes=Importance, Work Context=varies)
+- [x] **DISP-03**: Occupational category filter shows sub-major group and minor group headings the user can filter by
 
 ### Export
 
@@ -83,12 +83,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TAB-01 | Phase 18 | Pending |
-| TAB-02 | Phase 18 | Pending |
-| TAB-03 | Phase 18 | Pending |
-| TAB-04 | Phase 18 | Pending |
-| TAB-05 | Phase 18 | Pending |
-| TAB-06 | Phase 18 | Pending |
+| TAB-01 | Phase 18 | Complete |
+| TAB-02 | Phase 18 | Complete |
+| TAB-03 | Phase 18 | Complete |
+| TAB-04 | Phase 18 | Complete |
+| TAB-05 | Phase 18 | Complete |
+| TAB-06 | Phase 18 | Complete |
 | NAV-01 | Phase 19 | Pending |
 | NAV-02 | Phase 19 | Pending |
 | NAV-03 | Phase 19 | Pending |
@@ -96,9 +96,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UX-02 | Phase 19 | Pending |
 | UX-03 | Phase 19 | Pending |
 | UX-04 | Phase 19 | Pending |
-| DISP-01 | Phase 18 | Pending |
-| DISP-02 | Phase 18 | Pending |
-| DISP-03 | Phase 18 | Pending |
+| DISP-01 | Phase 18 | Complete |
+| DISP-02 | Phase 18 | Complete |
+| DISP-03 | Phase 18 | Complete |
 | EXP-01 | Phase 19 | Pending |
 | EXP-02 | Phase 19 | Pending |
 | DOC-01 | Phase 19 | Pending |
@@ -110,4 +110,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-06*
-*Last updated: 2026-02-06 -- traceability filled after roadmap creation*
+*Last updated: 2026-02-07 -- Phase 18 requirements (TAB-01..06, DISP-01..03) marked Complete*
