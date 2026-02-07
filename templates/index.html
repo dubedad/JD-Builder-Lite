@@ -144,7 +144,7 @@
                     <h2 id="profile-title" class="profile-header__title"></h2>
                     <span id="profile-code-badge" class="oasis-code-badge"></span>
                     <p id="profile-lead-statement" class="profile-header__lead"></p>
-                    <p id="profile-description" class="profile-header__description"></p>
+                    <p id="profile-description" class="profile-header__description hidden"></p>
                 </div>
                 <div class="profile-header__icon">
                     <i id="profile-icon" class="fas fa-briefcase" aria-hidden="true"></i>
@@ -332,6 +332,12 @@
                     </button>
                 </li>
                 <li role="presentation">
+                    <button role="tab" id="tab-core-competencies" aria-selected="false"
+                            aria-controls="panel-core-competencies" tabindex="-1" class="tab-button">
+                        Core Competencies
+                    </button>
+                </li>
+                <li role="presentation">
                     <button role="tab" id="tab-activities" aria-selected="false"
                             aria-controls="panel-activities" tabindex="-1" class="tab-button">
                         Key Activities
@@ -341,6 +347,18 @@
                     <button role="tab" id="tab-skills" aria-selected="false"
                             aria-controls="panel-skills" tabindex="-1" class="tab-button">
                         Skills
+                    </button>
+                </li>
+                <li role="presentation">
+                    <button role="tab" id="tab-abilities" aria-selected="false"
+                            aria-controls="panel-abilities" tabindex="-1" class="tab-button">
+                        Abilities
+                    </button>
+                </li>
+                <li role="presentation">
+                    <button role="tab" id="tab-knowledge" aria-selected="false"
+                            aria-controls="panel-knowledge" tabindex="-1" class="tab-button">
+                        Knowledge
                     </button>
                 </li>
                 <li role="presentation">
@@ -355,23 +373,14 @@
                         Responsibility
                     </button>
                 </li>
-                <li role="presentation">
-                    <button role="tab" id="tab-career" aria-selected="false"
-                            aria-controls="panel-career" tabindex="-1" class="tab-button">
-                        Feeder Group Mobility & Career Progression
-                    </button>
-                </li>
-                <li role="presentation">
-                    <button role="tab" id="tab-other" aria-selected="false"
-                            aria-controls="panel-other" tabindex="-1" class="tab-button">
-                        Other Job Information
-                    </button>
-                </li>
             </ul>
 
             <!-- Tab Panels -->
             <div id="panel-overview" role="tabpanel" aria-labelledby="tab-overview" tabindex="0" class="tab-panel">
                 <!-- Overview content rendered by JS -->
+            </div>
+            <div id="panel-core-competencies" role="tabpanel" aria-labelledby="tab-core-competencies" tabindex="0" class="tab-panel" hidden>
+                <!-- Core Competencies content rendered by JS -->
             </div>
             <div id="panel-activities" role="tabpanel" aria-labelledby="tab-activities" tabindex="0" class="tab-panel" hidden>
                 <!-- Key Activities content -->
@@ -379,17 +388,17 @@
             <div id="panel-skills" role="tabpanel" aria-labelledby="tab-skills" tabindex="0" class="tab-panel" hidden>
                 <!-- Skills content -->
             </div>
+            <div id="panel-abilities" role="tabpanel" aria-labelledby="tab-abilities" tabindex="0" class="tab-panel" hidden>
+                <!-- Abilities content -->
+            </div>
+            <div id="panel-knowledge" role="tabpanel" aria-labelledby="tab-knowledge" tabindex="0" class="tab-panel" hidden>
+                <!-- Knowledge content -->
+            </div>
             <div id="panel-effort" role="tabpanel" aria-labelledby="tab-effort" tabindex="0" class="tab-panel" hidden>
                 <!-- Effort content -->
             </div>
             <div id="panel-responsibility" role="tabpanel" aria-labelledby="tab-responsibility" tabindex="0" class="tab-panel" hidden>
                 <!-- Responsibility content -->
-            </div>
-            <div id="panel-career" role="tabpanel" aria-labelledby="tab-career" tabindex="0" class="tab-panel" hidden>
-                <!-- Career content -->
-            </div>
-            <div id="panel-other" role="tabpanel" aria-labelledby="tab-other" tabindex="0" class="tab-panel" hidden>
-                <!-- Other Job Information content -->
             </div>
         </nav>
 
