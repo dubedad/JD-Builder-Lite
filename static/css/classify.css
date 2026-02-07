@@ -673,7 +673,188 @@
 }
 
 /* ==========================================================================
-   SECTION 12: Hidden Utility
+   SECTION 12: Coaching Panel - replaces error-style for multi-group results
+   ========================================================================== */
+
+/* Coaching Panel - replaces error-style for multi-group results */
+.coaching-panel {
+    background: #e3f2fd;
+    border: 2px solid #1565c0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    display: flex;
+    gap: 1.25rem;
+}
+
+.coaching-panel--info {
+    background: #e3f2fd;
+    border-color: #1565c0;
+}
+
+.coaching-panel--warning {
+    background: #fff3e0;
+    border-color: #e65100;
+}
+
+.coaching-icon {
+    flex-shrink: 0;
+    font-size: 2rem;
+    color: #1565c0;
+    padding-top: 0.25rem;
+}
+
+.coaching-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.coaching-title {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.2rem;
+    color: #0d47a1;
+    font-weight: 600;
+}
+
+.coaching-explanation {
+    margin: 0 0 1.25rem 0;
+    line-height: 1.6;
+    color: #424242;
+}
+
+.ranked-recommendations {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.recommendation-card-coaching {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 1rem;
+}
+
+.recommendation-card-coaching--primary {
+    border: 2px solid #1565c0;
+    box-shadow: 0 2px 8px rgba(21, 101, 192, 0.12);
+}
+
+.recommendation-coaching-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.recommendation-coaching-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #263238;
+}
+
+.duty-alignment {
+    color: #616161;
+    font-size: 0.9rem;
+}
+
+.duty-alignment p {
+    margin: 0 0 0.5rem 0;
+}
+
+.duty-list {
+    margin: 0.25rem 0 0 1.25rem;
+    padding: 0;
+    color: #757575;
+    font-size: 0.85rem;
+}
+
+.duty-list li {
+    margin-bottom: 0.25rem;
+}
+
+.coaching-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.coaching-accept-btn {
+    background: #1565c0;
+    color: white;
+    border: none;
+    padding: 0.5rem 1.25rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.coaching-accept-btn:hover {
+    background: #0d47a1;
+}
+
+/* Status badge coaching variant */
+.classify-status-badge.coaching {
+    background: #e3f2fd;
+    color: #1565c0;
+    border: 1px solid #1565c0;
+}
+
+/* Confidence badge tier variants (for coaching cards) */
+.confidence-badge--high {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.confidence-badge--medium {
+    background: #fff3e0;
+    color: #e65100;
+}
+
+.confidence-badge--low {
+    background: #fce4ec;
+    color: #c62828;
+}
+
+/* Stale warning banner */
+.classify-stale-warning {
+    background: #fff3e0;
+    border: 1px solid #e65100;
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #e65100;
+    font-size: 0.9rem;
+}
+
+.classify-stale-warning .btn--sm {
+    margin-left: auto;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.8rem;
+    background: #e65100;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Navigation actions at bottom of classify section */
+.classify-nav-actions {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    gap: 1rem;
+}
+
+/* ==========================================================================
+   SECTION 13: Hidden Utility
    ========================================================================== */
 
 .hidden {
