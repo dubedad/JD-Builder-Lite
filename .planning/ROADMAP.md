@@ -55,17 +55,18 @@ Plans:
 ### Phase 20: Evidence & Provenance Display
 **Goal**: Users can verify classification recommendations by seeing evidence quotes highlighted in context within their JD text, trace provenance from recommendation back to TBS source, and receive completion guidance for next steps
 **Depends on**: Nothing (independent of Phases 18-19)
-**Requirements**: TBD (carried from v4.0 Phase 17-03 -- new requirement IDs to be assigned during planning)
+**Requirements**: EVD-01, EVD-02, EVD-03, EVD-04, EVD-05
 **Success Criteria** (what must be TRUE):
-  1. User can click evidence link to see side-by-side JD text view with evidence quote highlighted
-  2. Evidence quote is highlighted in the JD text panel using fuzzy matching when exact match fails
-  3. Multiple evidence quotes can be highlighted simultaneously
-  4. User can see expandable provenance tree from recommendation to TBS source
-  5. User sees Classification Step 1 Complete with next steps guidance
-**Plans**: TBD (to be planned from v4.0 17-03 scope: evidence.js, evidence.css, provenance tree, human-verify checkpoint)
+  1. User can click evidence link to see side-by-side JD text view with evidence quote highlighted (EVD-01)
+  2. Evidence quote is highlighted in the JD text panel using fuzzy matching when exact match fails (EVD-02)
+  3. Multiple evidence quotes can be highlighted simultaneously (EVD-03)
+  4. User can see expandable provenance tree from recommendation to TBS source (EVD-04)
+  5. User sees Classification Step 1 Complete with next steps guidance (EVD-05)
+**Plans**: 2 plans
 
 Plans:
-- [ ] TBD -- to be created during `/gsd:plan-phase 20`
+- [ ] 20-01-PLAN.md -- Upgrade provenance rendering from flat to expandable tree (closes gap between existing CSS and JS)
+- [ ] 20-02-PLAN.md -- Human verification of complete evidence, provenance, and completion flow (carried from 17-03 Task 3)
 
 ## Progress
 
@@ -73,7 +74,7 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 18. Profile Page Overhaul | v4.1 | 2/2 | ✓ Complete | 2026-02-07 |
 | 19. Flow and Export Polish | v4.1 | 0/3 | Not started | - |
-| 20. Evidence & Provenance Display | v4.1 | 0/? | Not started | - |
+| 20. Evidence & Provenance Display | v4.1 | 0/2 | Not started | - |
 
 ---
-*Roadmap updated: 2026-02-07 -- Phase 20 added (carried from v4.0 17-03)*
+*Roadmap updated: 2026-02-07 -- Phase 20 planned (2 plans in 2 waves)*
