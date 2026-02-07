@@ -86,6 +86,67 @@
     </section>
     {% endfor %}
 
+    {% if include_classification and classification_result %}
+    <!-- Classification Section -->
+    <section class="classification-section">
+      <h1>Classification Step 1: Occupational Group Allocation</h1>
+
+      <table class="compliance-table">
+        <tr><th>Status</th><td>{{ classification_result.status }}</td></tr>
+        <tr><th>Match Context</th><td>{{ classification_result.match_context }}</td></tr>
+      </table>
+
+      <h2>Recommendations (Ranked by Confidence)</h2>
+      {% for rec in classification_result.recommendations %}
+      <div class="recommendation-export">
+        <h3>{{ rec.group_code }}: {{ rec.group_name }} ({{ rec.confidence }}% confidence)</h3>
+
+        <h4>Rationale</h4>
+        <p>{{ rec.rationale }}</p>
+
+        {% if rec.evidence %}
+        <h4>Supporting Evidence</h4>
+        {% for ev in rec.evidence %}
+        <blockquote class="evidence-quote-export">
+          "{{ ev.quote }}"
+          <cite>-- {{ ev.source_field }}</cite>
+        </blockquote>
+        {% endfor %}
+        {% endif %}
+
+        <h4>Authoritative Source</h4>
+        <p>
+          <strong>Source:</strong> {{ rec.provenance.source_type }}<br>
+          <strong>Document:</strong>
+          <a href="{{ rec.provenance.url }}" class="provenance-link-export">
+            TBS Occupational Group {{ rec.group_code }} Definition
+          </a><br>
+          {% if rec.provenance.inclusions_referenced %}
+          <strong>Inclusions Referenced:</strong> {{ rec.provenance.inclusions_referenced | join(', ') }}<br>
+          {% endif %}
+          {% if rec.provenance.exclusions_checked %}
+          <strong>Exclusions Checked:</strong> {{ rec.provenance.exclusions_checked | join(', ') }}<br>
+          {% endif %}
+          <small>Data retrieved: {{ rec.provenance.scraped_at }}</small>
+        </p>
+      </div>
+      {% endfor %}
+
+      <!-- Classification Audit Footer -->
+      <footer class="classification-audit-footer">
+        <h3>Classification Audit Trail</h3>
+        <table class="compliance-table">
+          <tr><th>Tool</th><td>JobForge Classification Engine</td></tr>
+          <tr><th>Version</th><td>{{ app_version }}</td></tr>
+          <tr><th>Generated</th><td>{{ classification_result.analyzed_at.strftime('%Y-%m-%d %H:%M UTC') if classification_result.analyzed_at else 'N/A' }}</td></tr>
+          <tr><th>Data Sources</th><td>TBS Occupational Group Definitions ({{ tbs_data_version }})</td></tr>
+          <tr><th>Compliance</th><td>TBS Directive 32592 (Automated Decision Making)</td></tr>
+          <tr><th>Constraints</th><td>{{ classification_result.constraints_compliance }}</td></tr>
+        </table>
+      </footer>
+    </section>
+    {% endif %}
+
     <!-- Compliance Appendix -->
     <section class="compliance-appendix">
       <h1>Appendix A: Compliance Metadata</h1>

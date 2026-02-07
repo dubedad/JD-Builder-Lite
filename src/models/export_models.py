@@ -170,6 +170,14 @@ class ExportRequest(BaseModel):
     selections: List[SelectionMetadata]
     ai_metadata: Optional[AIMetadata] = None
     source_metadata: SourceMetadataExport
+    classification_result: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Classification allocation response to include in export"
+    )
+    include_classification: bool = Field(
+        default=False,
+        description="Whether to include classification section in export"
+    )
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -248,6 +256,10 @@ class ExportData(BaseModel):
 
     # Annex section (unused NOC attributes)
     annex_data: Optional[AnnexData] = None
+
+    # Classification results
+    classification_result: Optional[Dict[str, Any]] = None
+    include_classification: bool = False
 
     # Export metadata
     generated_at: datetime = Field(default_factory=datetime.utcnow)

@@ -27,6 +27,50 @@ JD_ELEMENT_LABELS = {
 JD_ELEMENT_ORDER = ["key_activities", "skills", "effort", "responsibility", "working_conditions"]
 
 
+def build_classification_export_section(classification_result: dict) -> dict:
+    """Build classification section data for export templates."""
+    if not classification_result:
+        return None
+
+    recs = classification_result.get('recommendations', [])
+    provenance_map = classification_result.get('provenance_map', {})
+
+    export_recs = []
+    for rec in sorted(recs, key=lambda r: r.get('confidence', 0), reverse=True):
+        group_code = rec.get('group_code', '')
+        provenance = provenance_map.get(group_code, {})
+
+        export_recs.append({
+            'group_code': group_code,
+            'group_name': rec.get('group_name', group_code),
+            'confidence': round(rec.get('confidence', 0) * 100),
+            'rationale': rec.get('definition_fit_rationale', ''),
+            'evidence': [
+                {
+                    'quote': span.get('text', ''),
+                    'source_field': span.get('field', 'Job Description')
+                }
+                for span in rec.get('evidence_spans', [])
+            ],
+            'provenance': {
+                'source_type': provenance.get('source_type', 'TBS Occupational Group Definition'),
+                'url': provenance.get('url', ''),
+                'definition_paragraph': provenance.get('definition_paragraph', 'Definition'),
+                'inclusions_referenced': provenance.get('inclusions_referenced', []),
+                'exclusions_checked': provenance.get('exclusions_checked', []),
+                'scraped_at': provenance.get('scraped_at', '')
+            }
+        })
+
+    return {
+        'status': classification_result.get('status', 'success'),
+        'match_context': classification_result.get('match_context', ''),
+        'recommendations': export_recs,
+        'constraints_compliance': classification_result.get('constraints_compliance', ''),
+        'analyzed_at': datetime.utcnow()
+    }
+
+
 def build_export_data(request: ExportRequest, raw_noc_data: Optional[Dict[str, Any]] = None) -> ExportData:
     """
     Build complete export data structure from request.
@@ -79,6 +123,11 @@ def build_export_data(request: ExportRequest, raw_noc_data: Optional[Dict[str, A
             scraped_at=request.source_metadata.scraped_at
         )
 
+    # Build classification section if requested
+    classification_section = None
+    if request.include_classification and request.classification_result:
+        classification_section = build_classification_export_section(request.classification_result)
+
     return ExportData(
         noc_code=request.noc_code,
         job_title=request.job_title,
@@ -89,6 +138,8 @@ def build_export_data(request: ExportRequest, raw_noc_data: Optional[Dict[str, A
         source_metadata=request.source_metadata,
         compliance_sections=compliance_sections,
         annex_data=annex_data,
+        classification_result=classification_section,
+        include_classification=request.include_classification,
         generated_at=datetime.utcnow()
     )
 

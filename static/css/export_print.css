@@ -444,3 +444,32 @@ body {
   margin-top: 1em;
   margin-bottom: 0.5em;
 }
+
+/* Classification Section Styles */
+.classification-section {
+  page-break-before: always;
+}
+
+.recommendation-export {
+  margin: 1.5rem 0;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.evidence-quote-export {
+  margin: 0.5rem 0 0.5rem 1rem;
+  padding-left: 1rem;
+  border-left: 3px solid #1565c0;
+  font-style: italic;
+}
+
+.provenance-link-export {
+  color: #1565c0;
+  text-decoration: underline;
+}
+
+.classification-audit-footer {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 2px solid #26374a;
+}

@@ -28,7 +28,11 @@ def generate_pdf(data: ExportData, base_url: str) -> bytes:
         compliance_sections=data.compliance_sections,
         ai_metadata=data.ai_metadata,
         source_metadata=data.source_metadata,
-        generated_at=data.generated_at
+        generated_at=data.generated_at,
+        classification_result=data.classification_result,
+        include_classification=data.include_classification,
+        app_version="4.1",
+        tbs_data_version="2026-01"
     )
 
     # Generate PDF with WeasyPrint
@@ -58,5 +62,9 @@ def render_preview(data: ExportData) -> str:
         compliance_sections=data.compliance_sections,
         ai_metadata=data.ai_metadata,
         source_metadata=data.source_metadata,
-        generated_at=data.generated_at
+        generated_at=data.generated_at,
+        classification_result=data.classification_result,
+        include_classification=data.include_classification,
+        app_version="4.1",
+        tbs_data_version="2026-01"
     )

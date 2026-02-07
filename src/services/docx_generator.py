@@ -5,6 +5,8 @@ from docx import Document
 from docx.shared import Inches, Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_TABLE_ALIGNMENT
+from docx.oxml.shared import OxmlElement
+from docx.oxml.ns import qn
 from src.models.export_models import ExportData
 from src.models.ai import StyleContentType
 from src.models.vocabulary_audit import CONFIDENCE_THRESHOLDS
@@ -31,6 +33,168 @@ def _get_confidence_level(score: float) -> str:
     elif score >= CONFIDENCE_THRESHOLDS["medium"]:
         return "medium"
     return "low"
+
+
+def _add_hyperlink(paragraph, url, text, color='1565C0', underline=True):
+    """Add a hyperlink to a paragraph.
+
+    Args:
+        paragraph: docx paragraph object
+        url: The URL to link to
+        text: Display text for the link
+        color: Hex color code (without #)
+        underline: Whether to underline the link
+
+    Returns:
+        The hyperlink run
+    """
+    # Create relationship (rId)
+    part = paragraph.part
+    r_id = part.relate_to(url, 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink', is_external=True)
+
+    # Create hyperlink element
+    hyperlink = OxmlElement('w:hyperlink')
+    hyperlink.set(qn('r:id'), r_id)
+
+    # Create run within hyperlink
+    run_element = OxmlElement('w:r')
+
+    # Run properties
+    rPr = OxmlElement('w:rPr')
+
+    # Color
+    if color:
+        c = OxmlElement('w:color')
+        c.set(qn('w:val'), color)
+        rPr.append(c)
+
+    # Underline
+    if underline:
+        u = OxmlElement('w:u')
+        u.set(qn('w:val'), 'single')
+        rPr.append(u)
+
+    run_element.append(rPr)
+
+    # Text element
+    text_element = OxmlElement('w:t')
+    text_element.text = text
+    run_element.append(text_element)
+
+    hyperlink.append(run_element)
+    paragraph._p.append(hyperlink)
+
+    return hyperlink
+
+
+def _add_classification_section(doc, data):
+    """Add classification section to document.
+
+    Args:
+        doc: Document object
+        data: ExportData with classification_result
+    """
+    if not data.include_classification or not data.classification_result:
+        return
+
+    # Page break before classification
+    doc.add_page_break()
+
+    # Main heading
+    heading = doc.add_heading('Classification Step 1: Occupational Group Allocation', 1)
+    for run in heading.runs:
+        run.font.color.rgb = GC_PRIMARY
+
+    # Status table
+    _add_key_value_table(doc, [
+        ('Status', data.classification_result.get('status', '')),
+        ('Match Context', data.classification_result.get('match_context', ''))
+    ])
+
+    # Recommendations heading
+    rec_heading = doc.add_heading('Recommendations (Ranked by Confidence)', 2)
+    for run in rec_heading.runs:
+        run.font.color.rgb = GC_PRIMARY
+
+    # Each recommendation
+    for rec in data.classification_result.get('recommendations', []):
+        # Recommendation heading
+        rec_title = f"{rec['group_code']}: {rec['group_name']} ({rec['confidence']}% confidence)"
+        rec_h = doc.add_heading(rec_title, 3)
+        for run in rec_h.runs:
+            run.font.size = Pt(12)
+
+        # Rationale
+        doc.add_heading('Rationale', 4)
+        doc.add_paragraph(rec.get('rationale', ''))
+
+        # Evidence
+        if rec.get('evidence'):
+            doc.add_heading('Supporting Evidence', 4)
+            for ev in rec['evidence']:
+                para = doc.add_paragraph()
+                para.paragraph_format.left_indent = Inches(0.5)
+                para.style = 'Quote'
+                quote_run = para.add_run(f'"{ev["quote"]}"')
+                quote_run.italic = True
+                para.add_run(f'\n-- {ev["source_field"]}')
+
+        # Authoritative Source
+        doc.add_heading('Authoritative Source', 4)
+        provenance = rec.get('provenance', {})
+
+        # Source type
+        para = doc.add_paragraph()
+        para.add_run('Source: ').bold = True
+        para.add_run(provenance.get('source_type', ''))
+
+        # Document (with hyperlink)
+        para = doc.add_paragraph()
+        para.add_run('Document: ').bold = True
+        if provenance.get('url'):
+            _add_hyperlink(
+                para,
+                provenance['url'],
+                f"TBS Occupational Group {rec['group_code']} Definition"
+            )
+        else:
+            para.add_run(f"TBS Occupational Group {rec['group_code']} Definition")
+
+        # Inclusions
+        if provenance.get('inclusions_referenced'):
+            para = doc.add_paragraph()
+            para.add_run('Inclusions Referenced: ').bold = True
+            para.add_run(', '.join(provenance['inclusions_referenced']))
+
+        # Exclusions
+        if provenance.get('exclusions_checked'):
+            para = doc.add_paragraph()
+            para.add_run('Exclusions Checked: ').bold = True
+            para.add_run(', '.join(provenance['exclusions_checked']))
+
+        # Data retrieved
+        if provenance.get('scraped_at'):
+            para = doc.add_paragraph()
+            run = para.add_run(f"Data retrieved: {provenance['scraped_at']}")
+            run.font.size = Pt(9)
+            run.italic = True
+
+    # Classification Audit Footer
+    doc.add_heading('Classification Audit Trail', 3)
+    analyzed_at = data.classification_result.get('analyzed_at')
+    if analyzed_at and hasattr(analyzed_at, 'strftime'):
+        analyzed_str = analyzed_at.strftime('%Y-%m-%d %H:%M UTC')
+    else:
+        analyzed_str = 'N/A'
+
+    _add_key_value_table(doc, [
+        ('Tool', 'JobForge Classification Engine'),
+        ('Version', '4.1'),
+        ('Generated', analyzed_str),
+        ('Data Sources', 'TBS Occupational Group Definitions (2026-01)'),
+        ('Compliance', 'TBS Directive 32592 (Automated Decision Making)'),
+        ('Constraints', data.classification_result.get('constraints_compliance', ''))
+    ])
 
 
 def generate_docx(data: ExportData) -> bytes:
@@ -104,6 +268,9 @@ def generate_docx(data: ExportData) -> bytes:
             else:
                 # Original rendering (existing behavior)
                 doc.add_paragraph(statement.text, style='List Bullet')
+
+    # Add classification section if present
+    _add_classification_section(doc, data)
 
     # Page break before compliance appendix
     doc.add_page_break()
