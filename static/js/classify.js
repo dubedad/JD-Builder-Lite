@@ -621,7 +621,7 @@ const classifyModule = (function() {
     }
 
     /**
-     * Render provenance section with TBS source link
+     * Render provenance section with expandable tree structure
      * @param {Object} provenance - ProvenanceDetail object
      * @param {string} groupCode - Group code for display
      * @param {string} fallbackUrl - Fallback URL from recommendation
@@ -639,25 +639,59 @@ const classifyModule = (function() {
             url = `${url}#${groupCode.toLowerCase()}`;
         }
 
+        const groupName = OCCUPATIONAL_GROUP_NAMES[groupCode] || groupCode;
         const sourceType = provenance?.source_type || 'TBS Occupational Group Definition';
         const scrapedAt = provenance?.scraped_at;
 
+        // Get definition text - prefer from provenance, fallback to group description
+        const definitionText = provenance?.definition || `${groupCode} - ${groupName}`;
+
         return `
-            <div class="detail-section provenance-section">
-                <h4><i class="fas fa-link"></i> Source Provenance</h4>
-                <p>
-                    <strong>Source:</strong> ${escapeHtml(sourceType)}
-                </p>
-                <p>
-                    <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">
-                        <i class="fas fa-external-link-alt"></i> View TBS Definition for ${escapeHtml(groupCode)}
-                    </a>
-                </p>
-                ${scrapedAt ? `
-                <p class="provenance-meta">
-                    <small>Data scraped: ${new Date(scrapedAt).toLocaleDateString()}</small>
-                </p>
-                ` : ''}
+            <div class="detail-section">
+                <h4><i class="fas fa-sitemap"></i> Source Provenance</h4>
+                <div class="provenance-tree">
+                    <!-- Level 1: Recommendation -->
+                    <div class="provenance-tree-item">
+                        <span class="provenance-tree-icon"><i class="fas fa-star"></i></span>
+                        <div class="provenance-tree-content">
+                            <span class="provenance-tree-label">Recommendation:</span>
+                            <span class="provenance-tree-value">${escapeHtml(groupCode)} - ${escapeHtml(groupName)}</span>
+                        </div>
+                    </div>
+
+                    <!-- Level 2: Definition (expandable) -->
+                    <div class="provenance-tree-item">
+                        <span class="provenance-tree-icon"><i class="fas fa-book"></i></span>
+                        <div class="provenance-tree-content">
+                            <span class="provenance-tree-label">Definition Source:</span>
+                            <span class="provenance-tree-value">${escapeHtml(sourceType)}</span>
+                            <div class="provenance-expandable" aria-expanded="false">
+                                <button class="provenance-expand-btn" type="button" onclick="this.parentElement.setAttribute('aria-expanded', this.parentElement.getAttribute('aria-expanded') === 'true' ? 'false' : 'true')">
+                                    <i class="fas fa-chevron-right"></i> View full definition
+                                </button>
+                                <div class="provenance-detail-content">
+                                    ${escapeHtml(definitionText)}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Level 3: TBS Source Link -->
+                    <div class="provenance-tree-item">
+                        <span class="provenance-tree-icon"><i class="fas fa-external-link-alt"></i></span>
+                        <div class="provenance-tree-content">
+                            <span class="provenance-tree-label">Authoritative Source:</span>
+                            <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="provenance-tree-link">
+                                View TBS Definition for ${escapeHtml(groupCode)}
+                            </a>
+                            ${scrapedAt ? `
+                            <div class="provenance-tree-meta">
+                                Data scraped: ${new Date(scrapedAt).toLocaleDateString()}
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
             </div>
         `;
     }
