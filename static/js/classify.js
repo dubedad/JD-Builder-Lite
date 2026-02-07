@@ -111,6 +111,15 @@ const classifyModule = (function() {
         // Listen for classify-requested event from main.js
         document.addEventListener('classify-requested', handleClassifyRequest);
 
+        // Listen for cache-hit event from classify cache
+        document.addEventListener('classify-cache-hit', (event) => {
+            const cachedResponse = event.detail;
+            currentAllocation = cachedResponse;
+            // Re-render from cache. We need jdData but can reconstruct minimally.
+            const jdData = buildJdDataFromProfile(window.currentProfile, store.getState().selections);
+            renderResults(cachedResponse, jdData);
+        });
+
         // Bind evidence panel close button
         if (elements.evidenceClose) {
             elements.evidenceClose.addEventListener('click', closeEvidencePanel);
@@ -332,7 +341,7 @@ const classifyModule = (function() {
         }
 
         if (response.status === 'invalid_combination' && response.conflicting_duties) {
-            renderConflictingDutiesWarning(response.conflicting_duties);
+            renderCoachingPanel(response.conflicting_duties, response.recommendations);
         }
 
         if (response.warnings && response.warnings.length > 0) {
@@ -348,7 +357,7 @@ const classifyModule = (function() {
     function updateStatusBadge(status, borderlineFlag) {
         if (!elements.statusBadge) return;
 
-        elements.statusBadge.classList.remove('analyzing', 'success', 'warning', 'error');
+        elements.statusBadge.classList.remove('analyzing', 'success', 'warning', 'error', 'coaching');
 
         let text = 'Complete';
         let badgeClass = 'success';
@@ -357,8 +366,8 @@ const classifyModule = (function() {
             text = 'Needs Clarification';
             badgeClass = 'warning';
         } else if (status === 'invalid_combination') {
-            text = 'Invalid Combination';
-            badgeClass = 'error';
+            text = 'Multiple Groups Identified';
+            badgeClass = 'coaching';
         } else if (borderlineFlag) {
             text = 'Borderline - Review Recommended';
             badgeClass = 'warning';
@@ -808,25 +817,91 @@ const classifyModule = (function() {
     }
 
     /**
-     * Render conflicting duties warning for invalid_combination status
-     * @param {Object} duties - Duty distribution object
+     * Render coaching panel for multi-group results (replaces error-style invalid_combination)
+     * @param {Object} duties - Duty distribution object (fallback if no recommendations)
+     * @param {Array} recommendations - Array of GroupRecommendation objects
      */
-    function renderConflictingDutiesWarning(duties) {
+    function renderCoachingPanel(duties, recommendations) {
         if (!elements.recommendationsPanel) return;
 
-        const warning = document.createElement('div');
-        warning.className = 'classify-error-detail';
-        warning.innerHTML = `
-            <h4><i class="fas fa-times-circle"></i> Invalid Combination of Work</h4>
-            <p>This job description contains duties that span multiple incompatible occupational groups:</p>
-            <ul>
-                ${Object.entries(duties).map(([group, pct]) =>
-                    `<li><strong>${escapeHtml(group)}:</strong> ${Math.round(pct * 100)}%</li>`
-                ).join('')}
-            </ul>
-            <p>Consider splitting this position or clarifying primary duties.</p>
+        // Build coaching panel HTML
+        const panel = document.createElement('div');
+        panel.className = 'coaching-panel coaching-panel--info';
+
+        // Determine if we have recommendation details to show key duties
+        const hasDetailedRecs = recommendations && recommendations.length > 0;
+
+        let rankedCardsHtml = '';
+        if (hasDetailedRecs) {
+            const sorted = [...recommendations].sort((a, b) => b.confidence - a.confidence);
+            rankedCardsHtml = sorted.map((rec, idx) => {
+                const isTop = idx === 0;
+                const pct = Math.round(rec.confidence * 100);
+                const tier = getConfidenceTier(rec.confidence);
+                const groupName = getGroupName(rec);
+                // Extract up to 3 key evidence quotes as "key duties"
+                const keyDuties = (rec.evidence_spans || []).slice(0, 3).map(
+                    span => span.text
+                );
+                return `
+                    <div class="recommendation-card-coaching ${isTop ? 'recommendation-card-coaching--primary' : ''}">
+                        <div class="recommendation-coaching-header">
+                            <div class="confidence-badge confidence-badge--${tier}">${pct}%</div>
+                            <h4 class="recommendation-coaching-title">${escapeHtml(rec.group_code)}: ${escapeHtml(groupName)}</h4>
+                        </div>
+                        <div class="duty-alignment">
+                            <p><strong>Duty Alignment:</strong> ${pct}% of your key activities align with this group</p>
+                            ${keyDuties.length > 0 ? `
+                            <ul class="duty-list">
+                                ${keyDuties.map(d => `<li>${escapeHtml(d.length > 100 ? d.substring(0, 97) + '...' : d)}</li>`).join('')}
+                            </ul>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        } else if (duties) {
+            // Fallback: render from conflicting_duties dict only
+            rankedCardsHtml = Object.entries(duties)
+                .sort(([, a], [, b]) => b - a)
+                .map(([group, pct], idx) => {
+                    const isTop = idx === 0;
+                    const groupName = OCCUPATIONAL_GROUP_NAMES[group] || group;
+                    return `
+                        <div class="recommendation-card-coaching ${isTop ? 'recommendation-card-coaching--primary' : ''}">
+                            <div class="recommendation-coaching-header">
+                                <div class="confidence-badge confidence-badge--medium">${Math.round(pct * 100)}%</div>
+                                <h4 class="recommendation-coaching-title">${escapeHtml(group)}: ${escapeHtml(groupName)}</h4>
+                            </div>
+                            <div class="duty-alignment">
+                                <p><strong>Duty Alignment:</strong> ${Math.round(pct * 100)}% of duties map to this group</p>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+        }
+
+        panel.innerHTML = `
+            <div class="coaching-icon">
+                <i class="fas fa-lightbulb"></i>
+            </div>
+            <div class="coaching-content">
+                <h3 class="coaching-title">Your JD spans multiple occupational groups</h3>
+                <p class="coaching-explanation">
+                    Based on your key activities, we identified multiple potential groups.
+                    Here's how we ranked them by confidence and duty alignment:
+                </p>
+                <div class="ranked-recommendations">
+                    ${rankedCardsHtml}
+                </div>
+                <div class="coaching-actions">
+                    <button class="btn btn--primary coaching-accept-btn" onclick="document.querySelector('.coaching-panel')?.remove()">
+                        <i class="fas fa-check"></i> Accept Top Recommendation
+                    </button>
+                </div>
+            </div>
         `;
-        elements.recommendationsPanel.prepend(warning);
+
+        elements.recommendationsPanel.prepend(panel);
     }
 
     /**
