@@ -14,7 +14,7 @@
 **Milestone Goal:** Exec-ready demo polish -- restructure profile tabs, improve navigation flow between screens, add coaching tone to classification, make results exportable, and update documentation.
 
 - [x] **Phase 18: Profile Page Overhaul** - Restructure tabs and enhance data display on the profile page (completed 2026-02-07)
-- [ ] **Phase 19: Flow and Export Polish** - Fix navigation between screens, add coaching UX, extend export, update docs
+- [x] **Phase 19: Flow and Export Polish** - Fix navigation between screens, add coaching UX, extend export, update docs (completed 2026-02-07)
 - [ ] **Phase 20: Evidence & Provenance Display** - Evidence highlighting with fuzzy matching, provenance tree, completion guidance (carried from v4.0 17-03)
 
 ## Phase Details
@@ -48,9 +48,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 19-01-PLAN.md -- Navigation wiring: split nav layout, breadcrumb, Return to Builder, Classify from preview, classification caching
-- [ ] 19-02-PLAN.md -- Multi-group coaching UX: replace error-style invalid_combination with ranked coaching panel
-- [ ] 19-03-PLAN.md -- Classification export with hyperlinked provenance, export checkboxes, README creation
+- [x] 19-01-PLAN.md -- Navigation wiring: split nav layout, breadcrumb, Return to Builder, Classify from preview, classification caching
+- [x] 19-02-PLAN.md -- Multi-group coaching UX: replace error-style invalid_combination with ranked coaching panel
+- [x] 19-03-PLAN.md -- Classification export with hyperlinked provenance, export checkboxes, README creation
 
 ### Phase 20: Evidence & Provenance Display
 **Goal**: Users can verify classification recommendations by seeing evidence quotes highlighted in context within their JD text, trace provenance from recommendation back to TBS source, and receive completion guidance for next steps
@@ -73,8 +73,8 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 18. Profile Page Overhaul | v4.1 | 2/2 | ✓ Complete | 2026-02-07 |
-| 19. Flow and Export Polish | v4.1 | 0/3 | Not started | - |
+| 19. Flow and Export Polish | v4.1 | 3/3 | ✓ Complete | 2026-02-07 |
 | 20. Evidence & Provenance Display | v4.1 | 0/2 | Not started | - |
 
 ---
-*Roadmap updated: 2026-02-07 -- Phase 19 planned (3 plans in 2 waves)*
+*Roadmap updated: 2026-02-07 -- Phase 19 complete (3 plans executed, goal verified)*

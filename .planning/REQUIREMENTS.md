@@ -18,16 +18,16 @@ Requirements for exec-ready demo polish. Each maps to roadmap phases.
 
 ### Navigation
 
-- [ ] **NAV-01**: Preview screen shows "Classify" button as navigation option alongside Export and Return to Builder
-- [ ] **NAV-02**: Preview screen "Back to Edit" becomes "Return to Builder" and navigates to profile page with all selections preserved
-- [ ] **NAV-03**: Classification results screen has "Return to Builder" button that returns to profile page with selections preserved
+- [x] **NAV-01**: Preview screen shows "Classify" button as navigation option alongside Export and Return to Builder
+- [x] **NAV-02**: Preview screen "Back to Edit" becomes "Return to Builder" and navigates to profile page with all selections preserved
+- [x] **NAV-03**: Classification results screen has "Return to Builder" button that returns to profile page with selections preserved
 
 ### Coaching UX
 
-- [ ] **UX-01**: Invalid Combination classification result displays as informational/coaching style (blue or amber), not red error
-- [ ] **UX-02**: Invalid Combination explains WHY the combination is invalid (conflicting signals, mismatched work types)
-- [ ] **UX-03**: Invalid Combination suggests what to adjust (which statements conflict, what elements are missing)
-- [ ] **UX-04**: Invalid Combination includes "Return to Builder" button for refinement
+- [x] **UX-01**: Invalid Combination classification result displays as informational/coaching style (blue or amber), not red error
+- [x] **UX-02**: Invalid Combination explains WHY the combination is invalid (conflicting signals, mismatched work types)
+- [x] **UX-03**: Invalid Combination suggests what to adjust (which statements conflict, what elements are missing)
+- [x] **UX-04**: Invalid Combination includes "Return to Builder" button for refinement
 
 ### Data Display
 
@@ -37,12 +37,12 @@ Requirements for exec-ready demo polish. Each maps to roadmap phases.
 
 ### Export
 
-- [ ] **EXP-01**: Classification results (OG recommendations, confidence scores, rationale, evidence) exportable as part of JD export
-- [ ] **EXP-02**: Exported classification section includes provenance metadata (model, timestamp, input statements)
+- [x] **EXP-01**: Classification results (OG recommendations, confidence scores, rationale, evidence) exportable as part of JD export
+- [x] **EXP-02**: Exported classification section includes provenance metadata (model, timestamp, input statements)
 
 ### Housekeeping
 
-- [ ] **DOC-01**: GitHub README updated to reflect v4.0 state, current architecture, setup instructions, and shipped features
+- [x] **DOC-01**: GitHub README updated to reflect v4.0 state, current architecture, setup instructions, and shipped features
 
 ## Future Requirements
 
@@ -89,19 +89,19 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TAB-04 | Phase 18 | Complete |
 | TAB-05 | Phase 18 | Complete |
 | TAB-06 | Phase 18 | Complete |
-| NAV-01 | Phase 19 | Pending |
-| NAV-02 | Phase 19 | Pending |
-| NAV-03 | Phase 19 | Pending |
-| UX-01 | Phase 19 | Pending |
-| UX-02 | Phase 19 | Pending |
-| UX-03 | Phase 19 | Pending |
-| UX-04 | Phase 19 | Pending |
+| NAV-01 | Phase 19 | Complete |
+| NAV-02 | Phase 19 | Complete |
+| NAV-03 | Phase 19 | Complete |
+| UX-01 | Phase 19 | Complete |
+| UX-02 | Phase 19 | Complete |
+| UX-03 | Phase 19 | Complete |
+| UX-04 | Phase 19 | Complete |
 | DISP-01 | Phase 18 | Complete |
 | DISP-02 | Phase 18 | Complete |
 | DISP-03 | Phase 18 | Complete |
-| EXP-01 | Phase 19 | Pending |
-| EXP-02 | Phase 19 | Pending |
-| DOC-01 | Phase 19 | Pending |
+| EXP-01 | Phase 19 | Complete |
+| EXP-02 | Phase 19 | Complete |
+| DOC-01 | Phase 19 | Complete |
 
 **Coverage:**
 - v4.1 requirements: 19 total
@@ -110,4 +110,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-06*
-*Last updated: 2026-02-07 -- Phase 18 requirements (TAB-01..06, DISP-01..03) marked Complete*
+*Last updated: 2026-02-07 -- Phase 19 requirements (NAV-01..03, UX-01..04, EXP-01..02, DOC-01) marked Complete*
