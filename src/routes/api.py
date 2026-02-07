@@ -88,6 +88,12 @@ def search():
         html = scraper.search(query, search_type=search_type)
         results = parser.parse_search_results_enhanced(html)
 
+        # Populate hierarchy codes for filter building (18-02)
+        for r in results:
+            code = r.noc_code.split('.')[0] if r.noc_code else ''
+            r.sub_major_group = code[:3] if len(code) >= 3 else None
+            r.unit_group = code[:4] if len(code) >= 4 else None
+
         # Score results by relevance with confidence % and rationale (SRCH-13)
         # Stem the query: "Printer" → "Print" to match "Printing"
         query_lower = query.lower()

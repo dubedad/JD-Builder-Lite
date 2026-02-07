@@ -60,8 +60,10 @@ class EnrichedSearchResult(BaseModel):
 
     # For Filtering (DISP-22) - derived from NOC code
     broad_category: Optional[int] = None  # First digit of NOC code
-    minor_group: Optional[str] = None     # First 3 digits
+    sub_major_group: Optional[str] = None     # First 3 digits (for hierarchy display)
+    minor_group: Optional[str] = None     # First 3 digits (legacy name, same as sub_major_group)
     minor_group_name: Optional[str] = None  # Not available from search HTML
+    unit_group: Optional[str] = None      # First 4 digits
 
     # For Grid View (DISP-21) - requires profile fetch
     top_skills: Optional[List[str]] = None
