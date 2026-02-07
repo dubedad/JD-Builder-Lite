@@ -45,12 +45,12 @@ Plans:
   3. Invalid Combination result displays in coaching style (blue/amber, not red) with explanation of why and what to adjust, plus Return to Builder button
   4. Classification results (recommendations, confidence, rationale, evidence, provenance) appear in exported PDF/DOCX
   5. GitHub README accurately describes v4.0 architecture, setup instructions, and shipped features
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 19-01: Navigation wiring (Classify from preview, Return to Builder from classification, fix Back to Edit)
-- [ ] 19-02: Invalid Combination coaching UX (restyle, add explanation and suggestions)
-- [ ] 19-03: Classification export and README update
+- [ ] 19-01-PLAN.md -- Navigation wiring: split nav layout, breadcrumb, Return to Builder, Classify from preview, classification caching
+- [ ] 19-02-PLAN.md -- Multi-group coaching UX: replace error-style invalid_combination with ranked coaching panel
+- [ ] 19-03-PLAN.md -- Classification export with hyperlinked provenance, export checkboxes, README creation
 
 ### Phase 20: Evidence & Provenance Display
 **Goal**: Users can verify classification recommendations by seeing evidence quotes highlighted in context within their JD text, trace provenance from recommendation back to TBS source, and receive completion guidance for next steps
@@ -77,4 +77,4 @@ Plans:
 | 20. Evidence & Provenance Display | v4.1 | 0/2 | Not started | - |
 
 ---
-*Roadmap updated: 2026-02-07 -- Phase 20 planned (2 plans in 2 waves)*
+*Roadmap updated: 2026-02-07 -- Phase 19 planned (3 plans in 2 waves)*
