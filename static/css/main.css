@@ -2081,3 +2081,94 @@ body.sidebar-open .action-bar {
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
+
+/* =====================================================
+   Phase 18-01: Tab Overflow and Overview Layout Styles
+   ===================================================== */
+
+/* Tab bar horizontal scroll with scroll-snap on mobile */
+@media (max-width: 768px) {
+    .tabs-bar {
+        scroll-snap-type: x mandatory;
+    }
+    
+    .tabs-bar li {
+        scroll-snap-align: start;
+    }
+    
+    .tab-button {
+        flex-shrink: 0;
+        min-width: max-content;
+    }
+}
+
+/* Overview tab layout */
+.overview-profile-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.overview-icon {
+    font-size: 3rem;
+    color: var(--gc-blue, #26374a);
+    flex-shrink: 0;
+}
+
+.overview-header-text h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--gc-blue, #26374a);
+}
+
+.noc-badge {
+    display: inline-block;
+    background: var(--gc-blue, #26374a);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-top: 0.25rem;
+}
+
+.overview-description {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background: #f0f4f8;
+    border-left: 4px solid var(--gc-blue, #26374a);
+    border-radius: 0 4px 4px 0;
+}
+
+.navy-description {
+    color: var(--gc-blue, #26374a);
+    font-size: 1rem;
+    line-height: 1.6;
+    font-weight: 500;
+    margin: 0;
+}
+
+/* Dimension labels for rating circles */
+.attribute-dimension {
+    display: inline-block;
+    margin-left: 0.5rem;
+    font-size: 0.8125rem;
+    color: #666;
+    font-weight: 500;
+}
+
+.rating-label {
+    font-size: 0.8125rem;
+    color: #666;
+    font-weight: 500;
+}
+
+/* Career content styling */
+.career-content {
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
