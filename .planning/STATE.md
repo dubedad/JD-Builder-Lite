@@ -10,12 +10,12 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 ## Current Position
 
 Milestone: v4.1 Polish
-Phase: 18 of 20 (Profile Page Overhaul) -- COMPLETE
-Plan: 2 of 2 complete
-Status: Phase complete, verified (9/9 must-haves)
-Last activity: 2026-02-07 -- Phase 20 added (carried from v4.0 17-03)
+Phase: 20 of 20 (Evidence & Provenance Display) -- IN PROGRESS
+Plan: 1 of 1 complete
+Status: Plan 20-01 complete - Provenance tree upgrade
+Last activity: 2026-02-07 -- Completed 20-01-PLAN.md
 
-Progress: ███████░░░░░░░░░░░░░ 33%
+Progress: ████████░░░░░░░░░░░░ 38%
 
 ## Milestone History
 
@@ -41,7 +41,13 @@ Progress: ███████░░░░░░░░░░░░░ 33%
 
 ### Decisions
 
-Decisions logged in PROJECT.md Key Decisions table.
+| Decision | Phase | Rationale |
+|----------|-------|-----------|
+| Use inline onclick for aria-expanded toggle | 20-01 | Simpler than additional event binding for expandable sections |
+| Display scraped_at date in provenance tree | 20-01 | Transparency about data freshness |
+| Fallback to group name when definition unavailable | 20-01 | Graceful degradation for missing provenance data |
+
+Additional decisions logged in PROJECT.md Key Decisions table.
 
 ### Blockers/Concerns
 
@@ -50,8 +56,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Phase 20 added to v4.1 -- ready to plan Phase 19 or 20
+Stopped at: Completed 20-01-PLAN.md (provenance tree upgrade)
 Resume file: None
 
 ---
-*Last updated: 2026-02-07 -- Phase 20 added (carried from v4.0 17-03)*
+*Last updated: 2026-02-07 -- Completed 20-01-PLAN.md*
