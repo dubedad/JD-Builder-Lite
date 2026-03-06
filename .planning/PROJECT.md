@@ -84,15 +84,26 @@ Every piece of content in the final job description can be traced back to its au
 
 ### Active
 
-**v4.1 Polish (Current Milestone):**
-- Tab restructure: Split Skills into Skills/Abilities/Knowledge, Core Competencies own tab, consolidate Overview
-- Navigation: Classify from preview, Return to Builder from classification, fix Back to Edit
-- Coaching tone: Invalid Combination as guidance not error
-- Data display: Dimension type labels on circles, filter hierarchy headings
-- Export: Classification results exportable
-- Housekeeping: GitHub README update
+**v4.1 Polish (COMPLETE — Phases 18-19 shipped, Phase 20 deferred indefinitely):**
+- ✓ Tab restructure: Split Skills into Skills/Abilities/Knowledge, Core Competencies own tab, consolidate Overview
+- ✓ Navigation: Classify from preview, Return to Builder from classification, fix Back to Edit
+- ✓ Coaching tone: Invalid Combination as guidance not error
+- ✓ Data display: Dimension type labels on circles, filter hierarchy headings
+- ✓ Export: Classification results exportable
+- ✓ Housekeeping: GitHub README update
 
-**v5.0 Classification Step 2 (Next):**
+**v5.0 JobForge 2.0 Integration (Current Milestone):**
+
+**Goal:** Replace live OASIS scraping with JobForge 2.0 gold parquet as the primary data source for search and profile data, improving data quality, speed, and portability.
+
+**Target features:**
+- Data exploration: Inventory JobForge parquet files and map gaps against OASIS data
+- Search integration: Query JobForge parquet instead of live OASIS scraping
+- Profile integration: Load JD element statements from JobForge gold parquet
+- Enrichment deepening: Leverage richer JobForge data for vocabulary, labels, and style
+- OASIS fallback: Retain OASIS scraping for data not covered by JobForge
+
+**v6.0 Classification Step 2 (Deferred):**
 - Job Evaluation Standards scoring
 - Benchmark position comparison UI
 - Manager consultation workflow
@@ -190,4 +201,4 @@ This tool demonstrates compliance with the Treasury Board's Directive on Automat
 | Word-stem matching for relevance scoring | "Printer" stems to "print" to match "Printing" — exact substring fails across word forms | ✓ Good |
 
 ---
-*Last updated: 2026-02-06 — v4.1 Polish milestone started, 11 UAT enhancements scoped*
+*Last updated: 2026-03-06 — v5.0 JobForge 2.0 Integration milestone started*

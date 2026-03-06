@@ -2,20 +2,18 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-06)
+See: .planning/PROJECT.md (updated 2026-03-06)
 
 **Core value:** Compliance-focused job description builder demonstrating TBS Directive 32592 compliance with full provenance tracking.
-**Current focus:** v4.1 Polish -- Phase 18 complete, Phase 20 partially done, Phase 19 planning in progress
+**Current focus:** v5.0 JobForge 2.0 Integration — defining requirements
 
 ## Current Position
 
-Milestone: v4.1 Polish
-Phase: 19 of 20 (Flow and Export Polish) -- COMPLETE
-Plan: 3 of 3 complete (19-01, 19-02, 19-03 done)
-Status: Phase 19 complete, Phase 20 partially done, v4.1 ready for final review
-Last activity: 2026-02-07 -- Completed 19-03-PLAN.md (Classification Export and Documentation)
-
-Progress: ████████████████████ 100% (Phase 19 complete)
+Milestone: v5.0 JobForge 2.0 Integration
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-06 — Milestone v5.0 started
 
 ## Milestone History
 
@@ -26,35 +24,7 @@ Progress: ████████████████████ 100% (Pha
 | v2.0 UI Redesign | SHIPPED | 2026-01-25 |
 | v3.0 Style-Enhanced Writing | SHIPPED | 2026-02-03 |
 | v4.0 Occupational Group Allocation | SHIPPED | 2026-02-04 |
-
-## v4.1 Scope
-
-**19+ requirements across 3 phases:**
-
-| Phase | Focus | Requirements |
-|-------|-------|--------------|
-| 18 | Profile Page Overhaul | TAB-01..06, DISP-01..03 (9 reqs) |
-| 19 | Flow and Export Polish | NAV-01..03, UX-01..04, EXP-01..02, DOC-01 (10 reqs) |
-| 20 | Evidence & Provenance Display | EVD-01..05 (carried from v4.0 17-03) |
-
-## Phase 20 Status (Partial)
-
-**Plan 20-01: COMPLETE** -- Provenance tree upgrade (expandable 3-level tree)
-**Plan 20-02: DEFERRED** -- Human verification of evidence/provenance
-
-### What was done (20-02 attempt):
-- Card sorting by confidence descending (IT 54% now ranks above DA 46%)
-- "Highlight in JD" buttons render for all evidence spans (removed start_char null guard)
-- Classification Complete section shows when recommendations exist
-- Fuzzy text matching upgraded to word-overlap algorithm
-- "Not found" indicator made persistent with clearer message
-
-### Why UAT failed:
-Evidence highlighting depends on LLM returning exact JD quotes in evidence_spans. Currently the LLM returns paraphrased/analysis text that doesn't match the JD viewer content. Proper fix requires:
-1. Allocator prompt changes to enforce verbatim quoting
-2. Or: the PuMP comparison grid (v5.0+ SEED S5-11) which replaces text-matching with structured column comparison
-
-### Decision: Execute Phase 19 first, revisit 20-02 after
+| v4.1 Polish | SHIPPED | 2026-02-07 (Phases 18-19; Phase 20 deferred indefinitely) |
 
 ## Accumulated Context
 
@@ -62,35 +32,15 @@ Evidence highlighting depends on LLM returning exact JD quotes in evidence_spans
 
 | Decision | Phase | Rationale |
 |----------|-------|-----------|
-| Use inline onclick for aria-expanded toggle | 20-01 | Simpler than additional event binding for expandable sections |
-| Display scraped_at date in provenance tree | 20-01 | Transparency about data freshness |
-| Fallback to group name when definition unavailable | 20-01 | Graceful degradation for missing provenance data |
-| Sort recommendation cards client-side by confidence | 20-02 | LLM doesn't guarantee sort order |
-| Show complete section on any recommendations | 20-02 | API may return needs_clarification with recommendations present |
-| Defer 20-02 UAT to after Phase 19 | 20-02 | Evidence highlighting needs allocator prompt fixes or v5.0+ grid |
-| Use sessionStorage flags for navigation intent | 19-01 | Preserves existing localStorage state while controlling screen to show |
-| Cache classification results with JD hash | 19-01 | Avoid redundant API calls, detect stale cache when selections change |
-| Use CustomEvent for classify-complete | 19-01 | Decouples cache write from classification logic, maintains separation of concerns |
-| Show stale warning banner instead of auto-invalidating | 19-01 | Preserves user's classification results while alerting to potential staleness |
-| Use coaching panel with blue styling for invalid_combination | 19-02 | Multi-group results are valid outcomes needing guidance, not errors |
-| Show duty alignment percentages and key evidence in coaching panel | 19-02 | Users need to understand WHY each group was recommended |
-| No duplicate Return to Builder button in coaching panel | 19-02 | Plan 19-01 already provides top-level navigation |
-| Both export checkboxes default to checked | 19-03 | Most users want complete document (JD + classification) |
-| Classification section before compliance appendix | 19-03 | Positions classification prominently while maintaining appendix structure |
-| README leads with compliance value proposition | 19-03 | Front-loads audit-relevant information for reviewers
-
-Additional decisions logged in PROJECT.md Key Decisions table.
+| TF-IDF fallback for semantic matching | Compat fix 2026-03-05 | torch has no Python 3.14 wheels; TF-IDF keeps classifier functional with reduced accuracy. See .planning/accuracy-notes/tfidf-fallback-2025-03-05.md |
+| Defer Phase 20 (evidence highlighting) | v4.1 | LLM returns paraphrased analysis, not verbatim quotes; proper fix requires allocator prompt changes or v6+ PuMP grid |
+| JobForge-first exploration before integration | v5.0 | JobForge gold parquet contents are unknown; build phase 1 to inventory before committing to replacement scope |
+| OASIS kept as fallback | v5.0 | JobForge may not have complete coverage for all profiles; fallback ensures nothing breaks |
 
 ### Blockers/Concerns
 
-- Evidence_spans from LLM contain paraphrased analysis, not verbatim JD quotes
-- "Data Engineer" keyword search returns no OaSIS results (external data issue, not code regression)
-
-## Session Continuity
-
-Last session: 2026-02-07 16:50 UTC
-Stopped at: Completed 19-03-PLAN.md (Classification Export and Documentation) -- Phase 19 COMPLETE
-Resume file: None
+- JobForge 2.0 gold parquet actual contents unknown — Phase 21 (data exploration) resolves this
+- TF-IDF semantic matching fallback active (sentence-transformers incompatible with Python 3.14) — accuracy impact documented in .planning/accuracy-notes/tfidf-fallback-2025-03-05.md
 
 ---
-*Last updated: 2026-02-07 -- Completed Phase 19 (Flow and Export Polish) -- All 3 plans executed*
+*Last updated: 2026-03-06 — Milestone v5.0 JobForge 2.0 Integration started*
