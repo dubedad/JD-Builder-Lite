@@ -60,7 +60,7 @@ Deferred to v5.1+ milestones.
 
 ## Traceability
 
-Which phases cover which requirements. Updated during roadmap creation.
+Phase mapping confirmed during roadmap creation 2026-03-06.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
@@ -83,4 +83,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-03-06*
-*Last updated: 2026-03-06 — initial definition*
+*Last updated: 2026-03-06 — traceability confirmed during roadmap creation*

@@ -2,22 +2,75 @@
 
 ## Milestones
 
-- **v4.1 Polish** -- Phases 18-20 (in progress)
+- **v5.0 JobForge 2.0 Integration** -- Phases 21-23 (current)
+- ✅ **v4.1 Polish** -- Phases 18-20 (shipped 2026-02-07; Phase 20 deferred indefinitely)
 - ✅ **v4.0 Occupational Group Allocation** -- Phases 14-17 (shipped 2026-02-04)
 - ✅ **v3.0 Style-Enhanced Writing** -- Phases 09-13 (shipped 2026-02-03)
 - ✅ **v2.0 UI Redesign** -- Phases 08-A through 08-D (shipped 2026-01-25)
 - ✅ **v1.1 Enhanced Data Display + Export** -- Phases 05-07 (shipped 2026-01-23)
 - ✅ **v1.0 MVP** -- Phases 01-04 (shipped 2026-01-22)
 
-## Current: v4.1 Polish
+## Current: v5.0 JobForge 2.0 Integration
+
+**Milestone Goal:** Replace live OASIS scraping with JobForge 2.0 gold parquet as the primary data source for search and profile data. OASIS scraping is retained as an explicit fallback for data not yet covered by parquet. TBS Directive compliance is extended to distinguish parquet-sourced content from OASIS-scraped content in provenance metadata.
+
+- [ ] **Phase 21: Data Exploration** - Inventory JobForge parquet files, map schema and row counts, produce gap analysis against OASIS, and establish the CoverageStatus type used by all subsequent phases
+- [ ] **Phase 22: Profile Service** - Serve profile tab content (Skills, Abilities, Knowledge, Work Activities, Work Context) from parquet with automatic OASIS fallback and full provenance distinction in exports
+- [ ] **Phase 23: Search Service** - Serve search results from parquet with tiered relevance scoring, sub-second response, and automatic OASIS fallback when parquet is unavailable
+
+## Phase Details
+
+### Phase 21: Data Exploration
+**Goal**: Developers know exactly which JobForge parquet files exist, what they contain, and where OASIS scraping must remain as the primary source
+**Depends on**: Nothing (first phase of milestone)
+**Requirements**: DATA-01, DATA-02, DATA-03, DATA-04
+**Success Criteria** (what must be TRUE):
+  1. A structured inventory document exists listing every gold parquet file with schema (column names), row counts, and the OASIS data element each file replaces or supplements
+  2. A gap analysis document explicitly lists which OASIS data fields have no parquet equivalent and must continue using live scraping -- gaps are named, not inferred
+  3. The `CoverageStatus` type exists in the codebase with three distinct states: load error, record not found, and empty-but-valid result -- each state is handled differently, not collapsed into a single failure case
+  4. Any parquet file that fails to load or returns unexpected data produces a visible warning log entry -- no failure is silently swallowed
+**Plans**: TBD
+
+Plans:
+- [ ] 21-01-PLAN.md -- Parquet inventory and gap analysis (read all gold files, document schemas, row counts, OASIS mapping, produce inventory doc and gap analysis)
+- [ ] 21-02-PLAN.md -- CoverageStatus type and warning logging (define type, wire into parquet reader, add logging on load error and unexpected data)
+
+### Phase 22: Profile Service
+**Goal**: Profile page tabs for Skills, Abilities, Knowledge, Work Activities, and Work Context are served from parquet for all 900 profiles, with automatic OASIS fallback for uncovered sections and provenance metadata that distinguishes the two sources
+**Depends on**: Phase 21 (gap analysis determines which tabs use parquet vs OASIS; CoverageStatus type required)
+**Requirements**: PROF-01, PROF-02, PROF-03, PROF-04
+**Success Criteria** (what must be TRUE):
+  1. Skills, Abilities, Knowledge, Work Activities, and Work Context tabs on the profile page load their statement data from parquet (not live OASIS scraping) for any of the 900 profiles covered in the gold files
+  2. Main Duties / Key Activities, Interests, Personal Attributes, and Core Competencies tabs automatically fall back to OASIS scraping without any user-visible error or empty state -- the fallback is transparent
+  3. Exported JD provenance metadata records each section's source as either "JobForge parquet (version X, path Y)" or "OASIS (URL, scrape timestamp)" -- the distinction is present and readable in the compliance block
+  4. All parquet column names displayed as UI labels are stripped of leading and trailing whitespace before rendering -- no label shows a leading space or trailing space regardless of raw column name in the file
+**Plans**: TBD
+
+Plans:
+- [ ] 22-01-PLAN.md -- Parquet profile reader (load Skills, Abilities, Knowledge, Work Activities, Work Context from parquet; wire CoverageStatus; column whitespace strip)
+- [ ] 22-02-PLAN.md -- OASIS fallback and provenance extension (automatic fallback for uncovered tabs; extend provenance schema to record source per section; update export compliance block)
+
+### Phase 23: Search Service
+**Goal**: Search returns results in under one second from local parquet files with tiered relevance scoring, and falls back transparently to OASIS scraping when parquet is unavailable
+**Depends on**: Phase 21 (CoverageStatus type, gap analysis confirms parquet search coverage)
+**Requirements**: SRCH-01, SRCH-02, SRCH-03
+**Success Criteria** (what must be TRUE):
+  1. A search query returns results in under one second (measured from request to first result rendered) -- replacing the current path that can take up to 60 seconds via OASIS scraping
+  2. Search results are ranked using tiered relevance scoring: Labels match scores 95-100, occupation title match scores 90, example titles match scores 80, lead statement match scores 50 -- an exact title match ranks above a partial lead statement match
+  3. When the parquet search service is unavailable or returns zero results for a query, the search automatically falls back to live OASIS scraping and returns results without requiring any user action
+**Plans**: TBD
+
+Plans:
+- [ ] 23-01-PLAN.md -- Parquet search reader and tiered scorer (build search index from parquet, implement four-tier scoring, wire query path to parquet)
+- [ ] 23-02-PLAN.md -- OASIS fallback and integration (detect parquet unavailability or empty results, fall back to OASIS scraper, integrate new search path into existing search endpoint)
+
+## Previous: v4.1 Polish
 
 **Milestone Goal:** Exec-ready demo polish -- restructure profile tabs, improve navigation flow between screens, add coaching tone to classification, make results exportable, and update documentation.
 
 - [x] **Phase 18: Profile Page Overhaul** - Restructure tabs and enhance data display on the profile page (completed 2026-02-07)
 - [x] **Phase 19: Flow and Export Polish** - Fix navigation between screens, add coaching UX, extend export, update docs (completed 2026-02-07)
-- [ ] **Phase 20: Evidence & Provenance Display** - Evidence highlighting with fuzzy matching, provenance tree, completion guidance (carried from v4.0 17-03)
-
-## Phase Details
+- [ ] **Phase 20: Evidence & Provenance Display** - Evidence highlighting with fuzzy matching, provenance tree, completion guidance (deferred indefinitely)
 
 ### Phase 18: Profile Page Overhaul
 **Goal**: Profile page presents NOC data in a clean, logical tab structure with meaningful dimension labels on all ratings
@@ -72,9 +125,12 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 18. Profile Page Overhaul | v4.1 | 2/2 | ✓ Complete | 2026-02-07 |
-| 19. Flow and Export Polish | v4.1 | 3/3 | ✓ Complete | 2026-02-07 |
-| 20. Evidence & Provenance Display | v4.1 | 0/2 | Not started | - |
+| 21. Data Exploration | v5.0 | 0/2 | Not started | - |
+| 22. Profile Service | v5.0 | 0/2 | Not started | - |
+| 23. Search Service | v5.0 | 0/2 | Not started | - |
+| 18. Profile Page Overhaul | v4.1 | 2/2 | Complete | 2026-02-07 |
+| 19. Flow and Export Polish | v4.1 | 3/3 | Complete | 2026-02-07 |
+| 20. Evidence & Provenance Display | v4.1 | 0/2 | Deferred | - |
 
 ---
-*Roadmap updated: 2026-02-07 -- Phase 19 complete (3 plans executed, goal verified)*
+*Roadmap updated: 2026-03-06 -- v5.0 JobForge 2.0 Integration milestone added (Phases 21-23)*
