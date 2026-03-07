@@ -14,7 +14,7 @@
 
 **Milestone Goal:** Replace live OASIS scraping with JobForge 2.0 gold parquet as the primary data source for search and profile data. OASIS scraping is retained as an explicit fallback for data not yet covered by parquet. TBS Directive compliance is extended to distinguish parquet-sourced content from OASIS-scraped content in provenance metadata.
 
-- [ ] **Phase 21: Data Exploration** - Inventory JobForge parquet files, map schema and row counts, produce gap analysis against OASIS, and establish the CoverageStatus type used by all subsequent phases
+- [x] **Phase 21: Data Exploration** - Inventory JobForge parquet files, map schema and row counts, produce gap analysis against OASIS, and establish the CoverageStatus type used by all subsequent phases (completed 2026-03-07)
 - [ ] **Phase 22: Profile Service** - Serve profile tab content (Skills, Abilities, Knowledge, Work Activities, Work Context) from parquet with automatic OASIS fallback and full provenance distinction in exports
 - [ ] **Phase 23: Search Service** - Serve search results from parquet with tiered relevance scoring, sub-second response, and automatic OASIS fallback when parquet is unavailable
 
@@ -34,7 +34,7 @@
 Plans:
 - [x] 21-01-PLAN.md -- Parquet inventory and gap analysis documents
 - [x] 21-02-PLAN.md -- CoverageStatus type and ParquetReader service with warning logging
-- [ ] 21-03-PLAN.md -- Gap closure: wire logger.warning() into labels_loader.py and vocabulary/index.py
+- [x] 21-03-PLAN.md -- Gap closure: wire logger.warning() into labels_loader.py and vocabulary/index.py
 
 ### Phase 22: Profile Service
 **Goal**: Profile page tabs for Skills, Abilities, Knowledge, Work Activities, and Work Context are served from parquet for all 900 profiles, with automatic OASIS fallback for uncovered sections and provenance metadata that distinguishes the two sources
@@ -126,7 +126,7 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 21. Data Exploration | v5.0 | 2/3 | In progress | - |
+| 21. Data Exploration | v5.0 | 3/3 | Complete | 2026-03-07 |
 | 22. Profile Service | v5.0 | 0/2 | Not started | - |
 | 23. Search Service | v5.0 | 0/2 | Not started | - |
 | 18. Profile Page Overhaul | v4.1 | 2/2 | Complete | 2026-02-07 |
@@ -134,4 +134,4 @@ Plans:
 | 20. Evidence & Provenance Display | v4.1 | 0/2 | Deferred | - |
 
 ---
-*Roadmap updated: 2026-03-07 -- Phase 21 gap closure plan added (3 plans total, closing DATA-04)*
+*Roadmap updated: 2026-03-07 -- Phase 21 complete (3/3 plans, all must-haves verified)*
