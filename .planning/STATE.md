@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-03-06)
 
 Milestone: v5.0 JobForge 2.0 Integration
 Phase: 21 of 23 (Data Exploration)
-Plan: 02 of 04 in phase (plans 21-01 and 21-02 complete)
-Status: In progress
-Last activity: 2026-03-07 -- Completed 21-02-PLAN.md (CoverageStatus + ParquetReader)
+Plan: 03 of 03 in phase (plans 21-01, 21-02, and 21-03 complete)
+Status: Phase complete
+Last activity: 2026-03-07 -- Completed 21-03-PLAN.md (warning logging gap closure)
 
-Progress: [██░░░░░░░░] ~33% (2/6 plans complete)
+Progress: [███░░░░░░░] ~43% (3/7 plans complete)
 
 ## Milestone History
 
@@ -45,10 +45,11 @@ Progress: [██░░░░░░░░] ~33% (2/6 plans complete)
 | element_main_duties.parquet must not be queried in Phase 22 | 21-01 | ETL incomplete: only 8 rows / 3 profiles vs 4,991 rows / 900 profiles in source CSV; OASIS fallback is unconditional until JobForge ETL runs |
 | Interests and Personal Attributes need no Phase 22 change | 21-01 | Source CSV via existing LabelsLoader already handles these -- no gold parquet gap requires intervention |
 | Core Competencies and Career Mobility OASIS-only | 21-01 | No data in any tier (no parquet, no CSV); Phase 22 must use OASIS live scraping only |
+| logger.warning() additive-only alongside self._load_error | 21-03 | Preserves runtime error inspection via get_error() while adding log-stream observability; neither replaces the other |
+| vocabulary/index.py uses log-and-reraise not log-and-suppress | 21-03 | FileNotFoundError and read exceptions must propagate to callers; warning logged before raise, original traceback preserved |
 
 ### Blockers/Concerns
 
-- JobForge 2.0 gold parquet actual contents partially known (21-01 inventory complete); Plans 21-03 and 21-04 continue exploration
 - TF-IDF semantic matching fallback active (sentence-transformers incompatible with Python 3.14) -- accuracy impact documented in .planning/accuracy-notes/tfidf-fallback-2025-03-05.md
 - oasis_skills.parquet column is unit_group_id (not oasis_profile_code) -- Phase 22 must use correct column name per parquet file
 - element_main_duties.parquet ETL gap: 8 rows / 3 profiles only (source has 900 profiles) -- Phase 22 must use unconditional OASIS fallback for Main Duties; see .planning/phases/21-data-exploration/GAP-ANALYSIS.md
@@ -56,6 +57,6 @@ Progress: [██░░░░░░░░] ~33% (2/6 plans complete)
 
 ## Session Continuity
 
-Last session: 2026-03-07T16:40:05Z
-Stopped at: Completed 21-02-PLAN.md (CoverageStatus enum + ParquetReader service)
+Last session: 2026-03-07T19:20:28Z
+Stopped at: Completed 21-03-PLAN.md (warning logging gap closure -- DATA-04 fully satisfied)
 Resume file: None
