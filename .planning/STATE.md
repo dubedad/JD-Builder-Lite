@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-03-06)
 
 Milestone: v5.0 JobForge 2.0 Integration
 Phase: 21 of 23 (Data Exploration)
-Plan: --
-Status: Ready to plan
-Last activity: 2026-03-06 -- v5.0 roadmap created (Phases 21-23 defined)
+Plan: 02 of 04 in phase (plans 21-01 and 21-02 complete)
+Status: In progress
+Last activity: 2026-03-07 -- Completed 21-02-PLAN.md (CoverageStatus + ParquetReader)
 
-Progress: [░░░░░░░░░░] 0% (0/6 plans complete)
+Progress: [██░░░░░░░░] ~33% (2/6 plans complete)
 
 ## Milestone History
 
@@ -39,14 +39,18 @@ Progress: [░░░░░░░░░░] 0% (0/6 plans complete)
 | JobForge-first exploration before integration | v5.0 | JobForge gold parquet contents are unknown; Phase 21 inventories before committing to replacement scope |
 | OASIS kept as explicit fallback | v5.0 | Parquet may not cover all profiles or all data fields; fallback ensures nothing breaks and is reflected in provenance |
 | CoverageStatus is cross-cutting | v5.0 | Defined in Phase 21, used in Phase 22 (profile tabs) and Phase 23 (search); three distinct failure modes must not be collapsed |
+| str,Enum (not StrEnum) for CoverageStatus | 21-02 | Matches EnrichmentSource pattern in src/models/noc.py -- consistent with codebase convention |
+| Column stripping in read_parquet_safe (not lookup_profile) | 21-02 | Strip once at read time; all callers get clean columns regardless of which function they use |
+| oasis_skills.parquet uses unit_group_id not oasis_profile_code | 21-02 | oasis_profile_code column exists only in element_labels.parquet; Phase 22 must use correct column per file |
 
 ### Blockers/Concerns
 
-- JobForge 2.0 gold parquet actual contents unknown -- Phase 21 (data exploration) resolves this before Phases 22-23 begin
+- JobForge 2.0 gold parquet actual contents partially known (21-01 inventory complete); Plans 21-03 and 21-04 continue exploration
 - TF-IDF semantic matching fallback active (sentence-transformers incompatible with Python 3.14) -- accuracy impact documented in .planning/accuracy-notes/tfidf-fallback-2025-03-05.md
+- oasis_skills.parquet column is unit_group_id (not oasis_profile_code) -- Phase 22 must use correct column name per parquet file
 
 ## Session Continuity
 
-Last session: 2026-03-06
-Stopped at: v5.0 roadmap created -- ready to begin Phase 21 planning
+Last session: 2026-03-07T16:40:05Z
+Stopped at: Completed 21-02-PLAN.md (CoverageStatus enum + ParquetReader service)
 Resume file: None
