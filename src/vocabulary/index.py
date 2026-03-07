@@ -1,9 +1,12 @@
 """VocabularyIndex class for loading and querying NOC vocabulary from parquet files."""
 
+import logging
 import os
 from typing import Set
 
 import pandas as pd
+
+logger = logging.getLogger(__name__)
 
 
 class VocabularyIndex:
@@ -58,13 +61,18 @@ class VocabularyIndex:
 
             # Check file exists before attempting to read
             if not os.path.exists(filepath):
+                logger.warning("Required vocabulary file not found: %s (full path: %s)", filename, filepath)
                 raise FileNotFoundError(
                     f"Required vocabulary file not found: {filename}\n"
                     f"Full path checked: {filepath}"
                 )
 
             # Read parquet and extract column names
-            df = pd.read_parquet(filepath)
+            try:
+                df = pd.read_parquet(filepath)
+            except Exception as e:
+                logger.warning("Failed to read vocabulary file %s: %s", filepath, e)
+                raise
             columns = df.columns.tolist()
 
             for col in columns:
@@ -86,6 +94,7 @@ class VocabularyIndex:
 
         # Verify we loaded something
         if not self.vocabulary:
+            logger.warning("Vocabulary loaded but is empty -- parquet files may have no valid column names")
             raise ValueError(
                 "Vocabulary loaded but is empty. "
                 "Check that parquet files contain valid column names."
