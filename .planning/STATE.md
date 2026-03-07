@@ -42,12 +42,17 @@ Progress: [██░░░░░░░░] ~33% (2/6 plans complete)
 | str,Enum (not StrEnum) for CoverageStatus | 21-02 | Matches EnrichmentSource pattern in src/models/noc.py -- consistent with codebase convention |
 | Column stripping in read_parquet_safe (not lookup_profile) | 21-02 | Strip once at read time; all callers get clean columns regardless of which function they use |
 | oasis_skills.parquet uses unit_group_id not oasis_profile_code | 21-02 | oasis_profile_code column exists only in element_labels.parquet; Phase 22 must use correct column per file |
+| element_main_duties.parquet must not be queried in Phase 22 | 21-01 | ETL incomplete: only 8 rows / 3 profiles vs 4,991 rows / 900 profiles in source CSV; OASIS fallback is unconditional until JobForge ETL runs |
+| Interests and Personal Attributes need no Phase 22 change | 21-01 | Source CSV via existing LabelsLoader already handles these -- no gold parquet gap requires intervention |
+| Core Competencies and Career Mobility OASIS-only | 21-01 | No data in any tier (no parquet, no CSV); Phase 22 must use OASIS live scraping only |
 
 ### Blockers/Concerns
 
 - JobForge 2.0 gold parquet actual contents partially known (21-01 inventory complete); Plans 21-03 and 21-04 continue exploration
 - TF-IDF semantic matching fallback active (sentence-transformers incompatible with Python 3.14) -- accuracy impact documented in .planning/accuracy-notes/tfidf-fallback-2025-03-05.md
 - oasis_skills.parquet column is unit_group_id (not oasis_profile_code) -- Phase 22 must use correct column name per parquet file
+- element_main_duties.parquet ETL gap: 8 rows / 3 profiles only (source has 900 profiles) -- Phase 22 must use unconditional OASIS fallback for Main Duties; see .planning/phases/21-data-exploration/GAP-ANALYSIS.md
+- 5 oasis_* parquet files have whitespace-contaminated column names (14+6+3+3+1 columns) -- Phase 22/23 must call df.columns.str.strip() after reading these files (parquet_reader.py handles this automatically)
 
 ## Session Continuity
 
