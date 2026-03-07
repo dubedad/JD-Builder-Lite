@@ -29,11 +29,12 @@
   2. A gap analysis document explicitly lists which OASIS data fields have no parquet equivalent and must continue using live scraping -- gaps are named, not inferred
   3. The `CoverageStatus` type exists in the codebase with three distinct states: load error, record not found, and empty-but-valid result -- each state is handled differently, not collapsed into a single failure case
   4. Any parquet file that fails to load or returns unexpected data produces a visible warning log entry -- no failure is silently swallowed
-**Plans**: 2 plans
+**Plans**: 3 plans
 
 Plans:
-- [ ] 21-01-PLAN.md -- Parquet inventory and gap analysis documents
-- [ ] 21-02-PLAN.md -- CoverageStatus type and ParquetReader service with warning logging
+- [x] 21-01-PLAN.md -- Parquet inventory and gap analysis documents
+- [x] 21-02-PLAN.md -- CoverageStatus type and ParquetReader service with warning logging
+- [ ] 21-03-PLAN.md -- Gap closure: wire logger.warning() into labels_loader.py and vocabulary/index.py
 
 ### Phase 22: Profile Service
 **Goal**: Profile page tabs for Skills, Abilities, Knowledge, Work Activities, and Work Context are served from parquet for all 900 profiles, with automatic OASIS fallback for uncovered sections and provenance metadata that distinguishes the two sources
@@ -125,7 +126,7 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 21. Data Exploration | v5.0 | 0/2 | Not started | - |
+| 21. Data Exploration | v5.0 | 2/3 | In progress | - |
 | 22. Profile Service | v5.0 | 0/2 | Not started | - |
 | 23. Search Service | v5.0 | 0/2 | Not started | - |
 | 18. Profile Page Overhaul | v4.1 | 2/2 | Complete | 2026-02-07 |
@@ -133,4 +134,4 @@ Plans:
 | 20. Evidence & Provenance Display | v4.1 | 0/2 | Deferred | - |
 
 ---
-*Roadmap updated: 2026-03-07 -- Phase 21 plans finalized (2 plans, 1 wave)*
+*Roadmap updated: 2026-03-07 -- Phase 21 gap closure plan added (3 plans total, closing DATA-04)*
