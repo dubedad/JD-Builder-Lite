@@ -45,11 +45,11 @@ Plans:
   2. Main Duties / Key Activities, Interests, Personal Attributes, and Core Competencies tabs automatically fall back to OASIS scraping without any user-visible error or empty state -- the fallback is transparent
   3. Exported JD provenance metadata records each section's source as either "JobForge parquet (version X, path Y)" or "OASIS (URL, scrape timestamp)" -- the distinction is present and readable in the compliance block
   4. All parquet column names displayed as UI labels are stripped of leading and trailing whitespace before rendering -- no label shows a leading space or trailing space regardless of raw column name in the file
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 22-01-PLAN.md -- Parquet profile reader (load Skills, Abilities, Knowledge, Work Activities, Work Context from parquet; wire CoverageStatus; column whitespace strip)
-- [ ] 22-02-PLAN.md -- OASIS fallback and provenance extension (automatic fallback for uncovered tabs; extend provenance schema to record source per section; update export compliance block)
+- [ ] 22-01-PLAN.md -- ProfileParquetReader service + response model + mapper wiring with parquet-first fallback
+- [ ] 22-02-PLAN.md -- Source badge UI (CSS + JS) + export provenance extension for per-section source tracking
 
 ### Phase 23: Search Service
 **Goal**: Search returns results in under one second from local parquet files with tiered relevance scoring, and falls back transparently to OASIS scraping when parquet is unavailable
@@ -59,7 +59,7 @@ Plans:
   1. A search query returns results in under one second (measured from request to first result rendered) -- replacing the current path that can take up to 60 seconds via OASIS scraping
   2. Search results are ranked using tiered relevance scoring: Labels match scores 95-100, occupation title match scores 90, example titles match scores 80, lead statement match scores 50 -- an exact title match ranks above a partial lead statement match
   3. When the parquet search service is unavailable or returns zero results for a query, the search automatically falls back to live OASIS scraping and returns results without requiring any user action
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
 - [ ] 23-01-PLAN.md -- Parquet search reader and tiered scorer (build search index from parquet, implement four-tier scoring, wire query path to parquet)
