@@ -29,11 +29,11 @@
   2. A gap analysis document explicitly lists which OASIS data fields have no parquet equivalent and must continue using live scraping -- gaps are named, not inferred
   3. The `CoverageStatus` type exists in the codebase with three distinct states: load error, record not found, and empty-but-valid result -- each state is handled differently, not collapsed into a single failure case
   4. Any parquet file that fails to load or returns unexpected data produces a visible warning log entry -- no failure is silently swallowed
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 21-01-PLAN.md -- Parquet inventory and gap analysis (read all gold files, document schemas, row counts, OASIS mapping, produce inventory doc and gap analysis)
-- [ ] 21-02-PLAN.md -- CoverageStatus type and warning logging (define type, wire into parquet reader, add logging on load error and unexpected data)
+- [ ] 21-01-PLAN.md -- Parquet inventory and gap analysis documents
+- [ ] 21-02-PLAN.md -- CoverageStatus type and ParquetReader service with warning logging
 
 ### Phase 22: Profile Service
 **Goal**: Profile page tabs for Skills, Abilities, Knowledge, Work Activities, and Work Context are served from parquet for all 900 profiles, with automatic OASIS fallback for uncovered sections and provenance metadata that distinguishes the two sources
@@ -133,4 +133,4 @@ Plans:
 | 20. Evidence & Provenance Display | v4.1 | 0/2 | Deferred | - |
 
 ---
-*Roadmap updated: 2026-03-06 -- v5.0 JobForge 2.0 Integration milestone added (Phases 21-23)*
+*Roadmap updated: 2026-03-07 -- Phase 21 plans finalized (2 plans, 1 wave)*
