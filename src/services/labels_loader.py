@@ -1,8 +1,11 @@
 """Labels, Example Titles, and Other Job Info loader from JobForge 2.0 data."""
 
+import logging
 import os
 from typing import List, Optional, Dict, Any
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 # Check if pandas and pyarrow are available for parquet support
 try:
@@ -97,8 +100,14 @@ class LabelsLoader:
     """Load and retrieve NOC labels, example titles, and other job info from parquet/CSV files."""
 
     # Path to JobForge 2.0 data (external dependency)
-    GOLD_DATA_PATH = Path(r"C:\Users\Administrator\Dropbox\++ Results Kit\JobForge 2.0\data\gold")
-    SOURCE_DATA_PATH = Path(r"C:\Users\Administrator\Dropbox\++ Results Kit\JobForge 2.0\data\source")
+    GOLD_DATA_PATH = Path(os.getenv(
+        "JOBFORGE_GOLD_PATH",
+        "/Users/victornishi/Documents/GitHub/JobForge-2.0/data/gold"
+    ))
+    SOURCE_DATA_PATH = Path(os.getenv(
+        "JOBFORGE_SOURCE_PATH",
+        "/Users/victornishi/Documents/GitHub/JobForge-2.0/data/source"
+    ))
 
     # Parquet files (gold)
     LABELS_FILE = GOLD_DATA_PATH / "element_labels.parquet"
@@ -140,10 +149,12 @@ class LabelsLoader:
             return True
 
         if not HAS_PANDAS:
+            logger.warning("Labels load skipped: pandas/pyarrow not installed")
             self._load_error = "pandas/pyarrow not installed for parquet support"
             return False
 
         if not self.LABELS_FILE.exists():
+            logger.warning("Labels file not found: %s", self.LABELS_FILE)
             self._load_error = f"Labels file not found: {self.LABELS_FILE}"
             return False
 
@@ -152,6 +163,7 @@ class LabelsLoader:
             print(f"[LabelsLoader] Loaded {len(self._labels_df)} labels from parquet")
             return True
         except Exception as e:
+            logger.warning("Failed to load labels from %s: %s", self.LABELS_FILE, e)
             self._load_error = f"Failed to load labels: {e}"
             return False
 
@@ -161,10 +173,12 @@ class LabelsLoader:
             return True
 
         if not HAS_PANDAS:
+            logger.warning("Example titles load skipped: pandas/pyarrow not installed")
             self._load_error = "pandas/pyarrow not installed for parquet support"
             return False
 
         if not self.EXAMPLE_TITLES_FILE.exists():
+            logger.warning("Example titles file not found: %s", self.EXAMPLE_TITLES_FILE)
             self._load_error = f"Example titles file not found: {self.EXAMPLE_TITLES_FILE}"
             return False
 
@@ -173,6 +187,7 @@ class LabelsLoader:
             print(f"[LabelsLoader] Loaded {len(self._titles_df)} example titles from parquet")
             return True
         except Exception as e:
+            logger.warning("Failed to load example titles from %s: %s", self.EXAMPLE_TITLES_FILE, e)
             self._load_error = f"Failed to load example titles: {e}"
             return False
 
@@ -242,15 +257,18 @@ class LabelsLoader:
             return True
 
         if not HAS_PANDAS:
+            logger.warning("Exclusions load skipped: pandas/pyarrow not installed")
             return False
 
         if not self.EXCLUSIONS_FILE.exists():
+            logger.warning("Exclusions file not found: %s", self.EXCLUSIONS_FILE)
             return False
 
         try:
             self._exclusions_df = pd.read_parquet(self.EXCLUSIONS_FILE)
             return True
-        except Exception:
+        except Exception as e:
+            logger.warning("Failed to load exclusions from %s: %s", self.EXCLUSIONS_FILE, e)
             return False
 
     def _load_employment_reqs(self) -> bool:
@@ -259,15 +277,18 @@ class LabelsLoader:
             return True
 
         if not HAS_PANDAS:
+            logger.warning("Employment requirements load skipped: pandas/pyarrow not installed")
             return False
 
         if not self.EMPLOYMENT_REQS_FILE.exists():
+            logger.warning("Employment requirements file not found: %s", self.EMPLOYMENT_REQS_FILE)
             return False
 
         try:
             self._employment_reqs_df = pd.read_parquet(self.EMPLOYMENT_REQS_FILE)
             return True
-        except Exception:
+        except Exception as e:
+            logger.warning("Failed to load employment requirements from %s: %s", self.EMPLOYMENT_REQS_FILE, e)
             return False
 
     def _load_workplaces(self) -> bool:
@@ -276,15 +297,18 @@ class LabelsLoader:
             return True
 
         if not HAS_PANDAS:
+            logger.warning("Workplaces load skipped: pandas/pyarrow not installed")
             return False
 
         if not self.WORKPLACES_FILE.exists():
+            logger.warning("Workplaces file not found: %s", self.WORKPLACES_FILE)
             return False
 
         try:
             self._workplaces_df = pd.read_parquet(self.WORKPLACES_FILE)
             return True
-        except Exception:
+        except Exception as e:
+            logger.warning("Failed to load workplaces from %s: %s", self.WORKPLACES_FILE, e)
             return False
 
     def _load_interests(self) -> bool:
@@ -293,15 +317,18 @@ class LabelsLoader:
             return True
 
         if not HAS_PANDAS:
+            logger.warning("Interests load skipped: pandas/pyarrow not installed")
             return False
 
         if not self.INTERESTS_FILE.exists():
+            logger.warning("Interests file not found: %s", self.INTERESTS_FILE)
             return False
 
         try:
             self._interests_df = pd.read_csv(self.INTERESTS_FILE)
             return True
-        except Exception:
+        except Exception as e:
+            logger.warning("Failed to load interests from %s: %s", self.INTERESTS_FILE, e)
             return False
 
     def _load_personal_attrs(self) -> bool:
@@ -310,15 +337,18 @@ class LabelsLoader:
             return True
 
         if not HAS_PANDAS:
+            logger.warning("Personal attributes load skipped: pandas/pyarrow not installed")
             return False
 
         if not self.PERSONAL_ATTRS_FILE.exists():
+            logger.warning("Personal attributes file not found: %s", self.PERSONAL_ATTRS_FILE)
             return False
 
         try:
             self._personal_attrs_df = pd.read_csv(self.PERSONAL_ATTRS_FILE)
             return True
-        except Exception:
+        except Exception as e:
+            logger.warning("Failed to load personal attributes from %s: %s", self.PERSONAL_ATTRS_FILE, e)
             return False
 
     def _load_work_context(self) -> bool:
@@ -327,15 +357,18 @@ class LabelsLoader:
             return True
 
         if not HAS_PANDAS:
+            logger.warning("Work context load skipped: pandas/pyarrow not installed")
             return False
 
         if not self.WORK_CONTEXT_FILE.exists():
+            logger.warning("Work context file not found: %s", self.WORK_CONTEXT_FILE)
             return False
 
         try:
             self._work_context_df = pd.read_parquet(self.WORK_CONTEXT_FILE)
             return True
-        except Exception:
+        except Exception as e:
+            logger.warning("Failed to load work context from %s: %s", self.WORK_CONTEXT_FILE, e)
             return False
 
     def get_exclusions(self, oasis_profile_code: str) -> List[Dict[str, str]]:
