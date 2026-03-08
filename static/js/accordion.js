@@ -177,6 +177,23 @@ const TAB_CONFIG = {
     }
 };
 
+/**
+ * Render a source badge indicating whether tab data comes from JobForge parquet or OASIS.
+ * @param {string} dataSource - "jobforge" or "oasis"
+ * @param {string} [tooltip] - Optional tooltip text for hover
+ * @returns {string} HTML string for the badge container
+ */
+const renderSourceBadge = (dataSource, tooltip) => {
+    const label = dataSource === 'jobforge' ? 'Source: JobForge' : 'Source: OASIS';
+    const cssClass = dataSource === 'jobforge'
+        ? 'source-badge source-badge--jobforge'
+        : 'source-badge source-badge--oasis';
+    const titleAttr = tooltip ? ` title="${escapeHtml(tooltip)}"` : '';
+    return `<div class="source-badge-container">
+        <span class="${cssClass}"${titleAttr}>${label}</span>
+    </div>`;
+};
+
 const renderOverviewContent = (profile) => {
     const ref = profile.reference_attributes || {};
     const hierarchy = profile.noc_hierarchy || {};
@@ -688,6 +705,9 @@ const renderTabContent = (profile) => {
             TAB_CONFIG.activities.sections,
             'key_activities',
             state.selections.key_activities || []
+        ) + renderSourceBadge(
+            profile.key_activities?.data_source || 'oasis',
+            'Main Duties always served from OASIS (ETL pending)'
         );
     }
 
@@ -699,7 +719,7 @@ const renderTabContent = (profile) => {
             TAB_CONFIG.skills.sections,
             'skills',
             state.selections.skills || []
-        );
+        ) + renderSourceBadge(profile.skills?.data_source || 'oasis');
     }
 
     // Abilities tab - NEW
@@ -710,7 +730,7 @@ const renderTabContent = (profile) => {
             TAB_CONFIG.abilities.sections,
             'abilities',
             state.selections.abilities || []
-        );
+        ) + renderSourceBadge(profile.skills?.data_source || 'oasis');
     }
 
     // Knowledge tab - NEW
@@ -721,7 +741,7 @@ const renderTabContent = (profile) => {
             TAB_CONFIG.knowledge.sections,
             'knowledge',
             state.selections.knowledge || []
-        );
+        ) + renderSourceBadge(profile.skills?.data_source || 'oasis');
     }
 
     // Effort tab - with Work Context definition
@@ -790,6 +810,7 @@ const renderTabContent = (profile) => {
         }
 
         effortHtml += '</div>';
+        effortHtml += renderSourceBadge(profile.effort?.data_source || 'oasis');
         effortPanel.innerHTML = effortHtml;
     }
 
@@ -859,6 +880,7 @@ const renderTabContent = (profile) => {
         }
 
         respHtml += '</div>';
+        respHtml += renderSourceBadge(profile.responsibility?.data_source || 'oasis');
         responsibilityPanel.innerHTML = respHtml;
     }
 

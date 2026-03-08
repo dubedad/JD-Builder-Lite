@@ -2172,3 +2172,30 @@ body.sidebar-open .action-bar {
     line-height: 1.6;
     white-space: pre-wrap;
 }
+
+/* Source badge -- shown at the bottom of each tab panel (Phase 22) */
+.source-badge-container {
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+.source-badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.source-badge--jobforge {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #a5d6a7;
+}
+
+.source-badge--oasis {
+    background: #f5f5f5;
+    color: #616161;
+    border: 1px solid #e0e0e0;
+}
