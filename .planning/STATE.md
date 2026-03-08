@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-03-06)
 
 **Core value:** Compliance-focused job description builder demonstrating TBS Directive 32592 compliance with full provenance tracking.
-**Current focus:** v5.0 JobForge 2.0 Integration -- Phase 23: Search Service (next phase)
+**Current focus:** v5.0 JobForge 2.0 Integration -- Phase 23: Search Service (plan 01 complete)
 
 ## Current Position
 
 Milestone: v5.0 JobForge 2.0 Integration
-Phase: 22 complete; Phase 23 not started
-Plan: Ready to plan Phase 23
-Status: Phase 22 done — ready to begin Phase 23 (Search Service)
-Last activity: 2026-03-08 -- Completed Phase 22 (2/2 plans); badges verified and approved
+Phase: 23 in progress (plan 01 of 2 complete)
+Plan: 23-01 complete; 23-02 (wire into api.py route) next
+Status: In progress
+Last activity: 2026-03-08 -- Completed 23-01 (SearchParquetReader service)
 
-Progress: [██████░░░░] ~75% (6/8 plans complete)
+Progress: [███████░░░] ~78% (7/9 plans complete)
 
 ## Milestone History
 
@@ -47,6 +47,8 @@ Progress: [██████░░░░] ~75% (6/8 plans complete)
 | Core Competencies and Career Mobility OASIS-only | 21-01 | No data in any tier (no parquet, no CSV); Phase 22 must use OASIS live scraping only |
 | logger.warning() additive-only alongside self._load_error | 21-03 | Preserves runtime error inspection via get_error() while adding log-stream observability; neither replaces the other |
 | vocabulary/index.py uses log-and-reraise not log-and-suppress | 21-03 | FileNotFoundError and read exceptions must propagate to callers; warning logged before raise, original traceback preserved |
+| unit_group_id is join key for all element_* parquet files | 23-01 | Confirmed via parquet inspection: element_labels, element_lead_statement, element_example_titles all use unit_group_id |
+| Auto-detect code search by pattern match | 23-01 | Queries matching ^\d{5}$ treated as code search regardless of search_type parameter |
 
 ### Blockers/Concerns
 
@@ -57,6 +59,6 @@ Progress: [██████░░░░] ~75% (6/8 plans complete)
 
 ## Session Continuity
 
-Last session: 2026-03-08
-Stopped at: Phase 22 complete — ready to plan Phase 23
-Resume file: .planning/.continue-here.md
+Last session: 2026-03-08T16:30:05Z
+Stopped at: Completed 23-01-PLAN.md (SearchParquetReader service created)
+Resume file: None
