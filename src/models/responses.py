@@ -23,6 +23,7 @@ class EnrichedJDElementData(BaseModel):
     statements: List[EnrichedNOCStatement]
     category_definition: Optional[str] = None
     source_attribute: str  # "Skills", "Abilities", etc.
+    data_source: str = "oasis"  # "jobforge" when served from parquet, "oasis" otherwise
 
     model_config = ConfigDict(from_attributes=True)
 

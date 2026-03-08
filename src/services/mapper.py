@@ -1,8 +1,8 @@
 """NOC to JD element mapper with provenance tracking."""
 
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from datetime import datetime
-from src.models.noc import NOCStatement, JDElementData, SourceMetadata, EnrichedNOCStatement, NOCHierarchy, ReferenceAttributes
+from src.models.noc import NOCStatement, JDElementData, SourceMetadata, EnrichedNOCStatement, NOCHierarchy, ReferenceAttributes, ProficiencyLevel
 from src.models.responses import (
     EnrichedJDElementData, WorkContextData, OtherJobInfo,
     ExclusionItem, HollandInterest, PersonalAttribute, WorkContextItem
@@ -10,7 +10,49 @@ from src.models.responses import (
 from src.services.enrichment_service import enrichment_service
 from src.services.csv_loader import guide_csv
 from src.services.labels_loader import labels_loader
+from src.services.profile_parquet_reader import get_all_profile_tabs
 from src.config import OASIS_BASE_URL, OASIS_VERSION
+
+# Level labels for parquet-sourced proficiency ratings (index = level - 1).
+_LEVEL_LABELS = ["Basic", "Low", "Medium", "High", "Highest"]
+
+
+def _level_label(level: int) -> str:
+    """Return a human-readable label for a proficiency level (1-5)."""
+    idx = max(0, min(level - 1, len(_LEVEL_LABELS) - 1))
+    return _LEVEL_LABELS[idx]
+
+
+def _ratings_to_statements(
+    ratings: list[dict],
+    source_attribute: str,
+    source_url: str,
+) -> list[EnrichedNOCStatement]:
+    """Convert parquet dimension ratings to EnrichedNOCStatement objects.
+
+    Args:
+        ratings: List of {'name': str, 'level': int} dicts (sorted by caller).
+        source_attribute: e.g. 'Skills', 'Abilities', 'Knowledge', 'Work Activities'.
+        source_url: OASIS profile URL for provenance.
+
+    Returns:
+        List of EnrichedNOCStatement with ProficiencyLevel set.
+    """
+    statements = []
+    for rating in ratings:
+        level = rating["level"]
+        statements.append(EnrichedNOCStatement(
+            text=rating["name"],
+            source_attribute=source_attribute,
+            source_url=source_url,
+            proficiency=ProficiencyLevel(
+                level=level,
+                max=5,
+                label=f"{level} - {_level_label(level)} Level",
+                dimension="Importance",
+            ),
+        ))
+    return statements
 
 
 class JDMapper:
@@ -32,6 +74,10 @@ class JDMapper:
         """
         noc_code = noc_data['noc_code']
         base_url = f"{OASIS_BASE_URL}/OaSIS/OaSISOccProfile?code={noc_code}&version={OASIS_VERSION}"
+
+        # Fetch parquet data for all 5 tabs upfront (single batch of file reads).
+        # Returns dict: tab_key -> (ratings_list, data_source_str)
+        parquet_tabs = get_all_profile_tabs(noc_code)
 
         # Get classified Work Context
         work_context_classified = enrichment_service.enrich_work_context(
@@ -77,10 +123,10 @@ class JDMapper:
             'noc_hierarchy': noc_data.get('noc_hierarchy'),
 
             # Enriched JD Elements
-            'key_activities': self._map_key_activities_enriched(noc_data, base_url),
-            'skills': self._map_skills_enriched(noc_data, base_url),
-            'effort': self._map_effort_enriched(noc_code, base_url),
-            'responsibility': self._map_responsibility_enriched(noc_code, base_url),
+            'key_activities': self._map_key_activities_enriched(noc_data, base_url, parquet_tabs),
+            'skills': self._map_skills_enriched(noc_data, base_url, parquet_tabs),
+            'effort': self._map_effort_enriched(noc_code, base_url, parquet_tabs),
+            'responsibility': self._map_responsibility_enriched(noc_code, base_url, parquet_tabs),
             'working_conditions': self._map_working_conditions_enriched(noc_data, base_url),
 
             # Classified Work Context (alternative access)
@@ -108,11 +154,23 @@ class JDMapper:
             'enrichment_stats': guide_csv.get_stats()
         }
 
-    def _map_key_activities_enriched(self, data: Dict[str, Any], url: str) -> EnrichedJDElementData:
-        """Map main duties and work activities to enriched Key Activities element."""
+    def _map_key_activities_enriched(
+        self,
+        data: Dict[str, Any],
+        url: str,
+        parquet_tabs: Optional[dict] = None,
+    ) -> EnrichedJDElementData:
+        """Map main duties and work activities to enriched Key Activities element.
+
+        Main Duties are ALWAYS sourced from OASIS (element_main_duties.parquet
+        has only 8 rows / 3 profiles -- ETL incomplete). Work Activities are
+        sourced from parquet when available, otherwise from OASIS enrichment.
+        Because Main Duties are always OASIS, this element's data_source is
+        always 'oasis'.
+        """
         statements = []
 
-        # Main duties (strings, no proficiency)
+        # Main duties: ALWAYS from OASIS (parquet ETL incomplete).
         for duty in data.get('main_duties', []):
             statements.append(EnrichedNOCStatement(
                 text=duty,
@@ -120,46 +178,79 @@ class JDMapper:
                 source_url=url
             ))
 
-        # Work activities (enriched with proficiency)
-        work_activities = enrichment_service.enrich_statements(
-            data.get('work_activities', []),
-            'work_activities',
-            url
-        )
-        statements.extend(work_activities)
+        # Work activities: use parquet if available, else fall back to OASIS enrichment.
+        wa_ratings, wa_source = (parquet_tabs or {}).get("work_activities", ([], "oasis"))
+        if wa_ratings and wa_source == "jobforge":
+            statements.extend(_ratings_to_statements(wa_ratings, "Work Activities", url))
+        else:
+            # OASIS fallback path.
+            work_activities = enrichment_service.enrich_statements(
+                data.get('work_activities', []),
+                'work_activities',
+                url
+            )
+            statements.extend(work_activities)
 
+        # data_source is always "oasis": Main Duties anchor this element to OASIS.
         return EnrichedJDElementData(
             statements=statements,
             category_definition=guide_csv.get_category_definition('key_activities'),
-            source_attribute="Key Activities"
+            source_attribute="Key Activities",
+            data_source="oasis",
         )
 
-    def _map_skills_enriched(self, data: Dict[str, Any], url: str) -> EnrichedJDElementData:
-        """Map skills, abilities, and knowledge to enriched Skills element."""
+    def _map_skills_enriched(
+        self,
+        data: Dict[str, Any],
+        url: str,
+        parquet_tabs: Optional[dict] = None,
+    ) -> EnrichedJDElementData:
+        """Map skills, abilities, and knowledge to enriched Skills element.
+
+        When parquet data is available for all three sub-dimensions (skills,
+        abilities, knowledge), uses parquet ratings and sets data_source='jobforge'.
+        Falls back to OASIS enrichment for any dimension where parquet is missing.
+        If ALL three come from parquet, data_source='jobforge'; otherwise 'oasis'.
+        """
         statements = []
+        tabs = parquet_tabs or {}
 
-        # Skills
-        statements.extend(enrichment_service.enrich_statements(
-            data.get('skills', []),
-            'skills',
-            url
-        ))
+        skills_ratings, skills_source = tabs.get("skills", ([], "oasis"))
+        abilities_ratings, abilities_source = tabs.get("abilities", ([], "oasis"))
+        knowledge_ratings, knowledge_source = tabs.get("knowledge", ([], "oasis"))
 
-        # Abilities
-        statements.extend(enrichment_service.enrich_statements(
-            data.get('abilities', []),
-            'abilities',
-            url
-        ))
+        all_from_parquet = (
+            skills_source == "jobforge"
+            and abilities_source == "jobforge"
+            and knowledge_source == "jobforge"
+        )
 
-        # Knowledge
-        statements.extend(enrichment_service.enrich_statements(
-            data.get('knowledge', []),
-            'knowledge',
-            url
-        ))
+        if all_from_parquet:
+            # Build combined Skills + Abilities + Knowledge from separate parquet lookups.
+            statements.extend(_ratings_to_statements(skills_ratings, "Skills", url))
+            statements.extend(_ratings_to_statements(abilities_ratings, "Abilities", url))
+            statements.extend(_ratings_to_statements(knowledge_ratings, "Knowledge", url))
+            data_source = "jobforge"
+        else:
+            # OASIS fallback path for all three (keep atomic: all or nothing).
+            statements.extend(enrichment_service.enrich_statements(
+                data.get('skills', []),
+                'skills',
+                url
+            ))
+            statements.extend(enrichment_service.enrich_statements(
+                data.get('abilities', []),
+                'abilities',
+                url
+            ))
+            statements.extend(enrichment_service.enrich_statements(
+                data.get('knowledge', []),
+                'knowledge',
+                url
+            ))
+            data_source = "oasis"
 
-        # Sort all by proficiency (highest first)
+        # Sort all by proficiency (highest first).
         statements.sort(
             key=lambda s: (s.proficiency.level if s.proficiency else 0),
             reverse=True
@@ -168,13 +259,18 @@ class JDMapper:
         return EnrichedJDElementData(
             statements=statements,
             category_definition=guide_csv.get_category_definition('skills'),
-            source_attribute="Skills"
+            source_attribute="Skills",
+            data_source=data_source,
         )
 
-    def _map_effort_enriched(self, noc_code: str, url: str) -> EnrichedJDElementData:
+    def _map_effort_enriched(self, noc_code: str, url: str, parquet_tabs: Optional[dict] = None) -> EnrichedJDElementData:
         """Map Work Context items to Effort - ALL items NOT in Responsibility."""
-        # Get effort items from parquet (all Work Context NOT containing decision/responsib)
+        # Get effort items from parquet via labels_loader (reads oasis_workcontext.parquet)
         effort_items = labels_loader.get_work_context_filtered(noc_code, 'effort')
+
+        # data_source: "jobforge" if work_context parquet lookup succeeded, else "oasis"
+        _, wc_source = (parquet_tabs or {}).get("work_context", ([], "oasis"))
+        data_source = wc_source
 
         statements = []
         for item in effort_items:
@@ -194,13 +290,18 @@ class JDMapper:
         return EnrichedJDElementData(
             statements=statements,
             category_definition=guide_csv.get_category_definition('effort'),
-            source_attribute="Work Context - Effort"
+            source_attribute="Work Context - Effort",
+            data_source=data_source,
         )
 
-    def _map_responsibility_enriched(self, noc_code: str, url: str) -> EnrichedJDElementData:
+    def _map_responsibility_enriched(self, noc_code: str, url: str, parquet_tabs: Optional[dict] = None) -> EnrichedJDElementData:
         """Map Work Context items containing 'decision' or 'responsib' to Responsibility."""
-        # Get responsibility items from parquet (contains decision/responsib in name)
+        # Get responsibility items from parquet via labels_loader (reads oasis_workcontext.parquet)
         resp_items = labels_loader.get_work_context_filtered(noc_code, 'responsibility')
+
+        # data_source: "jobforge" if work_context parquet lookup succeeded, else "oasis"
+        _, wc_source = (parquet_tabs or {}).get("work_context", ([], "oasis"))
+        data_source = wc_source
 
         statements = []
         for item in resp_items:
@@ -220,7 +321,8 @@ class JDMapper:
         return EnrichedJDElementData(
             statements=statements,
             category_definition=guide_csv.get_category_definition('responsibility'),
-            source_attribute="Work Context - Responsibility"
+            source_attribute="Work Context - Responsibility",
+            data_source=data_source,
         )
 
     def _map_working_conditions_enriched(self, data: Dict[str, Any], url: str) -> EnrichedJDElementData:
