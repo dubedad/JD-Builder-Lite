@@ -21,6 +21,7 @@ from src.models.noc import SourceMetadata
 from src.models.ai import GenerationRequest, GenerationMetadata, StatementInput, JobContext
 from src.models.export_models import ExportRequest
 from src.config import OASIS_BASE_URL, OASIS_VERSION
+from src.services.search_parquet_reader import search_parquet_reader
 from datetime import datetime
 
 # Create API blueprint
@@ -84,78 +85,95 @@ def search():
         return jsonify(error.model_dump()), 400
 
     try:
-        # Fetch and parse search results
-        html = scraper.search(query, search_type=search_type)
-        results = parser.parse_search_results_enhanced(html)
+        # --- SRCH-01/SRCH-03: Try parquet first for sub-second response ---
+        parquet_results = search_parquet_reader.search(query, search_type=search_type)
 
-        # Populate hierarchy codes for filter building (18-02)
-        for r in results:
-            code = r.noc_code.split('.')[0] if r.noc_code else ''
-            r.sub_major_group = code[:3] if len(code) >= 3 else None
-            r.unit_group = code[:4] if len(code) >= 4 else None
+        if parquet_results is not None and len(parquet_results) > 0:
+            # Parquet path: results already scored by SearchParquetReader (SRCH-02).
+            # Hierarchy fields (sub_major_group, unit_group, broad_category) are
+            # already populated by _build_result() in search_parquet_reader.py.
+            # Skip OASIS scraper call and the OASIS scoring block entirely.
+            results = parquet_results
+        else:
+            # Fallback path: parquet returned None (LOAD_ERROR) or [] (no matches).
+            # Run existing OASIS scraper unchanged — user sees results, not an error.
 
-        # Score results by relevance with confidence % and rationale (SRCH-13)
-        # Stem the query: "Printer" → "Print" to match "Printing"
-        query_lower = query.lower()
-        query_stem = re.sub(r'(ers?|ing|tion|ment|ed|ly|s)$', '', query_lower, count=1)
-        if len(query_stem) < 3:
-            query_stem = query_lower
+            # Fetch and parse search results
+            html = scraper.search(query, search_type=search_type)
+            results = parser.parse_search_results_enhanced(html)
 
-        def _find_matched_word(text, stem):
-            """Find the actual word in text that contains the stem."""
-            words = re.findall(r'\b\w*' + re.escape(stem) + r'\w*\b', text, re.IGNORECASE)
-            return words[0] if words else stem
+            # Populate hierarchy codes for filter building (18-02)
+            for r in results:
+                code = r.noc_code.split('.')[0] if r.noc_code else ''
+                r.sub_major_group = code[:3] if len(code) >= 3 else None
+                r.unit_group = code[:4] if len(code) >= 4 else None
 
-        def _normalize_plural(text):
-            """Normalize plural suffixes for near-exact title comparison."""
-            words = text.lower().split()
-            out = []
-            for w in words:
-                if w.endswith('ies') and len(w) > 4:
-                    out.append(w[:-3] + 'y')
-                elif w.endswith('es') and len(w) > 3:
-                    out.append(w[:-2])
-                elif w.endswith('s') and len(w) > 2 and not w.endswith('ss'):
-                    out.append(w[:-1])
+            # Score results by relevance with confidence % and rationale (SRCH-13)
+            # Stem each word independently: "Engineers" → "Engineer", "Printing" → "Print"
+            query_lower = query.lower()
+            def _stem_word(word):
+                stemmed = re.sub(r'(ers?|ing|tion|ment|ed|ly|s)$', '', word, count=1)
+                return stemmed if len(stemmed) >= 3 else word
+            query_stems = [_stem_word(w) for w in query_lower.split()]
+            query_stem = ' '.join(query_stems)
+
+            def _find_matched_word(text, stem):
+                """Find the actual word in text that contains the stem."""
+                words = re.findall(r'\b\w*' + re.escape(stem) + r'\w*\b', text, re.IGNORECASE)
+                return words[0] if words else stem
+
+            def _normalize_plural(text):
+                """Normalize plural suffixes for near-exact title comparison."""
+                words = text.lower().split()
+                out = []
+                for w in words:
+                    if w.endswith('ies') and len(w) > 4:
+                        out.append(w[:-3] + 'y')
+                    elif w.endswith('es') and len(w) > 3:
+                        out.append(w[:-2])
+                    elif w.endswith('s') and len(w) > 2 and not w.endswith('ss'):
+                        out.append(w[:-1])
+                    else:
+                        out.append(w)
+                return ' '.join(out)
+
+            query_norm = _normalize_plural(query_lower)
+
+            for result in results:
+                title_lower = result.title.lower()
+                lead_lower = (result.lead_statement or '').lower()
+
+                title_has_exact = query_lower in title_lower
+                title_has_stem = query_stem in title_lower or any(s in title_lower for s in query_stems)
+                lead_has_exact = query_lower in lead_lower
+                lead_has_stem = query_stem in lead_lower or any(s in lead_lower for s in query_stems)
+
+                # Near-exact: query ≈ title after normalizing plurals (S1-15)
+                title_norm = _normalize_plural(title_lower)
+                is_near_exact = query_norm == title_norm
+
+                if is_near_exact:
+                    result.relevance_score = 100
+                    result.match_reason = f"Exact title match: \"{query}\""
+                elif title_has_exact:
+                    result.relevance_score = 95
+                    result.match_reason = f"Title contains \"{query}\""
+                elif title_has_stem:
+                    matched = _find_matched_word(result.title, query_stem)
+                    result.relevance_score = 85
+                    result.match_reason = f"Title contains \"{matched}\""
+                elif lead_has_exact:
+                    result.relevance_score = 60
+                    result.match_reason = f"Description mentions \"{query}\""
+                elif lead_has_stem:
+                    matched = _find_matched_word(result.lead_statement, query_stem)
+                    result.relevance_score = 50
+                    result.match_reason = f"Description mentions \"{matched}\""
                 else:
-                    out.append(w)
-            return ' '.join(out)
+                    result.relevance_score = 10
+                    result.match_reason = "Matched on alternate job title not shown"
 
-        query_norm = _normalize_plural(query_lower)
-
-        for result in results:
-            title_lower = result.title.lower()
-            lead_lower = (result.lead_statement or '').lower()
-
-            title_has_exact = query_lower in title_lower
-            title_has_stem = query_stem in title_lower
-            lead_has_exact = query_lower in lead_lower
-            lead_has_stem = query_stem in lead_lower
-
-            # Near-exact: query ≈ title after normalizing plurals (S1-15)
-            title_norm = _normalize_plural(title_lower)
-            is_near_exact = query_norm == title_norm
-
-            if is_near_exact:
-                result.relevance_score = 100
-                result.match_reason = f"Exact title match: \"{query}\""
-            elif title_has_exact:
-                result.relevance_score = 95
-                result.match_reason = f"Title contains \"{query}\""
-            elif title_has_stem:
-                matched = _find_matched_word(result.title, query_stem)
-                result.relevance_score = 85
-                result.match_reason = f"Title contains \"{matched}\""
-            elif lead_has_exact:
-                result.relevance_score = 60
-                result.match_reason = f"Description mentions \"{query}\""
-            elif lead_has_stem:
-                matched = _find_matched_word(result.lead_statement, query_stem)
-                result.relevance_score = 50
-                result.match_reason = f"Description mentions \"{matched}\""
-            else:
-                result.relevance_score = 10
-                result.match_reason = "Matched on alternate job title not shown"
+        # --- Common path: sort, filter, and construct response (both parquet and OASIS) ---
 
         # Sort by relevance score descending (best matches first)
         results.sort(key=lambda r: r.relevance_score or 0, reverse=True)
@@ -644,7 +662,8 @@ def style_statement():
         section = data['section']
 
         # Validate section
-        valid_sections = ['key_activities', 'skills', 'effort', 'working_conditions']
+        valid_sections = ['key_activities', 'skills', 'effort', 'working_conditions',
+                          'abilities', 'knowledge', 'core_competencies', 'responsibility']
         if section not in valid_sections:
             return jsonify({
                 "success": False,
