@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-03-06)
 
 **Core value:** Compliance-focused job description builder demonstrating TBS Directive 32592 compliance with full provenance tracking.
-**Current focus:** v5.0 JobForge 2.0 Integration -- Phase 22: Profile Service (Phase 21 complete)
+**Current focus:** v5.0 JobForge 2.0 Integration -- Phase 22: Profile Service (Plan 01 complete, Plan 02 at checkpoint)
 
 ## Current Position
 
 Milestone: v5.0 JobForge 2.0 Integration
-Phase: 21 complete → ready for Phase 22 (Profile Service)
-Plan: 3/3 complete in Phase 21; Phase 22 not started
-Status: Phase 21 complete, verified 4/4
-Last activity: 2026-03-07 -- Completed Phase 21 (Data Exploration) — all plans done, verification passed
+Phase: 22 in progress
+Plan: 22-01 complete; 22-02 tasks done, awaiting human verification checkpoint
+Status: 22-02 checkpoint — user must verify source badges in browser, then type "approved"
+Last activity: 2026-03-08 -- Completed 22-01 (ProfileParquetReader + mapper); completed 22-02 tasks 1+2 (badges + export provenance); at human checkpoint
 
-Progress: [███░░░░░░░] ~43% (3/7 plans complete)
+Progress: [████░░░░░░] ~57% (4/7 plans complete)
 
 ## Milestone History
 
@@ -57,6 +57,6 @@ Progress: [███░░░░░░░] ~43% (3/7 plans complete)
 
 ## Session Continuity
 
-Last session: 2026-03-07T19:20:28Z
-Stopped at: Completed 21-03-PLAN.md (warning logging gap closure -- DATA-04 fully satisfied)
-Resume file: None
+Last session: 2026-03-08T13:20:00Z
+Stopped at: Phase 22, Plan 02 — at human verification checkpoint (tasks 1+2 committed, awaiting browser verify)
+Resume file: .planning/.continue-here.md
