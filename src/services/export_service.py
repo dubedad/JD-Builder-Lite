@@ -156,17 +156,37 @@ def build_compliance_sections(request: ExportRequest) -> List[ComplianceSection]
     sections = []
 
     # Section 6.2.3: Data Sources
+    section_sources = getattr(request.source_metadata, 'section_sources', None)
+    access_method = (
+        "Direct retrieval from OASIS and JobForge 2.0 gold parquet"
+        if section_sources
+        else "Direct retrieval from OASIS (Occupational and Skills Information System)"
+    )
+    source_content: dict = {
+        "data_steward": "Employment and Social Development Canada (ESDC)",
+        "authoritative_source": "National Occupational Classification (NOC)",
+        "access_method": access_method,
+        "source_url": request.source_metadata.profile_url,
+        "retrieval_timestamp": request.source_metadata.scraped_at.isoformat(),
+        "noc_version": request.source_metadata.version,
+    }
+    # Per-section provenance for TBS Directive 32592 compliance (PROF-03)
+    if section_sources:
+        source_content["section_sources"] = {
+            key: {
+                "source": src,
+                "detail": (
+                    f"JobForge 2.0 gold parquet (oasis_{key}.parquet)"
+                    if src == "jobforge"
+                    else f"OASIS live scraping ({request.source_metadata.profile_url})"
+                ),
+            }
+            for key, src in section_sources.items()
+        }
     sections.append(ComplianceSection(
         section_id="6.2.3",
         title="Data Sources (Directive 6.2.3)",
-        content={
-            "data_steward": "Employment and Social Development Canada (ESDC)",
-            "authoritative_source": "National Occupational Classification (NOC)",
-            "access_method": "Direct retrieval from OASIS (Occupational and Skills Information System)",
-            "source_url": request.source_metadata.profile_url,
-            "retrieval_timestamp": request.source_metadata.scraped_at.isoformat(),
-            "noc_version": request.source_metadata.version
-        }
+        content=source_content,
     ))
 
     # Section 6.2.7: Manager Decisions with full provenance

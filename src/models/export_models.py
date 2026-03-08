@@ -153,6 +153,11 @@ class SourceMetadataExport(BaseModel):
     profile_url: str
     scraped_at: datetime
     version: str  # NOC version (e.g., "2025.0")
+    # Per-section data source tracking for TBS Directive 32592 compliance (Phase 22)
+    # Format: {"skills": "jobforge", "key_activities": "oasis", ...}
+    # "jobforge" = sourced from JobForge 2.0 gold parquet
+    # "oasis" = sourced from OASIS live scraping
+    section_sources: Optional[Dict[str, str]] = None
 
     model_config = ConfigDict(from_attributes=True)
 

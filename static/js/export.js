@@ -108,7 +108,14 @@ const exportModule = {
         noc_code: profile.metadata.noc_code,
         profile_url: profile.metadata.profile_url,
         scraped_at: scrapedAt,
-        version: profile.metadata.version
+        version: profile.metadata.version,
+        // Per-section provenance for TBS Directive 32592 compliance (Phase 22)
+        section_sources: {
+          key_activities: profile.key_activities?.data_source || 'oasis',
+          skills: profile.skills?.data_source || 'oasis',
+          effort: profile.effort?.data_source || 'oasis',
+          responsibility: profile.responsibility?.data_source || 'oasis',
+        }
       }
     };
 
