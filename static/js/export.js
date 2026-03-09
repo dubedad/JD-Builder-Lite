@@ -115,6 +115,7 @@ const exportModule = {
           skills: profile.skills?.data_source || 'oasis',
           effort: profile.effort?.data_source || 'oasis',
           responsibility: profile.responsibility?.data_source || 'oasis',
+          working_conditions: profile.working_conditions?.data_source || 'oasis',
         }
       }
     };
