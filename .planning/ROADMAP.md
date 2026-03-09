@@ -17,7 +17,7 @@
 - [x] **Phase 21: Data Exploration** - Inventory JobForge parquet files, map schema and row counts, produce gap analysis against OASIS, and establish the CoverageStatus type used by all subsequent phases (completed 2026-03-07)
 - [x] **Phase 22: Profile Service** - Serve profile tab content (Skills, Abilities, Knowledge, Work Activities, Work Context) from parquet with automatic OASIS fallback and full provenance distinction in exports (completed 2026-03-08)
 - [x] **Phase 23: Search Service** - Serve search results from parquet with tiered relevance scoring, sub-second response, and automatic OASIS fallback when parquet is unavailable (completed 2026-03-09)
-- [ ] **Phase 24: Compliance Hardening** - Close three tech debt items from v5.0 audit: add working_conditions provenance to frontend export (fully satisfies PROF-03), add route-level OASIS-down fallback to /api/profile, and create Phase 22 VERIFICATION.md
+- [x] **Phase 24: Compliance Hardening** - Close three tech debt items from v5.0 audit: add working_conditions provenance to frontend export (fully satisfies PROF-03), add route-level OASIS-down fallback to /api/profile, and create Phase 22 VERIFICATION.md (completed 2026-03-09)
 
 ## Phase Details
 
@@ -78,7 +78,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 24-01-PLAN.md -- Frontend provenance fix + profile route OASIS-down fallback + Phase 22 verification
+- [x] 24-01-PLAN.md -- Frontend provenance fix + profile route OASIS-down fallback + Phase 22 verification
 
 ## Previous: v4.1 Polish
 
@@ -144,10 +144,10 @@ Plans:
 | 21. Data Exploration | v5.0 | 3/3 | Complete | 2026-03-07 |
 | 22. Profile Service | v5.0 | 2/2 | Complete | 2026-03-08 |
 | 23. Search Service | v5.0 | 2/2 | Complete | 2026-03-09 |
-| 24. Compliance Hardening | v5.0 | 0/1 | Pending | - |
+| 24. Compliance Hardening | v5.0 | 1/1 | Complete | 2026-03-09 |
 | 18. Profile Page Overhaul | v4.1 | 2/2 | Complete | 2026-02-07 |
 | 19. Flow and Export Polish | v4.1 | 3/3 | Complete | 2026-02-07 |
 | 20. Evidence & Provenance Display | v4.1 | 0/2 | Deferred | - |
 
 ---
-*Roadmap updated: 2026-03-09 -- Phase 24 added (compliance hardening from v5.0 audit tech debt TD-1/TD-2/TD-3)*
+*Roadmap updated: 2026-03-09 -- Phase 24 complete (compliance hardening TD-1/TD-2/TD-3 closed; v5.0 milestone complete)*
