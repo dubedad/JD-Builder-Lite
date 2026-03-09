@@ -242,25 +242,32 @@ def profile():
         )
         return jsonify(error.model_dump()), 400
 
+    # Block 1: OASIS fetch (falls back to stub on any failure)
     try:
-        # Fetch, parse, and map profile data
         html = scraper.fetch_profile(code)
         noc_data = parser.parse_profile(html, code)
-        jd_data = mapper.to_jd_elements(noc_data)
-
-        # Create response
-        response = ProfileResponse(**jd_data)
-
-        return jsonify(response.model_dump())
-
-    except requests.RequestException as e:
-        current_app.logger.error(f"Profile request failed for code {code}: {e}")
-        error = ErrorResponse(
-            error="Profile fetch failed",
-            detail=str(e)
+    except Exception as e:
+        current_app.logger.warning(
+            f"OASIS fetch failed for {code}, falling back to parquet-only: {e}"
         )
-        return jsonify(error.model_dump()), 502
+        noc_data = {
+            'noc_code': code,
+            'title': f'NOC {code}',
+            'main_duties': [],
+            'work_activities': [],
+            'skills': [],
+            'abilities': [],
+            'knowledge': [],
+            'work_context': [],
+            'noc_hierarchy': None,
+            'reference_attributes': None,
+        }
 
+    # Block 2: Mapper + response (parquet tabs served regardless of OASIS outcome)
+    try:
+        jd_data = mapper.to_jd_elements(noc_data)
+        response = ProfileResponse(**jd_data)
+        return jsonify(response.model_dump())
     except Exception as e:
         current_app.logger.error(f"Profile internal error for code {code}: {e}")
         error = ErrorResponse(
