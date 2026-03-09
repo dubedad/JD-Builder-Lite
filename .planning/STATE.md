@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-03-06)
 
 **Core value:** Compliance-focused job description builder demonstrating TBS Directive 32592 compliance with full provenance tracking.
-**Current focus:** v5.0 JobForge 2.0 Integration -- Phase 23 complete; all phases done
+**Current focus:** v5.0 Compliance Hardening -- Phase 24 complete; all tech debt closed
 
 ## Current Position
 
-Milestone: v5.0 JobForge 2.0 Integration
-Phase: 23 complete (2/2 plans done) — milestone complete
-Plan: 23-02 complete
-Status: Milestone complete
-Last activity: 2026-03-09 -- Completed 23-02 (parquet-first search route + OASIS URL fix)
+Milestone: v5.0 Compliance Hardening
+Phase: 24 complete (1/1 plans done)
+Plan: 24-01 complete
+Status: Phase complete
+Last activity: 2026-03-09 -- Completed 24-01 (working_conditions export fix, OASIS-down fallback, Phase 22 VERIFICATION.md)
 
-Progress: [██████████] 100% (9/9 plans complete)
+Progress: [██████████] 100% (10/10 plans complete)
 
 ## Milestone History
 
@@ -50,16 +50,16 @@ Progress: [██████████] 100% (9/9 plans complete)
 | unit_group_id is join key for all element_* parquet files | 23-01 | Confirmed via parquet inspection: element_labels, element_lead_statement, element_example_titles all use unit_group_id |
 | Auto-detect code search by pattern match | 23-01 | Queries matching ^\d{5}$ treated as code search regardless of search_type parameter |
 | OASIS profile URL changed to /OASIS/OASISOccProfile with .00 suffix | 23-02 | Pre-existing breakage: old /OaSIS/OaSISSOccProfile returned 404; fix applied in scraper.py, mapper.py, selectors.py, search_parquet_reader.py |
+| Two-block try/except in /api/profile for OASIS-down resilience | 24-01 | Block 1: OASIS fetch+parse (fallback to stub on any exception); Block 2: mapper+response (always runs); 502 eliminated |
+| working_conditions key added to export.js section_sources | 24-01 | Fully satisfies PROF-03 -- all 5 JD element sections now record provenance in exported compliance appendix |
 
 ### Blockers/Concerns
 
 - TF-IDF semantic matching fallback active (sentence-transformers incompatible with Python 3.14) -- accuracy impact documented in .planning/accuracy-notes/tfidf-fallback-2025-03-05.md
-- oasis_skills.parquet column is unit_group_id (not oasis_profile_code) -- Phase 22 must use correct column name per parquet file
-- element_main_duties.parquet ETL gap: 8 rows / 3 profiles only (source has 900 profiles) -- Phase 22 must use unconditional OASIS fallback for Main Duties; see .planning/phases/21-data-exploration/GAP-ANALYSIS.md
-- 5 oasis_* parquet files have whitespace-contaminated column names (14+6+3+3+1 columns) -- Phase 22/23 must call df.columns.str.strip() after reading these files (parquet_reader.py handles this automatically)
+- element_main_duties.parquet ETL gap: 8 rows / 3 profiles only (source has 900 profiles) -- OASIS fallback unconditional for Main Duties; see .planning/phases/21-data-exploration/GAP-ANALYSIS.md
 
 ## Session Continuity
 
 Last session: 2026-03-09
-Stopped at: Completed 23-02-PLAN.md (parquet-first search route wired + OASIS URL fix applied)
+Stopped at: Completed 24-01-PLAN.md (working_conditions export fix, OASIS-down fallback, Phase 22 VERIFICATION.md)
 Resume file: None
