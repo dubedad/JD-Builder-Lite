@@ -16,7 +16,7 @@
 
 - [x] **Phase 21: Data Exploration** - Inventory JobForge parquet files, map schema and row counts, produce gap analysis against OASIS, and establish the CoverageStatus type used by all subsequent phases (completed 2026-03-07)
 - [x] **Phase 22: Profile Service** - Serve profile tab content (Skills, Abilities, Knowledge, Work Activities, Work Context) from parquet with automatic OASIS fallback and full provenance distinction in exports (completed 2026-03-08)
-- [ ] **Phase 23: Search Service** - Serve search results from parquet with tiered relevance scoring, sub-second response, and automatic OASIS fallback when parquet is unavailable
+- [x] **Phase 23: Search Service** - Serve search results from parquet with tiered relevance scoring, sub-second response, and automatic OASIS fallback when parquet is unavailable (completed 2026-03-09)
 
 ## Phase Details
 
@@ -62,8 +62,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 23-01-PLAN.md -- Parquet search reader and tiered scorer (build search index from parquet, implement four-tier scoring, wire query path to parquet)
-- [ ] 23-02-PLAN.md -- OASIS fallback and integration (detect parquet unavailability or empty results, fall back to OASIS scraper, integrate new search path into existing search endpoint)
+- [x] 23-01-PLAN.md -- Parquet search reader and tiered scorer (build search index from parquet, implement four-tier scoring, wire query path to parquet)
+- [x] 23-02-PLAN.md -- OASIS fallback and integration (detect parquet unavailability or empty results, fall back to OASIS scraper, integrate new search path into existing search endpoint)
 
 ## Previous: v4.1 Polish
 
@@ -128,10 +128,10 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 21. Data Exploration | v5.0 | 3/3 | Complete | 2026-03-07 |
 | 22. Profile Service | v5.0 | 2/2 | Complete | 2026-03-08 |
-| 23. Search Service | v5.0 | 0/2 | Not started | - |
+| 23. Search Service | v5.0 | 2/2 | Complete | 2026-03-09 |
 | 18. Profile Page Overhaul | v4.1 | 2/2 | Complete | 2026-02-07 |
 | 19. Flow and Export Polish | v4.1 | 3/3 | Complete | 2026-02-07 |
 | 20. Evidence & Provenance Display | v4.1 | 0/2 | Deferred | - |
 
 ---
-*Roadmap updated: 2026-03-08 -- Phase 22 complete (2/2 plans, badges verified by user)*
+*Roadmap updated: 2026-03-09 -- Phase 23 complete (2/2 plans, search verified fast by user); v5.0 milestone complete*

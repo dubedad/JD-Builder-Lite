@@ -16,16 +16,16 @@ Requirements for JobForge 2.0 integration. Each maps to roadmap phases.
 
 ### Profile Service
 
-- [ ] **PROF-01**: Profile page Skills, Abilities, Knowledge, Work Activities, and Work Context tabs are served from JobForge gold parquet (not live OASIS scraping)
-- [ ] **PROF-02**: Profile page automatically falls back to OASIS scraping for sections not covered by parquet (Main Duties / Key Activities, Interests, Personal Attributes, Core Competencies)
-- [ ] **PROF-03**: Exported JD records in provenance metadata whether each section came from parquet (JobForge version + file path) or OASIS (URL + scrape timestamp) — TBS Directive compliance requires this distinction
-- [ ] **PROF-04**: All parquet column names are stripped of leading/trailing whitespace before use as display labels (known contamination in gold parquet confirmed in research)
+- [x] **PROF-01**: Profile page Skills, Abilities, Knowledge, Work Activities, and Work Context tabs are served from JobForge gold parquet (not live OASIS scraping)
+- [x] **PROF-02**: Profile page automatically falls back to OASIS scraping for sections not covered by parquet (Main Duties / Key Activities, Interests, Personal Attributes, Core Competencies)
+- [x] **PROF-03**: Exported JD records in provenance metadata whether each section came from parquet (JobForge version + file path) or OASIS (URL + scrape timestamp) — TBS Directive compliance requires this distinction
+- [x] **PROF-04**: All parquet column names are stripped of leading/trailing whitespace before use as display labels (known contamination in gold parquet confirmed in research)
 
 ### Search Service
 
-- [ ] **SRCH-01**: Search results are returned from local JobForge parquet files (not live OASIS scraping) — sub-100ms response vs current 60s timeout ceiling
-- [ ] **SRCH-02**: Search uses tiered relevance scoring against parquet: Labels match (95–100), occupation title match (90), example titles match (80), lead statement match (50)
-- [ ] **SRCH-03**: Search automatically falls back to live OASIS scraping if the parquet search service is unavailable or returns no results for a query
+- [x] **SRCH-01**: Search results are returned from local JobForge parquet files (not live OASIS scraping) — sub-100ms response vs current 60s timeout ceiling
+- [x] **SRCH-02**: Search uses tiered relevance scoring against parquet: Labels match (95–100), occupation title match (90), example titles match (80), lead statement match (50)
+- [x] **SRCH-03**: Search automatically falls back to live OASIS scraping if the parquet search service is unavailable or returns no results for a query
 
 ## Future Requirements
 
@@ -68,13 +68,13 @@ Phase mapping confirmed during roadmap creation 2026-03-06.
 | DATA-02 | Phase 21 | Complete |
 | DATA-03 | Phase 21 | Complete |
 | DATA-04 | Phase 21 | Complete |
-| PROF-01 | Phase 22 | Pending |
-| PROF-02 | Phase 22 | Pending |
-| PROF-03 | Phase 22 | Pending |
-| PROF-04 | Phase 22 | Pending |
-| SRCH-01 | Phase 23 | Pending |
-| SRCH-02 | Phase 23 | Pending |
-| SRCH-03 | Phase 23 | Pending |
+| PROF-01 | Phase 22 | Complete |
+| PROF-02 | Phase 22 | Complete |
+| PROF-03 | Phase 22 | Complete |
+| PROF-04 | Phase 22 | Complete |
+| SRCH-01 | Phase 23 | Complete |
+| SRCH-02 | Phase 23 | Complete |
+| SRCH-03 | Phase 23 | Complete |
 
 **Coverage:**
 - v5.0 requirements: 11 total
