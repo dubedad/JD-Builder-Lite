@@ -73,7 +73,8 @@ class JDMapper:
             Dict matching ProfileResponse structure with enriched JD elements
         """
         noc_code = noc_data['noc_code']
-        base_url = f"{OASIS_BASE_URL}/OaSIS/OaSISOccProfile?code={noc_code}&version={OASIS_VERSION}"
+        code_with_suffix = noc_code if "." in noc_code else f"{noc_code}.00"
+        base_url = f"{OASIS_BASE_URL}/OASIS/OASISOccProfile?code={code_with_suffix}&version={OASIS_VERSION}"
 
         # Fetch parquet data for all 5 tabs upfront (single batch of file reads).
         # Returns dict: tab_key -> (ratings_list, data_source_str)

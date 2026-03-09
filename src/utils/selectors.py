@@ -11,7 +11,7 @@ SELECTORS = {
         "fallback": "table[aria-label*='Search results'] tbody tr",
     },
     "result_link": {
-        "primary": "a[href*='OaSISOccProfile']",
+        "primary": "a[href*='OASISOccProfile']",
         "fallback": "a[href*='OccProfile']",
     },
     "profile_title": {

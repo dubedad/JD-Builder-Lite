@@ -64,7 +64,10 @@ class OASISScraper:
         if version is None:
             version = OASIS_VERSION
 
-        url = f"{OASIS_BASE_URL}/OaSIS/OaSISOccProfile"
+        url = f"{OASIS_BASE_URL}/OASIS/OASISOccProfile"
+        # OASIS now requires the .00 suffix (e.g., "21231.00" not "21231")
+        if "." not in code:
+            code = f"{code}.00"
         params = {
             "code": code,
             "version": version

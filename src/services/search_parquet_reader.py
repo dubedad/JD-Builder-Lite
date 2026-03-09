@@ -152,7 +152,7 @@ class SearchParquetReader:
         noc_code = str(row["unit_group_id"])
         title = str(row["Label"])
         url = (
-            f"{OASIS_BASE_URL}/OaSIS/OaSISProfile"
+            f"{OASIS_BASE_URL}/OASIS/OASISOccProfile"
             f"?code={noc_code}.00&version={OASIS_VERSION}"
         )
         lead_statement = lead_map.get(noc_code)
