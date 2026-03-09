@@ -17,6 +17,7 @@
 - [x] **Phase 21: Data Exploration** - Inventory JobForge parquet files, map schema and row counts, produce gap analysis against OASIS, and establish the CoverageStatus type used by all subsequent phases (completed 2026-03-07)
 - [x] **Phase 22: Profile Service** - Serve profile tab content (Skills, Abilities, Knowledge, Work Activities, Work Context) from parquet with automatic OASIS fallback and full provenance distinction in exports (completed 2026-03-08)
 - [x] **Phase 23: Search Service** - Serve search results from parquet with tiered relevance scoring, sub-second response, and automatic OASIS fallback when parquet is unavailable (completed 2026-03-09)
+- [ ] **Phase 24: Compliance Hardening** - Close three tech debt items from v5.0 audit: add working_conditions provenance to frontend export (fully satisfies PROF-03), add route-level OASIS-down fallback to /api/profile, and create Phase 22 VERIFICATION.md
 
 ## Phase Details
 
@@ -64,6 +65,20 @@ Plans:
 Plans:
 - [x] 23-01-PLAN.md -- Parquet search reader and tiered scorer (build search index from parquet, implement four-tier scoring, wire query path to parquet)
 - [x] 23-02-PLAN.md -- OASIS fallback and integration (detect parquet unavailability or empty results, fall back to OASIS scraper, integrate new search path into existing search endpoint)
+
+### Phase 24: Compliance Hardening
+**Goal**: Close the three tech debt items identified in the v5.0 audit: fully satisfy PROF-03 by adding working_conditions to frontend provenance tracking, add route-level resilience so profile parquet tabs survive OASIS outages, and formally verify Phase 22 via gsd-verifier
+**Depends on**: Phase 22, Phase 23 (audit prerequisite; both complete)
+**Requirements**: PROF-03 (full satisfaction — currently partial)
+**Gap Closure**: Closes TD-1, TD-2, TD-3 from v5.0-MILESTONE-AUDIT.md
+**Success Criteria** (what must be TRUE):
+  1. `working_conditions` key is present in `export.js` section_sources dict — exported JD compliance appendix records provenance for Working Conditions statements
+  2. `/api/profile` route serves Skills, Abilities, Knowledge, Work Activities, and Work Context from parquet even when `scraper.fetch_profile()` raises an exception or times out — OASIS-down no longer causes total profile failure
+  3. Phase 22 VERIFICATION.md exists with a formal pass/fail assessment against Phase 22 success criteria
+**Plans**: 1 plan
+
+Plans:
+- [ ] 24-01-PLAN.md -- Frontend provenance fix + profile route OASIS-down fallback + Phase 22 verification
 
 ## Previous: v4.1 Polish
 
@@ -129,9 +144,10 @@ Plans:
 | 21. Data Exploration | v5.0 | 3/3 | Complete | 2026-03-07 |
 | 22. Profile Service | v5.0 | 2/2 | Complete | 2026-03-08 |
 | 23. Search Service | v5.0 | 2/2 | Complete | 2026-03-09 |
+| 24. Compliance Hardening | v5.0 | 0/1 | Pending | - |
 | 18. Profile Page Overhaul | v4.1 | 2/2 | Complete | 2026-02-07 |
 | 19. Flow and Export Polish | v4.1 | 3/3 | Complete | 2026-02-07 |
 | 20. Evidence & Provenance Display | v4.1 | 0/2 | Deferred | - |
 
 ---
-*Roadmap updated: 2026-03-09 -- Phase 23 complete (2/2 plans, search verified fast by user); v5.0 milestone complete*
+*Roadmap updated: 2026-03-09 -- Phase 24 added (compliance hardening from v5.0 audit tech debt TD-1/TD-2/TD-3)*
