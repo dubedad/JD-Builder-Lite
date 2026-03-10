@@ -160,7 +160,7 @@ class LabelsLoader:
 
         try:
             self._labels_df = pd.read_parquet(self.LABELS_FILE)
-            print(f"[LabelsLoader] Loaded {len(self._labels_df)} labels from parquet")
+            logger.info("LabelsLoader: loaded %d labels from parquet", len(self._labels_df))
             return True
         except Exception as e:
             logger.warning("Failed to load labels from %s: %s", self.LABELS_FILE, e)
@@ -184,7 +184,7 @@ class LabelsLoader:
 
         try:
             self._titles_df = pd.read_parquet(self.EXAMPLE_TITLES_FILE)
-            print(f"[LabelsLoader] Loaded {len(self._titles_df)} example titles from parquet")
+            logger.info("LabelsLoader: loaded %d example titles from parquet", len(self._titles_df))
             return True
         except Exception as e:
             logger.warning("Failed to load example titles from %s: %s", self.EXAMPLE_TITLES_FILE, e)
@@ -218,7 +218,7 @@ class LabelsLoader:
             self._labels_cache[oasis_profile_code] = matching
             return matching
         except Exception as e:
-            print(f"[LabelsLoader] Error querying labels: {e}")
+            logger.warning("LabelsLoader: error querying labels: %s", e)
             return []
 
     def get_example_titles(self, oasis_profile_code: str) -> List[str]:
@@ -248,7 +248,7 @@ class LabelsLoader:
             self._titles_cache[oasis_profile_code] = matching
             return matching
         except Exception as e:
-            print(f"[LabelsLoader] Error querying example titles: {e}")
+            logger.warning("LabelsLoader: error querying example titles: %s", e)
             return []
 
     def _load_exclusions(self) -> bool:
