@@ -128,7 +128,7 @@ class JDMapper:
             'skills': self._map_skills_enriched(noc_data, base_url, parquet_tabs),
             'effort': self._map_effort_enriched(noc_code, base_url, parquet_tabs),
             'responsibility': self._map_responsibility_enriched(noc_code, base_url, parquet_tabs),
-            'working_conditions': self._map_working_conditions_enriched(noc_data, base_url),
+            'working_conditions': self._map_working_conditions_enriched(noc_data, base_url, parquet_tabs),
 
             # Classified Work Context (alternative access)
             'work_context': WorkContextData(
@@ -326,8 +326,12 @@ class JDMapper:
             data_source=data_source,
         )
 
-    def _map_working_conditions_enriched(self, data: Dict[str, Any], url: str) -> EnrichedJDElementData:
+    def _map_working_conditions_enriched(self, data: Dict[str, Any], url: str, parquet_tabs: Optional[dict] = None) -> EnrichedJDElementData:
         """Map all Work Context items to Working Conditions."""
+        # data_source: "jobforge" if work_context parquet lookup succeeded, else "oasis"
+        _, wc_source = (parquet_tabs or {}).get("work_context", ([], "oasis"))
+        data_source = wc_source
+
         # Get all work context items enriched
         all_items = enrichment_service.enrich_work_context(
             data.get('work_context', []),
@@ -344,7 +348,8 @@ class JDMapper:
         return EnrichedJDElementData(
             statements=statements,
             category_definition=guide_csv.get_category_definition('working_conditions'),
-            source_attribute="Work Context"
+            source_attribute="Work Context",
+            data_source=data_source,
         )
 
     def _build_other_job_info(self, noc_code: str) -> OtherJobInfo:
