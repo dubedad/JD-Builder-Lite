@@ -1,5 +1,33 @@
 # Project Milestones: JD Builder Lite
 
+## v5.0 JobForge 2.0 Integration (Shipped: 2026-03-10)
+
+**Delivered:** Replaced live OASIS scraping with JobForge 2.0 gold parquet as the primary data source for search and profile data, delivering sub-second search (155-234ms vs 5-60s OASIS) and parquet-served profile tabs for all 900 profiles, with full TBS Directive compliance and transparent OASIS fallback.
+
+**Phases completed:** 21-25 (10 plans total)
+
+**Key accomplishments:**
+
+- Inventoried all 25 JobForge gold parquet files and produced explicit gap analysis (5 gaps, 13 covered fields); established CoverageStatus type with mandatory warning logging across all data load paths
+- Profile tabs (Skills, Abilities, Knowledge, Work Activities, Work Context) now served from parquet for all 900 profiles with source provenance badges (green "JobForge" / grey "OASIS")
+- Sub-second parquet search (155-234ms cold, 75-124ms warm) with five-tier relevance scoring — replacing 5-60s OASIS path; transparent fallback on zero results
+- Fixed pre-existing OASIS profile URL breakage discovered during Phase 23; OASIS-down fallback in /api/profile ensures parquet tabs served even when OASIS unreachable
+- Per-section provenance in exported JD: all 5 JD element sections record source ("jobforge" vs "oasis") in TBS Directive 6.2.3 compliance appendix
+- Logging and exception handling cleanup: print() → logger.info(), bare except → typed exceptions, scoring symmetry between OASIS and parquet search paths
+
+**Stats:**
+
+- 47 files changed, 6,007 insertions, 271 deletions
+- ~35,196 lines of Python + HTML/CSS/JS (total codebase)
+- 5 phases, 10 plans
+- 4 days (2026-03-07 → 2026-03-10)
+
+**Git range:** `feat(21-01)` → `docs(25)`
+
+**What's next:** v5.1 for Main Duties ETL integration and P2 search features unlocked by parquet
+
+---
+
 ## v4.0 Occupational Group Allocation (Shipped: 2026-02-04)
 
 **Delivered:** Classification Step 1 — matching engine that compares job descriptions against TBS occupational group definitions using the prescribed allocation method with full policy provenance, confidence scoring, and evidence linking.

@@ -2,11 +2,11 @@
 
 ## What This Is
 
-A demo web application that helps managers create job descriptions by selecting content from Canada's official National Occupational Classification (NOC) database via the OASIS site. The tool demonstrates compliance with the Directive on Automated Decision-Making by providing full provenance, traceability, and audit trails for all content in the generated job description. Features an OaSIS-mirrored interface with Keyword/Code search toggle, result cards with 6 data points, LLM-powered profile headers with occupation icons, tabbed Job Header navigation, and accessible statement selection with tooltips. Exports to PDF/DOCX with full compliance metadata and Annex sections.
+A demo web application that helps managers create job descriptions by selecting content from Canada's official National Occupational Classification (NOC) database. Content is served from JobForge 2.0 gold parquet files (sub-second search, 900 profiles) with automatic OASIS fallback for data not yet covered by parquet. The tool demonstrates compliance with the Directive on Automated Decision-Making with full provenance, traceability, and audit trails — including per-section source distinction between JobForge parquet and live OASIS scraping. Features an OaSIS-mirrored interface with Keyword/Code search toggle, result cards with 6 data points, LLM-powered profile headers with occupation icons, tabbed Job Header navigation, and accessible statement selection with tooltips. Exports to PDF/DOCX with full compliance metadata, Annex sections, and per-section provenance badges.
 
 ## Core Value
 
-Every piece of content in the final job description can be traced back to its authoritative source (NOC/OASIS), with clear documentation of human decisions and AI involvement - demonstrating compliant, transparent, accountable job description creation.
+Every piece of content in the final job description can be traced back to its authoritative source (JobForge parquet or OASIS), with clear documentation of human decisions and AI involvement — demonstrating compliant, transparent, accountable job description creation.
 
 ## Requirements
 
@@ -60,12 +60,18 @@ Every piece of content in the final job description can be traced back to its au
 - ✓ DISP-32: LLM-generated paragraph description above tabs — v2.0
 - ✓ DISP-33: Horizontal Job Header tabs with ARIA navigation — v2.0
 - ✓ DISP-34: Tab content mapping (Key Activities, Skills, Effort, Responsibility, Career) — v2.0
-- ✓ SRCH-13: Search results scored by confidence % (95 exact title, 85 stem title, 60/50 description, 10 alternate job title) with rationale explaining each match, sorted best-first — v2.0
+- ✓ SRCH-13: Search results scored by confidence % with rationale explaining each match, sorted best-first — v2.0
 - ✓ SEL-01: Checkboxes on all statements in all tabs — v2.0
 - ✓ SEL-02: Proficiency circles display (filled/empty) — v2.0
 - ✓ SEL-03: Provenance labels always visible — v2.0
 - ✓ SEL-04: Description tooltip on hover with keyboard accessibility — v2.0
 - ✓ SEL-05: Single Create JD button with selection count — v2.0
+
+**v3.0 Style-Enhanced Writing (SHIPPED 2026-02-03):**
+- ✓ Style Infrastructure: Vocabulary index from JobForge parquet, style analysis pipeline — v3.0
+- ✓ Constrained Generation: Few-shot styling with vocabulary validation and retry — v3.0
+- ✓ Compliance: Extended provenance, differentiated AI disclosure, vocabulary audit — v3.0
+- ✓ Export: Styled PDF/DOCX with dual-format display and compliance metadata — v3.0
 
 **v4.0 Occupational Group Allocation (SHIPPED 2026-02-04):**
 - ✓ DATA-01 through DATA-05: DIM_OCCUPATIONAL table with 426 groups, 900 inclusions, 330 exclusions — v4.0
@@ -76,39 +82,35 @@ Every piece of content in the final job description can be traced back to its au
 - ✓ UI-01 through UI-05: Recommendation cards with confidence bars, expandable details, evidence highlighting — v4.0
 - ✓ EDGE-01 through EDGE-04: AP/TC disambiguation, split duties, invalid combination detection — v4.0
 
-**v3.0 Style-Enhanced Writing (SHIPPED 2026-02-03):**
-- ✓ Style Infrastructure: Vocabulary index from JobForge parquet, style analysis pipeline — v3.0
-- ✓ Constrained Generation: Few-shot styling with vocabulary validation and retry — v3.0
-- ✓ Compliance: Extended provenance, differentiated AI disclosure, vocabulary audit — v3.0
-- ✓ Export: Styled PDF/DOCX with dual-format display and compliance metadata — v3.0
+**v4.1 Polish (SHIPPED 2026-02-07):**
+- ✓ TAB-01 through TAB-06: Split Skills into Skills/Abilities/Knowledge, Core Competencies own tab, consolidate Overview — v4.1
+- ✓ NAV-01 through NAV-03: Classify from preview, Return to Builder from classification, fix Back to Edit — v4.1
+- ✓ UX-01 through UX-04: Coaching tone for Invalid Combination, dimension type labels on circles, filter hierarchy headings — v4.1
+- ✓ EXP-01 through EXP-02: Classification results exportable — v4.1
+- ✓ DOC-01: GitHub README update — v4.1
+- Note: Phase 20 (Evidence & Provenance Display) deferred indefinitely
+
+**v5.0 JobForge 2.0 Integration (SHIPPED 2026-03-10):**
+- ✓ DATA-01: Structured inventory of 25 gold parquet files with schema, row counts, OASIS mapping — v5.0
+- ✓ DATA-02: Explicit gap analysis with 5 named gaps (Main Duties, Interests, Personal Attributes, Core Competencies, Career Mobility) — v5.0
+- ✓ DATA-03: CoverageStatus(str, Enum) with LOAD_ERROR/NOT_FOUND/FOUND — three distinct failure modes — v5.0
+- ✓ DATA-04: logger.warning() on all data load failure paths (24 in labels_loader.py, 3 in vocabulary/index.py) — v5.0
+- ✓ PROF-01: Profile tabs (Skills, Abilities, Knowledge, Work Activities, Work Context) from parquet for all 900 profiles — v5.0
+- ✓ PROF-02: Transparent OASIS fallback for Key Activities, Interests, Core Competencies — v5.0
+- ✓ PROF-03: Per-section provenance in exported JD (all 5 sections in compliance appendix, including working_conditions) — v5.0
+- ✓ PROF-04: Column whitespace stripped at read_parquet_safe time — v5.0
+- ✓ SRCH-01: Sub-second parquet search (155-234ms cold, 75-124ms warm) — v5.0
+- ✓ SRCH-02: Five-tier relevance scoring (100/95/90/80/50) from parquet — v5.0
+- ✓ SRCH-03: Transparent OASIS fallback on parquet unavailability or zero results — v5.0
 
 ### Active
-
-**v4.1 Polish (COMPLETE — Phases 18-19 shipped, Phase 20 deferred indefinitely):**
-- ✓ Tab restructure: Split Skills into Skills/Abilities/Knowledge, Core Competencies own tab, consolidate Overview
-- ✓ Navigation: Classify from preview, Return to Builder from classification, fix Back to Edit
-- ✓ Coaching tone: Invalid Combination as guidance not error
-- ✓ Data display: Dimension type labels on circles, filter hierarchy headings
-- ✓ Export: Classification results exportable
-- ✓ Housekeeping: GitHub README update
-
-**v5.0 JobForge 2.0 Integration (Current Milestone):**
-
-**Goal:** Replace live OASIS scraping with JobForge 2.0 gold parquet as the primary data source for search and profile data, improving data quality, speed, and portability.
-
-**Target features:**
-- Data exploration: Inventory JobForge parquet files and map gaps against OASIS data
-- Search integration: Query JobForge parquet instead of live OASIS scraping
-- Profile integration: Load JD element statements from JobForge gold parquet
-- Enrichment deepening: Leverage richer JobForge data for vocabulary, labels, and style
-- OASIS fallback: Retain OASIS scraping for data not covered by JobForge
 
 **v6.0 Classification Step 2 (Deferred):**
 - Job Evaluation Standards scoring
 - Benchmark position comparison UI
 - Manager consultation workflow
 
-**Deferred:
+**Deferred:**
 - SRCH-06: Grid view shows columns: Broad category, Training/Education, Lead statement
 - SRCH-07: Filter items by Job Family
 - SRCH-08: Filter items by Organizational Unit
@@ -132,30 +134,28 @@ Every piece of content in the final job description can be traced back to its au
 
 ## Context
 
-**Current State (v4.0):**
-- Shipped v4.0 with 12,030 LOC Python + HTML/CSS/JS
-- Tech stack: Flask, BeautifulSoup, OpenAI SDK, WeasyPrint, python-docx, sentence-transformers, instructor, vanilla JS
-- Full TBS Directive compliance (sections 6.2.3, 6.2.7, 6.3.5)
+**Current State (v5.0):**
+- Shipped v5.0 with ~35,196 LOC Python + HTML/CSS/JS
+- Tech stack: Flask, BeautifulSoup, OpenAI SDK, WeasyPrint, python-docx, pandas (parquet), vanilla JS
+- Full TBS Directive compliance (sections 6.2.3, 6.2.7, 6.3.5) with per-section source provenance
+- JobForge 2.0 gold parquet (25 files) as primary data source; OASIS as explicit fallback for 5 gaps
+- Sub-second search (155-234ms cold) from parquet; profile tabs from parquet for all 900 profiles
 - Classification Step 1: Occupational Group Allocation with 426 groups, semantic matching, LLM classification
-- DIM_OCCUPATIONAL SQLite database with provenance tracking
-- POST /api/allocate endpoint with confidence scoring and evidence linking
-- Recommendation cards UI with expandable rationale and evidence highlighting
+- Note: sentence-transformers unavailable (Python 3.14); TF-IDF fallback active for semantic matching
 
 **Regulatory Context:**
 This tool demonstrates compliance with the Treasury Board's Directive on Automated Decision-Making (https://www.tbs-sct.canada.ca/pol/doc-eng.aspx?id=32592). The directive requires transparency, accountability, and human oversight in automated decision systems.
 
 **Data Sources:**
 - OASIS site: https://noc.esdc.gc.ca/OaSIS/OaSISWelcome
-- No public API — requires HTML scraping
-- Open Canada CSV data: https://open.canada.ca/data/en/dataset/eeb3e442-9f19-4d12-8b38-c488fe4f6e5e
-  - guide.csv: Category definitions, OASIS label descriptions, scale meanings
-  - Scale definitions: Proficiency (1-5), Importance (1-5), Complexity (1-5), Frequency (1-5), Duration (1-5), etc.
+- JobForge 2.0 gold parquet: 25 files (local), primary data source since v5.0
+- Open Canada CSV data: guide.csv (Category definitions, OASIS label descriptions, scale meanings)
 
 ## Constraints
 
 - **Tech stack**: Simple — vanilla HTML/CSS/JS frontend, Python/Flask backend
 - **Deployment**: Local only (localhost) — no cloud hosting
-- **Data access**: Live scraping from OASIS (no pre-cached data)
+- **Data access**: JobForge gold parquet (primary) + live OASIS scraping (fallback)
 - **LLM provider**: OpenAI API (requires API key)
 - **Complexity**: Demo-quality, minimal — not production-grade
 - **Single user**: No auth, no multi-tenancy, no persistence
@@ -199,6 +199,14 @@ This tool demonstrates compliance with the Treasury Board's Directive on Automat
 | Inclusions for shortlisting only | Help identify candidates but don't boost confidence scores | ✓ Good |
 | Relevance scoring in API route (not parser) | Parser lacks query context; route has both query and results for scoring | ✓ Good |
 | Word-stem matching for relevance scoring | "Printer" stems to "print" to match "Printing" — exact substring fails across word forms | ✓ Good |
+| JobForge parquet as primary data source | Sub-second search vs 5-60s OASIS path; deterministic, portable, no scraping fragility | ✓ Good |
+| OASIS retained as explicit fallback | Parquet has 5 gaps (Main Duties, Interests, etc.); fallback ensures completeness | ✓ Good |
+| CoverageStatus(str, Enum) three-state type | Three distinct failure modes (LOAD_ERROR/NOT_FOUND/FOUND) must not be collapsed | ✓ Good |
+| Column stripping at read_parquet_safe time | Strip once at read, consistent for all callers — not at lookup time | ✓ Good |
+| Parquet-first with OASIS fallback pattern | Try parquet, fall through transparently on failure — single code path for both sources | ✓ Good |
+| Two-block try/except in /api/profile | OASIS fetch + mapper+response separate — parquet tabs served even when OASIS unreachable | ✓ Good |
+| Per-section provenance in export | All 5 JD sections record source ("jobforge" vs "oasis") in TBS compliance appendix | ✓ Good |
+| Symmetric search scoring (both paths 90) | OASIS and parquet stem-in-title tier score identically — no ranking bias by data source | ✓ Good |
 
 ---
-*Last updated: 2026-03-06 — v5.0 JobForge 2.0 Integration milestone started*
+*Last updated: 2026-03-10 after v5.0 milestone*

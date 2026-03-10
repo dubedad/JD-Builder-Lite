@@ -1,343 +1,233 @@
-# Feature Landscape: Style-Enhanced JD Generation
+# Feature Research: v5.0 JobForge 2.0 Integration
 
-**Domain:** Vocabulary-Constrained Style Transfer for Job Descriptions
-**Researched:** 2026-02-03
-**Scope:** v3.0 Feature — Style learning from example JDs with NOC vocabulary constraint
-
----
-
-## Context
-
-The user's requirement defines a unique challenge:
-
-> "Use example JDs as style references. Continue using authoritative NOC language from JobForge 2.0. For each statement: keep the authoritative NOC sentence, PLUS add a 'styled' sentence that mimics the example JD writing style BUT using NOC words."
-
-This is **vocabulary-constrained style transfer** — a specific variant of text style transfer where:
-1. Style patterns are learned from example documents
-2. Generated content must use ONLY vocabulary from a predefined authoritative source (NOC)
-3. Output is dual-format: original authoritative sentence + styled companion sentence
+**Domain:** Local-parquet-first NOC search and profile experience
+**Researched:** 2026-03-06
+**Milestone:** v5.0 JobForge 2.0 Integration
+**Confidence:** HIGH (based on codebase analysis, JOBFORGE-DATA-REQUIREMENTS.md, UAT-FINDINGS.md)
 
 ---
 
-## Table Stakes
+## Context: What Changes with Local Parquet
 
-Features users expect for style-enhanced JD generation. Missing = feature feels incomplete or broken.
+The current architecture makes **two live HTTP requests per user action**:
 
-### Style Reference Upload
+1. `scraper.search(query)` — hits `noc.esdc.gc.ca/OaSIS/OaSISSearchResult`, returns HTML, parsed by BeautifulSoup
+2. `scraper.fetch_profile(code)` — hits `noc.esdc.gc.ca/OaSIS/OaSISOccProfile`, returns HTML, parsed again
 
-| Feature | Why Expected | Complexity | Dependencies |
-|---------|--------------|------------|--------------|
-| **Upload example JDs** | Users need to provide style references; PDF/DOCX/TXT formats expected | Medium | File parsing libraries |
-| **Multiple reference support** | Single JD may not capture full style; 2-5 examples provide better style signal | Low | Upload UI extension |
-| **Reference persistence** | Users expect uploaded references to persist within session | Low | localStorage or session state |
-| **Reference preview** | Users need to verify correct file was uploaded | Low | Document viewer |
+Both calls have `REQUEST_TIMEOUT = 60` seconds configured. Both go out over the public internet to a government site with no public API, requiring SSL certificate bypassing (`verify=False`). Both return HTML that gets parsed with fragile CSS selectors, with fallback selectors as a safety net.
 
-**Rationale:** Research on few-shot prompting confirms that "examples act as templates, showing LLMs the tone, structure, and style to replicate" ([PromptHub Guide](https://www.prompthub.us/blog/the-few-shot-prompting-guide)). Multiple diverse examples significantly improve style consistency.
+The v5.0 integration replaces these two live calls with reads from local JobForge 2.0 gold parquet files. The parquet files are already partially used: `labels_loader.py` reads 6 gold parquet files and 2 source CSVs at startup. The `vocabulary/index.py` reads 4 bronze parquet files at startup. The `matching/` service uses the DIM_OCCUPATIONAL SQLite database. v5.0 extends this existing pattern to cover search and profile data.
 
-### Style Extraction Display
+### Current Hybrid State (What Already Reads Parquet)
 
-| Feature | Why Expected | Complexity | Dependencies |
-|---------|--------------|------------|--------------|
-| **Style analysis feedback** | Users need confirmation that style was captured | Medium | LLM style analysis |
-| **Extracted style characteristics** | Show what patterns were detected (sentence length, tone, structure) | Medium | Style feature extraction |
-| **Style confidence indicator** | Users should know if uploaded examples provide sufficient style signal | Low | Analysis metrics |
+| Service | Parquet Source | Data Provided |
+|---------|---------------|---------------|
+| `labels_loader.py` | gold: element_labels, element_example_titles, element_exclusions, element_employment_requirements, element_workplaces_employers, oasis_workcontext | Labels, titles, exclusions, employment requirements, workplaces, work context |
+| `vocabulary/index.py` | bronze: oasis_abilities, oasis_skills, oasis_knowledges, oasis_workactivities | Vocabulary terms for style constraint |
+| `matching/` | SQLite: occupational.db | OG allocation (v4.0 classification) |
 
-**Rationale:** Research shows LLMs analyze "sentence length, vocabulary, punctuation, paragraph structure, and even how transitions are handled" ([Latitude Blog](https://latitude-blog.ghost.io/blog/how-examples-improve-llm-style-consistency/)). Making these visible builds user trust.
+### What Still Requires Live OASIS Scraping
 
-### Dual-Format Statement Output
-
-| Feature | Why Expected | Complexity | Dependencies |
-|---------|--------------|------------|--------------|
-| **Original NOC statement displayed** | User requirement: "keep the authoritative NOC sentence" | Low | Existing statement display |
-| **Styled companion sentence** | User requirement: "add a 'styled' sentence" | High | Style transfer generation |
-| **Visual distinction between formats** | Users must clearly see which is authoritative vs styled | Low | CSS styling |
-| **Both versions in export** | Compliance requires authoritative source; usability wants styled version | Low | Export template extension |
-
-**Rationale:** This is the core differentiator of the feature. The dual-format preserves compliance (TBS Directive 6.2.3 requires traceable authoritative sources) while delivering improved readability.
-
-### Vocabulary Constraint Enforcement
-
-| Feature | Why Expected | Complexity | Dependencies |
-|---------|--------------|------------|--------------|
-| **NOC vocabulary extraction** | Build word list from NOC profile for constraint | Medium | NLP tokenization |
-| **Constraint violation detection** | Flag if styled sentence uses non-NOC words | Medium | Vocabulary matching |
-| **Regeneration on violation** | Automatically retry if constraint violated | Low | Retry logic |
-| **Constraint report in export** | Compliance audit: prove all words from NOC | Medium | Provenance tracking |
-
-**Rationale:** OpenAI's API supports `logit_bias` for token probability adjustment, but is limited to 300 tokens ([OpenAI Help Center](https://help.openai.com/en/articles/5247780-using-logit-bias-to-alter-token-probability-with-the-openai-api)). For strict vocabulary constraint, post-generation validation with regeneration is more reliable than attempting token-level constraint.
-
-### Statement-Level Control
-
-| Feature | Why Expected | Complexity | Dependencies |
-|---------|--------------|------------|--------------|
-| **Toggle styled version on/off per statement** | User may want original for some, styled for others | Low | Checkbox per statement |
-| **Edit styled sentence** | User may want to tweak AI output | Low | Inline editing |
-| **Regenerate single statement** | Retry without regenerating entire JD | Low | Single-statement API call |
-| **Accept/reject styled version** | Explicit approval before including in export | Low | State management |
-
-**Rationale:** Fine-grained control matches existing v2.0 patterns (checkbox selection per statement) and supports compliance by ensuring human oversight of AI-generated content.
+| Data | Used For | Search | Profile |
+|------|----------|--------|---------|
+| Search results (NOC codes, titles, lead statements, TEER) | Search result cards | YES | — |
+| Skills, Abilities, Knowledge, Work Activities with scores | Profile tabs | — | YES |
+| Main Duties | Key Activities tab | — | YES |
+| NOC hierarchy (broad category, sub-major, minor group) | Search cards, filters | YES | YES |
+| Personal Attributes | Profile reference | — | YES |
+| Interests (Holland codes) | Profile reference | — | YES |
+| Core Competencies | Profile reference | — | YES |
 
 ---
 
-## Differentiators
+## Feature Landscape
 
-Features that set this implementation apart. Not expected, but valued.
+### Table Stakes (Must Have for This Integration Milestone)
 
-### Advanced Style Learning
+Features required to call v5.0 "done." Missing these means OASIS scraping was not meaningfully replaced.
 
-| Feature | Value Proposition | Complexity | Notes |
-|---------|-------------------|------------|-------|
-| **Style template library** | Pre-loaded organizational style templates (formal GC, plain language, technical) | Medium | Reduces upload friction |
-| **Style comparison view** | Side-by-side: original vs multiple style options | Medium | Helps users choose |
-| **Style persistence across sessions** | Save learned styles for reuse | Medium | Requires storage |
-| **Style mixing** | Combine attributes from multiple references (e.g., tone from A, structure from B) | High | Advanced prompt engineering |
+| Feature | Why Expected | Complexity | Data Dependency | Current OASIS Equivalent |
+|---------|--------------|------------|-----------------|--------------------------|
+| **Search from parquet (dim_noc + element_*)** | Core replacement goal — OASIS search is the primary pain point: slow, fragile, network-dependent | MEDIUM | `dim_noc` (must exist in gold) | `scraper.search()` + `parser.parse_search_results_enhanced()` |
+| **Profile statements from parquet (oasis_skills, oasis_abilities, oasis_knowledges, oasis_workactivities)** | Profile page is the main user surface; all statement tabs must render | MEDIUM | 4 oasis_* parquet files (already in gold) | `scraper.fetch_profile()` + `parser.parse_profile()` enrichment pipeline |
+| **Main Duties / Key Activities from parquet** | First tab users see; must not be empty | LOW | `element_main_duties` (must exist in gold) | Scraped from OASIS HTML main duties section |
+| **Lead statement from parquet** | Used in search cards and profile header | LOW | `element_lead_statement` (must exist in gold) | Scraped from OASIS HTML |
+| **NOC hierarchy from parquet (dim_noc: TEER, broad_category, title)** | Used in search result filters (sub-major, minor group) and profile header | LOW | `dim_noc` with full hierarchy columns | Scraped from OASIS HTML, derived in `api.py` |
+| **Data exploration inventory before replacement** | v5.0 starts with discovery — commit to replacement scope only after confirming what's actually in the parquet files | LOW | Inventory of all gold parquet files | Not applicable — new requirement |
+| **Graceful OASIS fallback for missing data** | Some parquet tables may have gaps; users cannot get blank screens | MEDIUM | Conditional: parquet first, OASIS if absent | Not applicable — current state is OASIS-only |
+| **Provenance metadata updated for parquet source** | TBS Directive requires source attribution; switching from OASIS URL to parquet file path + version | LOW | Parquet schema includes `_source_file`, `_ingested_at`, `_batch_id` columns | `SourceMetadata` model currently uses `profile_url` pointing to noc.esdc.gc.ca |
 
-**Research basis:** ZeroStylus research demonstrates "hierarchical template acquisition from reference texts" enables "selective adaptation using reference subsets without reprocessing entire corpora" ([arXiv](https://arxiv.org/html/2505.07888v1)).
+### Differentiators (Features Parquet Enables That OASIS Scraping Cannot)
 
-### Intelligent Vocabulary Handling
+These features are technically impossible or severely degraded with live scraping. Local parquet is the prerequisite.
 
-| Feature | Value Proposition | Complexity | Notes |
-|---------|-------------------|------------|-------|
-| **Vocabulary expansion suggestions** | If NOC vocabulary too limited, suggest related terms from NOC hierarchy | Medium | Requires NOC ontology |
-| **Synonym mapping within NOC** | Use NOC-authorized synonyms to enable style variation | Medium | NOC thesaurus data |
-| **Vocabulary coverage report** | Show % of style patterns achievable with available vocabulary | Low | Analytics display |
-| **Domain-specific stop word handling** | Preserve domain terms during vocabulary constraint | Low | Configurable stop word list |
+| Feature | Value Proposition | Complexity | Data Dependency | Why OASIS Cannot Do This |
+|---------|-------------------|------------|-----------------|--------------------------|
+| **Full-text search across all NOC attributes** | Current OASIS search only matches on unit group titles. "Data engineer" misses "database analysts" entirely (UAT S1-12). Local parquet enables matching across lead statements, main duties, example titles, labels, workplaces — all attributes simultaneously. | MEDIUM | `element_*` tables, `oasis_*` tables all queryable locally | OASIS search algorithm is black-box; JD Builder has no control; search only hits OASIS's own index |
+| **Instantaneous search response** | HTTP round-trips to noc.esdc.gc.ca take 3-15 seconds observed in practice. Local parquet + pandas filtering is sub-100ms. Users stop waiting and start trusting the tool. | LOW | Any local parquet with NOC data | Every search requires network round-trip to live government site |
+| **Search that matches example titles (NOC level 7)** | "Project manager" should match NOC units where "Project Manager" is an example title under a label, not just a unit group title (UAT S1-03). Parquet has `element_example_titles` queryable as a JOIN. | LOW | `element_example_titles` (already in gold) | OASIS search does not expose hierarchy-level matching to JD Builder |
+| **Match rationale specifying NOC hierarchy level** | UAT S1-03 explicitly requests: "Unit Group match", "Unit Group Label match", "Example Title match" — three specificity tiers. Requires knowing which table the match came from. | LOW | `element_labels`, `element_example_titles` queryable separately | With OASIS, JD Builder receives one HTML page; cannot distinguish where in the NOC hierarchy the match occurred |
+| **Matching search criteria displayed on cards** | UAT S1-04: Show the actual matched content from each NOC attribute on the result card. Parquet JOIN lets JD Builder retrieve matched text snippets per attribute. | MEDIUM | All `element_*` and `oasis_*` tables | OASIS HTML search results do not return attribute-level match data |
+| **Deterministic NOC-to-OG pre-filtering for classification** | UAT S5-04: Classification currently runs semantic matching against all 426 OG groups. Parquet `bridge_noc_og` lets the system instantly narrow to 2-5 candidate OGs via SQL JOIN before any LLM call fires. Eliminates most of the classification latency. | MEDIUM | `bridge_noc_og` (must exist in gold) | Bridge table data does not exist in OASIS HTML |
+| **Offline operation** | App works without internet. This matters for demos in government environments with restricted network access. | LOW | All data in local parquet | Impossible — every search and every profile load requires live noc.esdc.gc.ca availability |
+| **Resilience to OASIS site outages and HTML restructuring** | The OASIS site has changed HTML structure before, silently breaking CSS selectors. Local parquet is immutable until the next JobForge refresh cycle. | LOW | Any local parquet | Every structural change to noc.esdc.gc.ca HTML breaks the parser |
+| **Search across JobForge job_architecture table** | UAT S1-06: Users can search by Job Title, Job Family, Job Function, Managerial Level from the GC-specific job architecture data — not available anywhere in OASIS | MEDIUM | `job_architecture` (must exist in gold) | This data does not exist in OASIS at all |
+| **Consistent score filtering (>20% cutoff)** | Search currently filters out results below 20% relevance (UAT S1-01 fix already shipped). With local search, relevance scoring runs against richer attribute data, reducing false positives without needing the cutoff as a crutch. | LOW | All local parquet for richer scoring | OASIS returns all results; JD Builder applies a post-hoc filter; many low-quality results still surface |
 
-**Research basis:** "Even advanced Large Language Models encounter difficulties when dealing with out-of-vocabulary terms or unique jargon that are characteristic of specialized fields" ([ACM DL](https://dl.acm.org/doi/fullHtml/10.1145/3669754.3669784)). Smart vocabulary handling addresses this.
+### Anti-Features (Deliberately NOT Build in v5.0)
 
-### Generation Quality Features
+Features that seem natural next steps but are out of scope or harmful for this milestone.
 
-| Feature | Value Proposition | Complexity | Notes |
-|---------|-------------------|------------|-------|
-| **Style fidelity score** | Quantify how well output matches reference style | Medium | Style similarity metrics |
-| **Content preservation score** | Verify meaning unchanged from original NOC statement | Medium | Semantic similarity |
-| **Readability metrics** | Show Flesch-Kincaid or similar for styled vs original | Low | Standard metrics |
-| **A/B comparison mode** | Generate multiple style variations for user selection | Medium | Multiple generation calls |
-
-**Research basis:** Text style transfer evaluation uses "tri-axial metrics assessing style consistency, content preservation, and expression quality" ([arXiv](https://arxiv.org/html/2505.07888v1)). Exposing these builds trust.
-
-### Workflow Enhancements
-
-| Feature | Value Proposition | Complexity | Notes |
-|---------|-------------------|------------|-------|
-| **Batch styling** | Apply style to all selected statements at once | Medium | Bulk generation |
-| **Style preview before generation** | Show expected output format before full generation | Low | Sample generation |
-| **Undo/redo for style changes** | Non-destructive editing workflow | Low | State history |
-| **Style export for sharing** | Export learned style profile for organizational reuse | Medium | Style serialization |
-
----
-
-## Anti-Features
-
-Features to explicitly NOT build. Common mistakes in vocabulary-constrained generation systems.
-
-### Anti-Feature: Real-Time Token Constraint
-
-**Why Avoid:** OpenAI's `logit_bias` parameter limits constraint to 300 tokens. NOC vocabulary for a single occupation can exceed 1,000 unique terms. Token-level constraint during generation is technically infeasible with current API limitations.
-
-**What to Do Instead:** Post-generation validation with regeneration. Generate freely, validate vocabulary compliance, regenerate if violated. More reliable and avoids API limitations.
-
-### Anti-Feature: Style Fine-Tuning
-
-**Why Avoid:** Fine-tuning requires substantial training data (hundreds of examples), costs money, and creates model maintenance burden. For 2-5 example documents, fine-tuning is overkill and produces worse results than few-shot prompting.
-
-**What to Do Instead:** Few-shot prompting with reference examples in context. Research confirms "few-shot prompting can be particularly helpful in specialized domains where gathering vast amounts of data can be difficult" ([IBM](https://www.ibm.com/think/topics/few-shot-prompting)).
-
-### Anti-Feature: Creative Word Generation
-
-**Why Avoid:** The user requirement explicitly states "NEVER fabricate content — all words must come from NOC vocabulary." Any creative generation that introduces non-NOC words breaks the provenance chain and compliance requirements.
-
-**What to Do Instead:** Enforce vocabulary constraint rigorously. If styling is impossible with available vocabulary, degrade gracefully to original NOC statement rather than fabricate.
-
-### Anti-Feature: Automated Style Detection Without User Confirmation
-
-**Why Avoid:** Style is subjective. What the system detects as "formal" may not match user's intent. Automated style application without user review leads to unexpected outputs.
-
-**What to Do Instead:** Always show extracted style characteristics and get user confirmation before applying. Provide "style preview" before committing to generation.
-
-### Anti-Feature: Replacing Original NOC Statement
-
-**Why Avoid:** TBS Directive compliance requires traceable authoritative source. Styled sentence is AI-generated derivative, not authoritative source. Replacing original breaks audit trail.
-
-**What to Do Instead:** Dual-format output as specified. Original NOC statement is the compliance anchor; styled sentence is value-add. Both must be present in export with clear labeling.
-
-### Anti-Feature: Unrestricted Style Mixing
-
-**Why Avoid:** Mixing incompatible styles (e.g., casual social media + formal legal) produces incoherent output. Users may upload inappropriate examples without understanding impact.
-
-**What to Do Instead:** Style compatibility checking. Warn if uploaded references have conflicting characteristics. Recommend organizational template library for consistent results.
-
-### Anti-Feature: Sentence-Level Hallucination Tolerance
-
-**Why Avoid:** Even one hallucinated term in a job description can have legal/compliance implications. Zero tolerance for vocabulary violations is appropriate for this domain.
-
-**What to Do Instead:** Strict validation with graceful degradation. If styled sentence cannot be generated within vocabulary constraint after N attempts, fall back to original NOC statement with explanation.
+| Anti-Feature | Why Requested | Why to Avoid in v5.0 | What to Do Instead |
+|--------------|---------------|---------------------|-------------------|
+| **Remove OASIS scraping entirely** | "We have local data, delete the old code" | Some data still has gaps in gold parquet (Interests, Personal Attributes as CSVs, Core Competencies unresolved). Removing fallback before data exploration confirms 100% coverage would break the profile page for affected fields. | Keep OASIS scraper as fallback. Mark it clearly as legacy. Remove per-field as gold coverage is confirmed during data exploration phase. |
+| **Re-implement the full OASIS search algorithm** | Tempting to replicate exactly what OASIS does for backward compatibility | OASIS's algorithm is unknown and its quality is the problem. The point of local search is to do better, not to replicate the same limitations. Attempting parity wastes effort. | Build a better local search: full-text across all attributes, NOC hierarchy-aware scoring, sorted by relevance tiers (100/95/85/60/50). |
+| **Build a full-text search engine (Elasticsearch, etc.)** | "We have all this data, let's index it properly" | Scope explosion. This is a local Flask demo. pandas DataFrame filtering with index operations is fast enough for NOC's ~500 unit groups. Adding an external search engine adds a runtime dependency and deployment complexity. | Use pandas + simple string matching + optional TF-IDF scoring. The vocabulary index already demonstrates this pattern at startup. |
+| **Real-time JobForge data sync** | "Keep parquet files always current" | JD Builder is a local demo, not a production ETL system. JobForge has its own medallion pipeline. Coupling JD Builder to live ETL processes adds fragility without user-visible benefit. | Set parquet files as static at startup. Document the JobForge version in provenance metadata. Refresh on next JobForge data drop, not continuously. |
+| **Multi-source search (NOC + CAF + O*NET simultaneously)** | UAT S1-08 requests CAF taxonomy as an additional search source | This is a v6.0 SEED item (S1-08). Adding multi-taxonomy search in v5.0 before local NOC search is working creates two unsolved problems simultaneously. | v5.0 = NOC search from parquet working reliably. CAF and O*NET in a future milestone once the parquet pattern is proven. |
+| **Streaming search results** | "Show results as they load" | With local parquet, results load in <100ms. Streaming is engineering complexity for a non-problem. | Return all results in a single JSON response. |
 
 ---
 
 ## Feature Dependencies
 
 ```
-Style Reference Upload
+[Data Exploration Phase]
   |
-  v
-Style Extraction & Analysis
+  +--inventories--> confirms which gold parquet tables exist and have data
   |
-  +---> Style Template Library (optional)
+  +--unblocks--> [Search from Parquet]
+  |                |
+  |                +--requires--> dim_noc, element_lead_statement, element_labels
+  |                |              element_example_titles, element_main_duties
+  |                |
+  |                +--enables--> Full-text search across all attributes
+  |                +--enables--> Match rationale with NOC hierarchy level
+  |                +--enables--> Matching criteria displayed on cards
   |
-  v
-NOC Vocabulary Extraction (from existing profile scrape)
+  +--unblocks--> [Profile from Parquet]
+  |                |
+  |                +--requires--> oasis_skills, oasis_abilities, oasis_knowledges,
+  |                |              oasis_workactivities, oasis_workcontext
+  |                |              (all already in gold per JOBFORGE-DATA-REQUIREMENTS.md)
+  |                |
+  |                +--enables--> Sub-100ms profile load
+  |                +--enables--> Offline operation
   |
-  v
-Styled Sentence Generation
+  +--unblocks--> [OASIS Fallback Scope Decision]
+                   |
+                   +--determines--> Which fields still need OASIS as fallback
+                   +--determines--> Timeline for removing scraper calls field-by-field
+
+[Provenance Metadata Update]
   |
-  +---> Post-Generation Vocabulary Validation
-  |       |
-  |       v
-  |     Regeneration Loop (if constraint violated)
+  +--requires--> parquet schema column inventory (_source_file, _ingested_at, _batch_id)
+  +--extends--> existing SourceMetadata model
+  +--required-for--> TBS Directive compliance (source attribution must remain valid)
+
+[bridge_noc_og in gold]
   |
-  v
-Dual-Format Statement Display
-  |
-  +---> Statement-Level Controls (toggle, edit, regenerate)
-  |
-  v
-Export with Both Versions
-  |
-  +---> Constraint Compliance Report
+  +--unblocks--> Deterministic NOC-to-OG pre-filtering (UAT S5-04)
+  +--enables--> Classification speed improvement (2-3x faster)
 ```
 
-### Critical Path
+### Dependency Notes
 
-1. **NOC Vocabulary Extraction** — Foundation for constraint enforcement. Extract all words from scraped NOC profile (already available in v2.0 data model).
-
-2. **Style Reference Processing** — Parse uploaded documents, extract text, feed to style analysis. Depends on file format handling (PDF, DOCX, TXT).
-
-3. **Styled Sentence Generator** — Core LLM integration. Few-shot prompt with style examples + vocabulary constraint instruction + post-validation.
-
-4. **Dual-Format Display** — UI modification to show original + styled side-by-side or stacked. Extends existing statement display component.
+- **Data exploration is Phase 1, not optional.** The milestone description explicitly calls for a data exploration phase before committing to replacement scope. Several features above are conditional on what the exploration finds.
+- **oasis_* parquet tables are already confirmed in gold** per JOBFORGE-DATA-REQUIREMENTS.md: skills, abilities, knowledges, workactivities, workcontext. Profile statements (the main user-facing data) can be replaced immediately.
+- **element_* tables are confirmed in gold** per JOBFORGE-DATA-REQUIREMENTS.md: lead_statement, main_duties, labels, example_titles, exclusions, employment_requirements, workplaces_employers. Search data can be replaced immediately.
+- **Interests and Personal Attributes** exist as source CSVs (not gold parquet). The `labels_loader.py` already reads them. This is a gap in the gold layer but not a blocker — the CSVs work and are loaded today.
+- **Core Competencies** has no identified source yet. Remains OASIS fallback or blank until resolved separately.
 
 ---
 
-## Implementation Complexity Summary
+## v5.0 Milestone Scope Definition
 
-| Feature | Complexity | Effort (dev-days) | Dependencies |
-|---------|------------|-------------------|--------------|
-| **Table Stakes** ||||
-| Style reference upload | Medium | 2-3 | PDF/DOCX parsing |
-| Style extraction display | Medium | 2 | LLM style analysis |
-| Dual-format statement output | Medium | 2-3 | UI component extension |
-| Vocabulary constraint enforcement | Medium | 2-3 | NLP tokenization |
-| Statement-level control | Low | 1-2 | Existing UI patterns |
-| **Differentiators** ||||
-| Style template library | Medium | 2-3 | Content curation |
-| Vocabulary expansion suggestions | Medium | 3 | NOC hierarchy data |
-| Style fidelity score | Medium | 2 | Similarity metrics |
-| Batch styling | Medium | 2 | Bulk API handling |
+### Launch With (v5.0 Done)
 
-**Estimated total (table stakes only): 10-14 dev-days**
+What makes v5.0 "complete":
+
+- [ ] Data exploration complete — all gold parquet tables inventoried, columns documented, row counts verified
+- [ ] Search reads from parquet (`dim_noc` + `element_*`) instead of live OASIS scraping
+- [ ] Search results include lead statement, TEER, broad category from parquet (matches current card data)
+- [ ] Full-text search across title + lead statement + example titles (minimum — enables S1-12 fix)
+- [ ] Profile tabs read from parquet (`oasis_skills`, `oasis_abilities`, `oasis_knowledges`, `oasis_workactivities`, `oasis_workcontext`)
+- [ ] Profile loads in <500ms (down from 3-15s with OASIS scraping)
+- [ ] Provenance metadata updated: parquet source file + JobForge version instead of noc.esdc.gc.ca URL
+- [ ] OASIS fallback retained for fields not yet in gold (Interests CSVs, Personal Attributes CSVs, Core Competencies)
+- [ ] No regression: existing enrichment (labels, example titles, exclusions) still works — it already uses parquet
+
+### Add After v5.0 Core (Post-v5.0 Enhancements)
+
+Features enabled by v5.0 but not required for the milestone to be "done":
+
+- [ ] Match rationale with NOC hierarchy level (UAT S1-03) — requires search indexing which table matched
+- [ ] Matching search criteria on cards (UAT S1-04) — requires attribute-level search, not just title search
+- [ ] Search from `job_architecture` table (UAT S1-06) — new data source, new UI controls
+- [ ] Deterministic NOC-to-OG pre-filtering (UAT S5-04) — requires `bridge_noc_og` + classification wiring
+- [ ] Sort by matched NOC attribute (UAT S1-05) — requires attribute-level search first
+
+### Future Consideration (v6.0+)
+
+- [ ] CAF Careers taxonomy search (UAT S1-08) — multi-taxonomy, out of scope for v5.0
+- [ ] Bubble matrix classification report (UAT S5-06) — visualization feature, v6.0 scope
+- [ ] OG enrichment via Stylize button (UAT S2-06) — RAG architecture, v6.0 scope
 
 ---
 
-## Expected Behavior Patterns
+## Feature Prioritization Matrix
 
-Based on research, users expect these behavior patterns for vocabulary-constrained style transfer:
+| Feature | User Value | Implementation Cost | Priority |
+|---------|------------|---------------------|----------|
+| Data exploration inventory | HIGH (gates everything) | LOW | P1 |
+| Search from dim_noc + element_* | HIGH (eliminates primary pain point) | MEDIUM | P1 |
+| Profile statements from oasis_* | HIGH (core UI surface) | MEDIUM | P1 |
+| Main Duties / Key Activities from parquet | HIGH (first tab users see) | LOW | P1 |
+| Provenance metadata for parquet source | HIGH (compliance required) | LOW | P1 |
+| OASIS fallback for gap fields | HIGH (prevents regressions) | LOW | P1 |
+| Full-text search across attributes | HIGH (fixes S1-12 "data engineer" miss) | MEDIUM | P2 |
+| Sub-100ms profile load | HIGH (UX quality improvement) | LOW (side effect of P1) | P2 |
+| Offline operation | MEDIUM (demo resilience) | LOW (side effect of P1) | P2 |
+| Match rationale with hierarchy level (S1-03) | MEDIUM (nice transparency feature) | MEDIUM | P2 |
+| Search from job_architecture (S1-06) | MEDIUM (new data source) | MEDIUM | P3 |
+| Deterministic NOC-to-OG bridge filtering (S5-04) | HIGH for classification speed | MEDIUM | P2 |
 
-### 1. Graceful Degradation
+**Priority key:**
+- P1: Required for v5.0 milestone to be complete
+- P2: Include if data exploration confirms data availability and time permits
+- P3: Future milestone
 
-When vocabulary constraint cannot be satisfied:
-- Attempt regeneration (up to 3 times)
-- If still failing, show original NOC statement with explanation
-- Never show fabricated content
-- Log failure for analysis
+---
 
-### 2. Transparent Processing
+## Comparison: Parquet-First vs Live OASIS Scraping
 
-Users expect to see:
-- What style characteristics were extracted
-- What vocabulary is available for constraint
-- Why a particular styled sentence was generated
-- Confidence level of the output
-
-### 3. Human-in-the-Loop
-
-AI-generated content requires human approval:
-- Preview before committing
-- Edit capability
-- Accept/reject per statement
-- Clear labeling of AI vs authoritative content
-
-### 4. Compliance Preservation
-
-Styled content must not compromise compliance:
-- Original NOC statement always preserved
-- Styled sentence clearly marked as AI-generated
-- Vocabulary constraint report in export
-- Audit trail for style decisions
+| Dimension | Live OASIS Scraping (Current) | Parquet-First (v5.0) |
+|-----------|-------------------------------|----------------------|
+| **Search latency** | 3-15 seconds (HTTP + parsing) | <100ms (pandas filter) |
+| **Profile load latency** | 3-15 seconds (HTTP + parsing) | <500ms (parquet read + join) |
+| **Search algorithm control** | None — OASIS black-box | Full — JD Builder controls matching logic |
+| **Search scope** | Unit group titles only (OASIS limitation) | All NOC attributes: titles, labels, example titles, lead statements, main duties, workplaces |
+| **Offline operation** | Impossible | Supported |
+| **Reliability** | Fragile — government site availability, HTML structure changes, SSL cert issues | Stable — parquet files don't change until next JobForge refresh |
+| **Match transparency** | Cannot determine where in NOC hierarchy match occurred | Can identify: Unit Group / Label / Example Title match tier |
+| **Attribute-level match evidence** | Not available | Available via JOIN on matched parquet rows |
+| **Data freshness** | Always current from live site | Tied to JobForge refresh cycle (acceptable for demo tool) |
+| **Network requirement** | Required for every search and profile load | Not required (after parquet files loaded at startup) |
+| **Provenance source** | noc.esdc.gc.ca URL | parquet file path + JobForge version + ingestion timestamp |
+| **Failure mode** | Blank screen, 502 error, timeout | Graceful — can show partial data, OASIS fallback for gaps |
+| **Cost of improvement** | Cannot improve — source is external | Directly improvable by improving pandas query logic |
 
 ---
 
 ## Sources
 
-### Style Transfer Research
-- [Long Text Style Transfer with LLMs - arXiv](https://arxiv.org/html/2505.07888v1) — ZeroStylus hierarchical framework
-- [LLM-Based Text Style Transfer Survey - IEEE](https://ieeexplore.ieee.org/document/10915631/) — Overview of TST methods
-- [Text Style Transfer Introduction - Cloudera](https://text-style-transfer.fastforwardlabs.com/) — Foundational concepts
-- [Deep Learning for Text Style Transfer Survey - MIT Press](https://direct.mit.edu/coli/article/48/1/155/108845/Deep-Learning-for-Text-Style-Transfer-A-Survey) — Academic survey
-
-### Constrained Generation
-- [Constrained Decoding Guide - Michael Brenndoerfer](https://mbrenndoerfer.com/writing/constrained-decoding-structured-llm-output) — Grammar-guided generation
-- [Controlling Your LLM - Medium](https://medium.com/@docherty/controlling-your-llm-deep-dive-into-constrained-generation-1e561c736a20) — Practical implementation
-- [Guiding LLMs The Right Way - arXiv](https://arxiv.org/html/2403.06988v1) — DOMINO algorithm
-- [Controllable Text Generation Survey - arXiv](https://arxiv.org/html/2408.12599v1) — CTG methods overview
-
-### Few-Shot Prompting
-- [Few-Shot Prompting Guide - PromptingGuide.ai](https://www.promptingguide.ai/techniques/fewshot) — Best practices
-- [How Examples Improve LLM Style Consistency - Latitude](https://latitude-blog.ghost.io/blog/how-examples-improve-llm-style-consistency/) — Example-based learning
-- [What is Few Shot Prompting - IBM](https://www.ibm.com/think/topics/few-shot-prompting) — Industry perspective
-- [The Few Shot Prompting Guide - PromptHub](https://www.prompthub.us/blog/the-few-shot-prompting-guide) — Practical examples
-
-### Vocabulary Constraints
-- [Logit Bias in OpenAI API - OpenAI Help](https://help.openai.com/en/articles/5247780-using-logit-bias-to-alter-token-probability-with-the-openai-api) — Token control (300 limit)
-- [Improving Paraphrase Quality - ACM DL](https://dl.acm.org/doi/fullHtml/10.1145/3669754.3669784) — Domain-specific paraphrasing
-- [Paraphrase Strategy - Yale](https://poorvucenter.yale.edu/Paraphrase-Strategy3) — Handling specialized vocabulary
-
-### Job Description Writing
-- [Writing Effective Job Descriptions - Wright State](https://www.wright.edu/human-resources/writing-an-effective-job-description) — Style guidelines
-- [Job Description Guide - SHRM](https://www.shrm.org/topics-tools/tools/job-descriptions) — HR best practices
-- [RewriteLM - arXiv](https://arxiv.org/html/2305.15685v2) — Instruction-tuned rewriting
+- Codebase analysis: `src/services/scraper.py`, `src/services/parser.py`, `src/services/labels_loader.py`, `src/vocabulary/index.py`, `src/routes/api.py`, `src/config.py` (2026-03-06)
+- `.planning/JOBFORGE-DATA-REQUIREMENTS.md` — confirmed gold parquet table inventory (2026-02-06)
+- `.planning/UAT-FINDINGS.md` — UAT issues S1-03, S1-04, S1-06, S1-07, S1-10, S1-12, S5-04 (2026-02-06)
+- `.planning/PROJECT.md` — v5.0 milestone definition, existing architecture decisions (2026-03-06)
+- HIGH confidence: all findings based on direct codebase inspection, not inference
 
 ---
 
-## Confidence Assessment
-
-| Area | Confidence | Notes |
-|------|------------|-------|
-| Style extraction via few-shot | HIGH | Well-documented technique, multiple authoritative sources |
-| Vocabulary constraint approach | MEDIUM-HIGH | Post-validation more reliable than token-level; logit_bias limitation confirmed |
-| Dual-format output UX | HIGH | Standard comparison pattern, existing v2.0 UI precedent |
-| Content preservation | MEDIUM | Trade-off inherent in style transfer; metrics available |
-| Generation quality | MEDIUM | Depends on vocabulary richness; graceful degradation needed |
-| Compliance preservation | HIGH | Clear requirements, existing provenance patterns |
-
----
-
-## MVP Recommendation
-
-For initial v3.0 style-enhanced generation, prioritize:
-
-1. **Style reference upload (PDF/DOCX)** — Core capability, enables all else
-2. **Simple style extraction feedback** — "Detected: formal tone, complex sentences"
-3. **Dual-format output** — Original + styled, clearly labeled
-4. **Basic vocabulary constraint** — Post-generation validation, regenerate on violation
-5. **Statement-level toggle** — Use styled / use original per statement
-
-### Defer to post-v3.0:
-- Style template library (requires content curation)
-- Style mixing (complex prompt engineering)
-- Vocabulary expansion suggestions (requires NOC ontology work)
-- Style fidelity scoring (nice-to-have, not blocking)
-
----
-
-*Last updated: 2026-02-03 — Style-enhanced JD generation feature research*
+*Feature research for: v5.0 JobForge 2.0 Integration — local-parquet-first search and profile*
+*Researched: 2026-03-06*

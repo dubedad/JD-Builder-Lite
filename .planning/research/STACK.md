@@ -737,3 +737,329 @@ src/
 - [Few-shot prompting for style mimicking](https://relevanceai.com/docs/example-use-cases/few-shot-prompting)
 - [LLM Style Imitation Research](https://arxiv.org/html/2509.14543v1)
 - [PDF Library Comparison 2026](https://unstract.com/blog/evaluating-python-pdf-to-text-libraries/)
+
+---
+
+# v5.0 Stack: JobForge Gold/Bronze/Silver Parquet as Primary NOC Data Source
+
+**Milestone:** v5.0 JobForge 2.0 Integration
+**Researched:** 2026-03-06
+**Overall Confidence:** HIGH
+
+## Executive Summary for v5.0
+
+v5.0 replaces live OASIS HTML scraping with JobForge gold parquet as the primary data source for NOC search and profile retrieval. The stack change is minimal: **no new libraries are required**. The existing pandas 2.2.3 + pyarrow 23.0.0 combination already installed is the correct tool. The architecture change is a caching strategy: load all gold parquet files into memory at app startup (0.36s, 27 MB total), build lookup structures, then serve requests from memory with OASIS as fallback.
+
+**Bottom line:** Do not add polars, DuckDB, SQLite caching, or any new library. The 25 gold parquet files total 1.1 MB on disk, expand to 27 MB in memory, load in 0.36s at startup, and serve per-request lookups in sub-millisecond time via pre-built Python dicts. The existing pandas/pyarrow stack handles this perfectly.
+
+---
+
+## Current Parquet Usage (What Already Works)
+
+The app already reads 10 gold parquet files via `LabelsLoader` (lazy per-request loads):
+
+| File | Currently Used For |
+|------|--------------------|
+| `element_labels.parquet` | NOC labels per oasis_profile_code |
+| `element_example_titles.parquet` | Example job titles per oasis_profile_code |
+| `element_exclusions.parquet` | Excluded occupations per oasis_profile_code |
+| `element_employment_requirements.parquet` | Requirements text per oasis_profile_code |
+| `element_workplaces_employers.parquet` | Workplace names per oasis_profile_code |
+| `oasis_workcontext.parquet` | Work context ratings per oasis_code |
+| `element_main_duties.parquet` | Main duties (sample data only - 8 rows) |
+| `element_additional_information.parquet` | Additional info per profile |
+| `element_lead_statement.parquet` | Lead statement per unit_group_id |
+| `element_workplaces_employers.parquet` | Workplaces per oasis_profile_code |
+
+Bronze parquet files (4 files) are read by `VocabularyIndex` for vocabulary term extraction.
+
+## What v5.0 Adds
+
+v5.0 needs two new capabilities from parquet:
+
+1. **NOC Search** - Replace `GET /api/search` which currently calls OASIS HTML scraping
+2. **NOC Profile Fetch** - Replace `GET /api/profile` which currently calls OASIS HTML scraping
+
+Both require gold parquet data that is already present but not yet used for these purposes.
+
+---
+
+## Recommended Stack for v5.0 (NO NEW LIBRARIES)
+
+### Core Technologies (unchanged)
+
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| pandas | 2.2.3 | Primary parquet read + DataFrame operations | Already installed, Python 3.14 compatible (verified), handles all gold files |
+| pyarrow | 23.0.0 | Parquet file format engine (used by pandas) | Already installed, Python 3.14 compatible (verified) |
+| Python dict | built-in | Per-request O(1) profile lookup | Zero cost; pre-built at startup from DataFrames |
+
+**Why pandas stays primary (not polars):** Benchmarking on actual gold files shows in-memory filter performance is nearly identical between pandas and polars at this data size (27 MB). The decisive factor is that the entire existing codebase uses pandas DataFrames and `.iterrows()` patterns. Switching to polars would require rewriting all of `LabelsLoader`, `VocabularyIndex`, and the new parquet service with no measurable user-facing benefit. The real performance win comes from the caching strategy (Python dict at O(0.0001ms) vs pandas filter at O(0.3ms)), not from switching DataFrame libraries.
+
+**Why pyarrow stays the parquet engine:** pandas uses pyarrow under the hood for `.read_parquet()`. Already installed at v23.0.0, Python 3.14 compatible. No change needed.
+
+**Why NOT polars:** Polars 1.38.1 is installed and Python 3.14 compatible, but it would require rewriting all existing pandas code for no measurable gain on 27 MB of data. The rule for this codebase is: use the tool already present unless there's a concrete reason to change.
+
+**Why NOT DuckDB:** DuckDB is excellent for analytical SQL queries over parquet files but adds a dependency for functionality that Python dicts provide better. The gold files are small and static; analytical query optimization is irrelevant.
+
+**Why NOT SQLite copy:** Copying parquet to SQLite at startup adds 50-200ms with no benefit over in-memory DataFrames. SQLite is already used for classification data (occupational.db); mixing it with NOC reference data would create confusion about the data boundary.
+
+---
+
+## Caching Strategy: Load-at-Startup, Serve-from-Memory
+
+### The Numbers (measured on actual gold files)
+
+| Metric | Value |
+|--------|-------|
+| Gold parquet files | 25 files, 1.1 MB total on disk |
+| All files loaded into memory | 27.3 MB |
+| Full startup load time | 0.36s (all 25 files + index build) |
+| pandas linear filter (per request) | 0.32ms |
+| pandas indexed .loc (pre-indexed) | 0.076ms |
+| Python dict lookup (pre-built) | 0.0001ms |
+
+### Recommended Pattern: Load + Index at Startup
+
+```python
+# At app startup (in initialize_vocabulary() or a new initialize_noc_service()):
+class NocDataService:
+    """In-memory NOC data service backed by JobForge gold parquet."""
+
+    def __init__(self, gold_path: str):
+        self._gold_path = Path(gold_path)
+        self._loaded = False
+
+        # Search index: DataFrame for text search
+        self._search_df = None          # dim_noc + lead + titles, 894 rows
+
+        # Profile lookup: Python dicts for O(1) access
+        self._skills_lookup = {}        # oasis_code -> dict
+        self._abilities_lookup = {}     # oasis_code -> dict
+        self._knowledges_lookup = {}    # oasis_code -> dict
+        self._workactivities_lookup = {}
+        self._workcontext_lookup = {}   # oasis_code -> dict
+
+    def load(self):
+        """Load all gold parquet files and build indexes. Call at startup."""
+        noc = pd.read_parquet(self._gold_path / 'dim_noc.parquet')
+        lead = pd.read_parquet(self._gold_path / 'element_lead_statement.parquet')
+        titles = pd.read_parquet(self._gold_path / 'element_example_titles.parquet')
+
+        # Build search DataFrame
+        unit_groups = noc[noc.noc_code.str.len() == 5].copy()
+        self._search_df = unit_groups.merge(
+            lead[['unit_group_id', 'Lead statement']], on='unit_group_id', how='left'
+        )
+        title_agg = titles.groupby('unit_group_id')['Job title text'].apply(list).reset_index()
+        title_agg.columns = ['unit_group_id', 'example_titles']
+        self._search_df = self._search_df.merge(title_agg, on='unit_group_id', how='left')
+
+        # Build O(1) lookup dicts for profile data
+        for attr, filename, key_col in [
+            ('_skills_lookup', 'oasis_skills.parquet', 'oasis_code'),
+            ('_abilities_lookup', 'oasis_abilities.parquet', 'oasis_code'),
+            ('_knowledges_lookup', 'oasis_knowledges.parquet', 'oasis_code'),
+            ('_workactivities_lookup', 'oasis_workactivities.parquet', 'oasis_code'),
+            ('_workcontext_lookup', 'oasis_workcontext.parquet', 'oasis_code'),
+        ]:
+            df = pd.read_parquet(self._gold_path / filename)
+            setattr(self, attr, df.set_index(key_col).to_dict('index'))
+
+        self._loaded = True
+```
+
+**Why load-at-startup over lazy loading:** The existing `LabelsLoader` uses lazy loading (load on first request). That works but means the first user of each file pays the I/O cost. For v5.0 where parquet IS the primary path (not a supplement), eager loading gives consistent response times. The 0.36s startup cost is acceptable; the alternative is unpredictable first-request latency.
+
+**Why Python dicts for profile lookup:** The benchmark shows Python dict lookup at 0.0001ms vs pandas filter at 0.32ms. For a profile fetch that queries 5+ parquet files, this compounds. Pre-building dicts at startup (one-time 0.36s cost) gives 3000x faster per-request performance. This is the standard pattern for static reference data in Flask apps.
+
+**Why keep DataFrames for search:** Text search requires scanning across rows (title, definition, lead statement). A DataFrame with vectorized `.str.contains()` is the right tool here. The search index is 894 rows; even a linear scan is under 1ms.
+
+---
+
+## Gold Parquet File Inventory (for v5.0 Reference)
+
+### Files Needed for Search
+
+| File | Rows | Key Column | Used For |
+|------|------|------------|---------|
+| `dim_noc.parquet` | 516 | `noc_code`, `unit_group_id` | Title + definition text search |
+| `element_lead_statement.parquet` | 900 | `unit_group_id` | Lead statement text search |
+| `element_example_titles.parquet` | 18,666 | `unit_group_id` | Alternate title search |
+| `element_labels.parquet` | 900 | `unit_group_id` | OASIS label text |
+
+### Files Needed for Profile Fetch
+
+| File | Rows | Key Column | Profile Section |
+|------|------|------------|----------------|
+| `oasis_skills.parquet` | 900 | `oasis_code` | Skills (40 columns) |
+| `oasis_abilities.parquet` | 900 | `oasis_code` | Abilities (56 columns) |
+| `oasis_knowledges.parquet` | 900 | `oasis_code` | Knowledge (40 columns) |
+| `oasis_workactivities.parquet` | 900 | `oasis_code` | Work Activities (41 columns) |
+| `oasis_workcontext.parquet` | 900 | `oasis_code` | Work Context (60+ columns) |
+| `element_lead_statement.parquet` | 900 | `unit_group_id` | Lead statement |
+| `element_main_duties.parquet` | 8 | `unit_group_id` | Main duties (SAMPLE ONLY) |
+| `element_exclusions.parquet` | varies | `oasis_profile_code` | Exclusions |
+| `element_employment_requirements.parquet` | varies | `oasis_profile_code` | Employment requirements |
+| `element_workplaces_employers.parquet` | varies | `oasis_profile_code` | Workplaces |
+
+### Critical Coverage Gap
+
+`element_main_duties.parquet` has only 8 rows covering 3 unit groups. This is sample data. The gold layer does NOT have complete main duties for all 510 unit groups. This is the single biggest gap between OASIS HTML scraping (which provides full main duties) and the gold parquet layer.
+
+**Impact:** v5.0 will need to retain OASIS scraping as fallback specifically for main duties, OR acknowledge that main duties will be empty for most NOC codes until JobForge 2.0 provides a complete `element_main_duties.parquet`.
+
+### Key Column Naming Note
+
+The gold files use two different code formats:
+
+| Format | Example | Files That Use It |
+|--------|---------|-------------------|
+| `oasis_code` (XX.XX format) | `21232.00` | oasis_skills, oasis_abilities, oasis_knowledges, oasis_workactivities, oasis_workcontext |
+| `oasis_profile_code` (XX.XX format) | `21232.00` | element_labels, element_example_titles, element_exclusions, element_employment_requirements |
+| `unit_group_id` (5-digit NOC, no dot) | `21232` | dim_noc, element_lead_statement, element_main_duties |
+| `noc_code` (variable length) | `21232` (5-digit) or `212` (major group) | dim_noc only |
+
+For v5.0, the user-facing NOC code (e.g., `21232`) maps to:
+- `unit_group_id = '21232'` in dim_noc and element_* files
+- `oasis_code = '21232.00'` in oasis_* files (append `.00` to convert)
+
+---
+
+## What NOT to Add for v5.0
+
+| Technology | Why NOT |
+|------------|---------|
+| **polars** | Installed but not used; 27 MB of data shows no benefit over pandas; would require full rewrite of existing parquet code |
+| **DuckDB** | Excellent for OLAP over large parquet datasets; the gold files are too small (27 MB) to benefit; adds a dependency for O(1) dict lookups |
+| **SQLite copy of parquet** | Adds 50-200ms startup cost; creates data boundary confusion with existing occupational.db; no benefit over in-memory DataFrames |
+| **fastparquet** | Alternative parquet engine; pyarrow is already installed and is the industry standard engine |
+| **Apache Arrow datasets API** | Useful for partitioned multi-file parquet datasets too large for RAM; gold files are 27 MB total, this is overkill |
+| **Redis/memcached** | External cache process for a local single-user Flask app; module-level Python dicts are sufficient |
+| **threading.Lock** | The parquet data is read-only after startup; Python's GIL + write-once pattern makes explicit locks unnecessary |
+
+---
+
+## Integration Points with Existing Stack
+
+### What Changes
+
+| Component | Current Behavior | v5.0 Behavior |
+|-----------|-----------------|---------------|
+| `GET /api/search` | Calls `scraper.search()` → OASIS HTML → BeautifulSoup parse | Query `NocDataService._search_df` → return results |
+| `GET /api/profile` | Calls `scraper.fetch_profile()` → OASIS HTML → parser | Lookup `NocDataService._*_lookup[code]` → build response |
+| `LabelsLoader` | Lazy-loads gold parquet per request | Unchanged (data already served from gold; can merge into NocDataService eventually) |
+| `VocabularyIndex` | Loads bronze parquet for vocabulary terms | Unchanged (continue reading bronze) |
+| `OASISScraper` | Primary data source | Fallback only (network unavailable, missing data) |
+
+### What Does NOT Change
+
+- Flask 3.1.2, Flask-CORS, requests, BeautifulSoup4, lxml — OASIS scraper stays, just demoted to fallback
+- pandas 2.2.3, pyarrow 23.0.0 — already the parquet stack, no version change needed
+- SQLite / db_manager / repository — classification data layer is separate, untouched
+- OpenAI SDK, instructor — AI classification pipeline unchanged
+- python-dotenv, JOBFORGE_GOLD_PATH env var — already configured
+
+### New File: `src/services/noc_data_service.py`
+
+This is the only new file v5.0 needs for the parquet integration. It wraps the load-at-startup + dict-lookup pattern, providing:
+- `search(query, search_type)` — replaces `scraper.search()` + `parser.parse_search_results_enhanced()`
+- `get_profile(code)` — replaces `scraper.fetch_profile()` + `parser.parse_profile()`
+- `is_available()` — used by routes to decide primary vs fallback path
+
+### Fallback Logic Pattern
+
+```python
+# In GET /api/search:
+if noc_data_service.is_available():
+    results = noc_data_service.search(query, search_type)
+else:
+    # Existing OASIS path
+    html = scraper.search(query, search_type=search_type)
+    results = parser.parse_search_results_enhanced(html)
+```
+
+The fallback decision is per-request, not at startup, so OASIS scraping remains fully functional if the gold path is misconfigured.
+
+---
+
+## Python 3.14 Compatibility
+
+| Library | Version | Python 3.14 Status |
+|---------|---------|-------------------|
+| pandas | 2.2.3 | VERIFIED: imports and read_parquet work (tested on Python 3.14.3) |
+| pyarrow | 23.0.0 | VERIFIED: imports and parquet round-trip work (tested on Python 3.14.3) |
+| polars | 1.38.1 | VERIFIED: imports and read_parquet work (installed, not currently used) |
+
+All three libraries confirmed working on Python 3.14.3 in this environment. No version changes needed.
+
+**Note on sentence-transformers:** `sentence-transformers==3.4.1` is in requirements.txt but inactive (torch unavailable on Python 3.14; TF-IDF fallback is active). This is unrelated to parquet integration and requires no change for v5.0.
+
+---
+
+## Updated requirements.txt for v5.0
+
+**No changes required.** The existing `requirements.txt` already has everything needed:
+
+```txt
+# These are already present and sufficient for v5.0 parquet integration:
+pandas==2.2.3       # DataFrame operations + parquet read
+pyarrow==19.0.0     # Parquet engine (note: v23.0.0 is actually installed; pinning >=19 is fine)
+```
+
+The only code addition is `src/services/noc_data_service.py`. No `pip install` step is needed for v5.0.
+
+---
+
+## Confidence Assessment for v5.0
+
+| Decision | Confidence | Reason |
+|----------|------------|--------|
+| No new libraries needed | HIGH | Verified: all required parquet files load correctly with existing pandas/pyarrow |
+| Load-at-startup caching strategy | HIGH | Benchmarked: 0.36s startup, 27 MB RAM, O(0.0001ms) per-request dict lookup |
+| pandas over polars | HIGH | Benchmarked on actual gold files; no performance difference at 27 MB; avoids full rewrite |
+| Python dict for profile lookup | HIGH | Benchmarked: 3000x faster than pandas filter; standard pattern for static reference data |
+| main_duties coverage gap | HIGH | Verified: element_main_duties.parquet has 8 rows (sample), not full 510 unit groups |
+| oasis_code column naming | HIGH | Verified by inspection: append `.00` to 5-digit NOC code to get oasis_code format |
+| OASIS remains as fallback | HIGH | Preserves existing working path; no regression risk |
+
+---
+
+## Open Questions for v5.0 Phase Planning
+
+1. **Main duties gap:** Should v5.0 silently fall back to OASIS for main duties per-profile, or show parquet data as authoritative (empty for most NOC codes)? This is an architectural decision that affects how the profile response is assembled.
+
+2. **oasis_profile_code vs unit_group_id:** The gold element files use `oasis_profile_code` (e.g., `21232.00`) as the key, while dim_noc uses `unit_group_id` (e.g., `21232`). When a user requests profile for NOC code `21232`, the lookup needs to normalize. The conversion is: `oasis_profile_code = noc_code + '.00'` for unit-level profiles, but multi-profile occupations (where one unit_group has multiple oasis profiles like `21232.01`, `21232.02`) need additional handling.
+
+3. **Code search type:** The existing `search_type=Code` path does a code lookup against OASIS. With parquet, this becomes a `dim_noc` filter on `noc_code`. Works for 5-digit codes; partial prefix matching (e.g., user types `212`) would return 10+ major-group results.
+
+4. **Hot reload:** The existing watchdog observer monitors bronze parquet files for VocabularyIndex hot-reload. Should NocDataService also watch gold parquet files? Likely yes, as JobForge 2.0 may update gold files between sessions.
+
+---
+
+## Sources for v5.0 Research
+
+### Verified (HIGH confidence) - All results from direct codebase inspection and benchmarking
+
+- Direct inspection of 25 gold parquet files at `/Users/victornishi/Documents/GitHub/JobForge-2.0/data/gold/`
+- Benchmarking scripts run on Python 3.14.3 with pandas 2.2.3 and pyarrow 23.0.0
+- Codebase analysis: `src/services/labels_loader.py`, `src/vocabulary/index.py`, `src/services/mapper.py`, `src/routes/api.py`
+- Column schema verified by reading actual DataFrames, not documentation
+
+### Key Measurements (run on this machine, Python 3.14.3)
+
+| Measurement | Result |
+|-------------|--------|
+| Gold parquet disk size | 1.1 MB (25 files) |
+| Gold parquet in-memory | 27.3 MB |
+| Full load + index build | 0.36s |
+| pandas linear filter | 0.32ms per call |
+| pandas indexed .loc | 0.076ms per call |
+| Python dict lookup | 0.0001ms per call |
+| pandas vs polars read+filter (100x) | pandas 4.3ms avg, polars 2.4ms avg (read from disk) |
+| pandas vs polars in-memory filter (10k) | pandas 0.29ms avg, polars 0.47ms avg |
+
+---
+
+*Stack research for: JD Builder Lite — v5.0 JobForge 2.0 parquet integration*
+*Researched: 2026-03-06*
