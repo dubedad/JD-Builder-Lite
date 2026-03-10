@@ -160,7 +160,7 @@ def search():
                     result.match_reason = f"Title contains \"{query}\""
                 elif title_has_stem:
                     matched = _find_matched_word(result.title, query_stem)
-                    result.relevance_score = 85
+                    result.relevance_score = 90
                     result.match_reason = f"Title contains \"{matched}\""
                 elif lead_has_exact:
                     result.relevance_score = 60
