@@ -394,7 +394,8 @@ class LabelsLoader:
             ]
             self._exclusions_cache[oasis_profile_code] = exclusions
             return exclusions
-        except Exception:
+        except Exception as e:
+            logger.warning("LabelsLoader: error querying exclusions for %s: %s", oasis_profile_code, e)
             return []
 
     def get_employment_requirements(self, oasis_profile_code: str) -> List[str]:
@@ -411,7 +412,8 @@ class LabelsLoader:
             ]['Employment requirement'].tolist()
             self._employment_reqs_cache[oasis_profile_code] = matching
             return matching
-        except Exception:
+        except Exception as e:
+            logger.warning("LabelsLoader: error querying employment requirements for %s: %s", oasis_profile_code, e)
             return []
 
     def get_workplaces(self, oasis_profile_code: str) -> List[str]:
@@ -428,7 +430,8 @@ class LabelsLoader:
             ]['Workplace/employer name'].tolist()
             self._workplaces_cache[oasis_profile_code] = matching
             return matching
-        except Exception:
+        except Exception as e:
+            logger.warning("LabelsLoader: error querying workplaces for %s: %s", oasis_profile_code, e)
             return []
 
     def get_interests(self, oasis_profile_code: str) -> List[Dict[str, Any]]:
@@ -468,7 +471,8 @@ class LabelsLoader:
 
             self._interests_cache[oasis_profile_code] = interests
             return interests
-        except Exception:
+        except Exception as e:
+            logger.warning("LabelsLoader: error querying interests for %s: %s", oasis_profile_code, e)
             return []
 
     def get_personal_attributes(self, oasis_profile_code: str) -> List[Dict[str, Any]]:
@@ -515,7 +519,8 @@ class LabelsLoader:
             attributes.sort(key=lambda x: x['level'], reverse=True)
             self._personal_attrs_cache[oasis_profile_code] = attributes
             return attributes
-        except Exception:
+        except Exception as e:
+            logger.warning("LabelsLoader: error querying personal attributes for %s: %s", oasis_profile_code, e)
             return []
 
     def get_work_context_filtered(self, oasis_profile_code: str, filter_type: str = 'all') -> List[Dict[str, Any]]:
@@ -588,7 +593,8 @@ class LabelsLoader:
             results.sort(key=lambda x: x['level'], reverse=True)
             self._work_context_cache[cache_key] = results
             return results
-        except Exception:
+        except Exception as e:
+            logger.warning("LabelsLoader: error querying work context for %s (filter=%s): %s", oasis_profile_code, filter_type, e)
             return []
 
     def get_error(self) -> Optional[str]:
