@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-03-06)
 
 **Core value:** Compliance-focused job description builder demonstrating TBS Directive 32592 compliance with full provenance tracking.
-**Current focus:** Phase 25 tech-debt-cleanup -- logging consistency in service modules
+**Current focus:** v5.0 Tech Debt Cleanup -- Phase 25 complete, all tech debt closed
 
 ## Current Position
 
-Milestone: v5.0 Compliance Hardening + Tech Debt Cleanup
-Phase: 25 (in progress — 1/2 plans done)
-Plan: 25-01 complete
-Status: In progress
-Last activity: 2026-03-10 -- Completed 25-01 (replace print() and bare except in labels_loader.py)
+Milestone: v5.0 Tech Debt Cleanup
+Phase: 25 complete (2/2 plans done)
+Plan: 25-02 complete
+Status: Phase complete
+Last activity: 2026-03-10 -- Completed 25-02 (search scoring symmetry + working_conditions mapper consistency)
 
-Progress: [██████████░] ~91% (11/12 plans complete — 25-02 remaining)
+Progress: [████████████] 100% (12/12 plans complete)
 
 ## Milestone History
 
@@ -54,6 +54,8 @@ Progress: [██████████░] ~91% (11/12 plans complete — 25-
 | working_conditions key added to export.js section_sources | 24-01 | Fully satisfies PROF-03 -- all 5 JD element sections now record provenance in exported compliance appendix |
 | logger.info() for success paths in _load_labels/_load_example_titles | 25-01 | info level appropriate for successful startup events; matches existing _load_* warning-on-failure pattern |
 | %-style format strings in logger calls | 25-01 | Matches every existing logger.warning() call in labels_loader.py -- codebase-consistent |
+| Stem-in-title OASIS search score raised to 90 | 25-02 | Matches T3 tier in search_parquet_reader.py so both paths rank identically for equivalent matches |
+| wc_source extraction in _map_working_conditions_enriched mirrors effort/responsibility | 25-02 | Established trio pattern: all three work-context mappers share identical parquet_tabs + wc_source unpack |
 
 ### Blockers/Concerns
 
@@ -63,5 +65,5 @@ Progress: [██████████░] ~91% (11/12 plans complete — 25-
 ## Session Continuity
 
 Last session: 2026-03-10
-Stopped at: Completed 25-01-PLAN.md (labels_loader.py logging cleanup)
+Stopped at: Completed 25-02-PLAN.md (search scoring symmetry + working_conditions mapper consistency)
 Resume file: None

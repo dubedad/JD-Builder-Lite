@@ -2,7 +2,7 @@
 
 ## Milestones
 
-- **v5.0 JobForge 2.0 Integration** -- Phases 21-23 (current)
+- **v5.0 JobForge 2.0 Integration** -- Phases 21-25 (current)
 - ✅ **v4.1 Polish** -- Phases 18-20 (shipped 2026-02-07; Phase 20 deferred indefinitely)
 - ✅ **v4.0 Occupational Group Allocation** -- Phases 14-17 (shipped 2026-02-04)
 - ✅ **v3.0 Style-Enhanced Writing** -- Phases 09-13 (shipped 2026-02-03)
@@ -18,6 +18,7 @@
 - [x] **Phase 22: Profile Service** - Serve profile tab content (Skills, Abilities, Knowledge, Work Activities, Work Context) from parquet with automatic OASIS fallback and full provenance distinction in exports (completed 2026-03-08)
 - [x] **Phase 23: Search Service** - Serve search results from parquet with tiered relevance scoring, sub-second response, and automatic OASIS fallback when parquet is unavailable (completed 2026-03-09)
 - [x] **Phase 24: Compliance Hardening** - Close three tech debt items from v5.0 audit: add working_conditions provenance to frontend export (fully satisfies PROF-03), add route-level OASIS-down fallback to /api/profile, and create Phase 22 VERIFICATION.md (completed 2026-03-09)
+- [x] **Phase 25: Tech Debt Cleanup** - Close non-blocking tech debt identified in v5.0 milestone audit: replace print() with logger.info() in labels_loader.py, fix bare except clauses, resolve search scoring inconsistency between OASIS and parquet paths, and fix structural inconsistency in _map_working_conditions_enriched() (completed 2026-03-10)
 
 ## Phase Details
 
@@ -137,6 +138,21 @@ Plans:
 - [ ] 20-01-PLAN.md -- Upgrade provenance rendering from flat to expandable tree (closes gap between existing CSS and JS)
 - [ ] 20-02-PLAN.md -- Human verification of complete evidence, provenance, and completion flow (carried from 17-03 Task 3)
 
+### Phase 25: Tech Debt Cleanup
+**Goal**: All non-blocking tech debt from the v5.0 milestone audit is resolved: logging is consistent (no bare print() on success paths), exception handling follows project conventions (no bare except), search scoring is symmetric between OASIS and parquet paths, and working_conditions mapper is structurally consistent with other enriched mappers
+**Depends on**: Phase 24 (audit prerequisite complete)
+**Requirements**: None (internal code quality)
+**Success Criteria** (what must be TRUE):
+  1. `labels_loader.py` success paths use `logger.info()` not `print()` — no bare `print()` calls remain on non-error paths
+  2. Bare `except Exception:` clauses in `labels_loader.py` query methods are replaced with typed exceptions or explicit re-raises per project conventions
+  3. Stem-in-title search tier scores identically via OASIS path and parquet path — the 85 vs 90 discrepancy in `api.py` line 164 is resolved
+  4. `_map_working_conditions_enriched()` in `mapper.py` accepts a `parquet_tabs` parameter and propagates `data_source` the same way `_map_effort_enriched()` and `_map_responsibility_enriched()` do
+**Plans**:
+
+Plans:
+- [x] 25-01-PLAN.md -- labels_loader.py logging and exception cleanup
+- [x] 25-02-PLAN.md -- Search scoring symmetry + working_conditions mapper consistency
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -145,9 +161,10 @@ Plans:
 | 22. Profile Service | v5.0 | 2/2 | Complete | 2026-03-08 |
 | 23. Search Service | v5.0 | 2/2 | Complete | 2026-03-09 |
 | 24. Compliance Hardening | v5.0 | 1/1 | Complete | 2026-03-09 |
+| 25. Tech Debt Cleanup | v5.0 | 2/2 | Complete | 2026-03-10 |
 | 18. Profile Page Overhaul | v4.1 | 2/2 | Complete | 2026-02-07 |
 | 19. Flow and Export Polish | v4.1 | 3/3 | Complete | 2026-02-07 |
 | 20. Evidence & Provenance Display | v4.1 | 0/2 | Deferred | - |
 
 ---
-*Roadmap updated: 2026-03-09 -- Phase 24 complete (compliance hardening TD-1/TD-2/TD-3 closed; v5.0 milestone complete)*
+*Roadmap updated: 2026-03-10 -- Phase 25 complete (all v5.0 tech debt closed)*
