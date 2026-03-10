@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-03-06)
 
 **Core value:** Compliance-focused job description builder demonstrating TBS Directive 32592 compliance with full provenance tracking.
-**Current focus:** v5.0 Compliance Hardening -- Phase 24 complete; all tech debt closed
+**Current focus:** Phase 25 tech-debt-cleanup -- logging consistency in service modules
 
 ## Current Position
 
-Milestone: v5.0 Compliance Hardening
-Phase: 24 complete (1/1 plans done)
-Plan: 24-01 complete
-Status: Phase complete
-Last activity: 2026-03-09 -- Completed 24-01 (working_conditions export fix, OASIS-down fallback, Phase 22 VERIFICATION.md)
+Milestone: v5.0 Compliance Hardening + Tech Debt Cleanup
+Phase: 25 (in progress — 1/2 plans done)
+Plan: 25-01 complete
+Status: In progress
+Last activity: 2026-03-10 -- Completed 25-01 (replace print() and bare except in labels_loader.py)
 
-Progress: [██████████] 100% (10/10 plans complete)
+Progress: [██████████░] ~91% (11/12 plans complete — 25-02 remaining)
 
 ## Milestone History
 
@@ -52,6 +52,8 @@ Progress: [██████████] 100% (10/10 plans complete)
 | OASIS profile URL changed to /OASIS/OASISOccProfile with .00 suffix | 23-02 | Pre-existing breakage: old /OaSIS/OaSISSOccProfile returned 404; fix applied in scraper.py, mapper.py, selectors.py, search_parquet_reader.py |
 | Two-block try/except in /api/profile for OASIS-down resilience | 24-01 | Block 1: OASIS fetch+parse (fallback to stub on any exception); Block 2: mapper+response (always runs); 502 eliminated |
 | working_conditions key added to export.js section_sources | 24-01 | Fully satisfies PROF-03 -- all 5 JD element sections now record provenance in exported compliance appendix |
+| logger.info() for success paths in _load_labels/_load_example_titles | 25-01 | info level appropriate for successful startup events; matches existing _load_* warning-on-failure pattern |
+| %-style format strings in logger calls | 25-01 | Matches every existing logger.warning() call in labels_loader.py -- codebase-consistent |
 
 ### Blockers/Concerns
 
@@ -60,6 +62,6 @@ Progress: [██████████] 100% (10/10 plans complete)
 
 ## Session Continuity
 
-Last session: 2026-03-09
-Stopped at: Completed 24-01-PLAN.md (working_conditions export fix, OASIS-down fallback, Phase 22 VERIFICATION.md)
+Last session: 2026-03-10
+Stopped at: Completed 25-01-PLAN.md (labels_loader.py logging cleanup)
 Resume file: None
