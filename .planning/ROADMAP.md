@@ -37,11 +37,11 @@ Evidence highlighting requires LLM returning verbatim quotes (currently paraphra
 4. The results header shows the result count, a "+ New Search" button, and ESDC metadata.
 5. Cosmetic-only elements (Français toggle, View Provenance Graph button) render visually but take no action when clicked.
 
-**Plans:** TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 26-01: Global chrome layout (GoC header, app bar, data source pills, stepper, selections tab, compliance paragraph, footer)
-- [ ] 26-02: Search page redesign (Find your Job heading, empty state, result cards, filter panel, results header)
+- [ ] 26-01-PLAN.md — Global chrome layout (GoC header, app bar, data source pills, stepper, selections tab, compliance paragraph, footer)
+- [ ] 26-02-PLAN.md — Search page redesign (Find your Job heading, empty state, result cards, filter panel, results header)
 
 ---
 
@@ -141,7 +141,7 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 26. Global Chrome & Search | v5.1 | 0/2 | Not started | - |
+| 26. Global Chrome & Search | v5.1 | 0/2 | In progress | - |
 | 27. Build Page Redesign | v5.1 | 0/2 | Not started | - |
 | 28. Navigation, Preview & Selections | v5.1 | 0/3 | Not started | - |
 | 29. Classification Restyle + Generate | v5.1 | 0/2 | Not started | - |
@@ -156,4 +156,4 @@ Plans:
 | 20. Evidence & Provenance Display | v4.1 | 0/2 | Deferred | - |
 
 ---
-*Roadmap updated: 2026-03-11 — v5.1 UI Overhaul roadmap created (Phases 26-30)*
+*Roadmap updated: 2026-03-11 — Phase 26 planned (2 plans in 2 waves)*
