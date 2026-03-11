@@ -8,6 +8,20 @@ A demo web application that helps managers create job descriptions by selecting 
 
 Every piece of content in the final job description can be traced back to its authoritative source (JobForge parquet or OASIS), with clear documentation of human decisions and AI involvement — demonstrating compliant, transparent, accountable job description creation.
 
+## Current Milestone: v5.1 UI Overhaul
+
+**Goal:** Redesign the entire application UI to match the JobForge reference prototype — new global chrome, 5-step stepper, redesigned search/build/classify pages, and two new functional pages (Generate, Export) with restructured PDF/DOCX/JSON output.
+
+**Target features:**
+- Global chrome: Government of Canada header, dark navy JobForge app bar, data source pills, 5-step stepper, Selections drawer, compliance footer
+- Search: "Find your Job" layout, new occupation cards, 6-group filter panel
+- Build: dark navy occupation header card, icons on tabs, section description boxes, level-grouped items, Core Competencies selectable, Key Activities two-list split, blue dot ratings retained
+- Navigation: 3-button bar, selection persistence, Preview modal, Selections right-drawer
+- Classification: re-styled in new chrome, Statement Alignment Comparison, Key Evidence, Caveats sections
+- Generate (new page): DADM compliance badges, OpenAI generation with "Generate with AI" button
+- Export (new page): JD preview, compliance cards, Download PDF / Word / JSON
+- New PDF format: restructured with Data Provenance & Compliance + Policy Provenance table
+
 ## Requirements
 
 ### Validated
@@ -104,6 +118,18 @@ Every piece of content in the final job description can be traced back to its au
 - ✓ SRCH-03: Transparent OASIS fallback on parquet unavailability or zero results — v5.0
 
 ### Active
+
+**v5.1 UI Overhaul (current milestone):**
+- [ ] Full UI redesign matching JobForge reference prototype (screenshots in `.planning/ui-walkthrough-v5.1/`)
+- [ ] New global chrome across all pages (GoC header, dark navy app bar, stepper, drawer, footer)
+- [ ] Search page: "Find your Job" layout + new cards + 6-group filter panel
+- [ ] Build page: occupation header card, tab icons, section description boxes, level grouping, inline sub-descriptions
+- [ ] Core Competencies selectable; Key Activities retains Main Duties / Work Activities split
+- [ ] Navigation: 3-button bar, selection persistence, Preview modal, Selections drawer
+- [ ] Classification page re-styled; post-analysis adds Statement Alignment Comparison, Key Evidence, Caveats
+- [ ] Generate page (new): DADM badges, OpenAI generation, Regenerate
+- [ ] Export page (new): JD preview, compliance cards, Download PDF / Word / JSON
+- [ ] New PDF format: Data Provenance & Compliance + Policy Provenance table
 
 **v6.0 Classification Step 2 (Deferred):**
 - Job Evaluation Standards scoring
@@ -209,4 +235,4 @@ This tool demonstrates compliance with the Treasury Board's Directive on Automat
 | Symmetric search scoring (both paths 90) | OASIS and parquet stem-in-title tier score identically — no ranking bias by data source | ✓ Good |
 
 ---
-*Last updated: 2026-03-10 after v5.0 milestone*
+*Last updated: 2026-03-11 after v5.1 milestone start*

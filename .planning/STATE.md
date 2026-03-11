@@ -2,20 +2,18 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-10)
+See: .planning/PROJECT.md (updated 2026-03-11)
 
 **Core value:** Every piece of content in the JD can be traced to its authoritative source (JobForge parquet or OASIS), with clear documentation of human decisions and AI involvement.
-**Current focus:** Planning next milestone (v5.1)
+**Current focus:** v5.1 UI Overhaul — defining requirements and roadmap
 
 ## Current Position
 
-Milestone: v5.0 JobForge 2.0 Integration — SHIPPED 2026-03-10
-Phase: None (all 5 phases complete)
-Plan: None
-Status: Milestone complete — ready to plan next milestone
-Last activity: 2026-03-10 — v5.0 archived; git tag v5.0 created
-
-Progress: [████████████] 100% (all plans complete)
+Milestone: v5.1 UI Overhaul
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-11 — Milestone v5.1 started
 
 ## Milestone History
 
@@ -31,13 +29,19 @@ Progress: [████████████] 100% (all plans complete)
 
 ## Accumulated Context
 
+### Design Reference
+- Full UI walkthrough + 16 screenshots in `.planning/ui-walkthrough-v5.1/`
+- Reference prototype based on v4.0 fork (no source code access — screenshots are authoritative spec)
+- Français toggle and View Provenance Graph button: cosmetic/non-functional in v5.1
+- Generate backend: keep OpenAI (no Anthropic key), update button label to "Generate with AI"
+
 ### Open Blockers/Concerns
 
 - TF-IDF semantic matching fallback active (sentence-transformers incompatible with Python 3.14) — accuracy impact documented in .planning/accuracy-notes/tfidf-fallback-2025-03-05.md
-- element_main_duties.parquet ETL gap: 8 rows / 3 profiles (source has 900 profiles) — OASIS fallback unconditional for Main Duties until JobForge ETL runs
+- element_main_duties.parquet ETL gap: 8 rows / 3 profiles — OASIS fallback unconditional for Main Duties
 
 ## Session Continuity
 
-Last session: 2026-03-10
-Stopped at: v5.0 milestone complete — archived, tagged
+Last session: 2026-03-11
+Stopped at: v5.1 milestone requirements defined — roadmap TBD
 Resume file: None
