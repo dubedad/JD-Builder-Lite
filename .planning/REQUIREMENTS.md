@@ -126,26 +126,67 @@ Full UI redesign to match the JobForge reference prototype. Design reference: `.
 
 ## Traceability
 
-*(To be populated during roadmap creation)*
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CHROME-01 to CHROME-08 | Phase 26 | Pending |
-| SRCH-01 to SRCH-05 | Phase 26 | Pending |
-| BUILD-01 to BUILD-09 | Phase 27 | Pending |
-| NAV-01 to NAV-05 | Phase 28 | Pending |
-| PREV-01 to PREV-02 | Phase 28 | Pending |
-| SEL-01 to SEL-03 | Phase 28 | Pending |
-| CLASS-01 to CLASS-04 | Phase 29 | Pending |
-| GEN-01 to GEN-04 | Phase 29 | Pending |
-| EXP-01 to EXP-06 | Phase 30 | Pending |
-| PDF-01 to PDF-05 | Phase 30 | Pending |
+| CHROME-01 | Phase 26 | Pending |
+| CHROME-02 | Phase 26 | Pending |
+| CHROME-03 | Phase 26 | Pending |
+| CHROME-04 | Phase 26 | Pending |
+| CHROME-05 | Phase 26 | Pending |
+| CHROME-06 | Phase 26 | Pending |
+| CHROME-07 | Phase 26 | Pending |
+| CHROME-08 | Phase 26 | Pending |
+| SRCH-01 | Phase 26 | Pending |
+| SRCH-02 | Phase 26 | Pending |
+| SRCH-03 | Phase 26 | Pending |
+| SRCH-04 | Phase 26 | Pending |
+| SRCH-05 | Phase 26 | Pending |
+| BUILD-01 | Phase 27 | Pending |
+| BUILD-02 | Phase 27 | Pending |
+| BUILD-03 | Phase 27 | Pending |
+| BUILD-04 | Phase 27 | Pending |
+| BUILD-05 | Phase 27 | Pending |
+| BUILD-06 | Phase 27 | Pending |
+| BUILD-07 | Phase 27 | Pending |
+| BUILD-08 | Phase 27 | Pending |
+| BUILD-09 | Phase 27 | Pending |
+| NAV-01 | Phase 28 | Pending |
+| NAV-02 | Phase 28 | Pending |
+| NAV-03 | Phase 28 | Pending |
+| NAV-04 | Phase 28 | Pending |
+| NAV-05 | Phase 28 | Pending |
+| PREV-01 | Phase 28 | Pending |
+| PREV-02 | Phase 28 | Pending |
+| SEL-01 | Phase 28 | Pending |
+| SEL-02 | Phase 28 | Pending |
+| SEL-03 | Phase 28 | Pending |
+| CLASS-01 | Phase 29 | Pending |
+| CLASS-02 | Phase 29 | Pending |
+| CLASS-03 | Phase 29 | Pending |
+| CLASS-04 | Phase 29 | Pending |
+| GEN-01 | Phase 29 | Pending |
+| GEN-02 | Phase 29 | Pending |
+| GEN-03 | Phase 29 | Pending |
+| GEN-04 | Phase 29 | Pending |
+| EXP-01 | Phase 30 | Pending |
+| EXP-02 | Phase 30 | Pending |
+| EXP-03 | Phase 30 | Pending |
+| EXP-04 | Phase 30 | Pending |
+| EXP-05 | Phase 30 | Pending |
+| EXP-06 | Phase 30 | Pending |
+| PDF-01 | Phase 30 | Pending |
+| PDF-02 | Phase 30 | Pending |
+| PDF-03 | Phase 30 | Pending |
+| PDF-04 | Phase 30 | Pending |
+| PDF-05 | Phase 30 | Pending |
 
 **Coverage:**
-- v5.1 requirements: 48 total
-- Mapped to phases: 48
+- v5.1 requirements: 51 total
+- Mapped to phases: 51
 - Unmapped: 0 ✓
+
+**Coverage note:** Initial traceability stub listed 48; actual count from listed requirements is 51 (8 CHROME + 5 SRCH + 9 BUILD + 5 NAV + 2 PREV + 3 SEL + 4 CLASS + 4 GEN + 6 EXP + 5 PDF = 51).
 
 ---
 *Requirements defined: 2026-03-11*
-*Last updated: 2026-03-11 after initial definition*
+*Last updated: 2026-03-11 — traceability populated during roadmap creation*

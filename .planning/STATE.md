@@ -5,15 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-03-11)
 
 **Core value:** Every piece of content in the JD can be traced to its authoritative source (JobForge parquet or OASIS), with clear documentation of human decisions and AI involvement.
-**Current focus:** v5.1 UI Overhaul — defining requirements and roadmap
+**Current focus:** v5.1 UI Overhaul — Phase 26: Global Chrome & Search
 
 ## Current Position
 
 Milestone: v5.1 UI Overhaul
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-03-11 — Milestone v5.1 started
+Phase: 26 of 30 (Global Chrome & Search)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-03-11 — v5.1 roadmap created (Phases 26-30, 51 requirements mapped)
+
+Progress: [░░░░░░░░░░] 0% (0/12 plans complete)
 
 ## Milestone History
 
@@ -43,5 +45,5 @@ Last activity: 2026-03-11 — Milestone v5.1 started
 ## Session Continuity
 
 Last session: 2026-03-11
-Stopped at: v5.1 milestone requirements defined — roadmap TBD
+Stopped at: v5.1 roadmap created — ready to plan Phase 26
 Resume file: None
