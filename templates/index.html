@@ -16,42 +16,53 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
-    <!-- GC CDTS Header (Official Format) -->
-    <header class="gc-header">
-        <div class="gc-header__top">
-            <div class="container gc-header__container">
-                <div class="gc-header__brand">
-                    <div class="gc-header__flag">
-                        <div class="gc-flag">
-                            <div class="gc-flag__red"></div>
-                            <div class="gc-flag__white"><span class="gc-flag__leaf">&#127809;</span></div>
-                            <div class="gc-flag__red"></div>
-                        </div>
-                    </div>
-                    <div class="gc-header__titles">
-                        <span class="gc-header__title-en">Government of Canada</span>
-                        <span class="gc-header__title-fr">Gouvernement du Canada</span>
-                    </div>
+    <!-- GoC Identity Header (CHROME-01) -->
+    <header class="gc-identity-header">
+        <div class="container gc-identity-header__inner">
+            <div class="gc-identity-header__brand">
+                <div class="gc-flag">
+                    <div class="gc-flag__red"></div>
+                    <div class="gc-flag__white"><span class="gc-flag__leaf">&#127809;</span></div>
+                    <div class="gc-flag__red"></div>
                 </div>
-                <div class="gc-header__search">
-                    <input type="search" placeholder="Search Canada.ca" class="gc-header__search-input">
-                    <button type="button" class="gc-header__search-btn" aria-label="Search">
-                        <i class="fas fa-search"></i>
-                    </button>
+                <div class="gc-identity-header__titles">
+                    <span class="gc-identity-header__title-en">Government of Canada</span>
+                    <span class="gc-identity-header__title-fr">Gouvernement du Canada</span>
                 </div>
-                <div class="gc-header__lang">
-                    <a href="#" lang="fr" hreflang="fr">Français</a>
-                </div>
+            </div>
+            <div class="gc-identity-header__actions">
+                <a href="#" class="gc-identity-header__lang" lang="fr" hreflang="fr" onclick="event.preventDefault();">Fran&ccedil;ais</a>
             </div>
         </div>
-        <nav class="gc-header__nav">
-            <div class="container">
-                <button class="gc-menu-btn" type="button">
-                    MENU <i class="fas fa-chevron-down"></i>
-                </button>
-            </div>
-        </nav>
     </header>
+
+    <!-- App Bar (CHROME-02) -->
+    <div class="app-bar">
+        <div class="container app-bar__inner">
+            <span class="app-bar__badge">JD Builder 1.0</span>
+            <span class="app-bar__session" id="app-bar-session">Session: ...</span>
+            <span class="app-bar__audit" id="app-bar-audit">
+                <i class="fas fa-clipboard-list"></i> Audit Trail <span id="audit-count" class="app-bar__audit-count">0</span>
+            </span>
+            <button class="app-bar__reset" id="app-bar-reset" type="button">
+                <i class="fas fa-redo-alt"></i> Reset
+            </button>
+            <button class="app-bar__provenance" id="provenance-graph-btn" type="button" onclick="event.preventDefault();">
+                <i class="fas fa-project-diagram"></i> View Provenance Graph
+            </button>
+        </div>
+    </div>
+
+    <!-- Data Source Pills (CHROME-03) -->
+    <div class="data-sources-bar">
+        <div class="container data-sources-bar__inner">
+            <a href="https://noc.esdc.gc.ca/" class="data-source-pill data-source-pill--noc" target="_blank" rel="noopener noreferrer">2021 NOC</a>
+            <a href="https://www.canada.ca/en/department-national-defence/services/caf-careers.html" class="data-source-pill data-source-pill--caf" target="_blank" rel="noopener noreferrer">CAF Careers</a>
+            <a href="https://www.canada.ca/en/treasury-board-secretariat/services/collective-agreements/occupational-groups.html" class="data-source-pill data-source-pill--ochro" target="_blank" rel="noopener noreferrer">OCHRO Job Architecture</a>
+            <a href="https://www.onetonline.org/" class="data-source-pill data-source-pill--onet" target="_blank" rel="noopener noreferrer">O*NET SOC</a>
+            <a href="https://noc.esdc.gc.ca/" class="data-source-pill data-source-pill--oasis" target="_blank" rel="noopener noreferrer">OaSIS</a>
+        </div>
+    </div>
 
     <!-- JD Building Progress Stepper (always visible) -->
     <nav class="jd-stepper" id="jd-stepper" role="navigation" aria-label="Job Description building progress">
@@ -66,25 +77,25 @@
                 <li class="jd-stepper__step" data-step="2">
                     <button class="jd-stepper__btn" data-step="2" disabled>
                         <span class="jd-stepper__number">2</span>
-                        <span class="jd-stepper__label">Select Profile</span>
+                        <span class="jd-stepper__label">Build</span>
                     </button>
                 </li>
                 <li class="jd-stepper__step" data-step="3">
                     <button class="jd-stepper__btn" data-step="3" disabled>
                         <span class="jd-stepper__number">3</span>
-                        <span class="jd-stepper__label">Build JD</span>
+                        <span class="jd-stepper__label">Classify</span>
                     </button>
                 </li>
                 <li class="jd-stepper__step" data-step="4">
                     <button class="jd-stepper__btn" data-step="4" disabled>
                         <span class="jd-stepper__number">4</span>
-                        <span class="jd-stepper__label">Export</span>
+                        <span class="jd-stepper__label">Generate</span>
                     </button>
                 </li>
                 <li class="jd-stepper__step" data-step="5">
                     <button class="jd-stepper__btn" data-step="5" disabled>
                         <span class="jd-stepper__number">5</span>
-                        <span class="jd-stepper__label">Classify</span>
+                        <span class="jd-stepper__label">Export</span>
                     </button>
                 </li>
             </ol>
@@ -276,7 +287,7 @@
             <div id="classify-stale-warning" class="classify-stale-warning hidden" role="alert">
                 <i class="fas fa-exclamation-triangle"></i>
                 <span>JD changed -- re-classify for updated results</span>
-                <button onclick="document.getElementById('classify-stale-warning').classList.add('hidden'); window.jdStepper.goToStep(5);" class="btn btn--sm">
+                <button onclick="document.getElementById('classify-stale-warning').classList.add('hidden'); window.jdStepper.goToStep(3);" class="btn btn--sm">
                     Re-classify
                 </button>
             </div>
@@ -328,7 +339,7 @@
                         </ul>
                     </div>
                     <div class="classify-nav-actions">
-                        <button class="btn btn--text" onclick="window.jdStepper.goToStep(3)">
+                        <button class="btn btn--text" onclick="window.jdStepper.goToStep(2)">
                             <i class="fas fa-arrow-left"></i> Return to Builder
                         </button>
                     </div>
@@ -522,29 +533,35 @@
     <!-- Toast notification container -->
     <div id="toast-container" class="toast-container" aria-live="polite"></div>
 
-    <!-- GC CDTS Footer -->
-    <footer class="gc-footer">
-        <div class="gc-footer__main">
-            <div class="container">
-                <nav class="gc-footer__nav" aria-label="Footer navigation">
-                    <h2 class="visually-hidden">About this site</h2>
-                    <ul class="gc-footer__links">
-                        <li><a href="#">Contact us</a></li>
-                        <li><a href="#">Terms and conditions</a></li>
-                        <li><a href="#">Privacy</a></li>
-                    </ul>
-                </nav>
-            </div>
+    <!-- Selections Tab (CHROME-05) -->
+    <button class="selections-tab" id="selections-tab-btn" type="button">
+        Selections (<span id="selections-tab-count">0</span>)
+    </button>
+
+    <!-- Compliance Framework (CHROME-06) -->
+    <div class="compliance-bar">
+        <div class="container">
+            <p class="compliance-bar__text">
+                Job Description content is traceable to its sources, data stewards, and publishing dates for full medallion provenance that complies with the Directive on Automated Decision Making requirements.
+            </p>
         </div>
-        <div class="gc-footer__brand">
-            <div class="container">
-                <div class="gc-footer__wordmark">
-                    <span class="gc-wordmark__text">Canada</span>
-                    <span class="gc-wordmark__flag">&#127809;</span>
-                </div>
+    </div>
+
+    <!-- App Footer (CHROME-07) -->
+    <footer class="app-footer">
+        <div class="container app-footer__inner">
+            <span class="app-footer__brand">JobForge &mdash; JD Builder 1.0 | Full Audit Trail Provenance</span>
+            <div class="app-footer__wordmark">
+                <span class="gc-wordmark__text">Canada</span>
+                <span class="gc-wordmark__flag">&#127809;</span>
             </div>
         </div>
     </footer>
+    <div class="onet-attribution">
+        <div class="container">
+            <p class="onet-attribution__text">O*NET&trade; is a trademark of the U.S. Department of Labor, Employment and Training Administration (USDOL/ETA).</p>
+        </div>
+    </div>
 
     <!-- SortableJS CDN for drag-and-drop reordering -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
