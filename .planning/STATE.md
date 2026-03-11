@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-03-11)
 
 Milestone: v5.1 UI Overhaul
 Phase: 26 of 30 (Global Chrome & Search)
-Plan: 26-01 complete
+Plan: 26-02 complete
 Status: In progress
-Last activity: 2026-03-11 — Completed 26-01-PLAN.md (global chrome layout)
+Last activity: 2026-03-11 — Completed 26-02-PLAN.md (search page redesign)
 
-Progress: [█░░░░░░░░░] 8% (1/12 plans complete)
+Progress: [██░░░░░░░░] 17% (2/12 plans complete)
 
 ## Milestone History
 
@@ -50,9 +50,13 @@ Progress: [█░░░░░░░░░] 8% (1/12 plans complete)
 | profile-loaded advances to step 2 (Build) | 26-01 | Profile view IS the Build step |
 | canAccessStep(2=Build) requires currentProfile | 26-01 | You need a profile to be in Build; search results alone don't unlock it |
 | selections-tab hides sidebar-toggle via display:none | 26-01 | Preserve DOM element, avoid null-reference errors in main.js |
+| Grid view removed entirely | 26-02 | v5.1 spec uses card view only; renderGridView() deleted |
+| filter-minor-group-options -> filter-noc-broad-options | 26-02 | v5.1 HTML 6-accordion filter panel uses new element IDs |
+| source_label hardcoded to "O*NET SOC" | 26-02 | All parquet results are O*NET-aligned data |
+| example_titles from titles_df in _build_result() | 26-02 | Inline lookup avoids extra API calls; max 5, semicolon-separated |
 
 ## Session Continuity
 
 Last session: 2026-03-11
-Stopped at: Completed 26-01-PLAN.md (global chrome layout and JS wiring)
+Stopped at: Completed 26-02-PLAN.md (search page redesign — Find your Job, match badges, 6-accordion filters)
 Resume file: None
