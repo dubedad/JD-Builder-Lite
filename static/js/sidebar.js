@@ -3,12 +3,17 @@ const initSidebar = () => {
     const sidebar = document.getElementById('sidebar');
     const toggleBtn = document.getElementById('sidebar-toggle');
 
+    // Hide old sidebar-toggle (replaced by selections-tab)
     if (toggleBtn) {
-        toggleBtn.addEventListener('click', () => {
+        toggleBtn.style.display = 'none';
+    }
+
+    // Wire new selections tab (CHROME-05)
+    const selectionsTab = document.getElementById('selections-tab-btn');
+    if (selectionsTab) {
+        selectionsTab.addEventListener('click', () => {
             sidebar.classList.toggle('open');
             sidebar.classList.toggle('collapsed');
-
-            // Toggle body class for main content margin adjustment
             document.body.classList.toggle('sidebar-open');
         });
     }
@@ -63,6 +68,12 @@ const updateSidebar = (state) => {
     });
 
     summaryContainer.innerHTML = html;
+
+    // Update selections tab count (CHROME-05)
+    const tabCount = document.getElementById('selections-tab-count');
+    if (tabCount) {
+        tabCount.textContent = totalSelections;
+    }
 };
 
 const escapeHtmlSidebar = (text) => {

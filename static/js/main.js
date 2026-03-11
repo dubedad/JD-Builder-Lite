@@ -94,6 +94,32 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentSort = { column: null, ascending: true };
     let lastResults = []; // Store results for re-rendering on view change
 
+    // Session ID (CHROME-02)
+    function getOrCreateSessionId() {
+        let id = localStorage.getItem('jdb_session_id');
+        if (!id) {
+            id = crypto.randomUUID().replace(/-/g, '').substring(0, 12);
+            localStorage.setItem('jdb_session_id', id);
+        }
+        return id;
+    }
+    const sessionId = getOrCreateSessionId();
+    const sessionEl = document.getElementById('app-bar-session');
+    if (sessionEl) sessionEl.textContent = 'Session: ' + sessionId.substring(0, 8) + '...';
+
+    // Reset button handler (CHROME-02)
+    const resetBtn = document.getElementById('app-bar-reset');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            if (confirm('Reset session? This will clear all selections and cached data.')) {
+                localStorage.removeItem('jdb_session_id');
+                localStorage.removeItem('classification_cache');
+                store.reset();
+                window.location.reload();
+            }
+        });
+    }
+
     // Initialize modules (from Plan 02)
     initSidebar();
     initSelection();
@@ -132,7 +158,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 handleResultClick(savedState.currentProfileCode);
                 // After profile loads, navigate to Step 5
                 document.addEventListener('profile-loaded', () => {
-                    setTimeout(() => window.jdStepper.goToStep(5), 200);
+                    setTimeout(() => window.jdStepper.goToStep(3), 200);
                 }, { once: true });
             }, 100);
         }
@@ -750,19 +776,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Sidebar toggle
-    sidebarToggle.addEventListener('click', function() {
-        sidebar.classList.toggle('open');
-        sidebar.classList.toggle('collapsed');
-        document.body.classList.toggle('sidebar-open');
-    });
+    // Sidebar toggle (legacy - now handled by selections-tab in sidebar.js)
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('open');
+            sidebar.classList.toggle('collapsed');
+            document.body.classList.toggle('sidebar-open');
+        });
+    }
 
     // Initialize view state
     handleViewportChange(mediaQuery);
 
     /**
      * Initialize JD Stepper navigation
-     * Steps: 1=Search, 2=Select Profile, 3=Build JD, 4=Export, 5=Classify
+     * Steps v5.1: 1=Search, 2=Build, 3=Classify, 4=Generate, 5=Export
      */
     function initStepper() {
         const stepper = document.getElementById('jd-stepper');
@@ -781,20 +809,20 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         /**
-         * Navigate to a specific step
+         * Navigate to a specific step (v5.1 mapping)
          * @param {number} step - Target step (1-5)
          */
         function navigateToStep(step) {
             if (step < 1 || step > 5) return;
 
-            // Navigation logic based on target step
+            // Navigation logic based on target step (v5.1 labels)
             switch (step) {
-                case 1: // Search
-                    // Show search results, hide profile
+                case 1: { // Search — show welcome/search results, hide profile
                     searchResults.classList.remove('hidden');
                     profileInfo.classList.add('hidden');
                     document.getElementById('profile-tabs-container')?.classList.add('hidden');
                     document.getElementById('classify-section')?.classList.add('hidden');
+                    document.getElementById('overview-section')?.classList.add('hidden');
                     jdSections.innerHTML = '';
                     actionBar.classList.add('hidden');
                     const welcomeSection = document.getElementById('welcome-section');
@@ -802,43 +830,36 @@ document.addEventListener('DOMContentLoaded', function() {
                         welcomeSection.classList.remove('hidden');
                     }
                     break;
-                case 2: // Select Profile (show search results)
-                    if (lastResults.length > 0) {
+                }
+                case 2: { // Build — show profile tabs if profile loaded, else search results
+                    if (window.currentProfile) {
+                        searchResults.classList.add('hidden');
+                        document.getElementById('welcome-section')?.classList.add('hidden');
+                        document.getElementById('explore-section')?.classList.add('hidden');
+                        profileInfo.classList.remove('hidden');
+                        document.getElementById('profile-tabs-container')?.classList.remove('hidden');
+                        document.getElementById('classify-section')?.classList.add('hidden');
+                        document.getElementById('overview-section')?.classList.add('hidden');
+                        actionBar.classList.remove('hidden');
+                    } else if (lastResults.length > 0) {
                         searchResults.classList.remove('hidden');
                         profileInfo.classList.add('hidden');
                         document.getElementById('profile-tabs-container')?.classList.add('hidden');
                         document.getElementById('classify-section')?.classList.add('hidden');
+                        document.getElementById('overview-section')?.classList.add('hidden');
                         jdSections.innerHTML = '';
                         actionBar.classList.add('hidden');
                     }
                     break;
-                case 3: // Build JD
-                    // If we have a profile loaded, show it
-                    if (window.currentProfile) {
-                        searchResults.classList.add('hidden');
-                        profileInfo.classList.remove('hidden');
-                        document.getElementById('profile-tabs-container')?.classList.remove('hidden');
-                        document.getElementById('classify-section')?.classList.add('hidden');
-                        actionBar.classList.remove('hidden');
-                    }
-                    break;
-                case 4: // Export
-                    // Navigate to export - trigger sidebar or modal
-                    if (window.currentProfile) {
-                        sidebar.classList.add('open');
-                        sidebar.classList.remove('collapsed');
-                        document.body.classList.add('sidebar-open');
-                    }
-                    break;
-                case 5: // Classify
-                    // Hide other sections, show classify
+                }
+                case 3: { // Classify — show classify section, trigger classification
                     searchResults.classList.add('hidden');
                     profileInfo.classList.add('hidden');
                     document.getElementById('profile-tabs-container')?.classList.add('hidden');
+                    document.getElementById('overview-section')?.classList.add('hidden');
                     jdSections.innerHTML = '';
                     actionBar.classList.add('hidden');
 
-                    // Show classify section
                     const classifySection = document.getElementById('classify-section');
                     if (classifySection) {
                         classifySection.classList.remove('hidden');
@@ -850,9 +871,9 @@ document.addEventListener('DOMContentLoaded', function() {
                                 const cache = JSON.parse(cachedClassification);
                                 const currentHash = btoa(JSON.stringify(store.getState().selections));
                                 if (cache.jdHash === currentHash) {
-                                    // Use cached result - dispatch cache-hit event
                                     console.log('[DEBUG main.js] Classification cache hit, using cached result');
                                     document.dispatchEvent(new CustomEvent('classify-cache-hit', { detail: cache.result }));
+                                    updateStepperState(step);
                                     return; // Skip API call
                                 }
                             } catch (e) {
@@ -860,10 +881,30 @@ document.addEventListener('DOMContentLoaded', function() {
                             }
                         }
 
-                        // No valid cache - proceed with API call
                         triggerClassification();
                     }
                     break;
+                }
+                case 4: { // Generate — show overview/generate section
+                    if (window.currentProfile) {
+                        searchResults.classList.add('hidden');
+                        profileInfo.classList.add('hidden');
+                        document.getElementById('profile-tabs-container')?.classList.add('hidden');
+                        document.getElementById('classify-section')?.classList.add('hidden');
+                        jdSections.innerHTML = '';
+                        actionBar.classList.add('hidden');
+                        document.getElementById('overview-section')?.classList.remove('hidden');
+                    }
+                    break;
+                }
+                case 5: { // Export — open sidebar for export
+                    if (window.currentProfile) {
+                        sidebar.classList.add('open');
+                        sidebar.classList.remove('collapsed');
+                        document.body.classList.add('sidebar-open');
+                    }
+                    break;
+                }
             }
 
             updateStepperState(step);
@@ -899,24 +940,24 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         /**
-         * Check if a step can be accessed based on app state
+         * Check if a step can be accessed based on app state (v5.1 mapping)
          * @param {number} step - Step to check
          * @returns {boolean}
          */
         function canAccessStep(step) {
             switch (step) {
                 case 1: return true; // Always can search
-                case 2: return lastResults.length > 0; // Need search results
-                case 3: return window.currentProfile !== null; // Need profile selected
-                case 4: return window.currentProfile !== null; // Need profile for export
-                case 5:
-                    // Enable when Client-Service Results and Key Activities are filled
-                    // Per CONTEXT.md: Step 5 enabled when JD has CSR/Key Activities content
+                case 2: return window.currentProfile !== null; // Need profile loaded for Build
+                case 3: {
+                    // Classify: need profile and some selections or lead statement
                     if (!window.currentProfile) return false;
                     const state = store.getState();
                     const hasSelections = state.selections?.key_activities?.length > 0;
                     const hasLeadStatement = window.currentProfile?.reference_attributes?.lead_statement?.length > 10;
                     return hasSelections || hasLeadStatement;
+                }
+                case 4: return window.currentProfile !== null; // Need profile for Generate
+                case 5: return window.currentProfile !== null; // Need profile for Export
                 default: return false;
             }
         }
@@ -929,18 +970,18 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         // Listen for app events to auto-update stepper
-        // After search completes - move to step 2
+        // After search completes - stay on step 1 (search results visible)
         document.addEventListener('search-complete', () => {
+            updateStepperState(1);
+        });
+
+        // After profile is loaded - move to step 2 (Build)
+        document.addEventListener('profile-loaded', () => {
             updateStepperState(2);
         });
 
-        // After profile is loaded - move to step 3
-        document.addEventListener('profile-loaded', () => {
-            updateStepperState(3);
-        });
-
         // Re-evaluate step accessibility when selections change
-        // This enables Step 5 when user selects key activities
+        // This enables Step 3 (Classify) when user selects key activities
         store.subscribe((state) => {
             // Re-run canAccessStep checks without changing current step
             steps.forEach((step, index) => {
@@ -950,9 +991,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     btn.disabled = !canAccessStep(stepNum);
                 }
             });
+
+            // Update audit count badge (CHROME-02)
+            const auditEl = document.getElementById('audit-count');
+            if (auditEl) {
+                const total = Object.values(state.selections)
+                    .reduce((sum, arr) => sum + arr.length, 0);
+                auditEl.textContent = total;
+            }
         });
 
-        console.log('[DEBUG] JD Stepper initialized with 5 steps');
+        console.log('[DEBUG] JD Stepper initialized with 5 steps (v5.1: Search/Build/Classify/Generate/Export)');
     }
 
     /**
@@ -990,7 +1039,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
-}
 
     /**
      * Trigger allocation API call when navigating to Step 5
