@@ -170,6 +170,17 @@ class SearchParquetReader:
         sub_major_group = noc_code[:3] if len(noc_code) >= 3 else None
         unit_group = noc_code[:4] if len(noc_code) >= 4 else None
 
+        # Populate example_titles from titles_df (SRCH-04 "Also known as:")
+        example_titles_str: Optional[str] = None
+        if self._titles_df is not None:
+            title_matches = self._titles_df[
+                self._titles_df["unit_group_id"] == noc_code
+            ]
+            if not title_matches.empty:
+                titles_list = title_matches["Job title text"].dropna().tolist()
+                if titles_list:
+                    example_titles_str = "; ".join(str(t) for t in titles_list[:5])
+
         return EnrichedSearchResult(
             noc_code=noc_code,
             title=title,
@@ -181,6 +192,8 @@ class SearchParquetReader:
             unit_group=unit_group,
             relevance_score=score,
             match_reason=reason,
+            source_label="O*NET SOC",
+            example_titles=example_titles_str,
         )
 
     # ------------------------------------------------------------------

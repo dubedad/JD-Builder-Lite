@@ -58,6 +58,9 @@ class EnrichedSearchResult(BaseModel):
     source_table: Optional[str] = None
     publication_date: Optional[str] = None
 
+    # Match source label for badge display (v5.1 SRCH-04)
+    source_label: Optional[str] = None  # e.g., "O*NET SOC", "2021 NOC"
+
     # For Filtering (DISP-22) - derived from NOC code
     broad_category: Optional[int] = None  # First digit of NOC code
     sub_major_group: Optional[str] = None     # First 3 digits (for hierarchy display)
