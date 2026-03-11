@@ -9,22 +9,22 @@ Full UI redesign to match the JobForge reference prototype. Design reference: `.
 
 ### Chrome (Global Layout)
 
-- [ ] **CHROME-01**: All pages render a Government of Canada identity header (maple leaf logo, bilingual org name, Français toggle — cosmetic only)
-- [ ] **CHROME-02**: All pages render a dark navy JobForge app bar with brand badge ("JD Builder 1.0"), truncated Session ID, Audit Trail badge with running count, and Reset button
-- [ ] **CHROME-03**: All pages render a row of coloured data source pills: 2021 NOC (grey), CAF Careers (green), OCHRO Job Architecture (orange), O*NET SOC (blue), OaSIS (purple) — each linking to its source homepage
-- [ ] **CHROME-04**: All pages render a 5-step process stepper (Search → Build → Classify → Generate → Export) with the current step highlighted
-- [ ] **CHROME-05**: All pages render a "Selections (N)" vertical tab on the right edge showing the current selection count
-- [ ] **CHROME-06**: All pages render a compliance framework paragraph in the page body above the footer
-- [ ] **CHROME-07**: All pages render a dark footer ("JobForge — JD Builder 1.0 | Full Audit Trail Provenance" left, Canada wordmark right) and O*NET attribution below
-- [ ] **CHROME-08**: Français toggle and "View Provenance Graph" button render as cosmetic-only UI elements (non-functional in v5.1)
+- [x] **CHROME-01**: All pages render a Government of Canada identity header (maple leaf logo, bilingual org name, Français toggle — cosmetic only)
+- [x] **CHROME-02**: All pages render a dark navy JobForge app bar with brand badge ("JD Builder 1.0"), truncated Session ID, Audit Trail badge with running count, and Reset button
+- [x] **CHROME-03**: All pages render a row of coloured data source pills: 2021 NOC (grey), CAF Careers (green), OCHRO Job Architecture (orange), O*NET SOC (blue), OaSIS (purple) — each linking to its source homepage
+- [x] **CHROME-04**: All pages render a 5-step process stepper (Search → Build → Classify → Generate → Export) with the current step highlighted
+- [x] **CHROME-05**: All pages render a "Selections (N)" vertical tab on the right edge showing the current selection count
+- [x] **CHROME-06**: All pages render a compliance framework paragraph in the page body above the footer
+- [x] **CHROME-07**: All pages render a dark footer ("JobForge — JD Builder 1.0 | Full Audit Trail Provenance" left, Canada wordmark right) and O*NET attribution below
+- [x] **CHROME-08**: Français toggle and "View Provenance Graph" button render as cosmetic-only UI elements (non-functional in v5.1)
 
 ### Search
 
-- [ ] **SRCH-01**: Search page displays "Find your Job" heading, subtitle, Match Quality legend (95-100% Title green / 85% Description blue / 75% Related grey), centered search input, and "Source: JobForge WiQ | All job taxonomies" link
-- [ ] **SRCH-02**: Search page shows magnifying glass empty-state with "Start typing to search across all job taxonomies" and compliance reminder text when no query is entered
-- [ ] **SRCH-03**: Search results render a left filter panel with 6 accordion sections (OCHRO Job Architecture, CAF Careers, 2021 NOC Broad→Major, 2021 NOC TEER, Occupational Groups, O*NET SOC), each showing available filters or "No results" state, with a "Clear All Filters" button and Match Confidence legend
-- [ ] **SRCH-04**: Search result cards display occupation icon, bold title, match badge pills (score % and source), "Also known as:" line with matched keywords highlighted, and description paragraph
-- [ ] **SRCH-05**: Results header shows "[N] results (filtered)", a "+ New Search" button, and "Published: [date] | Data Steward: ESDC" metadata line
+- [x] **SRCH-01**: Search page displays "Find your Job" heading, subtitle, Match Quality legend (95-100% Title green / 85% Description blue / 75% Related grey), centered search input, and "Source: JobForge WiQ | All job taxonomies" link
+- [x] **SRCH-02**: Search page shows magnifying glass empty-state with "Start typing to search across all job taxonomies" and compliance reminder text when no query is entered
+- [x] **SRCH-03**: Search results render a left filter panel with 6 accordion sections (OCHRO Job Architecture, CAF Careers, 2021 NOC Broad→Major, 2021 NOC TEER, Occupational Groups, O*NET SOC), each showing available filters or "No results" state, with a "Clear All Filters" button and Match Confidence legend
+- [x] **SRCH-04**: Search result cards display occupation icon, bold title, match badge pills (score % and source), "Also known as:" line with matched keywords highlighted, and description paragraph
+- [x] **SRCH-05**: Results header shows "[N] results (filtered)", a "+ New Search" button, and "Published: [date] | Data Steward: ESDC" metadata line
 
 ### Build
 
@@ -128,19 +128,19 @@ Full UI redesign to match the JobForge reference prototype. Design reference: `.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CHROME-01 | Phase 26 | Pending |
-| CHROME-02 | Phase 26 | Pending |
-| CHROME-03 | Phase 26 | Pending |
-| CHROME-04 | Phase 26 | Pending |
-| CHROME-05 | Phase 26 | Pending |
-| CHROME-06 | Phase 26 | Pending |
-| CHROME-07 | Phase 26 | Pending |
-| CHROME-08 | Phase 26 | Pending |
-| SRCH-01 | Phase 26 | Pending |
-| SRCH-02 | Phase 26 | Pending |
-| SRCH-03 | Phase 26 | Pending |
-| SRCH-04 | Phase 26 | Pending |
-| SRCH-05 | Phase 26 | Pending |
+| CHROME-01 | Phase 26 | Complete |
+| CHROME-02 | Phase 26 | Complete |
+| CHROME-03 | Phase 26 | Complete |
+| CHROME-04 | Phase 26 | Complete |
+| CHROME-05 | Phase 26 | Complete |
+| CHROME-06 | Phase 26 | Complete |
+| CHROME-07 | Phase 26 | Complete |
+| CHROME-08 | Phase 26 | Complete |
+| SRCH-01 | Phase 26 | Complete |
+| SRCH-02 | Phase 26 | Complete |
+| SRCH-03 | Phase 26 | Complete |
+| SRCH-04 | Phase 26 | Complete |
+| SRCH-05 | Phase 26 | Complete |
 | BUILD-01 | Phase 27 | Pending |
 | BUILD-02 | Phase 27 | Pending |
 | BUILD-03 | Phase 27 | Pending |

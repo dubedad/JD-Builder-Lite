@@ -40,8 +40,8 @@ Evidence highlighting requires LLM returning verbatim quotes (currently paraphra
 **Plans:** 2 plans
 
 Plans:
-- [ ] 26-01-PLAN.md — Global chrome layout (GoC header, app bar, data source pills, stepper, selections tab, compliance paragraph, footer)
-- [ ] 26-02-PLAN.md — Search page redesign (Find your Job heading, empty state, result cards, filter panel, results header)
+- [x] 26-01-PLAN.md — Global chrome layout (GoC header, app bar, data source pills, stepper, selections tab, compliance paragraph, footer)
+- [x] 26-02-PLAN.md — Search page redesign (Find your Job heading, empty state, result cards, filter panel, results header)
 
 ---
 
@@ -141,7 +141,7 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 26. Global Chrome & Search | v5.1 | 0/2 | In progress | - |
+| 26. Global Chrome & Search | v5.1 | 2/2 | Complete | 2026-03-11 |
 | 27. Build Page Redesign | v5.1 | 0/2 | Not started | - |
 | 28. Navigation, Preview & Selections | v5.1 | 0/3 | Not started | - |
 | 29. Classification Restyle + Generate | v5.1 | 0/2 | Not started | - |
@@ -156,4 +156,4 @@ Plans:
 | 20. Evidence & Provenance Display | v4.1 | 0/2 | Deferred | - |
 
 ---
-*Roadmap updated: 2026-03-11 — Phase 26 planned (2 plans in 2 waves)*
+*Roadmap updated: 2026-03-11 — Phase 26 complete (2/2 plans, verified)*
