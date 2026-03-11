@@ -103,46 +103,52 @@
     </nav>
 
     <main class="container">
-        <!-- Welcome Section (OaSIS-style: image left, content right) -->
+        <!-- Welcome Section (v5.1 Search Landing) -->
         <section id="welcome-section" class="welcome-section">
-            <div class="welcome-layout">
-                <div class="welcome-image">
-                    <img src="/static/images/jobforge-logo.png" alt="JobForge Logo">
+            <div class="search-landing">
+                <h1 class="search-landing__title">Find your Job</h1>
+                <p class="search-landing__subtitle">Search across all job taxonomies to find the occupation that best matches your position</p>
+
+                <!-- Match Quality Legend (SRCH-01) -->
+                <div class="match-quality-legend">
+                    <span class="match-quality-legend__item match-quality-legend__item--green">
+                        <span class="match-quality-legend__pct">95-100%</span> Title
+                    </span>
+                    <span class="match-quality-legend__item match-quality-legend__item--blue">
+                        <span class="match-quality-legend__pct">85%</span> Description
+                    </span>
+                    <span class="match-quality-legend__item match-quality-legend__item--grey">
+                        <span class="match-quality-legend__pct">75%</span> Related
+                    </span>
                 </div>
-                <div class="welcome-content">
-                    <h1 class="welcome-title">Welcome to JobForge</h1>
-                    <p class="welcome-subtitle">Job Description Builder</p>
 
-                    <!-- Search Container -->
-                    <div class="search-container">
-                        <div class="search-type-toggle" role="tablist">
-                            <button role="tab" class="pill-btn active" data-search-type="Keyword" aria-selected="true">
-                                Keyword
-                            </button>
-                            <button role="tab" class="pill-btn" data-search-type="Code" aria-selected="false">
-                                Code
-                            </button>
-                            <button role="tab" class="pill-btn disabled" data-search-type="JobFamily" aria-selected="false" disabled title="Coming soon">
-                                Job Family
-                            </button>
-                        </div>
-                        <div class="search-input-row">
-                            <input
-                                type="search"
-                                id="search-input"
-                                placeholder="Search job titles..."
-                                aria-label="Search job titles"
-                            >
-                            <button id="search-button" type="button">Search</button>
-                        </div>
+                <!-- Search Input (SRCH-01) -->
+                <div class="search-container search-container--centered">
+                    <div class="search-input-row">
+                        <input
+                            type="search"
+                            id="search-input"
+                            placeholder="Search job titles, NOC codes, or keywords..."
+                            aria-label="Search job titles"
+                        >
+                        <button id="search-button" type="button"><i class="fas fa-search"></i> Search</button>
                     </div>
+                    <div class="search-type-toggle" role="tablist">
+                        <button role="tab" class="pill-btn active" data-search-type="Keyword" aria-selected="true">Keyword</button>
+                        <button role="tab" class="pill-btn" data-search-type="Code" aria-selected="false">Code</button>
+                    </div>
+                </div>
 
-                    <p class="authoritative-sources">
-                        Authoritative Sources: ESDC OaSIS 2025 NOC v1.0 (Published: 2024-11-15) / O*NET 27.2 Database (USDOL/ETA)
-                    </p>
+                <p class="search-landing__source">
+                    Source: <a href="https://noc.esdc.gc.ca/" target="_blank" rel="noopener noreferrer">JobForge WiQ</a> | All job taxonomies
+                </p>
 
-                    <p class="provenance-description">
-                        Job Description content is traceable to its sources, data stewards, and publishing dates for full medallion provenance that complies with the Directive on Automated Decision Making requirements.
+                <!-- Empty State (SRCH-02) -->
+                <div id="search-empty-state" class="search-empty-state">
+                    <i class="fas fa-search search-empty-state__icon"></i>
+                    <p class="search-empty-state__text">Start typing to search across all job taxonomies</p>
+                    <p class="search-empty-state__compliance">
+                        Job Description content is traceable to its sources, data stewards, and publishing dates for full medallion provenance.
                     </p>
                 </div>
             </div>
@@ -171,29 +177,20 @@
 
         <!-- Search Results (initially hidden) -->
         <section id="search-results" class="search-results hidden">
-            <h2>Search Results</h2>
-
-            <!-- Sort and View Controls -->
-            <div class="sort-controls">
-                <label for="sort-select">Sort by:</label>
-                <select id="sort-select" class="sort-select">
-                    <option value="match" selected>Matching search criteria</option>
-                    <option value="title-asc">Label - A to Z</option>
-                    <option value="title-desc">Label - Z to A</option>
-                    <option value="code-asc">Code - Ascending</option>
-                    <option value="code-desc">Code - Descending</option>
-                </select>
-
-                <button id="view-toggle" class="view-toggle btn btn--secondary" aria-label="Switch to grid view" title="Grid view">
-                    <span id="view-toggle-label">Grid view</span>
-                    <i class="fa fa-th-list" aria-hidden="true"></i>
-                </button>
-
-                <span id="results-count" class="results-count"></span>
-                <span id="results-meta" class="results-meta">
-                    <span class="results-meta__date">Published: 2024-11-15</span>
-                    <span class="results-meta__steward">Data Steward: ESDC</span>
-                </span>
+            <!-- Results Header (SRCH-05) -->
+            <div class="results-header">
+                <div class="results-header__left">
+                    <h2 id="results-count" class="results-header__count">0 results</h2>
+                    <span class="results-header__filter-status hidden" id="filter-status">(filtered)</span>
+                </div>
+                <div class="results-header__right">
+                    <button id="new-search-btn" class="btn btn--secondary btn--sm" type="button">
+                        <i class="fas fa-plus"></i> New Search
+                    </button>
+                    <span class="results-header__meta">
+                        <span>Published: 2024-11-15</span> | <span>Data Steward: ESDC</span>
+                    </span>
+                </div>
             </div>
 
             <!-- Filter Toggle (mobile) -->
@@ -204,56 +201,63 @@
 
             <!-- Results Layout with Filter Panel -->
             <div class="results-layout">
-                <!-- Filter Panel -->
+                <!-- Filter Panel (SRCH-03) -->
                 <aside id="filter-panel" class="filter-panel">
-                    <h3>Filter items</h3>
+                    <h3>Filters</h3>
 
-                    <!-- Occupational Category Filter (FUNCTIONAL) -->
-                    <details class="filter-group" id="filter-minor-group" open>
-                        <summary>Occupational Category</summary>
-                        <fieldset>
-                            <legend>Filter by Occupational Category</legend>
-                            <div id="filter-minor-group-options" class="filter-options">
-                                <p class="filter-empty">Search to see filter options</p>
-                            </div>
-                        </fieldset>
+                    <details class="filter-accordion" id="filter-ochro" open>
+                        <summary>OCHRO Job Architecture</summary>
+                        <div class="filter-accordion__body">
+                            <p class="filter-empty">No results</p>
+                        </div>
                     </details>
 
-                    <!-- Feeder Group Mobility Filter (PLACEHOLDER - requires profile data) -->
-                    <details class="filter-group" id="filter-feeder-mobility">
-                        <summary>Feeder Group Mobility</summary>
-                        <fieldset>
-                            <legend>Filter by Feeder Group Mobility</legend>
-                            <div id="filter-feeder-options" class="filter-options">
-                                <p class="filter-empty">Click a result card to view profile and enable mobility filtering</p>
-                            </div>
-                        </fieldset>
+                    <details class="filter-accordion" id="filter-caf">
+                        <summary>CAF Careers</summary>
+                        <div class="filter-accordion__body">
+                            <p class="filter-empty">No results</p>
+                        </div>
                     </details>
 
-                    <!-- Career Progression Filter (PLACEHOLDER - requires profile data) -->
-                    <details class="filter-group" id="filter-career-progression">
-                        <summary>Career Progression</summary>
-                        <fieldset>
-                            <legend>Filter by Career Progression</legend>
-                            <div id="filter-progression-options" class="filter-options">
-                                <p class="filter-empty">Click a result card to view profile and enable progression filtering</p>
-                            </div>
-                        </fieldset>
+                    <details class="filter-accordion" id="filter-noc-broad" open>
+                        <summary>2021 NOC Broad &rarr; Major</summary>
+                        <div id="filter-noc-broad-options" class="filter-accordion__body filter-options">
+                            <p class="filter-empty">Search to see filter options</p>
+                        </div>
+                    </details>
+
+                    <details class="filter-accordion" id="filter-noc-teer" open>
+                        <summary>2021 NOC TEER</summary>
+                        <div id="filter-noc-teer-options" class="filter-accordion__body filter-options">
+                            <p class="filter-empty">Search to see filter options</p>
+                        </div>
+                    </details>
+
+                    <details class="filter-accordion" id="filter-occ-groups">
+                        <summary>Occupational Groups</summary>
+                        <div class="filter-accordion__body">
+                            <p class="filter-empty">No results</p>
+                        </div>
+                    </details>
+
+                    <details class="filter-accordion" id="filter-onet-soc">
+                        <summary>O*NET SOC</summary>
+                        <div class="filter-accordion__body">
+                            <p class="filter-empty">No results</p>
+                        </div>
                     </details>
 
                     <button id="filter-clear" class="filter-clear" type="button" disabled>
-                        Clear all filters
+                        <i class="fas fa-times"></i> Clear All Filters
                     </button>
 
-                    <!-- Scoring Legend (S1-16) -->
+                    <!-- Match Confidence Legend -->
                     <div class="scoring-legend">
-                        <h4 class="scoring-legend__title">Confidence Scoring</h4>
+                        <h4 class="scoring-legend__title">Match Confidence</h4>
                         <ul class="scoring-legend__list">
-                            <li><span class="scoring-legend__pct scoring-legend__pct--100">100%</span> Exact title match</li>
-                            <li><span class="scoring-legend__pct scoring-legend__pct--95">95%</span> Title contains full phrase</li>
-                            <li><span class="scoring-legend__pct scoring-legend__pct--85">85%</span> Title contains word stem</li>
-                            <li><span class="scoring-legend__pct scoring-legend__pct--60">60%</span> Description contains phrase</li>
-                            <li><span class="scoring-legend__pct scoring-legend__pct--50">50%</span> Description contains stem</li>
+                            <li><span class="scoring-legend__pct scoring-legend__pct--green">95-100%</span> Title match</li>
+                            <li><span class="scoring-legend__pct scoring-legend__pct--blue">80-94%</span> Description match</li>
+                            <li><span class="scoring-legend__pct scoring-legend__pct--grey">50-79%</span> Related match</li>
                         </ul>
                     </div>
                 </aside>
@@ -262,16 +266,6 @@
                 <div class="results-main">
                     <div id="results-list" class="results-cards-container" role="list"></div>
                 </div>
-            </div>
-
-            <!-- Authoritative Sources Footer (same as welcome section) -->
-            <div class="results-footer">
-                <p class="authoritative-sources">
-                    Authoritative Sources: ESDC OaSIS 2025 NOC v1.0 (Published: 2024-11-15) / O*NET 27.2 Database (USDOL/ETA)
-                </p>
-                <p class="provenance-description">
-                    Job Description content is traceable to its sources, data stewards, and publishing dates for full medallion provenance that complies with the Directive on Automated Decision Making requirements.
-                </p>
             </div>
         </section>
 

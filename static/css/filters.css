@@ -1,6 +1,4 @@
-/* Filter Panel Styles
-   Based on OASIS-HTML-REFERENCE.md filter patterns
-*/
+/* Filter Panel Styles — v5.1 with accordion sections (SRCH-03) */
 
 /* Results Layout with Filter Panel */
 .results-layout {
@@ -222,6 +220,48 @@
 .scoring-legend__pct--85  { background: #d4edda; color: #155724; }
 .scoring-legend__pct--60  { background: #fff3cd; color: #856404; }
 .scoring-legend__pct--50  { background: #fff3cd; color: #856404; }
+
+/* v5.1 scoring legend color classes */
+.scoring-legend__pct--green { background: #d4edda; color: #155724; }
+.scoring-legend__pct--blue  { background: #cce5ff; color: #004085; }
+.scoring-legend__pct--grey  { background: #e2e3e5; color: #383d41; }
+
+/* v5.1 Filter Accordion (SRCH-03) */
+.filter-accordion {
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+}
+.filter-accordion > summary {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    background: #f8f9fa;
+    list-style: none;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.filter-accordion > summary::-webkit-details-marker {
+    display: none;
+}
+.filter-accordion > summary::before {
+    content: '\25B6';
+    font-size: 0.6rem;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+}
+.filter-accordion[open] > summary::before {
+    transform: rotate(90deg);
+}
+.filter-accordion__body {
+    padding: 0.75rem 1rem;
+}
+.filter-accordion .filter-empty {
+    margin: 0;
+}
 
 /* Responsive: Hide filter panel on mobile */
 @media (max-width: 768px) {

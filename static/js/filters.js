@@ -1,10 +1,9 @@
 /**
- * Filter Panel Module
- * Handles filtering of search results by Minor Unit Group.
+ * Filter Panel Module (v5.1)
+ * Handles filtering of search results by NOC Broad/Major group.
  *
- * Note: Feeder Group Mobility and Career Progression filters are UI placeholders.
- * They require profile data which is not available from search results.
- * Full implementation deferred to Phase 08-C or future enhancement.
+ * v5.1 changes: Updated DOM references from filter-minor-group-options
+ * to filter-noc-broad-options to match the new 6-accordion filter panel.
  */
 
 (function() {
@@ -12,9 +11,7 @@
 
     // Filter state
     const filters = {
-        minorGroup: new Set(),
-        feederMobility: new Set(),      // Placeholder - not functional
-        careerProgression: new Set()    // Placeholder - not functional
+        minorGroup: new Set()
     };
 
     // Store all results for filtering
@@ -23,8 +20,6 @@
 
     // DOM references
     let minorGroupOptions = null;
-    let feederOptions = null;
-    let progressionOptions = null;
     let clearButton = null;
     let filterToggle = null;
     let filterPanel = null;
@@ -37,10 +32,8 @@
     function initFilters(onFilterChange) {
         renderCallback = onFilterChange;
 
-        // Cache DOM references
-        minorGroupOptions = document.getElementById('filter-minor-group-options');
-        feederOptions = document.getElementById('filter-feeder-options');
-        progressionOptions = document.getElementById('filter-progression-options');
+        // Cache DOM references (v5.1: updated to filter-noc-broad-options)
+        minorGroupOptions = document.getElementById('filter-noc-broad-options');
         clearButton = document.getElementById('filter-clear');
         filterToggle = document.getElementById('filter-toggle');
         filterPanel = document.getElementById('filter-panel');
@@ -158,15 +151,6 @@
                 // Update parent checkbox states after rendering
                 updateParentStates();
             }
-        }
-
-        // Feeder Mobility and Career Progression: Keep placeholder messages
-        // These require profile data which is not available from search results
-        if (feederOptions) {
-            feederOptions.innerHTML = '<p class="filter-empty">Select a profile to enable mobility filtering</p>';
-        }
-        if (progressionOptions) {
-            progressionOptions.innerHTML = '<p class="filter-empty">Select a profile to enable progression filtering</p>';
         }
 
         // Clear existing filters that no longer apply
@@ -328,8 +312,6 @@
      */
     function clearAllFilters() {
         filters.minorGroup.clear();
-        filters.feederMobility.clear();
-        filters.careerProgression.clear();
 
         // Uncheck all checkboxes and reset indeterminate states
         const checkboxes = document.querySelectorAll('#filter-panel input[type="checkbox"]');
@@ -346,7 +328,7 @@
      * Update clear button state
      */
     function updateClearButton() {
-        const activeCount = filters.minorGroup.size + filters.feederMobility.size + filters.careerProgression.size;
+        const activeCount = filters.minorGroup.size;
 
         if (clearButton) {
             clearButton.disabled = activeCount === 0;
@@ -354,7 +336,7 @@
 
         if (activeIndicator) {
             if (activeCount > 0) {
-                activeIndicator.innerHTML = `<span class="filter-active-count">${activeCount}</span>`;
+                activeIndicator.innerHTML = '<span class="filter-active-count">' + activeCount + '</span>';
             } else {
                 activeIndicator.innerHTML = '';
             }
@@ -367,9 +349,7 @@
      */
     function getFilterState() {
         return {
-            minorGroup: Array.from(filters.minorGroup),
-            feederMobility: Array.from(filters.feederMobility),
-            careerProgression: Array.from(filters.careerProgression)
+            minorGroup: Array.from(filters.minorGroup)
         };
     }
 

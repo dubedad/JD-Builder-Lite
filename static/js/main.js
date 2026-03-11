@@ -16,11 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const actionBar = document.getElementById('action-bar');
     const sidebar = document.getElementById('sidebar');
     const sidebarToggle = document.getElementById('sidebar-toggle');
-    const viewToggle = document.getElementById('view-toggle');
     const pillBtns = document.querySelectorAll('.pill-btn');
-    const sortSelect = document.getElementById('sort-select');
     const resultsCount = document.getElementById('results-count');
-    const viewToggleLabel = document.getElementById('view-toggle-label');
 
     // Profile info elements
     const profileTitle = document.getElementById('profile-title');
@@ -89,10 +86,8 @@ document.addEventListener('DOMContentLoaded', function() {
         return NOC_BROAD_ICONS[broadCategory] || 'fa-briefcase';
     }
 
-    // View toggle state
-    let currentView = storage.get('viewMode', 'card');
-    let currentSort = { column: null, ascending: true };
-    let lastResults = []; // Store results for re-rendering on view change
+    // Last results storage for re-rendering
+    let lastResults = [];
 
     // Session ID (CHROME-02)
     function getOrCreateSessionId() {
@@ -190,51 +185,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Responsive view handling
+    // Responsive viewport detection (used for some responsive logic)
     const mediaQuery = window.matchMedia('(max-width: 768px)');
-
-    function handleViewportChange(e) {
-        if (e.matches) {
-            // Mobile: force card view, disable toggle
-            switchView('card', false);
-            viewToggle.disabled = true;
-        } else {
-            // Desktop: enable toggle, restore preference
-            viewToggle.disabled = false;
-            switchView(storage.get('viewMode', 'card'), false);
-        }
-    }
-
-    mediaQuery.addEventListener('change', handleViewportChange);
-
-    /**
-     * Switch between card and grid views
-     * @param {string} view - 'card' or 'grid'
-     * @param {boolean} persist - Whether to save preference to storage
-     */
-    function switchView(view, persist = true) {
-        currentView = view;
-        resultsList.className = 'results-list ' + view + '-view';
-
-        if (view === 'grid') {
-            viewToggleLabel.textContent = 'Card view';
-            viewToggle.setAttribute('aria-label', 'Switch to card view');
-            viewToggle.setAttribute('title', 'Card view');
-        } else {
-            viewToggleLabel.textContent = 'Grid view';
-            viewToggle.setAttribute('aria-label', 'Switch to grid view');
-            viewToggle.setAttribute('title', 'Grid view');
-        }
-
-        if (persist && !mediaQuery.matches) {
-            storage.set('viewMode', view);
-        }
-
-        // Re-render with current results
-        if (lastResults.length > 0) {
-            renderSearchResults(lastResults);
-        }
-    }
 
     /**
      * Show inline error message
@@ -321,251 +273,97 @@ document.addEventListener('DOMContentLoaded', function() {
         lastResults = results; // Store for re-rendering
         resultsList.innerHTML = '';
 
-        // Update results count
-        resultsCount.textContent = `Showing ${results.length} ${results.length === 1 ? 'result' : 'results'}`;
+        // Update results count in new header format
+        if (resultsCount) {
+            resultsCount.textContent = `${results.length} result${results.length !== 1 ? 's' : ''}`;
+        }
 
         if (results.length === 0) {
             resultsList.innerHTML = '<div class="empty-state" role="listitem">No results found</div>';
             return;
         }
 
-        if (currentView === 'grid' && !mediaQuery.matches) {
-            renderGridView(results);
-        } else {
-            renderCardView(results);
-        }
+        renderCardView(results);
     }
 
     /**
-     * Render OaSIS-style card view
+     * Render v5.1 result cards (SRCH-04)
      * @param {Array} results - Array of EnrichedSearchResult objects
      */
     function renderCardView(results) {
         resultsList.className = 'results-cards-container';
+        resultsList.innerHTML = '';
+        resultsList.setAttribute('role', 'list');
 
         results.forEach(function(result) {
             const card = document.createElement('div');
-            card.className = 'oasis-card';
+            card.className = 'result-card';
             card.setAttribute('data-code', result.noc_code);
             card.setAttribute('role', 'listitem');
             card.setAttribute('tabindex', '0');
 
-            // Build card HTML with available data
-            card.innerHTML = `
-                <div class="card-header">
-                    <a href="#" class="card-title-link" data-code="${escapeHtml(result.noc_code)}">
-                        ${escapeHtml(result.noc_code)} - ${escapeHtml(result.title)}
-                    </a>
-                </div>
+            // Determine match tier for badge color
+            const score = result.relevance_score || 0;
+            let badgeClass, badgeLabel;
+            if (score >= 95) {
+                badgeClass = 'match-badge-pill--green';
+                badgeLabel = 'Title match';
+            } else if (score >= 80) {
+                badgeClass = 'match-badge-pill--blue';
+                badgeLabel = 'Description match';
+            } else {
+                badgeClass = 'match-badge-pill--grey';
+                badgeLabel = 'Related match';
+            }
 
-                ${result.broad_category_name ? `
-                <div class="card-row">
-                    <i class="fa ${getNocCategoryIcon(result.noc_code)} card-icon" aria-hidden="true"></i>
-                    <span class="card-text">${escapeHtml(result.broad_category_name)}</span>
-                </div>
-                ` : ''}
+            const sourceLabel = result.source_label || 'O*NET SOC';
 
-                ${result.teer_description ? `
-                <div class="card-row">
-                    <i class="fa fa-bookmark card-icon" aria-hidden="true"></i>
-                    <span class="card-text">${escapeHtml(result.teer_description)}</span>
-                </div>
-                ` : ''}
+            // Build "Also known as:" with keyword highlighting
+            let alsoKnownAsHtml = '';
+            if (result.example_titles) {
+                let titlesText = escapeHtml(result.example_titles);
+                // Highlight search query keywords
+                const query = searchInput ? searchInput.value.trim() : '';
+                if (query) {
+                    const queryWords = query.toLowerCase().split(/\s+/);
+                    queryWords.forEach(function(word) {
+                        if (word.length >= 3) {
+                            const regex = new RegExp('(' + word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+                            titlesText = titlesText.replace(regex, '<span class="highlight">$1</span>');
+                        }
+                    });
+                }
+                alsoKnownAsHtml = '<p class="result-card__also-known-as"><strong>Also known as:</strong> ' + titlesText + '</p>';
+            }
 
-                ${result.lead_statement ? `
-                <div class="card-row">
-                    <i class="fa fa-book card-icon" aria-hidden="true"></i>
-                    <span class="card-text">${escapeHtml(result.lead_statement)}</span>
-                </div>
-                ` : ''}
+            const iconClass = getNocCategoryIcon(result.noc_code);
 
-                <div class="card-footer">
-                    ${result.match_reason ? `
-                    <span class="match-reason match-reason--${result.relevance_score >= 80 ? 'high' : result.relevance_score >= 40 ? 'medium' : 'low'}">
-                        <span class="match-confidence">${result.relevance_score}%</span>
-                        ${escapeHtml(result.match_reason)}
-                    </span>
-                    ` : ''}
-                    <i class="fa fa-search card-icon" aria-hidden="true"></i>
-                    <span class="card-text">
-                        <span class="matching-label">Matching search criteria</span>
-                        ${result.matching_criteria ? `<br><span class="matching-value">${escapeHtml(result.matching_criteria)}</span>` : ''}
-                    </span>
-                </div>
-            `;
+            card.innerHTML =
+                '<div class="result-card__header">' +
+                    '<i class="fas ' + iconClass + ' result-card__icon" aria-hidden="true"></i>' +
+                    '<h3 class="result-card__title">' + escapeHtml(result.title) + '</h3>' +
+                '</div>' +
+                '<div class="result-card__badges">' +
+                    '<span class="match-badge-pill ' + badgeClass + '">' + score + '% ' + badgeLabel + '</span>' +
+                    '<span class="match-badge-pill match-badge-pill--grey">' + escapeHtml(sourceLabel) + '</span>' +
+                '</div>' +
+                alsoKnownAsHtml +
+                (result.lead_statement ? '<p class="result-card__description">' + escapeHtml(result.lead_statement) + '</p>' : '');
+
+            card.addEventListener('click', function() { handleResultClick(result.noc_code); });
+            card.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleResultClick(result.noc_code);
+                }
+            });
 
             resultsList.appendChild(card);
         });
     }
 
-    // Cache for loaded profile summaries
+    // Profile cache (kept for potential future use)
     const profileCache = new Map();
-
-    /**
-     * Render grid view with JD category headers and lazy-load content
-     * @param {Array} results - Array of EnrichedSearchResult objects
-     */
-    function renderGridView(results) {
-        resultsList.className = 'results-list grid-view';
-
-        // Grid header with JD category names
-        const header = document.createElement('div');
-        header.className = 'grid-header';
-        header.setAttribute('role', 'row');
-        header.innerHTML = `
-            <div class="grid-header-cell" role="columnheader">OaSIS Profile</div>
-            <div class="grid-header-cell" role="columnheader">Key Activities</div>
-            <div class="grid-header-cell" role="columnheader">Skills</div>
-            <div class="grid-header-cell" role="columnheader">Effort</div>
-            <div class="grid-header-cell" role="columnheader">Responsibility</div>
-            <div class="grid-header-cell" role="columnheader">Working Conditions</div>
-        `;
-        resultsList.appendChild(header);
-
-        // Grid rows with loading state
-        results.forEach(function(result) {
-            const row = document.createElement('div');
-            row.className = 'grid-row';
-            row.setAttribute('data-code', result.noc_code);
-            row.setAttribute('role', 'row');
-            row.setAttribute('tabindex', '0');
-            row.innerHTML = `
-                <div class="grid-cell" role="cell">
-                    <a href="#" class="grid-profile-link">${escapeHtml(result.noc_code)} - ${escapeHtml(result.title)}</a>
-                </div>
-                <div class="grid-cell grid-cell-activities" role="cell"><span class="loading-text">Loading...</span></div>
-                <div class="grid-cell grid-cell-skills" role="cell"><span class="loading-text">Loading...</span></div>
-                <div class="grid-cell grid-cell-effort" role="cell"><span class="loading-text">Loading...</span></div>
-                <div class="grid-cell grid-cell-responsibility" role="cell"><span class="loading-text">Loading...</span></div>
-                <div class="grid-cell grid-cell-conditions" role="cell"><span class="loading-text">Loading...</span></div>
-            `;
-            resultsList.appendChild(row);
-        });
-
-        // Lazy load profile data for each result
-        loadGridProfileData(results);
-    }
-
-    /**
-     * Lazy load profile data for grid view cells
-     * @param {Array} results - Search results to load profiles for
-     */
-    async function loadGridProfileData(results) {
-        // Process in batches to avoid overwhelming the server
-        const batchSize = 3;
-        for (let i = 0; i < results.length; i += batchSize) {
-            const batch = results.slice(i, i + batchSize);
-            await Promise.all(batch.map(result => loadSingleGridProfile(result.noc_code)));
-        }
-    }
-
-    /**
-     * Load a single profile and update grid row
-     * @param {string} nocCode - NOC code to fetch
-     */
-    async function loadSingleGridProfile(nocCode) {
-        const row = resultsList.querySelector(`.grid-row[data-code="${nocCode}"]`);
-        if (!row) return;
-
-        // Check cache first
-        if (profileCache.has(nocCode)) {
-            updateGridRow(row, profileCache.get(nocCode));
-            return;
-        }
-
-        try {
-            const profile = await api.getProfile(nocCode);
-
-            // Extract top 2 items from each JD category (statements are in .statements array)
-            const summary = {
-                example_titles: profile.example_titles || [],
-                key_activities: extractTopItems(profile.key_activities?.statements, 2),
-                skills: extractTopItems(profile.skills?.statements, 2),
-                effort: extractTopItems(profile.effort?.statements, 2),
-                responsibility: extractTopItems(profile.responsibility?.statements, 2),
-                working_conditions: extractTopItems(profile.working_conditions?.statements, 2)
-            };
-
-            // Cache the summary
-            profileCache.set(nocCode, summary);
-
-            // Update the row (including the profile cell with example titles)
-            updateGridRow(row, summary, profile);
-        } catch (error) {
-            console.error(`Failed to load profile ${nocCode}:`, error);
-            // Show error state
-            const cells = row.querySelectorAll('.grid-cell:not(:first-child)');
-            cells.forEach(cell => {
-                cell.innerHTML = '<span class="loading-text error">Error</span>';
-            });
-        }
-    }
-
-    /**
-     * Extract top N items from a JD section
-     * @param {Array} section - Array of statement objects
-     * @param {number} count - Number of items to extract
-     * @returns {Array} - Array of text strings
-     */
-    function extractTopItems(section, count) {
-        if (!section || !Array.isArray(section)) return [];
-
-        // Dimension type labels to filter out (from Work Context parsing issues)
-        const dimensionLabels = ['importance', 'frequency', 'duration', 'level', 'proficiency'];
-
-        return section
-            .map(stmt => {
-                // Handle both string and object formats
-                if (typeof stmt === 'string') return stmt;
-                return stmt.text || stmt.statement || '';
-            })
-            .filter(text => {
-                if (!text || text.length === 0) return false;
-                // Filter out dimension labels that got captured as text
-                const lowerText = text.toLowerCase().trim();
-                if (dimensionLabels.includes(lowerText)) return false;
-                // Filter out very short text (likely parsing errors)
-                if (text.length < 10) return false;
-                return true;
-            })
-            .slice(0, count);
-    }
-
-    /**
-     * Update a grid row with profile summary data
-     * @param {HTMLElement} row - Grid row element
-     * @param {Object} summary - Summary data object
-     * @param {Object} profile - Full profile data (optional, for example titles)
-     */
-    function updateGridRow(row, summary, profile) {
-        const formatCell = (items) => {
-            if (!items || items.length === 0) return '<span class="loading-text">None</span>';
-            // Truncate long text and join with line break
-            return items.map(text => {
-                const truncated = text.length > 50 ? text.substring(0, 47) + '...' : text;
-                return escapeHtml(truncated);
-            }).join('<br>');
-        };
-
-        // Update profile cell with example titles if available
-        if (profile && summary.example_titles && summary.example_titles.length > 0) {
-            const profileCell = row.querySelector('.grid-cell:first-child');
-            const link = profileCell.querySelector('.grid-profile-link');
-            const exampleTitlesHtml = summary.example_titles.slice(0, 3).map(t => escapeHtml(t)).join(', ');
-            profileCell.innerHTML = `
-                <div class="grid-profile-info">
-                    <a href="#" class="grid-profile-link">${link.textContent}</a>
-                    <div class="grid-example-titles">${exampleTitlesHtml}</div>
-                </div>
-            `;
-        }
-
-        row.querySelector('.grid-cell-activities').innerHTML = formatCell(summary.key_activities);
-        row.querySelector('.grid-cell-skills').innerHTML = formatCell(summary.skills);
-        row.querySelector('.grid-cell-effort').innerHTML = formatCell(summary.effort);
-        row.querySelector('.grid-cell-responsibility').innerHTML = formatCell(summary.responsibility);
-        row.querySelector('.grid-cell-conditions').innerHTML = formatCell(summary.working_conditions);
-    }
 
     /**
      * Update profile info card
@@ -605,6 +403,10 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
+        // Hide empty state when search starts
+        const emptyState = document.getElementById('search-empty-state');
+        if (emptyState) emptyState.classList.add('hidden');
+
         // Show loading state
         searchButton.disabled = true;
         searchButton.textContent = 'Searching...';
@@ -628,6 +430,12 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('[DEBUG] Rendering results...');
             renderSearchResults(response.results);
             searchResults.classList.remove('hidden');
+
+            // Hide welcome section when showing results
+            const welcomeSection = document.getElementById('welcome-section');
+            if (welcomeSection) {
+                welcomeSection.classList.add('hidden');
+            }
 
             // Show explore section below results
             const exploreSection = document.getElementById('explore-section');
@@ -708,70 +516,30 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // View toggle click
-    viewToggle.addEventListener('click', function() {
-        switchView(currentView === 'card' ? 'grid' : 'card');
-    });
+    // + New Search button handler (SRCH-05)
+    const newSearchBtn = document.getElementById('new-search-btn');
+    if (newSearchBtn) {
+        newSearchBtn.addEventListener('click', function() {
+            if (searchInput) searchInput.value = '';
+            if (searchResults) searchResults.classList.add('hidden');
+            const welcomeSection = document.getElementById('welcome-section');
+            if (welcomeSection) welcomeSection.classList.remove('hidden');
+            const emptyState = document.getElementById('search-empty-state');
+            if (emptyState) emptyState.classList.remove('hidden');
+            lastResults = [];
+            if (window.jdStepper) window.jdStepper.goToStep(1);
+        });
+    }
 
-    // Sort dropdown handler
-    sortSelect.addEventListener('change', function() {
-        const sortValue = sortSelect.value;
-        let sorted = [...lastResults];
-
-        switch (sortValue) {
-            case 'title-asc':
-                sorted.sort((a, b) => a.title.localeCompare(b.title));
-                break;
-            case 'title-desc':
-                sorted.sort((a, b) => b.title.localeCompare(a.title));
-                break;
-            case 'code-asc':
-                sorted.sort((a, b) => a.noc_code.localeCompare(b.noc_code));
-                break;
-            case 'code-desc':
-                sorted.sort((a, b) => b.noc_code.localeCompare(a.noc_code));
-                break;
-            case 'match':
-            default:
-                // Sort by relevance score (highest first)
-                sorted.sort((a, b) => (b.relevance_score || 0) - (a.relevance_score || 0));
-                break;
-        }
-
-        renderSearchResults(sorted);
-    });
-
-    // Event delegation for result clicks
+    // Event delegation for result clicks (cards now have direct event listeners added in renderCardView)
+    // Fallback delegation for any cards that may not have direct listeners
     resultsList.addEventListener('click', function(e) {
-        // Handle card clicks (prevent link default, use data-code)
-        const card = e.target.closest('.oasis-card, .grid-row');
+        const card = e.target.closest('.result-card');
         if (card) {
             e.preventDefault();
             const code = card.getAttribute('data-code');
             if (code) {
                 handleResultClick(code);
-            }
-            return;
-        }
-
-        // Fallback for direct li clicks (legacy)
-        const li = e.target.closest('li[data-code]');
-        if (li) {
-            const code = li.getAttribute('data-code');
-            handleResultClick(code);
-        }
-    });
-
-    // Keyboard navigation for cards
-    resultsList.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' || e.key === ' ') {
-            const card = e.target.closest('.oasis-card, .grid-row');
-            if (card) {
-                e.preventDefault();
-                const code = card.getAttribute('data-code');
-                if (code) {
-                    handleResultClick(code);
-                }
             }
         }
     });
@@ -785,8 +553,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Initialize view state
-    handleViewportChange(mediaQuery);
+    // (view toggle removed in v5.1 — card view is the only view)
 
     /**
      * Initialize JD Stepper navigation
