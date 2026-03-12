@@ -27,7 +27,9 @@ const generation = {
             badge: document.getElementById('ai-badge'),
             generateBtn: document.getElementById('generate-btn'),
             regenerateBtn: document.getElementById('regenerate-btn'),
-            errorDiv: document.getElementById('overview-error')
+            errorDiv: document.getElementById('overview-error'),
+            additionalContext: document.getElementById('additional-context'),
+            outputContainer: document.getElementById('generate-output')
         };
 
         // Bind event handlers
@@ -123,20 +125,22 @@ const generation = {
 
         // Update UI
         this.elements.section.classList.remove('hidden');
-        this.elements.textarea.value = '';
-        this.elements.textarea.disabled = true;
-        this.elements.textarea.classList.add('overview-textarea--streaming');
+        if (this.elements.outputContainer) this.elements.outputContainer.classList.remove('hidden');
+        this.elements.textarea.textContent = '';
+        this.elements.textarea.classList.add('generate-output__prose--streaming');
         this.elements.badge.textContent = 'Generating...';
-        this.elements.badge.className = 'ai-badge ai-badge--generating';
+        this.elements.badge.className = 'badge badge--ai-generated ai-badge--generating';
         this.elements.regenerateBtn.disabled = true;
         this.setGeneratingState(true);
+
+        const additionalContext = this.elements.additionalContext?.value?.trim() || '';
 
         try {
             // Send POST request to trigger generation
             const response = await fetch('/api/generate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ statements, context })
+                body: JSON.stringify({ statements, context, additional_context: additionalContext })
             });
 
             if (!response.ok) {
@@ -207,11 +211,11 @@ const generation = {
             return;
         }
 
-        // Append token to textarea
-        this.elements.textarea.value += data;
+        // Append token to contenteditable div
+        this.elements.textarea.textContent += data;
 
         // Auto-scroll to bottom
-        this.elements.textarea.scrollTop = this.elements.textarea.scrollHeight;
+        this.elements.textarea.scrollIntoView({ block: 'end', behavior: 'smooth' });
     },
 
     /**
@@ -219,13 +223,12 @@ const generation = {
      */
     resetGeneratingState() {
         this.isGenerating = false;
-        this.elements.textarea.disabled = false;
-        this.elements.textarea.classList.remove('overview-textarea--streaming');
+        this.elements.textarea.classList.remove('generate-output__prose--streaming');
         this.elements.regenerateBtn.disabled = false;
 
         if (this.hasGenerated) {
             this.elements.badge.textContent = 'AI Generated';
-            this.elements.badge.className = 'ai-badge';
+            this.elements.badge.className = 'badge badge--ai-generated';
 
             // Fetch and store AI metadata for export compliance appendix
             this.fetchAIMetadata();
@@ -261,7 +264,7 @@ const generation = {
         if (!this.isModified) {
             this.isModified = true;
             this.elements.badge.textContent = 'AI-Generated (Modified)';
-            this.elements.badge.className = 'ai-badge ai-badge--modified';
+            this.elements.badge.className = 'badge badge--ai-generated ai-badge--modified';
 
             // Notify backend for provenance tracking
             fetch('/api/mark-modified', { method: 'POST' })
@@ -289,7 +292,7 @@ const generation = {
      */
     getOverview() {
         return {
-            text: this.elements.textarea?.value || '',
+            text: this.elements.textarea?.textContent || '',
             modified: this.isModified,
             generated: this.hasGenerated
         };
