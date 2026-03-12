@@ -106,11 +106,13 @@ Plans:
 3. The Generate page renders with a "Generate AI Overview" card, DADM Level 2 badge, Human Review Required badge, and a yellow DADM Compliance Notice.
 4. Clicking "Generate with AI" sends selected statements to OpenAI and displays multi-paragraph prose with an "AI Generated" badge; a "Regenerate" button allows re-generation.
 
-**Plans:** TBD
+**Plans:** 4 plans
 
 Plans:
-- [ ] 29-01: Classification page restyle (chrome, badges, TBS card, post-analysis enriched sections)
-- [ ] 29-02: Generate page (new page, DADM card, compliance notice, textarea, Generate with AI button, AI output + Regenerate)
+- [x] 29-01-PLAN.md — Classification page restyle (chrome, badges, TBS card, post-analysis enriched sections)
+- [x] 29-02-PLAN.md — Generate page (new page, DADM card, compliance notice, textarea, Generate with AI button, AI output + Regenerate)
+- [x] 29-03-PLAN.md — Post-analysis rendering + Analyze button wiring (classify.js)
+- [ ] 29-04-PLAN.md — Gap closure: wire additional_context through backend + multi-paragraph system prompt
 
 ---
 
@@ -144,7 +146,7 @@ Plans:
 | 26. Global Chrome & Search | v5.1 | 2/2 | Complete | 2026-03-11 |
 | 27. Build Page Redesign | v5.1 | 2/2 | Complete | 2026-03-12 |
 | 28. Navigation, Preview & Selections | v5.1 | 3/3 | Complete | 2026-03-12 |
-| 29. Classification Restyle + Generate | v5.1 | 0/2 | Not started | - |
+| 29. Classification Restyle + Generate | v5.1 | 3/4 | Gap closure | - |
 | 30. Export Page + New PDF/DOCX/JSON | v5.1 | 0/3 | Not started | - |
 | 21. Data Exploration | v5.0 | 3/3 | Complete | 2026-03-07 |
 | 22. Profile Service | v5.0 | 2/2 | Complete | 2026-03-08 |
@@ -156,4 +158,4 @@ Plans:
 | 20. Evidence & Provenance Display | v4.1 | 0/2 | Deferred | - |
 
 ---
-*Roadmap updated: 2026-03-12 — Phase 28 complete (3/3 plans, verified)*
+*Roadmap updated: 2026-03-12 — Phase 29 gap closure plan created (29-04)*
