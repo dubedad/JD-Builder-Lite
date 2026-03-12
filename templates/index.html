@@ -581,6 +581,35 @@
     <!-- Toast notification container -->
     <div id="toast-container" class="toast-container" aria-live="polite"></div>
 
+    <!-- JD Preview Modal (PREV-01, PREV-02) -->
+    <div id="jd-preview-modal" class="jd-preview-modal hidden" role="dialog" aria-modal="true" aria-labelledby="preview-modal-title">
+        <div class="jd-preview-modal__overlay"></div>
+        <div class="jd-preview-modal__container">
+            <header class="jd-preview-modal__header">
+                <h2 id="preview-modal-title" class="jd-preview-modal__title">Job Description Preview</h2>
+                <button id="preview-return-btn" class="jd-preview-modal__close" type="button">
+                    <i class="fas fa-arrow-left"></i> Return to Builder
+                </button>
+            </header>
+            <div class="jd-preview-modal__body" id="preview-modal-body">
+                <!-- Assembled JD content rendered by JS -->
+            </div>
+            <footer class="jd-preview-modal__footer">
+                <button id="preview-advance-classify" class="btn btn--primary" type="button">
+                    Advance to Classify <i class="fas fa-arrow-right"></i>
+                </button>
+                <div class="jd-preview-modal__export-btns">
+                    <button id="preview-export-pdf" class="btn btn--secondary" type="button">
+                        <i class="fas fa-file-pdf"></i> Export PDF
+                    </button>
+                    <button id="preview-export-word" class="btn btn--secondary" type="button">
+                        <i class="fas fa-file-word"></i> Export Word
+                    </button>
+                </div>
+            </footer>
+        </div>
+    </div>
+
     <!-- Selections Tab (CHROME-05) -->
     <button class="selections-tab" id="selections-tab-btn" type="button">
         Selections (<span id="selections-tab-count">0</span>)
