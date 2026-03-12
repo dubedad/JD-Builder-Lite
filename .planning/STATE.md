@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-03-11)
 
 **Core value:** Every piece of content in the JD can be traced to its authoritative source (JobForge parquet or OASIS), with clear documentation of human decisions and AI involvement.
-**Current focus:** v5.1 UI Overhaul — Phase 29: Classification Restyle + Generate Page
+**Current focus:** v5.1 UI Overhaul — Phase 30 (final phase)
 
 ## Current Position
 
 Milestone: v5.1 UI Overhaul
-Phase: 29 of 30 (Classification Restyle + Generate Page)
-Plan: 29-02 complete (29-03 remaining)
-Status: In progress
-Last activity: 2026-03-12 — Completed 29-02-PLAN.md (v5.1 Generate page HTML + CSS + JS)
+Phase: 29 of 30 (Classification Restyle + Generate Page) — COMPLETE
+Plan: 29-03 complete (all 3 plans done)
+Status: Phase 29 complete
+Last activity: 2026-03-12 — Completed 29-03-PLAN.md (post-analysis rendering + Analyze button wiring)
 
-Progress: [████████░░] 69% (9/13 plans complete)
+Progress: [█████████░] 77% (10/13 plans complete)
 
 ## Milestone History
 
@@ -74,9 +74,13 @@ Progress: [████████░░] 69% (9/13 plans complete)
 | overview-textarea ID kept on contenteditable div | 29-02 | ID rename would break all downstream JS (main.js, export.js) calling generation.getOverview() |
 | regenerate-btn preserved hidden in DOM | 29-02 | generate.js binds click listener to regenerate-btn; null would throw; visible regenerate is generate-regenerate |
 | generate-output starts hidden, revealed by JS on generate | 29-02 | Separates pre-generation form state from post-generation output state visually |
+| Analyze button dispatches classify-requested CustomEvent | 29-03 | Reuses handleClassifyRequest exactly; guarantees no double API call vs calling api.allocate() directly |
+| showLoading() hides classify-cta (not just button click) | 29-03 | Covers both Analyze button and any programmatic trigger in one place |
+| Alignment score computed client-side (evidenceCount/activityCount) | 29-03 | No new API field needed; keeps GroupRecommendation schema stable for backward compat |
+| JOB_EVAL_STANDARDS covers 8 common groups only | 29-03 | AS/CS/EC/PM/IT/FI/PE/EX; all others fall back to general TBS job evaluation index |
 
 ## Session Continuity
 
 Last session: 2026-03-12
-Stopped at: Completed 29-02-PLAN.md — v5.1 Generate page HTML + CSS + JS
+Stopped at: Completed 29-03-PLAN.md — v5.1 post-analysis rendering + Analyze button wiring (Phase 29 complete)
 Resume file: None
