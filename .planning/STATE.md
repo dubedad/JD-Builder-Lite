@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-03-11)
 
 Milestone: v5.1 UI Overhaul
 Phase: 28 of 30 (Navigation, Preview & Selections)
-Plan: 03 of 03 complete (28-03 done; 28-01 and 28-02 pending)
+Plan: 28-01 and 28-03 complete; 28-02 pending
 Status: In progress
-Last activity: 2026-03-12 — Completed 28-03-PLAN.md (Selections drawer redesign)
+Last activity: 2026-03-12 — Completed 28-01-PLAN.md (build nav bar + classify/generate page nav buttons)
 
-Progress: [████░░░░░░] 33% (4/12 plans complete — 28-03 done, 28-01/02 still pending)
+Progress: [█████░░░░░] 42% (5/12 plans complete — 28-01 done, 28-02 pending, 28-03 done)
 
 ## Milestone History
 
@@ -63,9 +63,13 @@ Progress: [████░░░░░░] 33% (4/12 plans complete — 28-03 do
 | ALL_SECTIONS_LABELS lives in accordion.js | 28-03 | Co-located with JD_ELEMENT_LABELS; exported globally so sidebar.js can access without import |
 | Drawer event listener re-attached on every render | 28-03 | innerHTML replacement destroys prior listeners; re-attach via summaryContainer.addEventListener each updateSidebar call |
 | abilities/knowledge text from filtered sub-array | 28-03 | Filter profile.skills.statements by source_attribute, then index into filtered array — matches IDs from phase 27-02 |
+| build-nav-bar visibility managed by navigateToStep | 28-01 | All 5 cases in navigateToStep add/remove hidden class; handleResultClick also shows it on profile load |
+| action-bar has style="display:none" not deleted | 28-01 | Keeps actionBar variable refs valid; classList ops on it are now no-ops visually |
+| nav-preview-jd dispatches CustomEvent open-preview-modal | 28-01 | Decouples build nav from preview implementation; 28-02 will add the listener |
+| classify-nav-actions--always outside #classify-complete | 28-01 | Ensures nav buttons visible even while classification is running or errored |
 
 ## Session Continuity
 
 Last session: 2026-03-12
-Stopped at: Completed 28-03-PLAN.md (Selections drawer redesign)
+Stopped at: Completed 28-01-PLAN.md (Build nav bar + classify/generate page nav buttons)
 Resume file: None
