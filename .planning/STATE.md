@@ -5,15 +5,15 @@
 See: .planning/PROJECT.md (updated 2026-03-11)
 
 **Core value:** Every piece of content in the JD can be traced to its authoritative source (JobForge parquet or OASIS), with clear documentation of human decisions and AI involvement.
-**Current focus:** v5.1 UI Overhaul — Phase 27: Build Page Redesign
+**Current focus:** v5.1 UI Overhaul — Phase 28: Navigation, Preview Modal & Selections Drawer
 
 ## Current Position
 
 Milestone: v5.1 UI Overhaul
-Phase: 27 of 30 (Build Page Redesign)
-Plan: 2 of 2 complete (Phase 27 complete)
-Status: Phase complete — ready for Phase 28
-Last activity: 2026-03-12 — Completed 27-02-PLAN.md (tab content redesign: Core Competencies selectable, Key Activities single Select All, Abilities/Knowledge/Effort/Responsibility level-grouped with colored badges)
+Phase: 28 of 30 (Navigation, Preview & Selections)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-03-12 — Phase 27 complete (2/2 plans, verified 5/5 must-haves)
 
 Progress: [████░░░░░░] 33% (4/12 plans complete)
 
@@ -64,5 +64,5 @@ Progress: [████░░░░░░] 33% (4/12 plans complete)
 ## Session Continuity
 
 Last session: 2026-03-12
-Stopped at: Completed 27-02-PLAN.md — tab content redesign (Core Competencies checkboxes, Key Activities single Select All, Abilities/Knowledge/Effort/Responsibility level-grouped with colored badges + proficiency dots)
+Stopped at: Phase 27 complete — verified 5/5 must-haves, ROADMAP updated, ready to plan Phase 28
 Resume file: None
