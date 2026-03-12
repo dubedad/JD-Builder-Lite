@@ -2711,3 +2711,106 @@ body.sidebar-open .action-bar {
 .gc-menu-btn {
     display: none;
 }
+
+/* ============================================================
+   v5.1 Build Page: Tab Content Styles (27-02)
+   ============================================================ */
+
+/* Select All Row — top of each selectable tab panel */
+.select-all-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.75rem;
+    background: #f8f9fa;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+}
+.select-all-row .select-all-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+.selection-count {
+    font-size: 0.8rem;
+    color: var(--text-light);
+}
+
+/* Sources Row — Core Competencies source attribution */
+.sources-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.78rem;
+}
+.sources-label {
+    color: var(--text-light);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.source-chip {
+    background: #e8edf2;
+    color: var(--secondary);
+    padding: 0.15rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* Level Group Container */
+.level-group {
+    margin-bottom: 1rem;
+}
+.level-group-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0;
+    margin-bottom: 0.25rem;
+    border-bottom: 1px solid #e8edf2;
+}
+.level-group-count {
+    font-size: 0.78rem;
+    color: var(--text-light);
+}
+
+/* Level Badges — color scheme from v5.1 spec */
+.level-badge {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #ffffff;
+}
+.level-badge--5 { background: #28a745; }
+.level-badge--4 { background: #1976d2; }
+.level-badge--3 { background: #f57c00; }
+.level-badge--2 { background: #78909c; }
+.level-badge--1 { background: #9e9e9e; }
+.level-badge--unrated { background: #9e9e9e; }
+
+/* Activity Section Headings — Key Activities tab (Main Duties / Work Activities) */
+.activity-section-heading {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 1rem 0 0.5rem 0;
+    padding-bottom: 0.25rem;
+    border-bottom: 2px solid var(--primary);
+}
+
+/* Sub-descriptions displayed below each statement label */
+.statement__description {
+    display: block;
+    font-size: 0.82rem;
+    color: var(--text-light);
+    margin-top: 0.2rem;
+    line-height: 1.4;
+}

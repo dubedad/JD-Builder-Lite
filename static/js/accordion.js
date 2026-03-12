@@ -15,6 +15,16 @@ const PROFICIENCY_LABELS = {
     5: 'Highest Level'
 };
 
+// v5.1: Level badge color mapping for level-grouped tabs (Abilities, Knowledge, Effort, Responsibility)
+const LEVEL_BADGE_COLORS = {
+    5: { label: 'Level 5', cssClass: 'level-badge--5' },
+    4: { label: 'Level 4', cssClass: 'level-badge--4' },
+    3: { label: 'Level 3', cssClass: 'level-badge--3' },
+    2: { label: 'Level 2', cssClass: 'level-badge--2' },
+    1: { label: 'Level 1', cssClass: 'level-badge--1' },
+    0: { label: 'Unrated', cssClass: 'level-badge--unrated' }
+};
+
 // Category definitions from guide.csv - displayed beside section titles
 const CATEGORY_DEFINITIONS = {
     'Work Activities': 'Work activities are general types of job behaviours occurring on multiple jobs. For each work activity statement a worker indicates the level of the activity that is required to perform a job.',
@@ -587,6 +597,93 @@ const renderKeyActivitiesContent = (profile, state) => {
     );
 };
 
+/**
+ * v5.1: Render level-grouped tab content with colored badges and proficiency dot ratings.
+ * Used for Abilities, Knowledge, Effort, and Responsibility tabs.
+ * Statements are grouped by stmt.proficiency.level (descending: 5, 4, 3, 2, 1, unrated).
+ */
+const renderLevelGroupedContent = (statements, sectionId, selectedIds, dataSource) => {
+    if (!statements || statements.length === 0) {
+        return `<p class="tab-panel__empty">No ${sectionId} items available for this occupation.</p>`;
+    }
+
+    // Group by proficiency level (key 0 = unrated)
+    const groups = {};
+    statements.forEach((stmt, idx) => {
+        const level = stmt.proficiency?.level ?? 0;
+        if (!groups[level]) groups[level] = [];
+        groups[level].push({ stmt, idx });
+    });
+
+    // Sort levels descending (5 → 4 → 3 → 2 → 1 → 0)
+    const sortedLevels = Object.keys(groups).map(Number).sort((a, b) => b - a);
+
+    // Select All row
+    const allSelected = statements.length > 0 && statements.every((_, idx) =>
+        selectedIds.includes(`${sectionId}-${idx}`)
+    );
+    const selectedCount = statements.filter((_, idx) =>
+        selectedIds.includes(`${sectionId}-${idx}`)
+    ).length;
+
+    let html = `
+        <div class="select-all-row">
+            <label class="select-all-label">
+                <input type="checkbox" class="select-all-checkbox" data-section="${sectionId}"
+                       ${allSelected ? 'checked' : ''}>
+                Select All (${statements.length})
+            </label>
+            <span class="selection-count" id="count-${sectionId}">${selectedCount} selected</span>
+        </div>
+    `;
+
+    // Render each level group
+    sortedLevels.forEach(level => {
+        const group = groups[level];
+        const badgeInfo = LEVEL_BADGE_COLORS[level] || LEVEL_BADGE_COLORS[0];
+
+        html += `
+            <div class="level-group">
+                <div class="level-group-header">
+                    <span class="level-badge ${badgeInfo.cssClass}">${badgeInfo.label}</span>
+                    <span class="level-group-count">(${group.length} items)</span>
+                </div>
+                <ul class="tab-panel__list jd-section__list">
+        `;
+
+        group.forEach(({ stmt, idx }) => {
+            const stmtId = `${sectionId}-${idx}`;
+            const isSelected = selectedIds.includes(stmtId);
+            const descriptionHtml = stmt.description
+                ? `<span class="statement__description">${escapeHtml(stmt.description)}</span>`
+                : '';
+            // BUILD-09: Proficiency dot ratings for Abilities, Knowledge, Effort, Responsibility
+            const proficiencyHtml = stmt.proficiency ? renderProficiency(stmt.proficiency, stmt.source_attribute) : '';
+
+            html += `
+                <li class="statement tab-panel__item${isSelected ? ' statement--selected' : ''}" data-id="${stmtId}">
+                    <label class="statement__label">
+                        <input type="checkbox" class="statement__checkbox"
+                               data-section="${sectionId}"
+                               data-id="${stmtId}"
+                               ${isSelected ? 'checked' : ''}>
+                        <span class="statement__content">
+                            <span class="statement__text">${escapeHtml(stmt.text)}</span>
+                            ${descriptionHtml}
+                            ${proficiencyHtml}
+                        </span>
+                    </label>
+                </li>
+            `;
+        });
+
+        html += '</ul></div>';
+    });
+
+    html += renderSourceBadge(dataSource || 'oasis');
+    return html;
+};
+
 const renderStatementsPanel = (statements, sections, sectionId, selectedIds) => {
     let html = '';
 
@@ -929,166 +1026,36 @@ const renderTabContent = (profile) => {
         ) + renderSourceBadge(profile.skills?.data_source || 'oasis');
     }
 
-    // Abilities tab - NEW
+    // Abilities tab — level-grouped with colored badges and proficiency dot ratings (v5.1)
     const abilitiesPanel = document.getElementById('panel-abilities');
     if (abilitiesPanel) {
-        abilitiesPanel.innerHTML = renderSectionDescriptionBox('abilities') + renderStatementsPanel(
-            profile.skills?.statements || [],
-            TAB_CONFIG.abilities.sections,
-            'abilities',
-            state.selections.abilities || []
-        ) + renderSourceBadge(profile.skills?.data_source || 'oasis');
+        const abilitiesStmts = (profile.skills?.statements || []).filter(s => s.source_attribute === 'Abilities');
+        abilitiesPanel.innerHTML = renderSectionDescriptionBox('abilities') +
+            renderLevelGroupedContent(abilitiesStmts, 'abilities', state.selections.abilities || [], profile.skills?.data_source);
     }
 
-    // Knowledge tab - NEW
+    // Knowledge tab — level-grouped with colored badges and proficiency dot ratings (v5.1)
     const knowledgePanel = document.getElementById('panel-knowledge');
     if (knowledgePanel) {
-        knowledgePanel.innerHTML = renderSectionDescriptionBox('knowledge') + renderStatementsPanel(
-            profile.skills?.statements || [],
-            TAB_CONFIG.knowledge.sections,
-            'knowledge',
-            state.selections.knowledge || []
-        ) + renderSourceBadge(profile.skills?.data_source || 'oasis');
+        const knowledgeStmts = (profile.skills?.statements || []).filter(s => s.source_attribute === 'Knowledge');
+        knowledgePanel.innerHTML = renderSectionDescriptionBox('knowledge') +
+            renderLevelGroupedContent(knowledgeStmts, 'knowledge', state.selections.knowledge || [], profile.skills?.data_source);
     }
 
-    // Effort tab - with Work Context definition
+    // Effort tab — level-grouped with colored badges and proficiency dot ratings (v5.1)
     const effortPanel = document.getElementById('panel-effort');
     if (effortPanel) {
-        const effortStatements = profile.effort?.statements || [];
-        const workContextDef = CATEGORY_DEFINITIONS['Work Context'];
-        const effortSelectedCount = effortStatements.filter((_, idx) =>
-            (state.selections.effort || []).includes(`effort-${idx}`)
-        ).length;
-        const effortAllSelected = effortSelectedCount === effortStatements.length && effortStatements.length > 0;
-
-        let effortHtml = `
-            <div class="tab-panel__section" data-section-id="effort">
-                <div class="tab-panel__section-header">
-                    <div class="tab-panel__section-title-row">
-                        <label class="select-all-label" title="Select/deselect all statements in this section">
-                            <input type="checkbox" class="select-all-checkbox"
-                                   data-section="effort"
-                                   ${effortAllSelected ? 'checked' : ''}>
-                            <span class="select-all-text">Select All</span>
-                        </label>
-                        <h3 class="tab-panel__section-title">Effort (${effortStatements.length})</h3>
-                    </div>
-                    <button class="style-selected-btn"
-                            onclick="styleSelectedStatements('effort')"
-                            title="Generate styled versions of selected statements">
-                        <i class="fas fa-magic"></i> Style Selected
-                    </button>
-                </div>
-                <p class="tab-panel__section-definition">${escapeHtml(workContextDef)}</p>
-        `;
-
-        if (effortStatements.length > 0) {
-            effortHtml += '<ul class="tab-panel__list jd-section__list">';
-            effortStatements.forEach((stmt, idx) => {
-                const stmtId = `effort-${idx}`;
-                const isSelected = (state.selections.effort || []).includes(stmtId);
-                const proficiencyHtml = stmt.proficiency ? renderProficiency(stmt.proficiency, stmt.source_attribute) : '';
-                const descriptionHtml = stmt.description ? `<span class="statement__description">${escapeHtml(stmt.description)}</span>` : '';
-                const styledContainerHtml = window.createStyledStatementContainer
-                    ? window.createStyledStatementContainer(stmtId, 'effort')
-                    : '';
-
-                effortHtml += `
-                    <li class="statement tab-panel__item${isSelected ? ' statement--selected' : ''}" data-id="${stmtId}">
-                        <label class="statement__label">
-                            <input type="checkbox" class="statement__checkbox"
-                                   data-section="effort"
-                                   data-id="${stmtId}"
-                                   ${isSelected ? 'checked' : ''}>
-                            <span class="statement__content">
-                                <span class="statement__text">${escapeHtml(stmt.text)}</span>
-                                ${descriptionHtml}
-                                <span class="statement__source">from ${escapeHtml(stmt.source_attribute || 'Work Context')}</span>
-                            </span>
-                            ${proficiencyHtml}
-                        </label>
-                        ${styledContainerHtml}
-                    </li>
-                `;
-            });
-            effortHtml += '</ul>';
-        } else {
-            effortHtml += '<p class="tab-panel__empty">No effort-related Work Context items available for this occupation.</p>';
-        }
-
-        effortHtml += '</div>';
-        effortHtml += renderSourceBadge(profile.effort?.data_source || 'oasis');
-        effortPanel.innerHTML = renderSectionDescriptionBox('effort') + effortHtml;
+        const effortStmts = profile.effort?.statements || [];
+        effortPanel.innerHTML = renderSectionDescriptionBox('effort') +
+            renderLevelGroupedContent(effortStmts, 'effort', state.selections.effort || [], profile.effort?.data_source);
     }
 
-    // Responsibility tab - with Work Context definition
+    // Responsibility tab — level-grouped with colored badges and proficiency dot ratings (v5.1)
     const responsibilityPanel = document.getElementById('panel-responsibility');
     if (responsibilityPanel) {
-        const respStatements = profile.responsibility?.statements || [];
-        const workContextDef = CATEGORY_DEFINITIONS['Work Context'];
-        const respSelectedCount = respStatements.filter((_, idx) =>
-            (state.selections.responsibility || []).includes(`responsibility-${idx}`)
-        ).length;
-        const respAllSelected = respSelectedCount === respStatements.length && respStatements.length > 0;
-
-        let respHtml = `
-            <div class="tab-panel__section" data-section-id="responsibility">
-                <div class="tab-panel__section-header">
-                    <div class="tab-panel__section-title-row">
-                        <label class="select-all-label" title="Select/deselect all statements in this section">
-                            <input type="checkbox" class="select-all-checkbox"
-                                   data-section="responsibility"
-                                   ${respAllSelected ? 'checked' : ''}>
-                            <span class="select-all-text">Select All</span>
-                        </label>
-                        <h3 class="tab-panel__section-title">Responsibility (${respStatements.length})</h3>
-                    </div>
-                    <button class="style-selected-btn"
-                            onclick="styleSelectedStatements('responsibility')"
-                            title="Generate styled versions of selected statements">
-                        <i class="fas fa-magic"></i> Style Selected
-                    </button>
-                </div>
-                <p class="tab-panel__section-definition">${escapeHtml(workContextDef)}</p>
-        `;
-
-        if (respStatements.length > 0) {
-            respHtml += '<ul class="tab-panel__list jd-section__list">';
-            respStatements.forEach((stmt, idx) => {
-                const stmtId = `responsibility-${idx}`;
-                const isSelected = (state.selections.responsibility || []).includes(stmtId);
-                const proficiencyHtml = stmt.proficiency ? renderProficiency(stmt.proficiency, stmt.source_attribute) : '';
-                const descriptionHtml = stmt.description ? `<span class="statement__description">${escapeHtml(stmt.description)}</span>` : '';
-                const styledContainerHtml = window.createStyledStatementContainer
-                    ? window.createStyledStatementContainer(stmtId, 'responsibility')
-                    : '';
-
-                respHtml += `
-                    <li class="statement tab-panel__item${isSelected ? ' statement--selected' : ''}" data-id="${stmtId}">
-                        <label class="statement__label">
-                            <input type="checkbox" class="statement__checkbox"
-                                   data-section="responsibility"
-                                   data-id="${stmtId}"
-                                   ${isSelected ? 'checked' : ''}>
-                            <span class="statement__content">
-                                <span class="statement__text">${escapeHtml(stmt.text)}</span>
-                                ${descriptionHtml}
-                                <span class="statement__source">from ${escapeHtml(stmt.source_attribute || 'Work Context')}</span>
-                            </span>
-                            ${proficiencyHtml}
-                        </label>
-                        ${styledContainerHtml}
-                    </li>
-                `;
-            });
-            respHtml += '</ul>';
-        } else {
-            respHtml += '<p class="tab-panel__empty">No responsibility-related Work Context items available for this occupation.</p>';
-        }
-
-        respHtml += '</div>';
-        respHtml += renderSourceBadge(profile.responsibility?.data_source || 'oasis');
-        responsibilityPanel.innerHTML = renderSectionDescriptionBox('responsibility') + respHtml;
+        const respStmts = profile.responsibility?.statements || [];
+        responsibilityPanel.innerHTML = renderSectionDescriptionBox('responsibility') +
+            renderLevelGroupedContent(respStmts, 'responsibility', state.selections.responsibility || [], profile.responsibility?.data_source);
     }
 
     // Show tabs container
