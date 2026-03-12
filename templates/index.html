@@ -290,87 +290,152 @@
 
         <!-- Classification Results Section (initially hidden) -->
         <section id="classify-section" class="classify-section hidden">
-            <header class="classify-header">
-                <h2>Classification Step 1: Occupational Group Allocation</h2>
-                <span id="classify-status-badge" class="classify-status-badge">Analyzing...</span>
-            </header>
-            <p id="classify-position-title" class="classify-position-title"></p>
+          <!-- Occupation Header Card -->
+          <div class="classify-header-card">
+            <div class="classify-header-card__left">
+              <i class="fas fa-cog classify-header-card__icon"></i>
+              <div>
+                <h2 class="classify-header-card__title">Occupational Group Allocation</h2>
+                <p class="classify-header-card__subtitle">Classification Step 1 — Per TBS Directive on Classification</p>
+              </div>
+            </div>
+            <div class="classify-header-card__badges">
+              <span class="badge badge--dadm-compliant"><i class="fas fa-check-circle"></i> DADM Compliant</span>
+              <span class="badge badge--full-provenance"><i class="fas fa-link"></i> Full Provenance</span>
+            </div>
+          </div>
 
-            <!-- Stale warning banner -->
-            <div id="classify-stale-warning" class="classify-stale-warning hidden" role="alert">
-                <i class="fas fa-exclamation-triangle"></i>
-                <span>JD changed -- re-classify for updated results</span>
-                <button onclick="document.getElementById('classify-stale-warning').classList.add('hidden'); window.jdStepper.goToStep(3);" class="btn btn--sm">
-                    Re-classify
+          <!-- Position title (populated by JS) -->
+          <p id="classify-position-title" class="classify-position-title"></p>
+
+          <!-- Stale warning banner (existing) -->
+          <div id="classify-stale-warning" class="classify-stale-warning hidden" role="alert">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>JD changed -- re-classify for updated results</span>
+            <button onclick="document.getElementById('classify-stale-warning').classList.add('hidden'); window.jdStepper.goToStep(3);" class="btn btn--sm">Re-classify</button>
+          </div>
+
+          <!-- TBS 3-Step Dark Card -->
+          <div class="classify-tbs-card">
+            <div class="classify-tbs-card__step">
+              <div class="classify-tbs-card__step-label">§4.1.1</div>
+              <div class="classify-tbs-card__step-title">Primary Purpose</div>
+              <p class="classify-tbs-card__step-desc">Identify the primary purpose of the position from duties and responsibilities.</p>
+            </div>
+            <div class="classify-tbs-card__step">
+              <div class="classify-tbs-card__step-label">§4.1.2</div>
+              <div class="classify-tbs-card__step-title">Definition Fit</div>
+              <p class="classify-tbs-card__step-desc">Compare primary purpose against occupational group definitions.</p>
+            </div>
+            <div class="classify-tbs-card__step">
+              <div class="classify-tbs-card__step-label">§4.1.3</div>
+              <div class="classify-tbs-card__step-title">Inclusions / Exclusions</div>
+              <p class="classify-tbs-card__step-desc">Verify inclusion statements and check for exclusion conflicts.</p>
+            </div>
+          </div>
+
+          <!-- Status badge (kept for JS compatibility) -->
+          <span id="classify-status-badge" class="classify-status-badge hidden">Analyzing...</span>
+
+          <!-- Analyze CTA Button (pre-analysis) -->
+          <div id="classify-cta" class="classify-cta">
+            <button id="classify-analyze-btn" class="btn btn--cta-orange" type="button">
+              <i class="fas fa-pencil-alt"></i> Analyze &amp; Recommend Occupational Group
+            </button>
+          </div>
+
+          <!-- Loading state -->
+          <div id="classify-loading" class="classify-loading hidden">
+            <div class="classify-loading-spinner"></div>
+            <p>Analyzing job description against TBS occupational group definitions...</p>
+          </div>
+
+          <!-- Error state -->
+          <div id="classify-error" class="classify-error hidden" role="alert"></div>
+
+          <!-- Results container (populated by JS from plan 29-03) -->
+          <div id="classify-results" class="classify-results hidden">
+            <!-- Top Result Card (populated by classify.js) -->
+            <div id="classify-top-result" class="classify-top-result"></div>
+
+            <!-- Statement Alignment Comparison (CLASS-02) -->
+            <div id="classify-alignment" class="classify-alignment hidden">
+              <h3 class="classify-section-heading">Statement Alignment Comparison</h3>
+              <div class="classify-alignment__columns">
+                <div class="classify-alignment__col">
+                  <h4>Your Selected Statements</h4>
+                  <ul id="classify-alignment-user" class="classify-alignment__list"></ul>
+                </div>
+                <div class="classify-alignment__col">
+                  <h4>OG Definition Statements</h4>
+                  <ul id="classify-alignment-og" class="classify-alignment__list"></ul>
+                </div>
+              </div>
+              <div id="classify-alignment-score" class="classify-alignment__score"></div>
+            </div>
+
+            <!-- Key Evidence (CLASS-03) -->
+            <div id="classify-key-evidence" class="classify-key-evidence hidden">
+              <h3 class="classify-section-heading">Key Evidence</h3>
+              <ul id="classify-evidence-list" class="classify-evidence-bullets"></ul>
+            </div>
+
+            <!-- Caveats (CLASS-03) -->
+            <div id="classify-caveats" class="classify-caveats hidden">
+              <h3 class="classify-section-heading">Caveats</h3>
+              <ul id="classify-caveats-list" class="classify-caveats-bullets"></ul>
+            </div>
+
+            <!-- Alternative Groups Considered -->
+            <div id="classify-alternatives" class="classify-alternatives hidden">
+              <h3 class="classify-section-heading">Alternative Groups Considered</h3>
+              <div id="classify-alternatives-content"></div>
+            </div>
+
+            <!-- Next Step (CLASS-04) -->
+            <div id="classify-next-step" class="classify-next-step hidden">
+              <h3 class="classify-section-heading">Next Step</h3>
+              <div id="classify-next-step-content" class="classify-next-step__box"></div>
+            </div>
+
+            <!-- Legacy panels (kept for JS compatibility) -->
+            <div class="classify-layout hidden">
+              <div id="recommendations-panel" class="recommendations-panel"></div>
+              <div id="evidence-panel" class="evidence-panel hidden">
+                <header class="evidence-panel-header">
+                  <h3>Job Description</h3>
+                  <button id="evidence-close" class="evidence-close" aria-label="Close evidence view"><i class="fas fa-times"></i></button>
+                </header>
+                <div id="jd-text-viewer" class="jd-text-viewer"></div>
+              </div>
+            </div>
+
+            <!-- Complete section (kept for JS compatibility) -->
+            <div id="classify-complete" class="classify-complete hidden">
+              <div class="classify-complete-icon"><i class="fas fa-check-circle"></i></div>
+              <h3>Classification Step 1 Complete</h3>
+              <p>Review the recommendations above. The occupational group allocation is based on your job description content.</p>
+              <!-- Legacy nav buttons (kept for JS compatibility, hidden container) -->
+              <div class="classify-nav-actions hidden">
+                <button class="btn btn--text" id="classify-back-to-edit" type="button">
+                  <i class="fas fa-arrow-left"></i> Back to Edit
                 </button>
+                <button class="btn btn--primary" id="classify-continue-generate" type="button">
+                  Continue to Generate <i class="fas fa-arrow-right"></i>
+                </button>
+              </div>
             </div>
 
-            <div id="classify-loading" class="classify-loading">
-                <div class="classify-loading-spinner"></div>
-                <p>Analyzing job description against TBS occupational group definitions...</p>
+            <!-- Always-visible nav actions -->
+            <div class="classify-nav-actions classify-nav-actions--always" id="classify-nav-always">
+              <button class="btn btn--text" id="classify-back-to-edit-2" type="button">
+                <i class="fas fa-arrow-left"></i> Back to Edit
+              </button>
+              <button class="btn btn--primary" id="classify-continue-generate-2" type="button">
+                Continue to Generate <i class="fas fa-arrow-right"></i>
+              </button>
             </div>
-
-            <div id="classify-error" class="classify-error hidden" role="alert"></div>
-
-            <!-- Recommendations container - populated by JS -->
-            <div id="classify-results" class="classify-results hidden">
-                <!-- Recommendations section -->
-                <h3 class="recommendations-heading">Recommended Occupational Groups</h3>
-                <p class="recommendations-subheading">Click a card to expand and see full rationale, evidence, and provenance.</p>
-
-                <!-- Split view: recommendations left, JD right -->
-                <div class="classify-layout">
-                    <div id="recommendations-panel" class="recommendations-panel">
-                        <!-- Recommendation cards inserted here by JS -->
-                    </div>
-                    <div id="evidence-panel" class="evidence-panel hidden">
-                        <header class="evidence-panel-header">
-                            <h3>Job Description</h3>
-                            <button id="evidence-close" class="evidence-close" aria-label="Close evidence view">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </header>
-                        <div id="jd-text-viewer" class="jd-text-viewer">
-                            <!-- JD text with highlights inserted here -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Next steps after classification (inside results so it appears below recommendations) -->
-                <div id="classify-complete" class="classify-complete hidden">
-                    <div class="classify-complete-icon">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <h3>Classification Step 1 Complete</h3>
-                    <p>Review the recommendations above. The occupational group allocation is based on your job description content.</p>
-                    <div class="classify-next-steps">
-                        <h4>Next Steps</h4>
-                        <ul>
-                            <li>Review the recommended occupational group(s) and their rationale above</li>
-                            <li>Consult with a classification specialist if borderline or unclear</li>
-                            <li>Proceed to Step 2: Apply Job Evaluation Standard for the selected group</li>
-                        </ul>
-                    </div>
-                    <div class="classify-nav-actions">
-                        <button class="btn btn--text" id="classify-back-to-edit" type="button">
-                            <i class="fas fa-arrow-left"></i> Back to Edit
-                        </button>
-                        <button class="btn btn--primary" id="classify-continue-generate" type="button">
-                            Continue to Generate <i class="fas fa-arrow-right"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Always-visible nav actions (NAV-04) -->
-                <div class="classify-nav-actions classify-nav-actions--always" id="classify-nav-always">
-                    <button class="btn btn--text" id="classify-back-to-edit-2" type="button">
-                        <i class="fas fa-arrow-left"></i> Back to Edit
-                    </button>
-                    <button class="btn btn--primary" id="classify-continue-generate-2" type="button">
-                        Continue to Generate <i class="fas fa-arrow-right"></i>
-                    </button>
-                </div>
-            </div>
+          </div>
         </section>
 
         <!-- Profile Tabs Navigation -->
