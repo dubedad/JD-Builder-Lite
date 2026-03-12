@@ -133,6 +133,69 @@ const updateActionBar = (state) => {
     }
 };
 
+/**
+ * Deselect a single item from the sidebar drawer.
+ * Syncs the DOM checkbox state and updates the store.
+ * PITFALL: Must also uncheck the DOM checkbox with matching data-section and data-id.
+ */
+const deselectFromDrawer = (sectionId, stmtId) => {
+    const state = store.getState();
+    const current = state.selections[sectionId] || [];
+    const newSelections = current.filter(id => id !== stmtId);
+    store.setSelections(sectionId, newSelections);
+
+    // Sync DOM checkbox
+    const checkbox = document.querySelector(
+        `input.statement__checkbox[data-section="${sectionId}"][data-id="${stmtId}"]`
+    );
+    if (checkbox) {
+        checkbox.checked = false;
+        const li = checkbox.closest('.statement');
+        if (li) li.classList.remove('statement--selected');
+    }
+
+    // Update select-all checkbox for this section if needed
+    const selectAllCb = document.querySelector(
+        `input.select-all-checkbox[data-section="${sectionId}"]`
+    );
+    if (selectAllCb && selectAllCb.checked) {
+        selectAllCb.checked = false;
+    }
+};
+
+/**
+ * Clear all selections across all sections.
+ * PITFALL: Must also uncheck all DOM checkboxes and all select-all-checkbox inputs.
+ */
+const clearAllSelections = () => {
+    // Clear store
+    const emptySelections = {
+        core_competencies: [],
+        key_activities: [],
+        skills: [],
+        abilities: [],
+        knowledge: [],
+        effort: [],
+        responsibility: [],
+        working_conditions: []
+    };
+    store.setState({ selections: emptySelections });
+
+    // Uncheck all statement checkboxes
+    document.querySelectorAll('input.statement__checkbox:checked').forEach(cb => {
+        cb.checked = false;
+        const li = cb.closest('.statement');
+        if (li) li.classList.remove('statement--selected');
+    });
+
+    // Uncheck all select-all checkboxes
+    document.querySelectorAll('input.select-all-checkbox:checked').forEach(cb => {
+        cb.checked = false;
+    });
+};
+
 // Export
 window.initSelection = initSelection;
 window.updateActionBar = updateActionBar;
+window.deselectFromDrawer = deselectFromDrawer;
+window.clearAllSelections = clearAllSelections;

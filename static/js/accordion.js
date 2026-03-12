@@ -7,6 +7,18 @@ const JD_ELEMENT_LABELS = {
     working_conditions: 'Working Conditions'
 };
 
+// All 8 sections for sidebar/drawer (PITFALL: sectionOrder only has 5 — drawer needs all 8)
+const ALL_SECTIONS_LABELS = {
+    core_competencies: 'Core Competencies',
+    key_activities: 'Key Activities',
+    skills: 'Skills',
+    abilities: 'Abilities',
+    knowledge: 'Knowledge',
+    effort: 'Effort',
+    responsibility: 'Responsibility',
+    working_conditions: 'Working Conditions'
+};
+
 const PROFICIENCY_LABELS = {
     1: 'Basic Level',
     2: 'Low Level',
@@ -1282,6 +1294,7 @@ window.renderAccordions = renderAccordions;
 window.renderTabContent = renderTabContent;
 window.updateSelectionCount = updateSelectionCount;
 window.JD_ELEMENT_LABELS = JD_ELEMENT_LABELS;
+window.ALL_SECTIONS_LABELS = ALL_SECTIONS_LABELS;
 window.renderProficiency = renderProficiency;
 window.renderDimensionBadge = renderDimensionBadge;
 window.PROFICIENCY_LABELS = PROFICIENCY_LABELS;
