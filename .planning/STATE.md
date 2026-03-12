@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-03-11)
 
 Milestone: v5.1 UI Overhaul
 Phase: 27 of 30 (Build Page Redesign)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-03-11 — Phase 26 complete (2/2 plans, verified 5/5 must-haves)
+Plan: 1 of 2 complete
+Status: In progress
+Last activity: 2026-03-12 — Completed 27-01-PLAN.md (header card, tab icons, section boxes, Overview redesign)
 
-Progress: [██░░░░░░░░] 17% (2/12 plans complete)
+Progress: [███░░░░░░░] 25% (3/12 plans complete)
 
 ## Milestone History
 
@@ -54,9 +54,12 @@ Progress: [██░░░░░░░░] 17% (2/12 plans complete)
 | filter-minor-group-options -> filter-noc-broad-options | 26-02 | v5.1 HTML 6-accordion filter panel uses new element IDs |
 | source_label hardcoded to "O*NET SOC" | 26-02 | All parquet results are O*NET-aligned data |
 | example_titles from titles_df in _build_result() | 26-02 | Inline lookup avoids extra API calls; max 5, semicolon-separated |
+| Header always shows fa-cog gear icon | 27-01 | NOC-specific icons stay in Overview tab content only; header is always a gear |
+| Section description box text uses raw HTML | 27-01 | Bold+italic markup is authored constants, not user data; safe for innerHTML |
+| positionTitle at top level of defaultState | 27-01 | Resets on profile change but survives tab switches within same profile |
 
 ## Session Continuity
 
-Last session: 2026-03-11
-Stopped at: Phase 26 complete — verified, ROADMAP updated, ready to plan Phase 27
+Last session: 2026-03-12
+Stopped at: Completed 27-01-PLAN.md — header card + tab icons + section boxes + Overview redesign done
 Resume file: None
