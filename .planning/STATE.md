@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-03-11)
 
 Milestone: v5.1 UI Overhaul
 Phase: 29 of 30 (Classification Restyle + Generate Page)
-Plan: 29-01 complete (29-02, 29-03 remaining)
+Plan: 29-02 complete (29-03 remaining)
 Status: In progress
-Last activity: 2026-03-12 — Completed 29-01-PLAN.md (v5.1 classify page HTML + CSS)
+Last activity: 2026-03-12 — Completed 29-02-PLAN.md (v5.1 Generate page HTML + CSS + JS)
 
-Progress: [███████░░░] 62% (8/13 plans complete)
+Progress: [████████░░] 69% (9/13 plans complete)
 
 ## Milestone History
 
@@ -71,9 +71,12 @@ Progress: [███████░░░] 62% (8/13 plans complete)
 | downloadPDF/downloadDOCX btn nullable | 28-02 | preview-export-btn only exists on old showPreview() page; modal calls same methods |
 | classify-status-badge starts hidden in v5.1 | 29-01 | User sees TBS card + Analyze CTA first; showLoading() removes hidden class when analysis begins |
 | Legacy classify panels in hidden div for JS compat | 29-01 | recommendations-panel / evidence-panel kept in .classify-layout.hidden; plan 29-03 transitions to new containers |
+| overview-textarea ID kept on contenteditable div | 29-02 | ID rename would break all downstream JS (main.js, export.js) calling generation.getOverview() |
+| regenerate-btn preserved hidden in DOM | 29-02 | generate.js binds click listener to regenerate-btn; null would throw; visible regenerate is generate-regenerate |
+| generate-output starts hidden, revealed by JS on generate | 29-02 | Separates pre-generation form state from post-generation output state visually |
 
 ## Session Continuity
 
 Last session: 2026-03-12
-Stopped at: Completed 29-01-PLAN.md — classify page HTML + CSS restyled
+Stopped at: Completed 29-02-PLAN.md — v5.1 Generate page HTML + CSS + JS
 Resume file: None
