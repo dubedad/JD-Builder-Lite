@@ -7,7 +7,7 @@ from src.config import OPENAI_API_KEY, OPENAI_MODEL, OPENAI_MAX_TOKENS, OPENAI_T
 from src.models.ai import StatementInput, JobContext
 
 # Prompt version for provenance tracking
-PROMPT_VERSION = "v1.0"
+PROMPT_VERSION = "v1.1"
 
 # JD Element display names
 JD_ELEMENT_LABELS = {
@@ -57,12 +57,15 @@ client = OpenAI(api_key=OPENAI_API_KEY)
 def build_system_prompt() -> str:
     """Build the system prompt for GPT-4o."""
     return """You are an expert HR consultant specializing in Canadian job descriptions.
-You create concise, professional General Overview sections that accurately reflect the role based on NOC (National Occupational Classification) data.
+You create professional General Overview sections that accurately reflect the role based on NOC (National Occupational Classification) data.
 
 Guidelines:
-- Write 4-6 sentences (approximately 150-200 words)
-- Focus on the role's purpose and key responsibilities
-- Use professional, clear language
+- Write 3-4 paragraphs of professional prose (approximately 200-300 words total)
+- Paragraph 1: Role purpose and organizational context
+- Paragraph 2: Primary responsibilities and key activities
+- Paragraph 3: Required expertise, skills, and working conditions
+- Paragraph 4 (optional): Unique aspects of the role or additional context provided
+- Use professional, clear language appropriate for a Government of Canada job posting
 - Synthesize information from all provided NOC elements
 - Do NOT copy NOC statements verbatim - synthesize and contextualize
 - The overview should give a reader a clear understanding of what this job entails"""
