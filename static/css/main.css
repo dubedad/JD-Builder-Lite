@@ -1237,6 +1237,109 @@ body.sidebar-open .action-bar {
     text-decoration: underline;
 }
 
+/* Tab button icons (v5.1) */
+.tab-icon {
+    margin-right: 0.4rem;
+    font-size: 0.85em;
+    opacity: 0.7;
+}
+.tab-button-active .tab-icon {
+    opacity: 1;
+}
+
+/* Section Description Box (v5.1) */
+.section-description-box {
+    background: #f0f4f8;
+    border-left: 4px solid var(--primary);
+    border-radius: 4px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--text);
+}
+.section-description-box__icon {
+    color: var(--primary);
+    font-size: 1rem;
+    margin-top: 0.15rem;
+    flex-shrink: 0;
+}
+.section-description-box__title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: var(--primary);
+    display: block;
+}
+.section-description-box__text {
+    margin: 0;
+    color: var(--text-light);
+}
+.section-description-box__text em {
+    font-style: italic;
+}
+
+/* Overview Position Title Input (BUILD-03) */
+.overview-position-title {
+    margin-bottom: 1.25rem;
+}
+.overview-position-title__label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.35rem;
+}
+.overview-position-title__input {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    background: #fff;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+.overview-position-title__input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(38,55,74,0.1);
+}
+
+/* Overview Two-Column Layout */
+.overview-two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+.overview-two-col__panel {
+    background: #f8f9fa;
+    border-radius: 6px;
+    padding: 1rem;
+    border: 1px solid var(--border);
+}
+.overview-two-col__heading {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+.overview-two-col__text {
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: var(--text);
+    margin: 0;
+}
+
 /* v5.1 Occupation Header Card */
 .profile-header--v51 {
     background: var(--primary); /* #26374a dark navy */
@@ -1408,6 +1511,10 @@ body.sidebar-open .action-bar {
     }
     .profile-header--v51 .profile-header__meta {
         justify-content: center;
+    }
+
+    .overview-two-col {
+        grid-template-columns: 1fr;
     }
 
     /* Responsive tabs - scroll on mobile */

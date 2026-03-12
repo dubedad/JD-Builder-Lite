@@ -24,6 +24,68 @@ const CATEGORY_DEFINITIONS = {
     'Work Context': 'Work context describes the physical and social factors that influence the nature of work. For each work context element, a worker rates how often or to what extent the descriptor applies to the context of work.'
 };
 
+// Section descriptions for v5.1 description boxes (one per tab)
+const SECTION_DESCRIPTIONS = {
+    overview: {
+        icon: 'fa-eye',
+        title: 'Overview',
+        text: 'The Overview provides a high-level summary of the occupation, including the lead statement, definition, and key characteristics from NOC and OaSIS data sources.'
+    },
+    core_competencies: {
+        icon: 'fa-star',
+        title: 'Core Competencies',
+        text: 'Core competencies represent the fundamental capabilities and personal attributes that are essential for effective performance in this occupation. These include behavioral competencies, work styles, and professional values.'
+    },
+    activities: {
+        icon: 'fa-list-check',
+        title: 'Key Activities',
+        text: 'Key activities are the main duties and tasks performed in this occupation. They describe what workers in this role typically do on a regular basis.'
+    },
+    skills: {
+        icon: 'fa-lightbulb',
+        title: 'Skills (OaSIS Category F)',
+        text: '<strong>Developed capabilities</strong> <em>that an individual must have to be effective in a job, role, function, task or duty. Skills are organized into: Foundational Skills (verbal, reading/writing, mathematical), Analytical Skills, Technical Skills, Resource Management Skills, and Interpersonal Skills.</em>'
+    },
+    abilities: {
+        icon: 'fa-brain',
+        title: 'Abilities (OaSIS Category A)',
+        text: '<strong>Innate and developed aptitudes</strong> <em>that facilitate the acquisition of knowledge and skills to carry out expected work. Abilities include: Cognitive Abilities, Physical Abilities, Psychomotor Abilities, and Sensory Abilities.</em>'
+    },
+    knowledge: {
+        icon: 'fa-book-open',
+        title: 'Knowledge (OaSIS Category G)',
+        text: '<strong>Organized sets of principles and practices</strong> <em>used for the execution of tasks and activities within a particular domain. Knowledge areas include: Administration &amp; Management, Communication, Education, Health &amp; Wellbeing, Law/Government/Safety, Logistics &amp; Design, Natural Resources, Physical Sciences, Socioeconomic Systems, Technology, and Foundational Knowledge.</em>'
+    },
+    effort: {
+        icon: 'fa-exchange-alt',
+        title: 'Effort (OaSIS Work Context J03)',
+        text: '<strong>Physical demands</strong> <em>the job requires the worker to perform. This includes body positioning, body exertion, and speaking/seeing requirements.</em>'
+    },
+    responsibility: {
+        icon: 'fa-user',
+        title: 'Responsibility (OaSIS Work Context J04)',
+        text: '<strong>Interpersonal relations and accountability</strong> <em>required to perform the job. This includes job interactions, communication methods, and interpersonal responsibilities.</em>'
+    }
+};
+
+/**
+ * Render a section description box for a given tab key.
+ * Text may contain raw HTML (bold/italic) for Skills/Abilities/etc. — not escaped.
+ */
+const renderSectionDescriptionBox = (tabKey) => {
+    const desc = SECTION_DESCRIPTIONS[tabKey];
+    if (!desc) return '';
+    return `
+        <div class="section-description-box">
+            <i class="fas ${desc.icon} section-description-box__icon"></i>
+            <div>
+                <span class="section-description-box__title"><i class="fas ${desc.icon}"></i> ${desc.title}</span>
+                <p class="section-description-box__text">${desc.text}</p>
+            </div>
+        </div>
+    `;
+};
+
 // NOC Minor Group (3-digit) to Icon mapping for specific occupations
 const NOC_MINOR_GROUP_ICONS = {
     // Transport occupations (72x) - more specific than broad category
@@ -682,7 +744,15 @@ const renderTabContent = (profile) => {
     // Overview tab - special handling for reference data
     const overviewPanel = document.getElementById('panel-overview');
     if (overviewPanel) {
-        overviewPanel.innerHTML = renderOverviewContent(profile);
+        overviewPanel.innerHTML = renderSectionDescriptionBox('overview') + renderOverviewContent(profile);
+
+        // Position Title input — store on change
+        const titleInput = document.getElementById('position-title-input');
+        if (titleInput) {
+            titleInput.addEventListener('input', (e) => {
+                store.setState({ positionTitle: e.target.value });
+            });
+        }
 
         // Attach "See more" button handler for Also Known As section
         const seeMoreBtn = overviewPanel.querySelector('.aka-see-more');
@@ -705,13 +775,13 @@ const renderTabContent = (profile) => {
     // Core Competencies tab - NEW
     const coreCompPanel = document.getElementById('panel-core-competencies');
     if (coreCompPanel) {
-        coreCompPanel.innerHTML = renderCoreCompetenciesContent(profile);
+        coreCompPanel.innerHTML = renderSectionDescriptionBox('core_competencies') + renderCoreCompetenciesContent(profile);
     }
 
     // Key Activities tab
     const activitiesPanel = document.getElementById('panel-activities');
     if (activitiesPanel) {
-        activitiesPanel.innerHTML = renderStatementsPanel(
+        activitiesPanel.innerHTML = renderSectionDescriptionBox('activities') + renderStatementsPanel(
             profile.key_activities?.statements || [],
             TAB_CONFIG.activities.sections,
             'key_activities',
@@ -725,7 +795,7 @@ const renderTabContent = (profile) => {
     // Skills tab - now only Skills statements
     const skillsPanel = document.getElementById('panel-skills');
     if (skillsPanel) {
-        skillsPanel.innerHTML = renderStatementsPanel(
+        skillsPanel.innerHTML = renderSectionDescriptionBox('skills') + renderStatementsPanel(
             profile.skills?.statements || [],
             TAB_CONFIG.skills.sections,
             'skills',
@@ -736,7 +806,7 @@ const renderTabContent = (profile) => {
     // Abilities tab - NEW
     const abilitiesPanel = document.getElementById('panel-abilities');
     if (abilitiesPanel) {
-        abilitiesPanel.innerHTML = renderStatementsPanel(
+        abilitiesPanel.innerHTML = renderSectionDescriptionBox('abilities') + renderStatementsPanel(
             profile.skills?.statements || [],
             TAB_CONFIG.abilities.sections,
             'abilities',
@@ -747,7 +817,7 @@ const renderTabContent = (profile) => {
     // Knowledge tab - NEW
     const knowledgePanel = document.getElementById('panel-knowledge');
     if (knowledgePanel) {
-        knowledgePanel.innerHTML = renderStatementsPanel(
+        knowledgePanel.innerHTML = renderSectionDescriptionBox('knowledge') + renderStatementsPanel(
             profile.skills?.statements || [],
             TAB_CONFIG.knowledge.sections,
             'knowledge',
@@ -822,7 +892,7 @@ const renderTabContent = (profile) => {
 
         effortHtml += '</div>';
         effortHtml += renderSourceBadge(profile.effort?.data_source || 'oasis');
-        effortPanel.innerHTML = effortHtml;
+        effortPanel.innerHTML = renderSectionDescriptionBox('effort') + effortHtml;
     }
 
     // Responsibility tab - with Work Context definition
@@ -892,7 +962,7 @@ const renderTabContent = (profile) => {
 
         respHtml += '</div>';
         respHtml += renderSourceBadge(profile.responsibility?.data_source || 'oasis');
-        responsibilityPanel.innerHTML = respHtml;
+        responsibilityPanel.innerHTML = renderSectionDescriptionBox('responsibility') + respHtml;
     }
 
     // Show tabs container
