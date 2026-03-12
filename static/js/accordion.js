@@ -270,30 +270,38 @@ const renderSourceBadge = (dataSource, tooltip) => {
 const renderOverviewContent = (profile) => {
     const ref = profile.reference_attributes || {};
     const hierarchy = profile.noc_hierarchy || {};
+    const state = store.getState();
 
     let html = '';
 
-    // NOC Icon + Title (duplicated from header)
-    const iconClass = getNocIcon(profile.noc_code);
+    // Position Title — editable input (BUILD-03)
+    const currentTitle = state.positionTitle || profile.title || '';
     html += `
-        <div class="overview-profile-header">
-            <i class="fas ${iconClass} overview-icon"></i>
-            <div class="overview-header-text">
-                <h2>${escapeHtml(profile.title)}</h2>
-                <span class="noc-badge">${escapeHtml(profile.noc_code)}</span>
-            </div>
+        <div class="overview-position-title">
+            <label class="overview-position-title__label" for="position-title-input">Position Title</label>
+            <input type="text" id="position-title-input" class="overview-position-title__input"
+                   value="${escapeHtml(currentTitle)}"
+                   placeholder="Enter position title...">
         </div>
     `;
 
-    // Navy blue description (moved from above-tabs area)
+    // Two-column: Lead Statement (left) + Definition (right)
+    const leadStatement = ref.lead_statement || '';
     const descEl = document.getElementById('profile-description');
-    if (descEl && descEl.textContent) {
-        html += `
-            <div class="overview-description">
-                <p class="navy-description">${escapeHtml(descEl.textContent)}</p>
+    const definition = descEl ? descEl.textContent : '';
+
+    html += `
+        <div class="overview-two-col">
+            <div class="overview-two-col__panel">
+                <h4 class="overview-two-col__heading">Lead Statement</h4>
+                <p class="overview-two-col__text">${leadStatement ? escapeHtml(leadStatement) : '<em>No lead statement available.</em>'}</p>
             </div>
-        `;
-    }
+            <div class="overview-two-col__panel">
+                <h4 class="overview-two-col__heading">Definition</h4>
+                <p class="overview-two-col__text">${definition ? escapeHtml(definition) : '<em>Loading definition...</em>'}</p>
+            </div>
+        </div>
+    `;
 
     // Also known as - OaSIS panel card format (matches OaSIS welcome page)
     // Display as panel with icon header and bullet list of job titles

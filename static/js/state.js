@@ -56,6 +56,7 @@ const loadPersistedState = () => {
 };
 
 const defaultState = {
+    positionTitle: '',        // editable position title on Overview tab (BUILD-03)
     selections: {
         key_activities: [],
         skills: [],
@@ -80,6 +81,7 @@ const resetSelectionsForProfile = (nocCode) => {
         // Different profile - clear selections
         console.log('[DEBUG state.js] Profile changed from', state.currentProfileCode, 'to', nocCode, '- clearing selections');
         store.setState({
+            positionTitle: '',
             selections: {
                 key_activities: [],
                 skills: [],
