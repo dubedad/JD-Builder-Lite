@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-03-11)
 
 Milestone: v5.1 UI Overhaul
 Phase: 28 of 30 (Navigation, Preview & Selections)
-Plan: 28-01 and 28-03 complete; 28-02 pending
-Status: In progress
-Last activity: 2026-03-12 — Completed 28-01-PLAN.md (build nav bar + classify/generate page nav buttons)
+Plan: All 3 plans complete (28-01, 28-02, 28-03)
+Status: Phase 28 complete
+Last activity: 2026-03-12 — Completed 28-02-PLAN.md (preview modal with client-side JD assembly)
 
-Progress: [█████░░░░░] 42% (5/12 plans complete — 28-01 done, 28-02 pending, 28-03 done)
+Progress: [██████░░░░] 50% (6/12 plans complete — 28-01, 28-02, 28-03 all done)
 
 ## Milestone History
 
@@ -67,9 +67,11 @@ Progress: [█████░░░░░] 42% (5/12 plans complete — 28-01 do
 | action-bar has style="display:none" not deleted | 28-01 | Keeps actionBar variable refs valid; classList ops on it are now no-ops visually |
 | nav-preview-jd dispatches CustomEvent open-preview-modal | 28-01 | Decouples build nav from preview implementation; 28-02 will add the listener |
 | classify-nav-actions--always outside #classify-complete | 28-01 | Ensures nav buttons visible even while classification is running or errored |
+| assembleJDPreview() is client-side only (no API call) | 28-02 | Fast, instant rendering; no spinner needed for preview |
+| downloadPDF/downloadDOCX btn nullable | 28-02 | preview-export-btn only exists on old showPreview() page; modal calls same methods |
 
 ## Session Continuity
 
 Last session: 2026-03-12
-Stopped at: Completed 28-01-PLAN.md (Build nav bar + classify/generate page nav buttons)
+Stopped at: Completed 28-02-PLAN.md (Preview modal with client-side JD assembly)
 Resume file: None
