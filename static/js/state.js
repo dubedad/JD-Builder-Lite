@@ -58,8 +58,11 @@ const loadPersistedState = () => {
 const defaultState = {
     positionTitle: '',        // editable position title on Overview tab (BUILD-03)
     selections: {
+        core_competencies: [],   // v5.1: selectable checkboxes
         key_activities: [],
         skills: [],
+        abilities: [],           // v5.1: level-grouped
+        knowledge: [],           // v5.1: level-grouped
         effort: [],
         responsibility: [],
         working_conditions: []
@@ -83,8 +86,11 @@ const resetSelectionsForProfile = (nocCode) => {
         store.setState({
             positionTitle: '',
             selections: {
+                core_competencies: [],
                 key_activities: [],
                 skills: [],
+                abilities: [],
+                knowledge: [],
                 effort: [],
                 responsibility: [],
                 working_conditions: []

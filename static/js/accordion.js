@@ -440,20 +440,151 @@ const renderOverviewContent = (profile) => {
 
 const renderCoreCompetenciesContent = (profile) => {
     const ref = profile.reference_attributes || {};
-    let html = '';
+    const state = store.getState();
+    const selectedIds = state.selections.core_competencies || [];
 
-    if (ref.core_competencies?.length) {
-        html += `
-            <div class="tab-panel__section">
-                <h3 class="tab-panel__section-title">Core Competencies</h3>
-                <ul class="tab-panel__list">
-                    ${ref.core_competencies.map(c => `<li class="tab-panel__item">${escapeHtml(c)}</li>`).join('')}
-                </ul>
-            </div>
-        `;
+    if (!ref.core_competencies?.length) {
+        return '<p>No core competencies information available.</p>';
     }
 
-    return html || '<p>No core competencies information available.</p>';
+    const items = ref.core_competencies;
+    const allSelected = items.length > 0 && items.every((_, idx) =>
+        selectedIds.includes(`core_competencies-${idx}`)
+    );
+    const selectedCount = items.filter((_, idx) =>
+        selectedIds.includes(`core_competencies-${idx}`)
+    ).length;
+
+    let html = `
+        <div class="select-all-row">
+            <label class="select-all-label">
+                <input type="checkbox" class="select-all-checkbox" data-section="core_competencies"
+                       ${allSelected ? 'checked' : ''}>
+                Select All (${items.length})
+            </label>
+            <span class="selection-count" id="count-core_competencies">${selectedCount} selected</span>
+        </div>
+        <div class="sources-row">
+            <span class="sources-label">SOURCES:</span>
+            <span class="source-chip">GC Core Competencies</span>
+        </div>
+        <ul class="tab-panel__list jd-section__list">
+    `;
+
+    items.forEach((competency, idx) => {
+        const stmtId = `core_competencies-${idx}`;
+        const isSelected = selectedIds.includes(stmtId);
+        html += `
+            <li class="statement tab-panel__item${isSelected ? ' statement--selected' : ''}" data-id="${stmtId}">
+                <label class="statement__label">
+                    <input type="checkbox" class="statement__checkbox"
+                           data-section="core_competencies"
+                           data-id="${stmtId}"
+                           ${isSelected ? 'checked' : ''}>
+                    <span class="statement__content">
+                        <span class="statement__text">${escapeHtml(competency)}</span>
+                    </span>
+                </label>
+            </li>
+        `;
+    });
+
+    html += '</ul>';
+    return html;
+};
+
+const renderKeyActivitiesContent = (profile, state) => {
+    const allStatements = profile.key_activities?.statements || [];
+    const selectedIds = state.selections.key_activities || [];
+
+    if (allStatements.length === 0) {
+        return '<p>No key activities available.</p>';
+    }
+
+    const mainDuties = allStatements.filter(s => s.source_attribute === 'Main Duties');
+    const workActivities = allStatements.filter(s => s.source_attribute === 'Work Activities');
+
+    // Single Select All for combined list
+    const allSelected = allStatements.length > 0 && allStatements.every((_, idx) =>
+        selectedIds.includes(`key_activities-${idx}`)
+    );
+    const selectedCount = allStatements.filter((_, idx) =>
+        selectedIds.includes(`key_activities-${idx}`)
+    ).length;
+
+    let html = `
+        <div class="select-all-row">
+            <label class="select-all-label">
+                <input type="checkbox" class="select-all-checkbox" data-section="key_activities"
+                       ${allSelected ? 'checked' : ''}>
+                Select All (${allStatements.length})
+            </label>
+            <span class="selection-count" id="count-key_activities">${selectedCount} selected</span>
+        </div>
+    `;
+
+    // Render Main Duties section
+    if (mainDuties.length > 0) {
+        html += `<h4 class="activity-section-heading">Main Duties</h4>`;
+        html += '<ul class="tab-panel__list jd-section__list">';
+        mainDuties.forEach(stmt => {
+            const idx = allStatements.indexOf(stmt);
+            const stmtId = `key_activities-${idx}`;
+            const isSelected = selectedIds.includes(stmtId);
+            const descriptionHtml = stmt.description
+                ? `<span class="statement__description">${escapeHtml(stmt.description)}</span>`
+                : '';
+            html += `
+                <li class="statement tab-panel__item${isSelected ? ' statement--selected' : ''}" data-id="${stmtId}">
+                    <label class="statement__label">
+                        <input type="checkbox" class="statement__checkbox"
+                               data-section="key_activities"
+                               data-id="${stmtId}"
+                               ${isSelected ? 'checked' : ''}>
+                        <span class="statement__content">
+                            <span class="statement__text">${escapeHtml(stmt.text)}</span>
+                            ${descriptionHtml}
+                        </span>
+                    </label>
+                </li>
+            `;
+        });
+        html += '</ul>';
+    }
+
+    // Render Work Activities section
+    if (workActivities.length > 0) {
+        html += `<h4 class="activity-section-heading">Work Activities</h4>`;
+        html += '<ul class="tab-panel__list jd-section__list">';
+        workActivities.forEach(stmt => {
+            const idx = allStatements.indexOf(stmt);
+            const stmtId = `key_activities-${idx}`;
+            const isSelected = selectedIds.includes(stmtId);
+            const descriptionHtml = stmt.description
+                ? `<span class="statement__description">${escapeHtml(stmt.description)}</span>`
+                : '';
+            html += `
+                <li class="statement tab-panel__item${isSelected ? ' statement--selected' : ''}" data-id="${stmtId}">
+                    <label class="statement__label">
+                        <input type="checkbox" class="statement__checkbox"
+                               data-section="key_activities"
+                               data-id="${stmtId}"
+                               ${isSelected ? 'checked' : ''}>
+                        <span class="statement__content">
+                            <span class="statement__text">${escapeHtml(stmt.text)}</span>
+                            ${descriptionHtml}
+                        </span>
+                    </label>
+                </li>
+            `;
+        });
+        html += '</ul>';
+    }
+
+    return html + renderSourceBadge(
+        profile.key_activities?.data_source || 'oasis',
+        'Main Duties always served from OASIS (ETL pending)'
+    );
 };
 
 const renderStatementsPanel = (statements, sections, sectionId, selectedIds) => {
@@ -491,11 +622,6 @@ const renderStatementsPanel = (statements, sections, sectionId, selectedIds) => 
                         </label>
                         <h3 class="tab-panel__section-title">${section.title} (${filtered.length})</h3>
                     </div>
-                    <button class="style-selected-btn"
-                            onclick="styleSelectedStatements('${sectionId}')"
-                            title="Generate styled versions of selected statements">
-                        <i class="fas fa-magic"></i> Style Selected
-                    </button>
                 </div>
                 ${definitionHtml}
                 <ul class="tab-panel__list jd-section__list">
@@ -786,18 +912,10 @@ const renderTabContent = (profile) => {
         coreCompPanel.innerHTML = renderSectionDescriptionBox('core_competencies') + renderCoreCompetenciesContent(profile);
     }
 
-    // Key Activities tab
+    // Key Activities tab — single combined Select All + Main Duties / Work Activities headings (v5.1)
     const activitiesPanel = document.getElementById('panel-activities');
     if (activitiesPanel) {
-        activitiesPanel.innerHTML = renderSectionDescriptionBox('activities') + renderStatementsPanel(
-            profile.key_activities?.statements || [],
-            TAB_CONFIG.activities.sections,
-            'key_activities',
-            state.selections.key_activities || []
-        ) + renderSourceBadge(
-            profile.key_activities?.data_source || 'oasis',
-            'Main Duties always served from OASIS (ETL pending)'
-        );
+        activitiesPanel.innerHTML = renderSectionDescriptionBox('activities') + renderKeyActivitiesContent(profile, state);
     }
 
     // Skills tab - now only Skills statements
@@ -1097,14 +1215,33 @@ const initSortable = (container) => {
 };
 
 const updateSelectionCount = (sectionId) => {
-    const section = document.querySelector(`[data-section-id="${sectionId}"]`);
-    if (!section) return;
-
     const state = store.getState();
     const count = (state.selections[sectionId] || []).length;
-    const countEl = section.querySelector('.jd-section__count');
-    if (countEl) {
-        countEl.textContent = `(${count} selected)`;
+
+    // Update old accordion count (jd-section summary badge)
+    const section = document.querySelector(`[data-section-id="${sectionId}"]`);
+    if (section) {
+        const countEl = section.querySelector('.jd-section__count');
+        if (countEl) {
+            countEl.textContent = `(${count} selected)`;
+        }
+    }
+
+    // Update v5.1 selection count span (inside select-all-row)
+    const countSpan = document.getElementById(`count-${sectionId}`);
+    if (countSpan) {
+        countSpan.textContent = `${count} selected`;
+    }
+
+    // Update Select All checkbox state
+    const selectAllCheckbox = document.querySelector(
+        `input.select-all-checkbox[data-section="${sectionId}"]`
+    );
+    if (selectAllCheckbox) {
+        const totalCheckboxes = document.querySelectorAll(
+            `input.statement__checkbox[data-section="${sectionId}"]`
+        ).length;
+        selectAllCheckbox.checked = count > 0 && count === totalCheckboxes;
     }
 };
 
