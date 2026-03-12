@@ -523,43 +523,68 @@
             <!-- Accordion content will be populated by JavaScript -->
         </section>
 
-        <!-- General Overview Section -->
+        <!-- General Overview / Generate Section (v5.1 Generate Page) -->
         <section id="overview-section" class="overview-section hidden">
-            <header class="overview-header">
-                <h2>General Overview</h2>
-                <span id="ai-badge" class="ai-badge">AI Generated</span>
-            </header>
-
-            <div class="overview-content">
-                <p class="overview-instructions">
-                    This overview is generated based on your selected statements. You can edit it freely.
-                    Click "Regenerate" to create a new version.
-                </p>
-
-                <textarea
-                    id="overview-textarea"
-                    class="overview-textarea"
-                    placeholder="Click 'Generate Overview' to create an AI-powered summary..."
-                    rows="8"
-                ></textarea>
-
-                <div class="overview-actions">
-                    <button id="regenerate-btn" class="btn btn--secondary" disabled>
-                        Regenerate
-                    </button>
+          <div class="generate-card">
+            <!-- Card Header -->
+            <div class="generate-card__header">
+              <div class="generate-card__title-row">
+                <h2 class="generate-card__title">Generate AI Overview</h2>
+                <div class="generate-card__badges">
+                  <span class="badge badge--dadm-level2">DADM Level 2</span>
+                  <span class="badge badge--human-review">Human Review Required</span>
                 </div>
-
-                <div class="generate-nav-actions">
-                    <button class="btn btn--secondary" id="generate-regenerate" type="button">
-                        <i class="fas fa-redo"></i> Regenerate
-                    </button>
-                    <button class="btn btn--primary" id="generate-continue" type="button">
-                        Continue <i class="fas fa-arrow-right"></i>
-                    </button>
-                </div>
+              </div>
+              <p class="generate-card__subtitle">AI-generated content is logged per TBS Directive on Automated Decision-Making.</p>
             </div>
 
+            <!-- DADM Compliance Notice (yellow warning) -->
+            <div class="generate-compliance-notice">
+              <i class="fas fa-exclamation-triangle"></i>
+              <div>
+                <strong>DADM Compliance Notice</strong>
+                <p>This AI-generated content has moderate impact. Human review is required before use.</p>
+              </div>
+            </div>
+
+            <!-- Additional Context (optional) -->
+            <div class="generate-context">
+              <label for="additional-context" class="generate-context__label">Additional Context <span class="generate-context__optional">(optional)</span></label>
+              <textarea id="additional-context" class="generate-context__textarea" rows="3" placeholder="Department-specific requirements, organizational context..."></textarea>
+            </div>
+
+            <!-- Generate Button -->
+            <div class="generate-action">
+              <button id="generate-btn" class="btn btn--generate" type="button">
+                <i class="fas fa-pencil-alt"></i> Generate with AI
+              </button>
+            </div>
+
+            <!-- Generated Output (hidden until generation completes) -->
+            <div id="generate-output" class="generate-output hidden">
+              <div class="generate-output__header">
+                <h3>Generated Overview</h3>
+                <span id="ai-badge" class="badge badge--ai-generated">AI Generated</span>
+              </div>
+              <div id="overview-textarea" class="generate-output__prose" contenteditable="true"></div>
+            </div>
+
+            <!-- Error -->
             <div id="overview-error" class="overview-error hidden" role="alert"></div>
+
+            <!-- Navigation -->
+            <div class="generate-nav-actions">
+              <button class="btn btn--secondary" id="generate-regenerate" type="button">
+                <i class="fas fa-redo"></i> Regenerate
+              </button>
+              <button class="btn btn--primary" id="generate-continue" type="button">
+                Continue <i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Hidden legacy regenerate btn for generate.js compatibility -->
+          <button id="regenerate-btn" class="hidden" type="button"></button>
         </section>
 
         <!-- Explore Other JobForge Agents (shown after search results) -->
