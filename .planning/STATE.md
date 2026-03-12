@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-03-11)
 
 Milestone: v5.1 UI Overhaul
 Phase: 29 of 30 (Classification Restyle + Generate Page)
-Plan: Not started (Phase 28 verified and complete)
-Status: Ready to plan Phase 29
-Last activity: 2026-03-12 — Phase 28 complete (3/3 plans verified, 5/5 must-haves passed)
+Plan: 29-01 complete (29-02, 29-03 remaining)
+Status: In progress
+Last activity: 2026-03-12 — Completed 29-01-PLAN.md (v5.1 classify page HTML + CSS)
 
-Progress: [██████░░░░] 55% (7/12 plans complete)
+Progress: [███████░░░] 62% (8/13 plans complete)
 
 ## Milestone History
 
@@ -69,9 +69,11 @@ Progress: [██████░░░░] 55% (7/12 plans complete)
 | classify-nav-actions--always outside #classify-complete | 28-01 | Ensures nav buttons visible even while classification is running or errored |
 | assembleJDPreview() is client-side only (no API call) | 28-02 | Fast, instant rendering; no spinner needed for preview |
 | downloadPDF/downloadDOCX btn nullable | 28-02 | preview-export-btn only exists on old showPreview() page; modal calls same methods |
+| classify-status-badge starts hidden in v5.1 | 29-01 | User sees TBS card + Analyze CTA first; showLoading() removes hidden class when analysis begins |
+| Legacy classify panels in hidden div for JS compat | 29-01 | recommendations-panel / evidence-panel kept in .classify-layout.hidden; plan 29-03 transitions to new containers |
 
 ## Session Continuity
 
 Last session: 2026-03-12
-Stopped at: Completed 28-02-PLAN.md (Preview modal with client-side JD assembly)
+Stopped at: Completed 29-01-PLAN.md — classify page HTML + CSS restyled
 Resume file: None
