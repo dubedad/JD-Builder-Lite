@@ -360,11 +360,15 @@ const exportModule = {
    * Download PDF
    */
   async downloadPDF() {
+    if (!this.currentExportData) {
+      showToast('No export data available. Open preview first.', 'warning');
+      return;
+    }
+    // btn may be null when called from modal (old preview-export-btn only exists on preview page)
     const btn = document.getElementById('preview-export-btn');
-    if (!btn || !this.currentExportData) return;
 
-    btn.classList.add('export-btn--loading');
-    const btnText = btn.querySelector('.export-btn-text');
+    if (btn) btn.classList.add('export-btn--loading');
+    const btnText = btn?.querySelector('.export-btn-text');
     if (btnText) btnText.textContent = 'Generating PDF...';
 
     try {
@@ -396,9 +400,9 @@ const exportModule = {
       console.error('PDF download error:', error);
       showToast('Failed to generate PDF: ' + error.message, 'error');
     } finally {
-      btn.classList.remove('export-btn--loading');
-      const btnText = btn.querySelector('.export-btn-text');
-      if (btnText) btnText.textContent = 'Export Job Description';
+      if (btn) btn.classList.remove('export-btn--loading');
+      const btnTextFinal = btn?.querySelector('.export-btn-text');
+      if (btnTextFinal) btnTextFinal.textContent = 'Export Job Description';
     }
   },
 
@@ -406,11 +410,15 @@ const exportModule = {
    * Download Word document
    */
   async downloadDOCX() {
+    if (!this.currentExportData) {
+      showToast('No export data available. Open preview first.', 'warning');
+      return;
+    }
+    // btn may be null when called from modal (old preview-export-btn only exists on preview page)
     const btn = document.getElementById('preview-export-btn');
-    if (!btn || !this.currentExportData) return;
 
-    btn.classList.add('export-btn--loading');
-    const btnText = btn.querySelector('.export-btn-text');
+    if (btn) btn.classList.add('export-btn--loading');
+    const btnText = btn?.querySelector('.export-btn-text');
     if (btnText) btnText.textContent = 'Generating Word...';
 
     try {
@@ -442,10 +450,146 @@ const exportModule = {
       console.error('DOCX download error:', error);
       showToast('Failed to generate Word document: ' + error.message, 'error');
     } finally {
-      btn.classList.remove('export-btn--loading');
-      const btnText = btn.querySelector('.export-btn-text');
-      if (btnText) btnText.textContent = 'Export Job Description';
+      if (btn) btn.classList.remove('export-btn--loading');
+      const btnTextFinal = btn?.querySelector('.export-btn-text');
+      if (btnTextFinal) btnTextFinal.textContent = 'Export Job Description';
     }
+  },
+
+  /**
+   * Assemble JD preview HTML from current selections and profile data (client-side, no API call)
+   */
+  assembleJDPreview() {
+    const state = store.getState();
+    const profile = window.currentProfile;
+    if (!profile) return '<p>No profile loaded.</p>';
+
+    // All 8 sections in display order
+    const ALL_SECTIONS = [
+      { key: 'core_competencies', label: 'Core Competencies' },
+      { key: 'key_activities', label: 'Key Activities' },
+      { key: 'skills', label: 'Skills' },
+      { key: 'abilities', label: 'Abilities' },
+      { key: 'knowledge', label: 'Knowledge' },
+      { key: 'effort', label: 'Effort' },
+      { key: 'responsibility', label: 'Responsibility' },
+      { key: 'working_conditions', label: 'Working Conditions' }
+    ];
+
+    let html = '';
+
+    // Title and NOC code header
+    html += `<div class="preview-jd__header">`;
+    html += `<h3 class="preview-jd__title">${this._escapeHtml(profile.title)}</h3>`;
+    html += `<span class="preview-jd__noc">NOC ${this._escapeHtml(profile.noc_code)}</span>`;
+    if (profile.reference_attributes?.lead_statement) {
+      html += `<p class="preview-jd__lead">${this._escapeHtml(profile.reference_attributes.lead_statement)}</p>`;
+    }
+    html += `</div>`;
+
+    // Position title if set
+    const posTitle = state.positionTitle;
+    if (posTitle) {
+      html += `<div class="preview-jd__position"><strong>Position Title:</strong> ${this._escapeHtml(posTitle)}</div>`;
+    }
+
+    // Overview text if generated
+    const overview = window.generation?.getOverview ? window.generation.getOverview() : null;
+    if (overview?.generated && overview.text) {
+      html += `<div class="preview-jd__section">`;
+      html += `<h4>Position Overview</h4>`;
+      html += `<p>${this._escapeHtml(overview.text)}</p>`;
+      html += `</div>`;
+    }
+
+    // Each section with selected items
+    ALL_SECTIONS.forEach(({ key, label }) => {
+      const selectedIds = state.selections[key] || [];
+      if (selectedIds.length === 0) return;
+
+      html += `<div class="preview-jd__section">`;
+      html += `<h4>${label} <span class="preview-jd__count">(${selectedIds.length})</span></h4>`;
+      html += `<ul class="preview-jd__list">`;
+
+      selectedIds.forEach(stmtId => {
+        const index = parseInt(stmtId.split('-').pop(), 10);
+        let text = '';
+
+        // PITFALL: core_competencies items are plain strings in profile.reference_attributes.core_competencies[idx]
+        if (key === 'core_competencies') {
+          const ccItems = profile.reference_attributes?.core_competencies || [];
+          text = ccItems[index] || '';
+        }
+        // PITFALL: abilities/knowledge use filtered sub-arrays by source_attribute
+        else if (key === 'abilities' || key === 'knowledge') {
+          const sourceAttr = key === 'abilities' ? 'Abilities' : 'Knowledge';
+          const filtered = (profile.skills?.statements || []).filter(s => s.source_attribute === sourceAttr);
+          text = filtered[index]?.text || '';
+        } else {
+          const sectionData = profile[key];
+          if (sectionData?.statements?.[index]) {
+            text = sectionData.statements[index].text;
+          }
+        }
+
+        if (text) {
+          html += `<li>${this._escapeHtml(text)}</li>`;
+        }
+      });
+
+      html += `</ul></div>`;
+    });
+
+    if (Object.values(state.selections).every(arr => arr.length === 0)) {
+      html += `<p class="preview-jd__empty">No statements selected yet. Return to the builder to make selections.</p>`;
+    }
+
+    return html;
+  },
+
+  /**
+   * Escape HTML special characters to prevent XSS
+   */
+  _escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text || '';
+    return div.innerHTML;
+  },
+
+  /**
+   * Open the JD preview modal and assemble content
+   */
+  openPreviewModal() {
+    const modal = document.getElementById('jd-preview-modal');
+    const body = document.getElementById('preview-modal-body');
+    if (!modal || !body) return;
+
+    // Assemble JD content
+    body.innerHTML = this.assembleJDPreview();
+
+    // Prepare export data for PDF/Word buttons
+    try {
+      this.currentExportData = this.buildExportRequest ? this.buildExportRequest() : null;
+    } catch (e) {
+      console.warn('[export.js] Could not build export data:', e.message);
+    }
+
+    // Show modal
+    modal.classList.remove('hidden');
+    document.body.classList.add('modal-open');
+
+    // Focus trap: focus the close button
+    document.getElementById('preview-return-btn')?.focus();
+  },
+
+  /**
+   * Close the JD preview modal
+   */
+  closePreviewModal() {
+    const modal = document.getElementById('jd-preview-modal');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    document.body.classList.remove('modal-open');
   }
 };
 
@@ -492,6 +636,51 @@ function initExport() {
       }
     });
   }
+
+  // Listen for open-preview-modal event (dispatched by nav bar button in main.js)
+  document.addEventListener('open-preview-modal', () => {
+    exportModule.openPreviewModal();
+  });
+
+  // Preview modal buttons
+  const previewReturnBtn = document.getElementById('preview-return-btn');
+  if (previewReturnBtn) {
+    previewReturnBtn.addEventListener('click', () => exportModule.closePreviewModal());
+  }
+
+  const previewAdvanceBtn = document.getElementById('preview-advance-classify');
+  if (previewAdvanceBtn) {
+    previewAdvanceBtn.addEventListener('click', () => {
+      exportModule.closePreviewModal();
+      window.jdStepper.goToStep(3);
+    });
+  }
+
+  const previewPdfBtn = document.getElementById('preview-export-pdf');
+  if (previewPdfBtn) {
+    previewPdfBtn.addEventListener('click', () => exportModule.downloadPDF());
+  }
+
+  const previewWordBtn = document.getElementById('preview-export-word');
+  if (previewWordBtn) {
+    previewWordBtn.addEventListener('click', () => exportModule.downloadDOCX());
+  }
+
+  // Close modal on overlay click
+  const modalOverlay = document.querySelector('.jd-preview-modal__overlay');
+  if (modalOverlay) {
+    modalOverlay.addEventListener('click', () => exportModule.closePreviewModal());
+  }
+
+  // Close modal on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const modal = document.getElementById('jd-preview-modal');
+      if (modal && !modal.classList.contains('hidden')) {
+        exportModule.closePreviewModal();
+      }
+    }
+  });
 }
 
 window.initExport = initExport;
