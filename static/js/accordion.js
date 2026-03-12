@@ -94,15 +94,26 @@ const renderProfileHeader = async (profile) => {
     badgeEl.textContent = profile.noc_code;
     leadEl.textContent = profile.reference_attributes?.lead_statement || '';
     linkEl.href = profile.metadata?.profile_url || '#';
-    timestampEl.textContent = new Date().toLocaleDateString();
 
-    // Set icon immediately based on NOC broad category (semantic, no API call)
-    const iconClass = getNocIcon(profile.noc_code);
-    iconEl.className = `fas ${iconClass}`;
-    console.log('[DEBUG] Icon set from NOC category:', iconClass, 'for code:', profile.noc_code);
+    // v5.1: Always show gear icon in header (NOC-specific icons used in Overview tab)
+    iconEl.className = 'fas fa-cog';
+
+    // v5.1: ISO date format for Retrieved timestamp
+    const isoDate = new Date().toLocaleDateString('en-CA');
+    timestampEl.innerHTML = `<i class="fas fa-clock"></i> Retrieved: ${isoDate}`;
 
     // Show header
     header.classList.remove('hidden');
+
+    // Close button — returns to search (step 1)
+    const closeBtn = document.getElementById('profile-header-close');
+    if (closeBtn) {
+        closeBtn.onclick = () => {
+            if (window.jdStepper) {
+                window.jdStepper.goToStep(1);
+            }
+        };
+    }
 
     // Extract main duties for description generation
     const mainDuties = (profile.key_activities?.statements || [])

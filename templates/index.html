@@ -154,24 +154,43 @@
             </div>
         </section>
 
-        <!-- Profile Header (blue banner, initially hidden) -->
-        <section id="profile-header" class="profile-header blueBG hidden">
+        <!-- Profile Header (v5.1 dark navy card, initially hidden) -->
+        <section id="profile-header" class="profile-header profile-header--v51 hidden">
+            <button class="profile-header__close" id="profile-header-close" type="button" aria-label="Close profile and return to search">
+                <i class="fas fa-times"></i>
+            </button>
             <div class="profile-header__content">
+                <div class="profile-header__icon-wrap">
+                    <i id="profile-icon" class="fas fa-cog" aria-hidden="true"></i>
+                </div>
                 <div class="profile-header__text">
                     <h2 id="profile-title" class="profile-header__title"></h2>
-                    <span id="profile-code-badge" class="oasis-code-badge"></span>
+                    <span id="profile-code-badge" class="profile-header__noc-badge"></span>
                     <p id="profile-lead-statement" class="profile-header__lead"></p>
                     <p id="profile-description" class="profile-header__description hidden"></p>
                 </div>
-                <div class="profile-header__icon">
-                    <i id="profile-icon" class="fas fa-briefcase" aria-hidden="true"></i>
-                </div>
             </div>
             <div class="profile-header__meta">
-                <span class="profile-header__source">
-                    Source: <a id="profile-link" href="#" target="_blank" rel="noopener noreferrer">View on OASIS</a>
+                <span class="profile-header__meta-item">
+                    <i class="fas fa-code-branch"></i> NOC 2021 v1.0
                 </span>
-                <span id="profile-timestamp" class="profile-header__timestamp"></span>
+                <span class="profile-header__meta-divider">|</span>
+                <span class="profile-header__meta-item" id="profile-timestamp">
+                    <i class="fas fa-clock"></i> Retrieved: ...
+                </span>
+                <span class="profile-header__meta-divider">|</span>
+                <span class="profile-header__meta-item profile-header__meta-item--verified">
+                    <i class="fas fa-check-circle"></i> Quality Verified
+                </span>
+                <span class="profile-header__meta-divider">|</span>
+                <button class="profile-header__provenance-btn" type="button" onclick="event.preventDefault();">
+                    <i class="fas fa-project-diagram"></i> View Provenance Graph
+                </button>
+            </div>
+            <div class="profile-header__links">
+                <a id="profile-link" href="#" target="_blank" rel="noopener noreferrer" class="profile-header__oasis-link">
+                    <i class="fas fa-external-link-alt"></i> View on OASIS
+                </a>
             </div>
         </section>
 
