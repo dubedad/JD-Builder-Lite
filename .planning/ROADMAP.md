@@ -60,11 +60,11 @@ Plans:
 4. Key Activities tab displays Main Duties and Work Activities as two clearly labelled lists within the same tab.
 5. Abilities, Effort, and Responsibility tabs group items by level with coloured level badges; all item-level tabs show inline sub-descriptions below each item label.
 
-**Plans:** TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 27-01: Occupation header card + tab icons + section description boxes
-- [ ] 27-02: Tab content redesign (Overview, Core Competencies, Key Activities, level-grouped tabs, Select All, blue dot ratings)
+- [ ] 27-01-PLAN.md — Occupation header card redesign (dark navy, gear icon, metadata badges, close button) + tab icons + section description boxes
+- [ ] 27-02-PLAN.md — Tab content redesign (Core Competencies checkboxes, Key Activities single Select All with section headings, level-grouped Abilities/Effort/Responsibility with colored badges)
 
 ---
 
@@ -142,7 +142,7 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 26. Global Chrome & Search | v5.1 | 2/2 | Complete | 2026-03-11 |
-| 27. Build Page Redesign | v5.1 | 0/2 | Not started | - |
+| 27. Build Page Redesign | v5.1 | 0/2 | Planned | - |
 | 28. Navigation, Preview & Selections | v5.1 | 0/3 | Not started | - |
 | 29. Classification Restyle + Generate | v5.1 | 0/2 | Not started | - |
 | 30. Export Page + New PDF/DOCX/JSON | v5.1 | 0/3 | Not started | - |
@@ -156,4 +156,4 @@ Plans:
 | 20. Evidence & Provenance Display | v4.1 | 0/2 | Deferred | - |
 
 ---
-*Roadmap updated: 2026-03-11 — Phase 26 complete (2/2 plans, verified)*
+*Roadmap updated: 2026-03-11 — Phase 27 planned (2 plans in 2 waves)*
