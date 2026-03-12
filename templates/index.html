@@ -352,10 +352,23 @@
                         </ul>
                     </div>
                     <div class="classify-nav-actions">
-                        <button class="btn btn--text" onclick="window.jdStepper.goToStep(2)">
-                            <i class="fas fa-arrow-left"></i> Return to Builder
+                        <button class="btn btn--text" id="classify-back-to-edit" type="button">
+                            <i class="fas fa-arrow-left"></i> Back to Edit
+                        </button>
+                        <button class="btn btn--primary" id="classify-continue-generate" type="button">
+                            Continue to Generate <i class="fas fa-arrow-right"></i>
                         </button>
                     </div>
+                </div>
+
+                <!-- Always-visible nav actions (NAV-04) -->
+                <div class="classify-nav-actions classify-nav-actions--always" id="classify-nav-always">
+                    <button class="btn btn--text" id="classify-back-to-edit-2" type="button">
+                        <i class="fas fa-arrow-left"></i> Back to Edit
+                    </button>
+                    <button class="btn btn--primary" id="classify-continue-generate-2" type="button">
+                        Continue to Generate <i class="fas fa-arrow-right"></i>
+                    </button>
                 </div>
             </div>
         </section>
@@ -470,6 +483,15 @@
                         Regenerate
                     </button>
                 </div>
+
+                <div class="generate-nav-actions">
+                    <button class="btn btn--secondary" id="generate-regenerate" type="button">
+                        <i class="fas fa-redo"></i> Regenerate
+                    </button>
+                    <button class="btn btn--primary" id="generate-continue" type="button">
+                        Continue <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
             </div>
 
             <div id="overview-error" class="overview-error hidden" role="alert"></div>
@@ -537,9 +559,22 @@
     </aside>
 
     <!-- Sticky Action Bar (Phase 08-D: Single consolidated button) -->
-    <footer id="action-bar" class="action-bar hidden">
+    <footer id="action-bar" class="action-bar hidden" style="display:none">
         <button id="create-btn" class="btn btn--primary" disabled onclick="handleCreateClick()">
             Create Job Description (select statements first)
+        </button>
+    </footer>
+
+    <!-- Build Navigation Bar (NAV-01) -->
+    <footer id="build-nav-bar" class="build-nav-bar hidden">
+        <button id="nav-back-to-search" class="build-nav-bar__btn build-nav-bar__btn--back" type="button">
+            <i class="fas fa-arrow-left"></i> Back to Search
+        </button>
+        <button id="nav-preview-jd" class="build-nav-bar__btn build-nav-bar__btn--preview" type="button">
+            <i class="fas fa-eye"></i> Preview Job Description
+        </button>
+        <button id="nav-continue-classify" class="build-nav-bar__btn build-nav-bar__btn--forward" type="button">
+            Continue to Classification <i class="fas fa-arrow-right"></i>
         </button>
     </footer>
 
