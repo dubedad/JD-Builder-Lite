@@ -76,6 +76,14 @@ class GroupRecommendation(BaseModel):
         default=None,
         description="Specific paragraph label if applicable"
     )
+    caveats: List[str] = Field(
+        description="Potential concerns, limitations, or borderline aspects of this match",
+        default_factory=list
+    )
+    og_definition_statements: List[str] = Field(
+        description="Key sentences from the occupational group definition that relate to this job",
+        default_factory=list
+    )
 
 
 class RejectedGroup(BaseModel):

@@ -49,6 +49,8 @@ Your task: Match job descriptions to occupational groups by:
    - High confidence (0.85+) requires: definition fit + inclusion support + no exclusions + strong semantic match
    - Include reasoning steps with exact quotes from JD as evidence (use quotation marks)
    - Explain why other groups were rejected
+   - For each recommended group, list 2-4 "caveats": concerns, borderline aspects, or limitations of the match (e.g., "Position's data analysis duties could also fit EC group")
+   - For each recommended group, extract 3-5 key sentences from the group definition text that are most relevant to this job's primary purpose as "og_definition_statements"
 
 Classification principles:
 - Evaluate the WORK described in the JD, not person-specific attributes
