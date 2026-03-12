@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-03-11)
 
 **Core value:** Every piece of content in the JD can be traced to its authoritative source (JobForge parquet or OASIS), with clear documentation of human decisions and AI involvement.
-**Current focus:** v5.1 UI Overhaul — Phase 28: Navigation, Preview Modal & Selections Drawer
+**Current focus:** v5.1 UI Overhaul — Phase 29: Classification Restyle + Generate Page
 
 ## Current Position
 
 Milestone: v5.1 UI Overhaul
-Phase: 28 of 30 (Navigation, Preview & Selections)
-Plan: All 3 plans complete (28-01, 28-02, 28-03)
-Status: Phase 28 complete
-Last activity: 2026-03-12 — Completed 28-02-PLAN.md (preview modal with client-side JD assembly)
+Phase: 29 of 30 (Classification Restyle + Generate Page)
+Plan: Not started (Phase 28 verified and complete)
+Status: Ready to plan Phase 29
+Last activity: 2026-03-12 — Phase 28 complete (3/3 plans verified, 5/5 must-haves passed)
 
-Progress: [██████░░░░] 50% (6/12 plans complete — 28-01, 28-02, 28-03 all done)
+Progress: [██████░░░░] 55% (7/12 plans complete)
 
 ## Milestone History
 

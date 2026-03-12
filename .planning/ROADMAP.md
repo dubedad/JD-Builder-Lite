@@ -83,12 +83,12 @@ Plans:
 4. The right-edge Selections tab opens an overlay panel showing all selected items grouped by tab, each with a × deselect button, a total count, and a "Clear All" button.
 5. Classification page shows "Back to Edit" and "Continue to Generate" buttons; Generate page shows "Regenerate" and "Continue" buttons.
 
-**Plans:** TBD
+**Plans:** 3 plans
 
 Plans:
-- [ ] 28-01: 3-button navigation bar + selection persistence (back/same/different card logic)
-- [ ] 28-02: Preview modal (open, content, header/footer buttons)
-- [ ] 28-03: Selections drawer (open, items grouped by tab, deselect, clear all, count)
+- [x] 28-01-PLAN.md — 3-button navigation bar + selection persistence + Classify/Generate nav buttons
+- [x] 28-02-PLAN.md — Preview modal (open, JD assembly, header/footer buttons)
+- [x] 28-03-PLAN.md — Selections drawer (grouped items, deselect, clear all, total count)
 
 ---
 
@@ -143,7 +143,7 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 26. Global Chrome & Search | v5.1 | 2/2 | Complete | 2026-03-11 |
 | 27. Build Page Redesign | v5.1 | 2/2 | Complete | 2026-03-12 |
-| 28. Navigation, Preview & Selections | v5.1 | 0/3 | Not started | - |
+| 28. Navigation, Preview & Selections | v5.1 | 3/3 | Complete | 2026-03-12 |
 | 29. Classification Restyle + Generate | v5.1 | 0/2 | Not started | - |
 | 30. Export Page + New PDF/DOCX/JSON | v5.1 | 0/3 | Not started | - |
 | 21. Data Exploration | v5.0 | 3/3 | Complete | 2026-03-07 |
@@ -156,4 +156,4 @@ Plans:
 | 20. Evidence & Provenance Display | v4.1 | 0/2 | Deferred | - |
 
 ---
-*Roadmap updated: 2026-03-12 — Phase 27 complete (2/2 plans, verified 5/5 must-haves)*
+*Roadmap updated: 2026-03-12 — Phase 28 complete (3/3 plans, verified)*
