@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-03-11)
 
 Milestone: v5.1 UI Overhaul
 Phase: 28 of 30 (Navigation, Preview & Selections)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-03-12 — Phase 27 complete (2/2 plans, verified 5/5 must-haves)
+Plan: 03 of 03 complete (28-03 done; 28-01 and 28-02 pending)
+Status: In progress
+Last activity: 2026-03-12 — Completed 28-03-PLAN.md (Selections drawer redesign)
 
-Progress: [████░░░░░░] 33% (4/12 plans complete)
+Progress: [████░░░░░░] 33% (4/12 plans complete — 28-03 done, 28-01/02 still pending)
 
 ## Milestone History
 
@@ -60,9 +60,12 @@ Progress: [████░░░░░░] 33% (4/12 plans complete)
 | Abilities/Knowledge IDs use filtered-array positions | 27-02 | Filter from profile.skills.statements before renderLevelGroupedContent so IDs are abilities-0..N, not global indices |
 | renderLevelGroupedContent includes renderSourceBadge internally | 27-02 | Callers do not append source badge separately; avoids duplication |
 | Style Selected buttons removed entirely | 27-02 | Not in v5.1 spec; removed from renderStatementsPanel and inline Effort/Responsibility rendering |
+| ALL_SECTIONS_LABELS lives in accordion.js | 28-03 | Co-located with JD_ELEMENT_LABELS; exported globally so sidebar.js can access without import |
+| Drawer event listener re-attached on every render | 28-03 | innerHTML replacement destroys prior listeners; re-attach via summaryContainer.addEventListener each updateSidebar call |
+| abilities/knowledge text from filtered sub-array | 28-03 | Filter profile.skills.statements by source_attribute, then index into filtered array — matches IDs from phase 27-02 |
 
 ## Session Continuity
 
 Last session: 2026-03-12
-Stopped at: Phase 27 complete — verified 5/5 must-haves, ROADMAP updated, ready to plan Phase 28
+Stopped at: Completed 28-03-PLAN.md (Selections drawer redesign)
 Resume file: None
