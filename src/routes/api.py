@@ -316,7 +316,8 @@ def generate():
         return Response(
             stream_with_context(generate_stream(
                 gen_request.statements,
-                gen_request.context
+                gen_request.context,
+                gen_request.additional_context
             )),
             mimetype='text/event-stream',
             headers={

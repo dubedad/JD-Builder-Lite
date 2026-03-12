@@ -42,6 +42,7 @@ class GenerationRequest(BaseModel):
     """Request payload for /api/generate endpoint."""
     statements: List[StatementInput]
     context: JobContext
+    additional_context: str = ""
 
     model_config = ConfigDict(from_attributes=True)
 

@@ -68,7 +68,7 @@ Guidelines:
 - The overview should give a reader a clear understanding of what this job entails"""
 
 
-def build_user_prompt(statements: List[StatementInput], context: JobContext) -> str:
+def build_user_prompt(statements: List[StatementInput], context: JobContext, additional_context: str = "") -> str:
     """Build the user prompt with job context and grouped statements."""
     # Group statements by JD element
     grouped = {}
@@ -98,12 +98,15 @@ def build_user_prompt(statements: List[StatementInput], context: JobContext) -> 
                 parts.append(f"  - {stmt.text}")
             parts.append("")
 
-    parts.append("Generate a professional General Overview section (4-6 sentences) for this job description:")
+    if additional_context:
+        parts.extend(["", f"Additional Context from Hiring Manager:", f"{additional_context}", ""])
+
+    parts.append("Generate a professional General Overview section (3-4 paragraphs) for this job description:")
 
     return "\n".join(parts)
 
 
-def generate_stream(statements: List[StatementInput], context: JobContext) -> Generator[str, None, None]:
+def generate_stream(statements: List[StatementInput], context: JobContext, additional_context: str = "") -> Generator[str, None, None]:
     """
     Stream GPT-4o response token-by-token.
 
@@ -114,7 +117,7 @@ def generate_stream(statements: List[StatementInput], context: JobContext) -> Ge
     """
     try:
         system_prompt = build_system_prompt()
-        user_prompt = build_user_prompt(statements, context)
+        user_prompt = build_user_prompt(statements, context, additional_context)
 
         stream = client.chat.completions.create(
             model=OPENAI_MODEL,
