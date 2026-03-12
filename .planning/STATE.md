@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-03-11)
 
 Milestone: v5.1 UI Overhaul
 Phase: 29 of 30 (Classification Restyle + Generate Page) — COMPLETE
-Plan: 29-03 complete (all 3 plans done)
-Status: Phase 29 complete
-Last activity: 2026-03-12 — Completed 29-03-PLAN.md (post-analysis rendering + Analyze button wiring)
+Plan: 29-04 complete (all 4 plans done including gap closure)
+Status: Phase 29 complete (gap closure done)
+Last activity: 2026-03-12 — Completed 29-04-PLAN.md (additional_context pipeline + multi-paragraph prompt)
 
-Progress: [█████████░] 77% (10/13 plans complete)
+Progress: [█████████░] 79% (11/14 plans complete)
 
 ## Milestone History
 
@@ -78,9 +78,12 @@ Progress: [█████████░] 77% (10/13 plans complete)
 | showLoading() hides classify-cta (not just button click) | 29-03 | Covers both Analyze button and any programmatic trigger in one place |
 | Alignment score computed client-side (evidenceCount/activityCount) | 29-03 | No new API field needed; keeps GroupRecommendation schema stable for backward compat |
 | JOB_EVAL_STANDARDS covers 8 common groups only | 29-03 | AS/CS/EC/PM/IT/FI/PE/EX; all others fall back to general TBS job evaluation index |
+| additional_context defaults to empty string in GenerationRequest | 29-04 | Backward compatible; existing requests without field are unaffected |
+| Additional context block inserted after NOC statements, before closing instruction | 29-04 | LLM sees it as final guidance before writing |
+| PROMPT_VERSION bumped to v1.1 after paragraph structure change | 29-04 | Provenance tracking — session metadata records which prompt version generated overview |
 
 ## Session Continuity
 
 Last session: 2026-03-12
-Stopped at: Completed 29-03-PLAN.md — v5.1 post-analysis rendering + Analyze button wiring (Phase 29 complete)
+Stopped at: Completed 29-04-PLAN.md — additional_context pipeline + multi-paragraph prompt (Phase 29 gap closure complete)
 Resume file: None
