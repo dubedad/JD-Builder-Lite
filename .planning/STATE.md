@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-03-11)
 
 Milestone: v5.1 UI Overhaul
 Phase: 27 of 30 (Build Page Redesign)
-Plan: 1 of 2 complete
-Status: In progress
-Last activity: 2026-03-12 — Completed 27-01-PLAN.md (header card, tab icons, section boxes, Overview redesign)
+Plan: 2 of 2 complete (Phase 27 complete)
+Status: Phase complete — ready for Phase 28
+Last activity: 2026-03-12 — Completed 27-02-PLAN.md (tab content redesign: Core Competencies selectable, Key Activities single Select All, Abilities/Knowledge/Effort/Responsibility level-grouped with colored badges)
 
-Progress: [███░░░░░░░] 25% (3/12 plans complete)
+Progress: [████░░░░░░] 33% (4/12 plans complete)
 
 ## Milestone History
 
@@ -57,9 +57,12 @@ Progress: [███░░░░░░░] 25% (3/12 plans complete)
 | Header always shows fa-cog gear icon | 27-01 | NOC-specific icons stay in Overview tab content only; header is always a gear |
 | Section description box text uses raw HTML | 27-01 | Bold+italic markup is authored constants, not user data; safe for innerHTML |
 | positionTitle at top level of defaultState | 27-01 | Resets on profile change but survives tab switches within same profile |
+| Abilities/Knowledge IDs use filtered-array positions | 27-02 | Filter from profile.skills.statements before renderLevelGroupedContent so IDs are abilities-0..N, not global indices |
+| renderLevelGroupedContent includes renderSourceBadge internally | 27-02 | Callers do not append source badge separately; avoids duplication |
+| Style Selected buttons removed entirely | 27-02 | Not in v5.1 spec; removed from renderStatementsPanel and inline Effort/Responsibility rendering |
 
 ## Session Continuity
 
 Last session: 2026-03-12
-Stopped at: Completed 27-01-PLAN.md — header card + tab icons + section boxes + Overview redesign done
+Stopped at: Completed 27-02-PLAN.md — tab content redesign (Core Competencies checkboxes, Key Activities single Select All, Abilities/Knowledge/Effort/Responsibility level-grouped with colored badges + proficiency dots)
 Resume file: None
