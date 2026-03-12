@@ -125,6 +125,51 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize JD Stepper navigation
     initStepper();
 
+    // Build navigation bar (NAV-01, NAV-02, NAV-03)
+    const navBackBtn = document.getElementById('nav-back-to-search');
+    const navPreviewBtn = document.getElementById('nav-preview-jd');
+    const navContinueBtn = document.getElementById('nav-continue-classify');
+
+    if (navBackBtn) {
+        navBackBtn.addEventListener('click', () => {
+            // NAV-02: Back to Search preserves selections (just navigate, don't clear)
+            window.jdStepper.goToStep(1);
+        });
+    }
+    if (navPreviewBtn) {
+        navPreviewBtn.addEventListener('click', () => {
+            // PREV-01: Open preview modal (handled by export.js or preview module)
+            document.dispatchEvent(new CustomEvent('open-preview-modal'));
+        });
+    }
+    if (navContinueBtn) {
+        navContinueBtn.addEventListener('click', () => {
+            window.jdStepper.goToStep(3);
+        });
+    }
+
+    // Classify navigation (NAV-04)
+    ['classify-back-to-edit', 'classify-back-to-edit-2'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.addEventListener('click', () => window.jdStepper.goToStep(2));
+    });
+    ['classify-continue-generate', 'classify-continue-generate-2'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.addEventListener('click', () => window.jdStepper.goToStep(4));
+    });
+
+    // Generate navigation (NAV-05)
+    const genRegenBtn = document.getElementById('generate-regenerate');
+    if (genRegenBtn) {
+        genRegenBtn.addEventListener('click', () => {
+            if (window.generation) window.generation.startGeneration();
+        });
+    }
+    const genContinueBtn = document.getElementById('generate-continue');
+    if (genContinueBtn) {
+        genContinueBtn.addEventListener('click', () => window.jdStepper.goToStep(5));
+    }
+
     // Initialize filter module
     filterModule.init(function(filteredResults) {
         renderSearchResults(filteredResults);
@@ -492,8 +537,8 @@ document.addEventListener('DOMContentLoaded', function() {
             // Render accordions with statements
             renderAccordions(profile);
 
-            // Show action bar
-            actionBar.classList.remove('hidden');
+            // Show build nav bar (action bar is permanently hidden)
+            document.getElementById('build-nav-bar')?.classList.remove('hidden');
 
             // Trigger initial state update for sidebar
             updateSidebar(store.getState());
@@ -592,9 +637,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('overview-section')?.classList.add('hidden');
                     jdSections.innerHTML = '';
                     actionBar.classList.add('hidden');
+                    document.getElementById('build-nav-bar')?.classList.add('hidden');
                     const welcomeSection = document.getElementById('welcome-section');
                     if (welcomeSection && lastResults.length === 0) {
                         welcomeSection.classList.remove('hidden');
+                    }
+                    // Show explore section if there are results to return to
+                    if (lastResults.length > 0) {
+                        document.getElementById('explore-section')?.classList.remove('hidden');
                     }
                     break;
                 }
@@ -607,7 +657,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         document.getElementById('profile-tabs-container')?.classList.remove('hidden');
                         document.getElementById('classify-section')?.classList.add('hidden');
                         document.getElementById('overview-section')?.classList.add('hidden');
-                        actionBar.classList.remove('hidden');
+                        document.getElementById('build-nav-bar')?.classList.remove('hidden');
                     } else if (lastResults.length > 0) {
                         searchResults.classList.remove('hidden');
                         profileInfo.classList.add('hidden');
@@ -616,6 +666,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         document.getElementById('overview-section')?.classList.add('hidden');
                         jdSections.innerHTML = '';
                         actionBar.classList.add('hidden');
+                        document.getElementById('build-nav-bar')?.classList.add('hidden');
                     }
                     break;
                 }
@@ -626,6 +677,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('overview-section')?.classList.add('hidden');
                     jdSections.innerHTML = '';
                     actionBar.classList.add('hidden');
+                    document.getElementById('build-nav-bar')?.classList.add('hidden');
 
                     const classifySection = document.getElementById('classify-section');
                     if (classifySection) {
@@ -660,12 +712,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         document.getElementById('classify-section')?.classList.add('hidden');
                         jdSections.innerHTML = '';
                         actionBar.classList.add('hidden');
+                        document.getElementById('build-nav-bar')?.classList.add('hidden');
                         document.getElementById('overview-section')?.classList.remove('hidden');
                     }
                     break;
                 }
                 case 5: { // Export — open sidebar for export
                     if (window.currentProfile) {
+                        document.getElementById('build-nav-bar')?.classList.add('hidden');
                         sidebar.classList.add('open');
                         sidebar.classList.remove('collapsed');
                         document.body.classList.add('sidebar-open');

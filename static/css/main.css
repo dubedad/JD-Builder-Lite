@@ -2814,3 +2814,91 @@ body.sidebar-open .action-bar {
     margin-top: 0.2rem;
     line-height: 1.4;
 }
+
+/* ============================================================
+   Build Navigation Bar (NAV-01)
+   ============================================================ */
+.build-nav-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    background: #fff;
+    border-top: 2px solid var(--border, #e0e0e0);
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+    z-index: 40;
+}
+
+.build-nav-bar.hidden {
+    display: none;
+}
+
+.build-nav-bar__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.build-nav-bar__btn--back {
+    background: transparent;
+    color: var(--primary, #1a3a5c);
+    border: 1px solid var(--border, #e0e0e0);
+}
+
+.build-nav-bar__btn--back:hover {
+    background: #f5f7fa;
+}
+
+.build-nav-bar__btn--preview {
+    background: var(--primary, #1a3a5c);
+    color: #fff;
+}
+
+.build-nav-bar__btn--preview:hover {
+    background: #15304d;
+}
+
+.build-nav-bar__btn--forward {
+    background: var(--accent, #2563eb);
+    color: #fff;
+}
+
+.build-nav-bar__btn--forward:hover {
+    background: #1d4ed8;
+}
+
+/* Add bottom padding to Build content so it doesn't get hidden behind fixed nav bar */
+.profile-tabs-container:not(.hidden) {
+    padding-bottom: 5rem;
+}
+
+/* Classify navigation actions (NAV-04) */
+.classify-nav-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border, #e0e0e0);
+}
+
+/* Generate navigation actions (NAV-05) */
+.generate-nav-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border, #e0e0e0);
+}
