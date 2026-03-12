@@ -85,6 +85,21 @@ const classifyModule = (function() {
         'WP': 'Welfare Programmes'
     };
 
+    // Job Evaluation Standard links by group code
+    // Source: TBS classification standards
+    const JOB_EVAL_STANDARDS = {
+        'AS': { name: 'Administrative Services', url: 'https://www.canada.ca/en/treasury-board-secretariat/services/collective-agreements/job-evaluation/administrative-services-group.html' },
+        'CS': { name: 'Computer Systems', url: 'https://www.canada.ca/en/treasury-board-secretariat/services/collective-agreements/job-evaluation/computer-systems-group.html' },
+        'EC': { name: 'Economics and Social Science Services', url: 'https://www.canada.ca/en/treasury-board-secretariat/services/collective-agreements/job-evaluation/economics-and-social-science-services-group.html' },
+        'PM': { name: 'Programme Administration', url: 'https://www.canada.ca/en/treasury-board-secretariat/services/collective-agreements/job-evaluation/programme-administration-group.html' },
+        'IT': { name: 'Information Technology', url: 'https://www.canada.ca/en/treasury-board-secretariat/services/collective-agreements/job-evaluation/information-technology-group.html' },
+        'FI': { name: 'Financial Administration', url: 'https://www.canada.ca/en/treasury-board-secretariat/services/collective-agreements/job-evaluation/financial-administration-group.html' },
+        'PE': { name: 'Personnel Administration', url: 'https://www.canada.ca/en/treasury-board-secretariat/services/collective-agreements/job-evaluation/personnel-administration-group.html' },
+        'EX': { name: 'Executive', url: 'https://www.canada.ca/en/treasury-board-secretariat/services/collective-agreements/job-evaluation/executive-group.html' }
+    };
+    // Fallback URL for groups not in lookup
+    const JOB_EVAL_STANDARD_FALLBACK = 'https://www.canada.ca/en/treasury-board-secretariat/services/collective-agreements/job-evaluation.html';
+
     // DOM element cache
     let elements = {};
 
@@ -119,6 +134,24 @@ const classifyModule = (function() {
             const jdData = buildJdDataFromProfile(window.currentProfile, store.getState().selections);
             renderResults(cachedResponse, jdData);
         });
+
+        // Wire the v5.1 Analyze CTA button
+        const analyzeBtn = document.getElementById('classify-analyze-btn');
+        if (analyzeBtn) {
+            analyzeBtn.addEventListener('click', function() {
+                // Hide the CTA
+                const ctaDiv = document.getElementById('classify-cta');
+                if (ctaDiv) ctaDiv.classList.add('hidden');
+                // Trigger classification via existing event mechanism (no double-fire)
+                const profile = window.currentProfile;
+                const selections = store.getState().selections;
+                if (profile) {
+                    document.dispatchEvent(new CustomEvent('classify-requested', {
+                        detail: { profile, selections }
+                    }));
+                }
+            });
+        }
 
         // Bind evidence panel close button
         if (elements.evidenceClose) {
@@ -257,6 +290,9 @@ const classifyModule = (function() {
      * Show loading state
      */
     function showLoading() {
+        // Hide the v5.1 Analyze CTA when analysis begins
+        const ctaDiv = document.getElementById('classify-cta');
+        if (ctaDiv) ctaDiv.classList.add('hidden');
         if (elements.loading) elements.loading.classList.remove('hidden');
         if (elements.results) elements.results.classList.add('hidden');
         if (elements.error) elements.error.classList.add('hidden');
@@ -299,6 +335,14 @@ const classifyModule = (function() {
             hasProvenanceMap: !!response.provenance_map
         });
 
+        // Reset v5.1 post-analysis sections before re-render
+        ['classify-alignment', 'classify-key-evidence', 'classify-caveats', 'classify-alternatives', 'classify-next-step'].forEach(function(id) {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('hidden');
+        });
+        const topResultEl = document.getElementById('classify-top-result');
+        if (topResultEl) topResultEl.innerHTML = '';
+
         if (elements.loading) elements.loading.classList.add('hidden');
         if (elements.error) elements.error.classList.add('hidden');
         if (elements.results) elements.results.classList.remove('hidden');
@@ -319,6 +363,16 @@ const classifyModule = (function() {
             // Show recommendations or "no recommendations" message
             if (response.recommendations && response.recommendations.length > 0) {
                 renderRecommendationCards(response.recommendations, response.provenance_map);
+
+                // v5.1 post-analysis sections
+                const sorted = [...response.recommendations].sort(function(a, b) { return b.confidence - a.confidence; });
+                const topRec = sorted[0];
+                renderTopResultCard(topRec, response.provenance_map);
+                renderStatementAlignment(topRec, jdData);
+                renderKeyEvidence(topRec.evidence_spans);
+                renderCaveats(topRec.caveats);
+                renderAlternatives(sorted, topRec.group_code);
+                renderNextStep(topRec.group_code);
             } else {
                 // Create no-recommendations message dynamically
                 const noRecsMsg = document.createElement('p');
@@ -496,6 +550,150 @@ const classifyModule = (function() {
 
             elements.recommendationsPanel.appendChild(card);
         });
+    }
+
+    /**
+     * Render the v5.1 top result card into #classify-top-result (CLASS-01 enrichment)
+     * @param {Object} topRec - Top GroupRecommendation
+     * @param {Object} provenanceMap - Provenance map from API response
+     */
+    function renderTopResultCard(topRec, provenanceMap) {
+        const container = document.getElementById('classify-top-result');
+        if (!container || !topRec) return;
+
+        const pct = Math.round(topRec.confidence * 100);
+        const groupName = getGroupName(topRec);
+        const provenance = provenanceMap ? provenanceMap[topRec.group_code] : null;
+        const tbsUrl = (provenance && provenance.url) || topRec.provenance_url || '';
+        const barColor = pct >= 70 ? '#43a047' : pct >= 40 ? '#fb8c00' : '#e53935';
+
+        container.innerHTML = `
+            <div class="classify-result-card">
+                <div class="classify-result-card__header">
+                    <div>
+                        <h3 class="classify-result-card__title">${pct}% ${escapeHtml(topRec.group_code)} \u2013 ${escapeHtml(groupName)}</h3>
+                        <p class="classify-result-card__subtitle">Recommended Occupational Group</p>
+                    </div>
+                    ${tbsUrl ? `<a href="${escapeHtml(tbsUrl)}" target="_blank" rel="noopener noreferrer" class="classify-result-card__tbs-link"><i class="fas fa-external-link-alt"></i> TBS Definition</a>` : ''}
+                </div>
+                <div class="classify-result-card__confidence-bar">
+                    <div class="classify-result-card__confidence-fill" style="width:${pct}%; background:${barColor}"></div>
+                </div>
+                <p class="classify-result-card__summary">${escapeHtml(topRec.definition_fit_rationale)}</p>
+            </div>
+        `;
+    }
+
+    /**
+     * Render Statement Alignment Comparison (CLASS-02)
+     * Two columns: user's key activities vs OG definition statements + overall score
+     * @param {Object} topRec - Top GroupRecommendation
+     * @param {Object} jdData - JD data sent to API
+     */
+    function renderStatementAlignment(topRec, jdData) {
+        const container = document.getElementById('classify-alignment');
+        if (!container) return;
+
+        const userList = document.getElementById('classify-alignment-user');
+        const ogList = document.getElementById('classify-alignment-og');
+        const scoreDiv = document.getElementById('classify-alignment-score');
+
+        // User's selected key activities
+        if (userList && jdData && jdData.key_activities && jdData.key_activities.length > 0) {
+            userList.innerHTML = jdData.key_activities.map(function(a) { return '<li>' + escapeHtml(a) + '</li>'; }).join('');
+        }
+
+        // OG definition statements from the new model field
+        if (ogList && topRec.og_definition_statements && topRec.og_definition_statements.length > 0) {
+            ogList.innerHTML = topRec.og_definition_statements.map(function(s) { return '<li>' + escapeHtml(s) + '</li>'; }).join('');
+        } else if (ogList) {
+            ogList.innerHTML = '<li class="text-muted">No definition statements available</li>';
+        }
+
+        // Overall Alignment Score = evidence_spans.length / key_activities.length
+        const evidenceCount = (topRec.evidence_spans && topRec.evidence_spans.length) || 0;
+        const activityCount = (jdData && jdData.key_activities && jdData.key_activities.length) || 1;
+        const alignmentPct = Math.min(100, Math.round((evidenceCount / activityCount) * 100));
+
+        if (scoreDiv) {
+            scoreDiv.textContent = 'Overall Alignment Score: ' + alignmentPct + '%';
+        }
+
+        container.classList.remove('hidden');
+    }
+
+    /**
+     * Render Key Evidence green check-circle bullets (CLASS-03)
+     * @param {Array} evidenceSpans - EvidenceSpan objects from top recommendation
+     */
+    function renderKeyEvidence(evidenceSpans) {
+        const container = document.getElementById('classify-key-evidence');
+        const list = document.getElementById('classify-evidence-list');
+        if (!container || !list || !evidenceSpans || evidenceSpans.length === 0) return;
+
+        list.innerHTML = evidenceSpans.map(function(span) {
+            var fieldLabel = (span.field && span.field !== 'Unknown') ? ' (' + escapeHtml(span.field) + ')' : '';
+            return '<li>' + escapeHtml(span.text) + fieldLabel + '</li>';
+        }).join('');
+
+        container.classList.remove('hidden');
+    }
+
+    /**
+     * Render Caveats amber warning bullets (CLASS-03)
+     * @param {Array} caveats - Array of caveat strings from top recommendation
+     */
+    function renderCaveats(caveats) {
+        const container = document.getElementById('classify-caveats');
+        const list = document.getElementById('classify-caveats-list');
+        if (!container || !list || !caveats || caveats.length === 0) return;
+
+        list.innerHTML = caveats.map(function(c) { return '<li>' + escapeHtml(c) + '</li>'; }).join('');
+        container.classList.remove('hidden');
+    }
+
+    /**
+     * Render Alternative Groups Considered section
+     * @param {Array} recommendations - All recommendations sorted by confidence desc
+     * @param {string} topGroupCode - Top recommendation's group code to exclude from alternatives
+     */
+    function renderAlternatives(recommendations, topGroupCode) {
+        const container = document.getElementById('classify-alternatives');
+        const content = document.getElementById('classify-alternatives-content');
+        if (!container || !content) return;
+
+        const alternatives = recommendations.filter(function(r) { return r.group_code !== topGroupCode; });
+        if (alternatives.length === 0) return;
+
+        content.innerHTML = alternatives.map(function(rec) {
+            var pct = Math.round(rec.confidence * 100);
+            var name = OCCUPATIONAL_GROUP_NAMES[rec.group_code] || rec.group_code;
+            return '<p><strong>' + escapeHtml(rec.group_code) + '</strong> \u2013 ' + escapeHtml(name) + ': ' + pct + '% confidence</p>';
+        }).join('');
+
+        container.classList.remove('hidden');
+    }
+
+    /**
+     * Render Next Step box with Job Evaluation Standard link (CLASS-04)
+     * @param {string} groupCode - Recommended occupational group code
+     */
+    function renderNextStep(groupCode) {
+        const container = document.getElementById('classify-next-step');
+        const content = document.getElementById('classify-next-step-content');
+        if (!container || !content) return;
+
+        const standard = JOB_EVAL_STANDARDS[groupCode];
+        const url = standard ? standard.url : JOB_EVAL_STANDARD_FALLBACK;
+        const name = standard ? standard.name : (OCCUPATIONAL_GROUP_NAMES[groupCode] || groupCode);
+
+        content.innerHTML = `
+            <p><strong>Step 2:</strong> Apply the Job Evaluation Standard for the <strong>${escapeHtml(groupCode)}</strong> (${escapeHtml(name)}) group.</p>
+            <p>Use the standard to determine the appropriate classification level within this occupational group.</p>
+            <p><a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer"><i class="fas fa-external-link-alt"></i> View ${escapeHtml(groupCode)} Job Evaluation Standard</a></p>
+        `;
+
+        container.classList.remove('hidden');
     }
 
     /**
