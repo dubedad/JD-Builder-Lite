@@ -135,7 +135,7 @@ def generate_stream(statements: List[StatementInput], context: JobContext, addit
 
         for chunk in stream:
             if chunk.choices and chunk.choices[0].delta.content:
-                token = chunk.choices[0].delta.content
+                token = chunk.choices[0].delta.content.replace('\n', '\\n')
                 yield f"data: {token}\n\n"
 
         yield "data: [DONE]\n\n"

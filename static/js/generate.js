@@ -211,8 +211,8 @@ const generation = {
             return;
         }
 
-        // Append token to contenteditable div
-        this.elements.textarea.textContent += data;
+        // Append token to contenteditable div (decode escaped newlines)
+        this.elements.textarea.textContent += data.replace(/\\n/g, '\n');
 
         // Auto-scroll to bottom
         this.elements.textarea.scrollIntoView({ block: 'end', behavior: 'smooth' });
