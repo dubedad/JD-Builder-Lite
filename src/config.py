@@ -13,7 +13,7 @@ USER_AGENT = "JD-Builder-Lite/1.0 (Educational Demo)"
 # OpenAI configuration
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_MODEL = "gpt-4o"
-OPENAI_MAX_TOKENS = 300  # ~4-6 sentences
+OPENAI_MAX_TOKENS = 600  # ~3-4 paragraphs
 OPENAI_TEMPERATURE = 0.7  # Balanced creativity
 
 # Flask session
