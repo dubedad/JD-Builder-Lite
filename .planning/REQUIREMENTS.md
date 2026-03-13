@@ -59,17 +59,17 @@ Full UI redesign to match the JobForge reference prototype. Design reference: `.
 
 ### Classification
 
-- [ ] **CLASS-01**: Classification page renders in v5.1 chrome with occupation header card, DADM Compliant (green) and Full Provenance (purple) badges, and TBS 3-step dark card (§4.1.1, §4.1.2, §4.1.3)
-- [ ] **CLASS-02**: Post-analysis result includes a Statement Alignment Comparison section with two columns (Your Selected Statements vs. OG Definition Statements) and an Overall Alignment Score
-- [ ] **CLASS-03**: Post-analysis result includes Key Evidence (green check bullets), Caveats (amber warning bullets), and Alternative Groups Considered
-- [ ] **CLASS-04**: Post-analysis result includes a Next Step instructions box with links to the relevant Job Evaluation Standard
+- [x] **CLASS-01**: Classification page renders in v5.1 chrome with occupation header card, DADM Compliant (green) and Full Provenance (purple) badges, and TBS 3-step dark card (§4.1.1, §4.1.2, §4.1.3)
+- [x] **CLASS-02**: Post-analysis result includes a Statement Alignment Comparison section with two columns (Your Selected Statements vs. OG Definition Statements) and an Overall Alignment Score
+- [x] **CLASS-03**: Post-analysis result includes Key Evidence (green check bullets), Caveats (amber warning bullets), and Alternative Groups Considered
+- [x] **CLASS-04**: Post-analysis result includes a Next Step instructions box with links to the relevant Job Evaluation Standard
 
 ### Generate
 
-- [ ] **GEN-01**: Generate page renders in v5.1 chrome with a "Generate AI Overview" card, "DADM Level 2" badge, "Human Review Required" badge, and a yellow DADM Compliance Notice warning box
-- [ ] **GEN-02**: Generate page includes an optional "Additional Context" textarea (placeholder: "Department-specific requirements, organizational context...")
-- [ ] **GEN-03**: "Generate with AI" button triggers OpenAI LLM generation of multi-paragraph Position Overview prose using the user's selected statements as context
-- [ ] **GEN-04**: Generated prose appears below the button with an "AI Generated" badge; a "↺ Regenerate" button allows re-generation
+- [x] **GEN-01**: Generate page renders in v5.1 chrome with a "Generate AI Overview" card, "DADM Level 2" badge, "Human Review Required" badge, and a yellow DADM Compliance Notice warning box
+- [x] **GEN-02**: Generate page includes an optional "Additional Context" textarea (placeholder: "Department-specific requirements, organizational context...")
+- [x] **GEN-03**: "Generate with AI" button triggers OpenAI LLM generation of multi-paragraph Position Overview prose using the user's selected statements as context
+- [x] **GEN-04**: Generated prose appears below the button with an "AI Generated" badge; a "↺ Regenerate" button allows re-generation
 
 ### Export
 
@@ -160,14 +160,14 @@ Full UI redesign to match the JobForge reference prototype. Design reference: `.
 | SEL-01 | Phase 28 | Pending |
 | SEL-02 | Phase 28 | Pending |
 | SEL-03 | Phase 28 | Pending |
-| CLASS-01 | Phase 29 | Pending |
-| CLASS-02 | Phase 29 | Pending |
-| CLASS-03 | Phase 29 | Pending |
-| CLASS-04 | Phase 29 | Pending |
-| GEN-01 | Phase 29 | Pending |
-| GEN-02 | Phase 29 | Pending |
-| GEN-03 | Phase 29 | Pending |
-| GEN-04 | Phase 29 | Pending |
+| CLASS-01 | Phase 29 | Complete |
+| CLASS-02 | Phase 29 | Complete |
+| CLASS-03 | Phase 29 | Complete |
+| CLASS-04 | Phase 29 | Complete |
+| GEN-01 | Phase 29 | Complete |
+| GEN-02 | Phase 29 | Complete |
+| GEN-03 | Phase 29 | Complete |
+| GEN-04 | Phase 29 | Complete |
 | EXP-01 | Phase 30 | Pending |
 | EXP-02 | Phase 30 | Pending |
 | EXP-03 | Phase 30 | Pending |

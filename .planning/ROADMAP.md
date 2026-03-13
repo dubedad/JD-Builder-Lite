@@ -146,7 +146,7 @@ Plans:
 | 26. Global Chrome & Search | v5.1 | 2/2 | Complete | 2026-03-11 |
 | 27. Build Page Redesign | v5.1 | 2/2 | Complete | 2026-03-12 |
 | 28. Navigation, Preview & Selections | v5.1 | 3/3 | Complete | 2026-03-12 |
-| 29. Classification Restyle + Generate | v5.1 | 3/4 | Gap closure | - |
+| 29. Classification Restyle + Generate | v5.1 | 4/4 | Complete | 2026-03-13 |
 | 30. Export Page + New PDF/DOCX/JSON | v5.1 | 0/3 | Not started | - |
 | 21. Data Exploration | v5.0 | 3/3 | Complete | 2026-03-07 |
 | 22. Profile Service | v5.0 | 2/2 | Complete | 2026-03-08 |
@@ -158,4 +158,4 @@ Plans:
 | 20. Evidence & Provenance Display | v4.1 | 0/2 | Deferred | - |
 
 ---
-*Roadmap updated: 2026-03-12 — Phase 29 gap closure plan created (29-04)*
+*Roadmap updated: 2026-03-13 — Phase 29 complete (4/4 plans)*
