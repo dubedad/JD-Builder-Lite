@@ -170,6 +170,7 @@
   background: #fafafa;
   outline: none;
   transition: border-color 0.2s;
+  white-space: pre-wrap;
 }
 .generate-output__prose:focus {
   border-color: var(--accent, #2b4380);
