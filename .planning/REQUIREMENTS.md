@@ -24,7 +24,7 @@
 
 ### L1 Browse Page
 
-- [ ] **L1-01**: Visitor sees a card grid of all available job families at /careers (full-width, 4-col at ≥1200px, 3-col at ≥768px, 1-col mobile)
+- [ ] **L1-01**: Visitor sees a card grid of all available job families at /careers (full-width, 4-col at >=1200px, 3-col at >=768px, 1-col mobile)
 - [ ] **L1-02**: Each card shows the job family name, background image, and "VIEW CAREERS" button with exact CAF styling (Exo 2 23.2px, gradient overlay, transparent border button)
 - [ ] **L1-03**: Clicking a card navigates to the L2 job family page (/careers/{family-slug})
 - [ ] **L1-04**: Visitor can filter the card grid by Job Function (22 values) using a dropdown — only families in the selected function are shown
@@ -35,7 +35,7 @@
 - [ ] **L2-01**: Visitor sees a list of all job titles within the selected family at /careers/{family-slug}
 - [ ] **L2-02**: Each listing shows: job title, NOC 2021 code badge, managerial level tag, Digital/Non-Digital indicator, and first 150 characters of overview
 - [ ] **L2-03**: Clicking a job title navigates to the L3 detail page (/career/{title-slug})
-- [ ] **L2-04**: Page shows the job family name as heading with breadcrumb: Home → Careers → [Family Name]
+- [ ] **L2-04**: Page shows the job family name as heading with breadcrumb: Home > Careers > [Family Name]
 
 ### L3 Job Title Detail Page
 
@@ -47,7 +47,7 @@
 - [ ] **L3-06**: Part-Time Options tab shows: flexible work, remote, part-time options (from part_time column)
 - [ ] **L3-07**: Related Careers tab shows: related civilian job titles (from related_careers) and linked CAF equivalents (from caf_related bridge data)
 - [ ] **L3-08**: Page has "Discover", "Prepare", and "Apply" action buttons — Discover scrolls to Overview, Prepare scrolls to Training, Apply links to jobs.gc.ca
-- [ ] **L3-09**: Breadcrumb shows: Home → Careers → [Family Name] → [Job Title]
+- [ ] **L3-09**: Breadcrumb shows: Home > Careers > [Family Name] > [Job Title]
 
 ## v2 Requirements
 
@@ -67,7 +67,7 @@
 ### Accessibility & Compliance
 
 - **A11Y-01**: Formal WCAG 2.1 AA audit completed and issues resolved
-- **COMP-01**: Human review workflow for LLM-generated content (draft → reviewed → published status)
+- **COMP-01**: Human review workflow for LLM-generated content (draft > reviewed > published status)
 
 ## Out of Scope
 
@@ -81,43 +81,43 @@
 
 ## Traceability
 
-*(Populated by roadmapper)*
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PIPE-01 | — | Pending |
-| PIPE-02 | — | Pending |
-| PIPE-03 | — | Pending |
-| PIPE-04 | — | Pending |
-| PIPE-05 | — | Pending |
-| FOUND-01 | — | Pending |
-| FOUND-02 | — | Pending |
-| FOUND-03 | — | Pending |
-| FOUND-04 | — | Pending |
-| L1-01 | — | Pending |
-| L1-02 | — | Pending |
-| L1-03 | — | Pending |
-| L1-04 | — | Pending |
-| L1-05 | — | Pending |
-| L2-01 | — | Pending |
-| L2-02 | — | Pending |
-| L2-03 | — | Pending |
-| L2-04 | — | Pending |
-| L3-01 | — | Pending |
-| L3-02 | — | Pending |
-| L3-03 | — | Pending |
-| L3-04 | — | Pending |
-| L3-05 | — | Pending |
-| L3-06 | — | Pending |
-| L3-07 | — | Pending |
-| L3-08 | — | Pending |
-| L3-09 | — | Pending |
+| PIPE-01 | Phase 1 | Pending |
+| PIPE-02 | Phase 1 | Pending |
+| PIPE-03 | Phase 2 | Pending |
+| PIPE-04 | Phase 2 | Pending |
+| PIPE-05 | Phase 3 | Pending |
+| PIPE-06 | Phase 3 | Pending |
+| PIPE-07 | Phase 3 | Pending |
+| FOUND-01 | Phase 4 | Pending |
+| FOUND-02 | Phase 4 | Pending |
+| FOUND-03 | Phase 4 | Pending |
+| FOUND-04 | Phase 4 | Pending |
+| L1-01 | Phase 5 | Pending |
+| L1-02 | Phase 5 | Pending |
+| L1-03 | Phase 5 | Pending |
+| L1-04 | Phase 6 | Pending |
+| L1-05 | Phase 6 | Pending |
+| L2-01 | Phase 7 | Pending |
+| L2-02 | Phase 7 | Pending |
+| L2-03 | Phase 7 | Pending |
+| L2-04 | Phase 7 | Pending |
+| L3-01 | Phase 8 | Pending |
+| L3-02 | Phase 8 | Pending |
+| L3-03 | Phase 8 | Pending |
+| L3-04 | Phase 8 | Pending |
+| L3-05 | Phase 8 | Pending |
+| L3-06 | Phase 8 | Pending |
+| L3-07 | Phase 8 | Pending |
+| L3-08 | Phase 8 | Pending |
+| L3-09 | Phase 8 | Pending |
 
 **Coverage:**
 - v1 requirements: 29 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 27 ⚠️
+- Mapped to phases: 29
+- Unmapped: 0 (complete)
 
 ---
 *Requirements defined: 2026-03-15*
-*Last updated: 2026-03-15 after initial definition*
+*Last updated: 2026-03-15 — Traceability populated by roadmapper*
