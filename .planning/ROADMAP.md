@@ -46,12 +46,13 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: TBD
 
 ### Phase 3: CAF Bridge
-**Goal**: CAF career data is scraped into JobForge and linked career pairs populate careers.sqlite
+**Goal**: CAF bridge data from JobForge flows into careers.sqlite so each civilian title knows its related military careers
 **Depends on**: Phase 1
 **Requirements**: PIPE-05, PIPE-06, PIPE-07
+**Note**: JobForge Phase 15 already built and tested the CAF scraper, dim_caf_occupation (88 occupations), bridge_caf_ja (880 CAF→TBS mappings), and bridge_caf_noc. The pipeline code exists and passed UAT. Phase 3 runs the JobForge pipeline to generate the parquet files, then reads bridge_caf_ja to populate careers.sqlite. No re-scraping needed.
 **Success Criteria** (what must be TRUE):
-  1. The caf_careers table in JobForge contains scraped data (slug, title, category, overview, training, entry plans, related civilian occupation strings) for CAF career pages
-  2. The caf_bridge table in JobForge maps CAF career slugs to TBS jt_ids via fuzzy-matched "Related Civilian Occupations" strings
+  1. JobForge gold parquets (dim_caf_occupation, bridge_caf_ja) exist and are populated by running the existing Phase 15 pipeline
+  2. The bridge reader script reads bridge_caf_ja and maps caf_slug → jt_ids against careers.sqlite job titles
   3. Job title rows in careers.sqlite that have matching CAF careers show a non-empty caf_related JSON array
   4. Job title rows with no CAF match have caf_related = null or empty array (no false positives)
 **Plans**: TBD

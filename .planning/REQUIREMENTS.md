@@ -11,9 +11,9 @@
 - [ ] **PIPE-02**: System generates a URL-safe slug for each job title and job family
 - [ ] **PIPE-03**: System runs LLM enrichment (Anthropic API) to generate overview, training, entry_plans, and part_time content for each job title, storing results in careers.sqlite
 - [ ] **PIPE-04**: System sets content_status = 'draft' and enriched_at timestamp on each LLM-enriched record
-- [ ] **PIPE-05**: System scrapes forces.ca CAF career pages and stores CAF career data (slug, title, category, overview, training, entry plans, related civilian occupation strings) as a gold table in JobForge (caf_careers)
-- [ ] **PIPE-06**: System builds a bridge table in JobForge (caf_bridge) that maps each CAF career slug to one or many TBS job title IDs (jt_ids) by fuzzy-matching the "Related Civilian Occupations" strings from CAF pages against Job_Title values in the job_architecture table — this is the connector between the CAF taxonomy and the TBS Job Architecture taxonomy
-- [ ] **PIPE-07**: System reads the JobForge caf_bridge table during the careers.sqlite build step and populates the caf_related column (JSON array of CAF slugs) on matching job title records
+- [ ] **PIPE-05**: System runs the existing JobForge Phase 15 CAF pipeline to generate dim_caf_occupation and bridge_caf_ja parquet files (88 CAF occupations, 880 CAF→TBS mappings — pipeline code and tests already exist in JobForge, data just needs to be generated)
+- [ ] **PIPE-06**: ~~System builds caf_bridge in JobForge~~ — already built in JobForge Phase 15 as bridge_caf_ja; this requirement is satisfied by PIPE-05 running the existing pipeline
+- [ ] **PIPE-07**: System reads JobForge's bridge_caf_ja parquet and populates the caf_related column (JSON array of CAF slugs) on matching job title records in careers.sqlite
 
 ### App Foundation
 

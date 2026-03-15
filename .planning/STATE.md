@@ -50,7 +50,7 @@ None yet.
 ### Blockers/Concerns
 
 - Phase 2: Anthropic API key required for LLM enrichment — assume available in environment
-- Phase 3: CAF bridge writes to JobForge repo (C:\Users\Administrator\projects\jobforge) — confirm schema conventions before planning
+- Phase 3: JobForge Phase 15 CAF pipeline already built and tested (bridge_caf_ja = 880 mappings, dim_caf_occupation = 88 records). Phase 3 just runs the existing pipeline and reads from parquets — no re-scraping needed
 - Static prototype exists: ps_careers_site/DND-Civilian-Careers-GC.html — extract CSS values before Phase 4
 - CAF reference doc has exact CSS pixel values — use these, don't guess
 
