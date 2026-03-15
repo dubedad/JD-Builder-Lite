@@ -32,7 +32,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. Every row has all TBS fields populated: jt_id, job_title, job_family, job_function, managerial_level, noc_2021_uid, noc_2021_title, digital
   3. Every job title and job family has a unique, URL-safe slug (lowercase, hyphenated, no special characters)
   4. Re-running the ingest is idempotent â€” no duplicate rows created
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 01-01-PLAN.md — Create pipeline package, schema, slug utility, and full TBS ingest with upsert and card image seeding
 
 ### Phase 2: LLM Enrichment
 **Goal**: Every job title in careers.sqlite has AI-generated career content and is flagged as draft
