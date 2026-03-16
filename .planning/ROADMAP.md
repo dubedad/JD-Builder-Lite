@@ -12,9 +12,9 @@ Eight phases take this project from raw spreadsheet to a fully browsable careers
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: TBS Ingest** - Parse Job_Architecture_TBS.xlsx into careers.sqlite with slugs
-- [ ] **Phase 2: LLM Enrichment** - Generate career content for all 1,989 job titles via Anthropic API
-- [ ] **Phase 3: CAF Bridge** - Scrape forces.ca, build caf_bridge in JobForge, populate caf_related in careers.sqlite
+- [x] **Phase 1: TBS Ingest** - Parse Job_Architecture_TBS.xlsx into careers.sqlite with slugs
+- [x] **Phase 2: LLM Enrichment** - Generate career content for all 1,989 job titles via Anthropic API
+- [x] **Phase 3: CAF Bridge** - Scrape forces.ca, build caf_bridge in JobForge, populate caf_related in careers.sqlite
 - [ ] **Phase 4: App Foundation** - FastAPI app, static assets, GC FIP header and footer on all pages
 - [ ] **Phase 5: L1 Card Grid** - Browse page with job family cards matching CAF visual design
 - [ ] **Phase 6: L1 Interactivity** - Job Function filter and real-time search bar on the browse page
@@ -35,7 +35,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 1 plan
 
 Plans:
-- [ ] 01-01-PLAN.md � Create pipeline package, schema, slug utility, and full TBS ingest with upsert and card image seeding
+- [x] 01-01-PLAN.md — Create pipeline package, schema, slug utility, and full TBS ingest with upsert and card image seeding
 
 ### Phase 2: LLM Enrichment
 **Goal**: Every job title in careers.sqlite has AI-generated career content and is flagged as draft
@@ -46,7 +46,10 @@ Plans:
   2. Every enriched row has content_status = 'draft' and a populated enriched_at timestamp
   3. The enrichment script can be resumed after interruption without re-enriching already-completed rows
   4. Enrichment runs against all 1,989 titles without unhandled API errors
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [x] 02-01-PLAN.md — Create enrichment script with concurrent Anthropic API calls, retry logic, and resume capability; run full 1,989-title enrichment
 
 ### Phase 3: CAF Bridge
 **Goal**: CAF bridge data from JobForge flows into careers.sqlite so each civilian title knows its related military careers
@@ -58,7 +61,10 @@ Plans:
   2. The bridge reader script reads bridge_caf_ja and maps caf_slug → jt_ids against careers.sqlite job titles
   3. Job title rows in careers.sqlite that have matching CAF careers show a non-empty caf_related JSON array
   4. Job title rows with no CAF match have caf_related = null or empty array (no false positives)
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [x] 03-01-PLAN.md — Run jobforge caf refresh to regenerate gold parquets; create bridge.py to populate caf_related in careers.sqlite
 
 ### Phase 4: App Foundation
 **Goal**: A running FastAPI app serves pages from ps_careers_site/ with correct GC FIP chrome on every page
@@ -69,7 +75,11 @@ Plans:
   2. Card background images and the Canada wordmark load from /static/ with no 404 errors
   3. The GC FIP header renders on every page with Canada wordmark, nav links, and Exo 2 font
   4. The footer renders on every page with a 5-column link grid on #1a1a1a, Canada wordmark, and social icons
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — FastAPI app skeleton, requirements.txt, and static image assets with normalized filenames
+- [ ] 04-02-PLAN.md — Jinja2 base template with GC FIP header and footer; wire GET "/" to render it
 
 ### Phase 5: L1 Card Grid
 **Goal**: A visitor at /careers sees all available job family cards styled to match the CAF site
@@ -124,10 +134,10 @@ Note: Phase 3 depends on Phase 1 (not Phase 2); Phase 8 depends on Phases 2, 3, 
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. TBS Ingest | 0/TBD | Not started | - |
-| 2. LLM Enrichment | 0/TBD | Not started | - |
-| 3. CAF Bridge | 0/TBD | Not started | - |
-| 4. App Foundation | 0/TBD | Not started | - |
+| 1. TBS Ingest | 1/1 | Complete | 2026-03-15 |
+| 2. LLM Enrichment | 1/1 | Complete | 2026-03-15 |
+| 3. CAF Bridge | 1/1 | Complete | 2026-03-16 |
+| 4. App Foundation | 0/2 | Not started | - |
 | 5. L1 Card Grid | 0/TBD | Not started | - |
 | 6. L1 Interactivity | 0/TBD | Not started | - |
 | 7. L2 Job Family Page | 0/TBD | Not started | - |
