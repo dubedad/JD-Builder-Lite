@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-03-11)
 
 **Core value:** Every piece of content in the JD can be traced to its authoritative source (JobForge parquet or OASIS), with clear documentation of human decisions and AI involvement.
-**Current focus:** v5.1 UI Overhaul — Phase 30 in progress (plans 01-02 complete)
+**Current focus:** v5.1 UI Overhaul — Phase 30 COMPLETE (all 3 plans done)
 
 ## Current Position
 
-Milestone: v5.1 UI Overhaul — In progress
-Phase: 30 of 30 (30-export-page-pdf-docx-json)
-Plan: 2 of 3 — complete (30-02-SUMMARY.md created)
-Status: In progress — 30-01 and 30-02 done, 30-03 pending
-Last activity: 2026-03-17 — Completed 30-02-PLAN.md (reportlab PDF + DOCX restructure)
+Milestone: v5.1 UI Overhaul — COMPLETE
+Phase: 30 of 30 (30-export-page-pdf-docx-json) — COMPLETE
+Plan: 3 of 3 — complete (30-03-SUMMARY.md created)
+Status: All plans complete — v5.1 milestone fully executed
+Last activity: 2026-03-17 — Completed 30-03-PLAN.md (JSON audit trail export)
 
-Progress: [█████████░] 94% (14/15 plans — 30-03 pending)
+Progress: [██████████] 100% (15/15 plans — all complete)
 
 ## Milestone History
 
@@ -28,7 +28,7 @@ Progress: [█████████░] 94% (14/15 plans — 30-03 pending)
 | v4.0 Occupational Group Allocation | SHIPPED | 2026-02-04 |
 | v4.1 Polish | SHIPPED | 2026-02-07 (Phases 18-19; Phase 20 deferred indefinitely) |
 | v5.0 JobForge 2.0 Integration | SHIPPED | 2026-03-10 |
-| v5.1 UI Overhaul | SHIPPED | 2026-03-13 (code); formal GSD verification pending |
+| v5.1 UI Overhaul | COMPLETE | 2026-03-17 (all 15/15 plans done; export PDF/DOCX/JSON) |
 
 ## Accumulated Context
 
@@ -96,17 +96,19 @@ Progress: [█████████░] 94% (14/15 plans — 30-03 pending)
 | reportlab replaces WeasyPrint for PDF generation | 30-02 | WeasyPrint has no Python 3.14 wheels; reportlab 4.4.10 is pure Python and installs cleanly |
 | generate_pdf() drops base_url parameter | 30-02 | reportlab does not resolve CSS from URLs — parameter not needed; api.py updated accordingly |
 | SOURCE_TAG_MAP at module level in both pdf_generator.py and docx_generator.py | 30-02 | Canonical mapping prevents drift between PDF and DOCX source tags |
+| JSON export always includes full payload regardless of checkboxes | 30-03 | Audit trail is authoritative record; checkbox state captured as export_options metadata only |
+| Filename for JSON follows Audit Trail convention (not Job Description) | 30-03 | Distinguishes audit trail from JD documents at a glance in downloads folder |
 
 ## Session Continuity
 
 Last session: 2026-03-17
-Stopped at: Completed 30-02-PLAN.md — reportlab PDF generator + DOCX restructure committed
-Resume file: .planning/.continue-here.md
+Stopped at: Completed 30-03-PLAN.md — JSON audit trail export committed; phase 30 COMPLETE
+Resume file: None (all plans complete)
 
 ### For Claude Code — What To Do Next
 
-1. Execute 30-03-PLAN.md (POST /api/export/json endpoint + downloadJSON())
-2. After all 3 plans: create SUMMARY.md for phase 30, update milestone tracking
+Phase 30 is complete. All 15/15 plans for v5.1 UI Overhaul milestone are done.
+Next action: `/gsd:new-milestone` (after `/clear`) to begin next milestone planning.
 
 ## Phase 30 — What Was Built
 
