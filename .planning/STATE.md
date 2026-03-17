@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-03-11)
 
 **Core value:** Every piece of content in the JD can be traced to its authoritative source (JobForge parquet or OASIS), with clear documentation of human decisions and AI involvement.
-**Current focus:** v5.1 UI Overhaul — Phase 30 in progress (plan 01 complete)
+**Current focus:** v5.1 UI Overhaul — Phase 30 in progress (plans 01-02 complete)
 
 ## Current Position
 
 Milestone: v5.1 UI Overhaul — In progress
 Phase: 30 of 30 (30-export-page-pdf-docx-json)
-Plan: 1 of 3 — complete (30-01-SUMMARY.md created)
-Status: In progress — 30-01 done, 30-02 and 30-03 pending
-Last activity: 2026-03-17 — Completed 30-01-PLAN.md (export page Step 5 HTML/CSS/JS)
+Plan: 2 of 3 — complete (30-02-SUMMARY.md created)
+Status: In progress — 30-01 and 30-02 done, 30-03 pending
+Last activity: 2026-03-17 — Completed 30-02-PLAN.md (reportlab PDF + DOCX restructure)
 
-Progress: [█████████░] 93% (13/14 plans — excluding 30-02 and 30-03)
+Progress: [█████████░] 94% (14/15 plans — 30-03 pending)
 
 ## Milestone History
 
@@ -93,18 +93,20 @@ Progress: [█████████░] 93% (13/14 plans — excluding 30-02 
 | PROMPT_VERSION bumped to v1.1 after paragraph structure change | 29-04 | Provenance tracking — session metadata records which prompt version generated overview |
 | Export page layout order locked: Options -> Download Buttons -> Preview Card -> Compliance Cards | 30-01 | Matches CONTEXT.md locked decision; prior wrong order (preview above buttons) corrected |
 | initExportPage() called on every navigateToStep(5) | 30-01 | Refreshes preview with latest session data on each visit to export step |
+| reportlab replaces WeasyPrint for PDF generation | 30-02 | WeasyPrint has no Python 3.14 wheels; reportlab 4.4.10 is pure Python and installs cleanly |
+| generate_pdf() drops base_url parameter | 30-02 | reportlab does not resolve CSS from URLs — parameter not needed; api.py updated accordingly |
+| SOURCE_TAG_MAP at module level in both pdf_generator.py and docx_generator.py | 30-02 | Canonical mapping prevents drift between PDF and DOCX source tags |
 
 ## Session Continuity
 
 Last session: 2026-03-17
-Stopped at: Completed 30-01-PLAN.md — Export page Step 5 HTML/CSS/JS built and committed
+Stopped at: Completed 30-02-PLAN.md — reportlab PDF generator + DOCX restructure committed
 Resume file: .planning/.continue-here.md
 
 ### For Claude Code — What To Do Next
 
-1. Execute 30-02-PLAN.md (PDF template restructure and DOCX generator update)
-2. Execute 30-03-PLAN.md (POST /api/export/json endpoint + downloadJSON())
-3. After all 3 plans: create SUMMARY.md for phase 30, update milestone tracking
+1. Execute 30-03-PLAN.md (POST /api/export/json endpoint + downloadJSON())
+2. After all 3 plans: create SUMMARY.md for phase 30, update milestone tracking
 
 ## Phase 30 — What Was Built
 
