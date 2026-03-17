@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+
+{% block title %}Browse Careers — DND Civilian Workforce{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* Hero banner */
+  .careers-hero {
+    height: 306px;
+    background-image: url("{{ url_for('static', path='images/public-service-hero.png') }}");
+    background-size: cover;
+    background-position: center 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 0 24px 24px;
+  }
+  .careers-hero .hero-subtitle {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 16px;
+    font-weight: 100;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.64px;
+    margin: 0 0 8px;
+  }
+  .careers-hero .hero-title {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 42px;
+    font-weight: 600;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 2.4px;
+    margin: 0;
+  }
+
+  /* Card grid */
+  .card-grid {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    margin: 0;
+    padding: 0 0 24px;
+  }
+  .card-col {
+    width: 25%;
+    padding-left: 0;
+    padding-bottom: 16px;
+    box-sizing: border-box;
+  }
+  @media (max-width: 1199px) {
+    .card-col { width: 33.333%; }
+  }
+  @media (max-width: 767px) {
+    .card-col { width: 100%; }
+  }
+  .card-inner {
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 16px;
+    border-radius: 0;
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 3px 5px -1px rgba(0,0,0,.1), 0 6px 10px 0 rgba(0,0,0,.07), 0 1px 18px 0 rgba(0,0,0,.08);
+  }
+  .card-inner h3 {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 23.2px;
+    font-weight: 600;
+    color: rgb(245,245,245);
+    line-height: 27.84px;
+    margin: 0 0 16px;
+  }
+  .view-btn {
+    display: inline-block;
+    font-family: Roboto, sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    color: rgb(245,245,245);
+    background: transparent;
+    border: 1.33px solid rgb(245,245,245);
+    padding: 6.53px 30.4px;
+    text-transform: uppercase;
+    letter-spacing: 2.4px;
+    border-radius: 0;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .view-btn:hover {
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    text-decoration: none;
+  }
+
+  /* Filter bar */
+  .filter-bar {
+    background: #e8e8e8;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .filter-bar select {
+    height: 40px;
+    padding: 0 12px;
+    font-size: 14px;
+    font-family: Roboto, sans-serif;
+    border: 1px solid #ccc;
+    background: #fff;
+    color: #495057;
+    min-width: 220px;
+  }
+  .filter-bar input[type="text"] {
+    height: 40px;
+    padding: 0 12px;
+    font-size: 14px;
+    font-family: Roboto, sans-serif;
+    border: 1px solid #ccc;
+    background: #fff;
+    color: #495057;
+    flex: 1;
+    min-width: 200px;
+    max-width: 520px;
+  }
+  .filter-bar label {
+    font-size: 14px;
+    font-family: 'Exo 2', sans-serif;
+    color: #333;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .no-results {
+    padding: 48px 24px;
+    text-align: center;
+    font-size: 16px;
+    color: #666;
+    width: 100%;
+    display: none;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero banner -->
+<div class="careers-hero">
+  <p class="hero-subtitle">Department of National Defence — Civilian Workforce</p>
+  <h1 class="hero-title">Browse Careers</h1>
+</div>
+
+<!-- Filter bar -->
+<div class="filter-bar">
+  <label for="job-function-filter">Job Function:</label>
+  <select id="job-function-filter">
+    <option value="">All Functions</option>
+    {% for func in job_functions %}
+    <option value="{{ func }}">{{ func }}</option>
+    {% endfor %}
+  </select>
+  <input type="text" id="career-search" placeholder="Search by job family or title keyword…">
+</div>
+
+<!-- Card grid -->
+<div class="card-grid">
+  {% for family in families %}
+  {% if family.image_file %}
+  <div class="card-col"
+       data-function="{{ family.function }}"
+       data-name="{{ family.name | lower }}"
+       data-titles="{{ family.titles_json }}">
+    <div class="card-inner" style="background-image:
+        linear-gradient(rgba(0,0,0,0.25)),
+        linear-gradient(rgba(0,0,0,0) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.5) 65%, rgba(0,0,0,0.9) 100%),
+        url('{{ url_for('static', path='images/' + family.image_file) }}');">
+      <h3>{{ family.name }}</h3>
+      <a href="/careers/{{ family.slug }}" class="view-btn">View Careers</a>
+    </div>
+  </div>
+  {% endif %}
+  {% endfor %}
+</div>
+
+<div class="no-results" id="no-results">No careers match your search.</div>
+
+<script>
+(function() {
+  var fnFilter = document.getElementById('job-function-filter');
+  var search   = document.getElementById('career-search');
+  var noRes    = document.getElementById('no-results');
+
+  function applyFilters() {
+    var fn  = fnFilter.value;
+    var kw  = search.value.trim().toLowerCase();
+    var cards = document.querySelectorAll('.card-col');
+    var visible = 0;
+
+    cards.forEach(function(card) {
+      var matchFn = !fn || card.dataset.function === fn;
+      var matchKw = true;
+      if (kw) {
+        var name = card.dataset.name || '';
+        var titles = [];
+        try { titles = JSON.parse(card.dataset.titles || '[]'); } catch(e) {}
+        matchKw = name.indexOf(kw) !== -1 ||
+                  titles.some(function(t) { return t.indexOf(kw) !== -1; });
+      }
+      var show = matchFn && matchKw;
+      card.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+
+    noRes.style.display = visible === 0 ? 'block' : 'none';
+  }
+
+  fnFilter.addEventListener('change', applyFilters);
+  search.addEventListener('input', applyFilters);
+})();
+</script>
+
+{% endblock %}
