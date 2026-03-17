@@ -25,6 +25,25 @@ CONFIDENCE_COLORS = {
 # AI disclosure blue (matching PDF CSS)
 AI_DISCLOSURE_BLUE = RGBColor(0x19, 0x76, 0xd2)
 
+# Source tag mapping (matches pdf_generator.py SOURCE_TAG_MAP)
+SOURCE_TAG_MAP = {
+    "Main Duties": "[NOC]",
+    "Work Activities": "[OaSIS]",
+    "Abilities": "[OaSIS]",
+    "Knowledge": "[OaSIS]",
+    "Skills": "[OaSIS]",
+    "Effort": "[OaSIS]",
+    "Responsibility": "[OaSIS]",
+    "Core Competencies": "[GC]",
+}
+
+
+def get_source_tag(source_attribute: str, data_source: str = None) -> str:
+    """Return the bracketed source tag for a statement."""
+    if data_source == "jobforge":
+        return "[JobForge]"
+    return SOURCE_TAG_MAP.get(source_attribute, "[NOC]")
+
 
 def _get_confidence_level(score: float) -> str:
     """Map confidence score to level string for color lookup."""
@@ -199,7 +218,20 @@ def _add_classification_section(doc, data):
 
 def generate_docx(data: ExportData) -> bytes:
     """
-    Generate Word document from export data.
+    Generate Word document from export data using v5.1 section structure.
+
+    Section order:
+    1. Title / cover
+    2. Position Overview (if AI-generated)
+    3. Key Duties and Responsibilities (key_activities with source tags)
+    4. Qualifications and Requirements (Skills / Abilities / Knowledge / Core Competencies)
+    5. Effort & Physical Demands
+    6. Responsibilities
+    7. Classification results (if included)
+    8. Appendix A: Data Provenance & Compliance
+    9. Appendix B: Policy Provenance
+    10. Appendix C: Data Quality (DAMA DMBOK)
+    11. Additional Job Information (Annex, if present)
 
     Args:
         data: Complete export data structure
@@ -207,19 +239,21 @@ def generate_docx(data: ExportData) -> bytes:
     Returns:
         DOCX bytes ready for response
     """
+    from datetime import datetime as _dt
+
     doc = Document()
 
-    # Configure page setup
-    section = doc.sections[0]
-    section.page_height = Inches(11)
-    section.page_width = Inches(8.5)
-    section.top_margin = Inches(1)
-    section.bottom_margin = Inches(1)
-    section.left_margin = Inches(0.75)
-    section.right_margin = Inches(0.75)
+    # Page setup
+    doc_section = doc.sections[0]
+    doc_section.page_height = Inches(11)
+    doc_section.page_width = Inches(8.5)
+    doc_section.top_margin = Inches(1)
+    doc_section.bottom_margin = Inches(1)
+    doc_section.left_margin = Inches(0.75)
+    doc_section.right_margin = Inches(0.75)
 
-    # Add header
-    header = section.header
+    # Header
+    header = doc_section.header
     header_para = header.paragraphs[0]
     header_para.text = f"{data.job_title} ({data.noc_code})"
     header_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -227,176 +261,266 @@ def generate_docx(data: ExportData) -> bytes:
     header_run.font.size = Pt(10)
     header_run.font.color.rgb = GC_PRIMARY
 
-    # Add footer
-    footer = section.footer
+    # Footer
+    footer = doc_section.footer
     footer_para = footer.paragraphs[0]
-    footer_para.text = "Compliant with TBS Directive 32592"
+    footer_para.text = "Compliant with TBS Directive 32592 | JobForge JD Builder 1.0"
     footer_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
     footer_run = footer_para.runs[0] if footer_para.runs else footer_para.add_run()
     footer_run.font.size = Pt(8)
     footer_run.font.color.rgb = RGBColor(0x66, 0x66, 0x66)
 
-    # Title
+    # ── 1. Title / Cover ──────────────────────────────────────────────────────
     title = doc.add_heading(data.job_title, 0)
     title.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
-    # NOC Code subtitle
-    subtitle = doc.add_paragraph(f"NOC Code: {data.noc_code}")
-    subtitle.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    sub = doc.add_paragraph(f"NOC Code: {data.noc_code}")
+    sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
-    # General Overview (if present)
+    date_para = doc.add_paragraph(f"Generated: {data.generated_at.strftime('%Y-%m-%d')}")
+    date_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+    # Classification badge in cover (if available)
+    if data.include_classification and data.classification_result:
+        recs = data.classification_result.get('recommendations', [])
+        if recs:
+            top = recs[0]
+            badge_para = doc.add_paragraph(
+                f"Occupational Group: {top['group_code']} — {top['group_name']} "
+                f"({top['confidence']}% confidence)"
+            )
+            badge_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            if badge_para.runs:
+                badge_para.runs[0].bold = True
+
+    # ── 2. Position Overview ──────────────────────────────────────────────────
     if data.general_overview:
-        doc.add_heading("General Overview", 1)
-        overview_para = doc.add_paragraph(data.general_overview)
+        h = doc.add_heading("Position Overview", 1)
+        for run in h.runs:
+            run.font.color.rgb = GC_PRIMARY
 
-        # Add AI indicator if applicable
         if data.ai_metadata:
-            indicator = " [AI-Generated"
-            if data.ai_metadata.modified:
-                indicator += ", Modified"
-            indicator += "]"
-            run = overview_para.add_run(indicator)
-            run.font.size = Pt(8)
-            run.font.color.rgb = RGBColor(0x15, 0x65, 0xc0)
+            ai_note = doc.add_paragraph()
+            ai_label = ai_note.add_run(
+                f"AI Generated — Model: {data.ai_metadata.model} · "
+                f"Prompt v{data.ai_metadata.prompt_version}"
+                + (" · Modified by User" if data.ai_metadata.modified else "")
+            )
+            ai_label.font.size = Pt(9)
+            ai_label.font.color.rgb = AI_DISCLOSURE_BLUE
+            ai_label.italic = True
 
-    # JD Elements
-    for element in data.jd_elements:
-        doc.add_heading(element.name, 1)
-        for statement in element.statements:
-            if statement.styled_variant:
-                _add_styled_statement(doc, statement)
-            else:
-                # Original rendering (existing behavior)
-                doc.add_paragraph(statement.text, style='List Bullet')
+        doc.add_paragraph(data.general_overview)
 
-    # Add classification section if present
+    # Helper: build element lookup
+    elements_by_key = {el.key: el for el in data.jd_elements}
+
+    # Source tag helper (uses module-level SOURCE_TAG_MAP)
+    def _src_tag(source_attribute):
+        return get_source_tag(source_attribute)
+
+    # ── 3. Key Duties and Responsibilities ───────────────────────────────────
+    key_act = elements_by_key.get('key_activities')
+    if key_act and key_act.statements:
+        h = doc.add_heading("Key Duties and Responsibilities", 1)
+        for run in h.runs:
+            run.font.color.rgb = GC_PRIMARY
+        for stmt in key_act.statements:
+            text = stmt.styled_variant.styled_text if stmt.styled_variant else stmt.text
+            tag = _src_tag(stmt.source_attribute)
+            para = doc.add_paragraph(style='List Bullet')
+            para.add_run(text)
+            tag_run = para.add_run(f"  {tag}")
+            tag_run.font.size = Pt(8)
+            tag_run.font.color.rgb = RGBColor(0x88, 0x88, 0x88)
+
+    # ── 4. Qualifications and Requirements ───────────────────────────────────
+    skills_el = elements_by_key.get('skills')
+    cc_sels = [s for s in data.manager_selections if s.jd_element == 'core_competencies']
+    if skills_el or cc_sels:
+        h = doc.add_heading("Qualifications and Requirements", 1)
+        for run in h.runs:
+            run.font.color.rgb = GC_PRIMARY
+
+        if skills_el:
+            skill_stmts = [s for s in skills_el.statements
+                           if s.source_attribute not in ('Abilities', 'Knowledge')]
+            if skill_stmts:
+                sh = doc.add_heading("Skills", 2)
+                for run in sh.runs:
+                    run.font.size = Pt(12)
+                for stmt in skill_stmts:
+                    para = doc.add_paragraph(stmt.text, style='List Bullet')
+
+            ability_stmts = [s for s in skills_el.statements if s.source_attribute == 'Abilities']
+            if ability_stmts:
+                ah = doc.add_heading("Abilities", 2)
+                for run in ah.runs:
+                    run.font.size = Pt(12)
+                for stmt in ability_stmts:
+                    doc.add_paragraph(stmt.text, style='List Bullet')
+
+            know_stmts = [s for s in skills_el.statements if s.source_attribute == 'Knowledge']
+            if know_stmts:
+                kh = doc.add_heading("Knowledge", 2)
+                for run in kh.runs:
+                    run.font.size = Pt(12)
+                for stmt in know_stmts:
+                    doc.add_paragraph(stmt.text, style='List Bullet')
+
+        if cc_sels:
+            cch = doc.add_heading("Core Competencies", 2)
+            for run in cch.runs:
+                run.font.size = Pt(12)
+            for sel in cc_sels:
+                doc.add_paragraph(sel.text, style='List Bullet')
+
+    # ── 5. Effort & Physical Demands ─────────────────────────────────────────
+    effort_el = elements_by_key.get('effort')
+    if effort_el and effort_el.statements:
+        h = doc.add_heading("Effort & Physical Demands", 1)
+        for run in h.runs:
+            run.font.color.rgb = GC_PRIMARY
+        for stmt in effort_el.statements:
+            doc.add_paragraph(stmt.text, style='List Bullet')
+
+    # ── 6. Responsibilities ───────────────────────────────────────────────────
+    resp_el = elements_by_key.get('responsibility')
+    if resp_el and resp_el.statements:
+        h = doc.add_heading("Responsibilities", 1)
+        for run in h.runs:
+            run.font.color.rgb = GC_PRIMARY
+        for stmt in resp_el.statements:
+            doc.add_paragraph(stmt.text, style='List Bullet')
+
+    # ── 7. Classification Results ─────────────────────────────────────────────
     _add_classification_section(doc, data)
 
-    # Page break before compliance appendix
+    # ── 8. Appendix A: Data Provenance & Compliance ───────────────────────────
     doc.add_page_break()
+    h = doc.add_heading("Appendix A: Data Provenance & Compliance", 0)
 
-    # Compliance Appendix
-    doc.add_heading("Appendix A: Compliance Metadata", 0)
+    doc.add_heading("Source Information", 1)
+    _add_key_value_table(doc, [
+        ("NOC Code", data.noc_code),
+        ("Data Source", "JobForge 2.0 / OASIS (Occupational and Skills Information System)"),
+        ("Source Authority", "Employment and Social Development Canada (ESDC)"),
+        ("Generated By", "JobForge JD Builder 1.0"),
+        ("Generation Date", data.generated_at.strftime('%Y-%m-%d %H:%M UTC')),
+        ("NOC Version", data.source_metadata.version),
+        ("Profile URL", data.source_metadata.profile_url),
+        ("Retrieved", data.source_metadata.scraped_at.strftime('%Y-%m-%d %H:%M UTC')),
+    ])
 
-    for section in data.compliance_sections:
-        doc.add_heading(section.title, 1)
+    doc.add_heading("DAMA DMBOK Compliance", 1)
+    doc.add_paragraph(
+        "Data management complies with the GC Data Quality Management Framework (DAMA DMBOK 2.0). "
+        "All data sourced from authoritative Government of Canada occupational classification systems "
+        "with documented lineage and timestamped retrieval."
+    )
 
-        if section.section_id == "6.2.3":
-            # Data Sources - simple key-value table
-            _add_key_value_table(doc, [
-                ("Data Steward", section.content.get("data_steward", "")),
-                ("Authoritative Source", section.content.get("authoritative_source", "")),
-                ("Access Method", section.content.get("access_method", "")),
-                ("Source URL", section.content.get("source_url", "")),
-                ("Retrieval Timestamp", section.content.get("retrieval_timestamp", "")),
-                ("NOC Version", section.content.get("noc_version", ""))
-            ])
-
-        elif section.section_id == "6.2.7":
-            # Manager Decisions - description and selections table
-            doc.add_paragraph(section.content.get("description", ""))
-            doc.add_paragraph(f"Total selections: {section.content.get('total_selections', 0)}")
-
-            # Selections table
-            selections = section.content.get("selections", [])
+    doc.add_heading("DADM Directive Compliance (Section 6.2.7)", 1)
+    for sec in data.compliance_sections:
+        if sec.section_id == "6.2.7":
+            doc.add_paragraph(sec.content.get("description", ""))
+            doc.add_paragraph(f"Total selections: {sec.content.get('total_selections', 0)}")
+            selections = sec.content.get("selections", [])
             if selections:
                 table = doc.add_table(rows=1, cols=4)
                 table.style = 'Table Grid'
-
-                # Header row
-                hdr_cells = table.rows[0].cells
-                hdr_cells[0].text = "JD Element"
-                hdr_cells[1].text = "Statement"
-                hdr_cells[2].text = "Source"
-                hdr_cells[3].text = "Selected At"
-
-                # Make header bold
-                for cell in hdr_cells:
-                    for para in cell.paragraphs:
+                hdr = table.rows[0].cells
+                for i, label in enumerate(["JD Element", "Statement", "Source", "Publication Date"]):
+                    hdr[i].text = label
+                    for para in hdr[i].paragraphs:
                         for run in para.runs:
                             run.bold = True
-
-                # Data rows
                 for sel in selections:
-                    row_cells = table.add_row().cells
-                    row_cells[0].text = sel.get("jd_element", "")
-                    row_cells[1].text = sel.get("statement", "")[:100] + ("..." if len(sel.get("statement", "")) > 100 else "")
-                    row_cells[2].text = sel.get("source_attribute", "")
-                    row_cells[3].text = sel.get("selected_at", "")[:19]  # Truncate to datetime
+                    row = table.add_row().cells
+                    row[0].text = sel.get("jd_element", "")
+                    stmt_text = sel.get("statement", "")
+                    row[1].text = stmt_text[:100] + ("…" if len(stmt_text) > 100 else "")
+                    row[2].text = sel.get("source_attribute", "")
+                    row[3].text = sel.get("publication_date", "")
 
-        elif section.section_id == "6.3.5":
-            # Data Quality - requirement/how-met table
-            content = section.content
+    doc.add_heading("Directive on Classification Compliance (Section 4.1.2)", 1)
+    if data.include_classification and data.classification_result:
+        recs = data.classification_result.get('recommendations', [])
+        if recs:
+            top = recs[0]
+            doc.add_paragraph(
+                f"Occupational group allocation performed per TBS Directive on Classification "
+                f"Section 4.1.2. Recommended group: {top['group_code']} — {top['group_name']} "
+                f"({top['confidence']}% confidence). Full rationale recorded in Classification section."
+            )
+    else:
+        doc.add_paragraph(
+            "Classification Step 1 not yet performed for this job description. "
+            "Proceed to the Classify step to generate an occupational group recommendation "
+            "per TBS Directive on Classification Section 4.1.2."
+        )
+
+    # ── 9. Appendix B: Policy Provenance ─────────────────────────────────────
+    doc.add_page_break()
+    doc.add_heading("Appendix B: Policy Provenance", 0)
+
+    doc.add_heading("Authoritative Data Sources", 1)
+    prov_table = doc.add_table(rows=1, cols=4)
+    prov_table.style = 'Table Grid'
+    prov_hdr = prov_table.rows[0].cells
+    for i, label in enumerate(["Source", "Data Steward", "Publication", "Times Removed"]):
+        prov_hdr[i].text = label
+        for para in prov_hdr[i].paragraphs:
+            for run in para.runs:
+                run.bold = True
+    retrieval_date = data.source_metadata.scraped_at.strftime('%Y-%m-%d')
+    for row_data in [
+        ("2021 NOC", "ESDC", retrieval_date, "0 — Direct"),
+        ("OaSIS", "ESDC", retrieval_date, "0 — Direct"),
+        ("O*NET SOC (US)", "U.S. Dept. of Labor / ETA", "2024", "1 — Crosswalked"),
+    ]:
+        r = prov_table.add_row().cells
+        for i, val in enumerate(row_data):
+            r[i].text = val
+
+    doc.add_heading("Degrees of Separation", 2)
+    _add_key_value_table(doc, [
+        ("0 — Direct", "Data retrieved directly from authoritative source"),
+        ("1 — Crosswalked", "Data mapped from one authoritative taxonomy to another"),
+        ("2+ — Derived", "Data computed or inferred from source data"),
+    ])
+
+    if data.ai_metadata:
+        doc.add_heading("AI-Generated Content", 1)
+        _add_key_value_table(doc, [
+            ("Content Type", "Position Overview (General Overview)"),
+            ("Model", data.ai_metadata.model),
+            ("Generation Timestamp", data.ai_metadata.timestamp.strftime('%Y-%m-%d %H:%M UTC')),
+            ("Prompt Version", data.ai_metadata.prompt_version),
+            ("Input Statements", str(len(data.ai_metadata.input_statement_ids))),
+            ("Modified by User", "Yes" if data.ai_metadata.modified else "No"),
+        ])
+
+    # ── 10. Appendix C: Data Quality ─────────────────────────────────────────
+    doc.add_page_break()
+    doc.add_heading("Appendix C: Data Quality (DAMA DMBOK)", 0)
+    for sec in data.compliance_sections:
+        if sec.section_id == "6.3.5":
+            c = sec.content
             _add_key_value_table(doc, [
-                ("Relevant", f"{content.get('relevant', {}).get('how_met', '')}"),
-                ("Accurate", f"{content.get('accurate', {}).get('how_met', '')}"),
-                ("Up-to-date", f"{content.get('up_to_date', {}).get('how_met', '')}")
+                ("Accuracy", c.get('accurate', {}).get('how_met', '')),
+                ("Completeness",
+                 "All selected JD elements retrieved from authoritative NOC/OaSIS sources "
+                 "with no truncation"),
+                ("Consistency",
+                 "NOC 2021 v1.0 used as single authoritative taxonomy; "
+                 "crosswalks documented in provenance chain"),
+                ("Timeliness", c.get('up_to_date', {}).get('how_met', '')),
             ])
 
-        elif section.section_id == "ai_disclosure":
-            # AI Disclosure
-            doc.add_paragraph(section.content.get("description", ""))
-            _add_key_value_table(doc, [
-                ("Content Type", section.content.get("content_type", "")),
-                ("Model", section.content.get("model", "")),
-                ("Generation Timestamp", section.content.get("generation_timestamp", "")),
-                ("Input Statement Count", str(section.content.get("input_count", 0))),
-                ("Modified by User", "Yes" if section.content.get("modified_by_user") else "No"),
-                ("Purpose", section.content.get("purpose", ""))
-            ])
-
-        elif section.section_id == "styled_content_disclosure":
-            # Styled Content Disclosure
-            doc.add_paragraph(section.content.get("description", ""))
-
-            # Summary table
-            _add_key_value_table(doc, [
-                ("Content Disclosure", section.content.get("disclosure_label", "")),
-                ("Total Styled Statements", str(section.content.get("total_statements", 0))),
-                ("AI-Styled Count", str(section.content.get("ai_styled_count", 0))),
-                ("Original Fallback Count", str(section.content.get("original_fallback_count", 0)))
-            ])
-
-            # Vocabulary Audit subsection
-            vocab_heading = doc.add_heading("Vocabulary Audit Summary", 2)
-            for run in vocab_heading.runs:
-                run.font.size = Pt(11)
-            vocab_audit = section.content.get("vocabulary_audit", {})
-            _add_key_value_table(doc, [
-                ("Average NOC Coverage", vocab_audit.get("average_coverage", "")),
-                ("Minimum Coverage", vocab_audit.get("minimum_coverage", "")),
-                ("Vocabulary Source", vocab_audit.get("noc_vocabulary_source", ""))
-            ])
-
-            # Confidence Distribution subsection
-            conf_heading = doc.add_heading("Confidence Distribution", 2)
-            for run in conf_heading.runs:
-                run.font.size = Pt(11)
-            conf_summary = section.content.get("confidence_summary", {})
-            _add_key_value_table(doc, [
-                ("Average Confidence", str(conf_summary.get("average_confidence", ""))),
-                ("High Confidence (>=0.8)", str(conf_summary.get("high_confidence_count", 0))),
-                ("Medium Confidence (0.5-0.8)", str(conf_summary.get("medium_confidence_count", 0))),
-                ("Low Confidence (<0.5)", str(conf_summary.get("low_confidence_count", 0)))
-            ])
-
-            # Generation Parameters subsection
-            gen_heading = doc.add_heading("Generation Parameters", 2)
-            for run in gen_heading.runs:
-                run.font.size = Pt(11)
-            gen_meta = section.content.get("generation_metadata", {})
-            _add_key_value_table(doc, [
-                ("Model", gen_meta.get("model", "")),
-                ("Prompt Version", gen_meta.get("prompt_version", "")),
-                ("Max Retries", str(gen_meta.get("max_retries", ""))),
-                ("Vocabulary Threshold", gen_meta.get("vocabulary_threshold", "")),
-                ("Semantic Similarity Threshold", gen_meta.get("semantic_similarity_threshold", ""))
-            ])
-
-    # Add Annex section if data available
+    # ── 11. Additional Job Information (Annex) ────────────────────────────────
     _add_annex_section(doc, data)
 
-    # Write to bytes using context manager for memory safety
+    # Write to bytes
     with BytesIO() as buffer:
         doc.save(buffer)
         buffer.seek(0)
