@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-03-11)
 
 **Core value:** Every piece of content in the JD can be traced to its authoritative source (JobForge parquet or OASIS), with clear documentation of human decisions and AI involvement.
-**Current focus:** v5.1 UI Overhaul — Phase 30 GSD-verified ✓ (4/4 must-haves passed; ready for milestone audit)
+**Current focus:** v5.1 UI Overhaul — Phase 31 gap closure (store.reset() crash + export data loss)
 
 ## Current Position
 
-Milestone: v5.1 UI Overhaul — COMPLETE
-Phase: 30 of 30 (30-export-page-pdf-docx-json) — COMPLETE
-Plan: 3 of 3 — complete (30-03-SUMMARY.md created)
-Status: Phase 30 GSD-verified — ready for /gsd:audit-milestone
-Last activity: 2026-03-17 — Phase 30 GSD-executed (3 plans), verified 4/4 must-haves, requirements marked Complete
+Milestone: v5.1 UI Overhaul — GAP CLOSURE IN PROGRESS
+Phase: 31 of 31 (31-export-completeness-and-reset-fix) — PENDING
+Plan: 0 of 1
+Status: Gap closure phase created — plan with /gsd:plan-phase 31
+Last activity: 2026-03-17 — Phase 31 created from audit gaps (store.reset() + buildExportRequest())
 
-Progress: [██████████] 100% (15/15 plans — all complete)
+Progress: [█████████░] 94% (15/16 plans — 1 gap closure plan pending)
 
 ## Milestone History
 
@@ -28,7 +28,7 @@ Progress: [██████████] 100% (15/15 plans — all complete)
 | v4.0 Occupational Group Allocation | SHIPPED | 2026-02-04 |
 | v4.1 Polish | SHIPPED | 2026-02-07 (Phases 18-19; Phase 20 deferred indefinitely) |
 | v5.0 JobForge 2.0 Integration | SHIPPED | 2026-03-10 |
-| v5.1 UI Overhaul | COMPLETE | 2026-03-17 (all 15/15 plans done; export PDF/DOCX/JSON) |
+| v5.1 UI Overhaul | IN PROGRESS | Gap closure Phase 31 pending (2 audit blockers) |
 
 ## Accumulated Context
 
@@ -107,8 +107,8 @@ Resume file: None (all plans complete)
 
 ### For Claude Code — What To Do Next
 
-Phase 30 is complete. All 15/15 plans for v5.1 UI Overhaul milestone are done.
-Next action: `/gsd:new-milestone` (after `/clear`) to begin next milestone planning.
+Phase 31 gap closure is next. 2 critical blockers from audit need fixing.
+Next action: `/gsd:plan-phase 31` (after `/clear`) to plan the fix.
 
 ## Phase 30 — What Was Built
 
