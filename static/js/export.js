@@ -557,6 +557,51 @@ const exportModule = {
   },
 
   /**
+   * Download JSON audit trail
+   */
+  async downloadJSON() {
+    if (!this.currentExportData) {
+      showToast('No export data available. Please complete your selections first.', 'warning');
+      return;
+    }
+    const btn = document.getElementById('export-download-json');
+    const btnSpan = btn?.querySelector('span');
+    if (btn) btn.disabled = true;
+    if (btnSpan) btnSpan.textContent = 'Generating…';
+
+    try {
+      const response = await fetch('/api/export/json', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(this.currentExportData)
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail || error.error || 'JSON export failed');
+      }
+
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = this._generateFilename('json').replace('Job Description', 'Audit Trail');
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename="?([^"]+)"?/);
+        if (match) filename = match[1];
+      }
+
+      const blob = await response.blob();
+      this._downloadBlob(blob, filename);
+      showToast('Audit trail downloaded successfully', 'success');
+
+    } catch (error) {
+      console.error('JSON export error:', error);
+      showToast('Failed to export audit trail: ' + error.message, 'error');
+    } finally {
+      if (btn) btn.disabled = false;
+      if (btnSpan) btnSpan.textContent = 'Download Full Audit Trail (JSON)';
+    }
+  },
+
+  /**
    * Open the JD preview modal and assemble content
    */
   openPreviewModal() {
@@ -681,6 +726,112 @@ function initExport() {
       }
     }
   });
+
+  // Export page (Step 5) download buttons
+  const exportPagePdfBtn = document.getElementById('export-download-pdf');
+  if (exportPagePdfBtn) {
+    exportPagePdfBtn.addEventListener('click', () => exportModule.downloadPDF());
+  }
+  const exportPageDocxBtn = document.getElementById('export-download-docx');
+  if (exportPageDocxBtn) {
+    exportPageDocxBtn.addEventListener('click', () => exportModule.downloadDOCX());
+  }
+  const exportPageJsonBtn = document.getElementById('export-download-json');
+  if (exportPageJsonBtn) {
+    exportPageJsonBtn.addEventListener('click', () => exportModule.downloadJSON());
+  }
 }
 
 window.initExport = initExport;
+
+/**
+ * Populate the Export page (Step 5) preview card and wire download buttons.
+ * Called by navigateToStep(5) in main.js each time the user arrives at step 5.
+ */
+function initExportPage() {
+  const profile = window.currentProfile;
+  const state = store.getState();
+
+  // Title + NOC
+  const titleEl = document.getElementById('export-preview-title');
+  const nocEl = document.getElementById('export-preview-noc');
+  if (titleEl) titleEl.textContent = profile ? profile.title : '—';
+  if (nocEl) nocEl.textContent = profile ? `NOC ${profile.noc_code}` : '';
+
+  // Classification badge (if a result exists)
+  const classificationBadges = document.getElementById('export-preview-classification');
+  if (classificationBadges) {
+    const allocation = typeof classifyModule !== 'undefined' ? classifyModule.getCurrentAllocation() : null;
+    if (allocation?.recommendations?.length) {
+      const top = allocation.recommendations[0];
+      const pct = Math.round((top.confidence || 0) * 100);
+      classificationBadges.innerHTML =
+        `<span class="badge badge--classification">${top.group_code} — ${pct}%</span>`;
+      classificationBadges.classList.remove('hidden');
+    } else {
+      classificationBadges.classList.add('hidden');
+    }
+  }
+
+  // Overview text (if generated)
+  const overviewSection = document.getElementById('export-preview-overview');
+  const overviewText = document.getElementById('export-preview-overview-text');
+  const overview = window.generation?.getOverview ? window.generation.getOverview() : null;
+  if (overview?.generated && overview.text && overviewSection && overviewText) {
+    overviewText.textContent = overview.text;
+    overviewSection.classList.remove('hidden');
+  } else if (overviewSection) {
+    overviewSection.classList.add('hidden');
+  }
+
+  // Selected statements summary (max 3 per section)
+  const selectionsEl = document.getElementById('export-preview-selections');
+  if (selectionsEl && profile) {
+    const ALL_SECTIONS = [
+      { key: 'core_competencies', label: 'Core Competencies' },
+      { key: 'key_activities', label: 'Key Activities' },
+      { key: 'skills', label: 'Skills' },
+      { key: 'abilities', label: 'Abilities' },
+      { key: 'knowledge', label: 'Knowledge' },
+      { key: 'effort', label: 'Effort' },
+      { key: 'responsibility', label: 'Responsibility' },
+    ];
+    let html = '';
+    ALL_SECTIONS.forEach(({ key, label }) => {
+      const ids = state.selections[key] || [];
+      if (!ids.length) return;
+      html += `<p class="export-preview-card__sel-heading">${label} (${ids.length})</p><ul>`;
+      ids.slice(0, 3).forEach(stmtId => {
+        const index = parseInt(stmtId.split('-').pop(), 10);
+        let text = '';
+        if (key === 'core_competencies') {
+          text = (profile.reference_attributes?.core_competencies || [])[index] || '';
+        } else if (key === 'abilities' || key === 'knowledge') {
+          const attr = key === 'abilities' ? 'Abilities' : 'Knowledge';
+          const filtered = (profile.skills?.statements || []).filter(s => s.source_attribute === attr);
+          text = filtered[index]?.text || '';
+        } else {
+          text = profile[key]?.statements?.[index]?.text || '';
+        }
+        if (text) html += `<li>${exportModule._escapeHtml(text)}</li>`;
+      });
+      if (ids.length > 3) {
+        html += `<li style="color:#888;font-style:italic;">…and ${ids.length - 3} more</li>`;
+      }
+      html += '</ul>';
+    });
+    if (!html) {
+      html = '<p style="color:#888;font-style:italic;">No statements selected yet.</p>';
+    }
+    selectionsEl.innerHTML = html;
+  }
+
+  // Build export data for downloads (cached on exportModule)
+  try {
+    exportModule.currentExportData = exportModule.buildExportRequest();
+  } catch (e) {
+    console.warn('[export.js] initExportPage: could not build export data:', e.message);
+  }
+}
+
+window.initExportPage = initExportPage;
