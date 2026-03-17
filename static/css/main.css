@@ -3062,3 +3062,230 @@ body.modal-open {
     text-align: center;
     padding: 2rem;
 }
+
+/* ============================================================
+   Export Page (Step 5)
+   ============================================================ */
+.export-section { padding: 0; }
+
+.export-page {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.export-page__header { margin-bottom: 0.25rem; }
+
+.export-page__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-navy, #1a2332);
+    margin: 0 0 0.25rem;
+}
+
+.export-page__subtitle {
+    color: #555;
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+/* JD Preview Card */
+.export-preview-card {
+    border: 1px solid #dde3ea;
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    background: #fff;
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+.export-preview-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.export-preview-card__title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1a2332;
+    margin: 0 0 0.2rem;
+}
+
+.export-preview-card__noc {
+    font-size: 0.8rem;
+    color: #666;
+    font-family: monospace;
+}
+
+.export-preview-card__badges {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.export-preview-card__overview {
+    padding: 0.75rem;
+    background: #f8fafc;
+    border-radius: 6px;
+    border-left: 3px solid #1976d2;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.export-preview-card__overview p { margin: 0; }
+
+.export-preview-card__selections { font-size: 0.875rem; color: #444; }
+
+.export-preview-card__selections ul {
+    margin: 0.25rem 0 0.75rem 1.25rem;
+    padding: 0;
+}
+
+.export-preview-card__sel-heading {
+    font-weight: 600;
+    color: #1a2332;
+    margin: 0.5rem 0 0.25rem;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* Compliance Cards */
+.export-compliance-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+@media (max-width: 700px) {
+    .export-compliance-cards { grid-template-columns: 1fr; }
+}
+
+.export-compliance-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem 1.1rem;
+    border-radius: 8px;
+    border: 1px solid transparent;
+}
+
+.export-compliance-card--dama {
+    background: #f0faf2;
+    border-color: #4caf50;
+}
+
+.export-compliance-card--tbs {
+    background: #f0f4fa;
+    border-color: #1a2332;
+}
+
+.export-compliance-card--lineage {
+    background: #f5f0fa;
+    border-color: #7b1fa2;
+}
+
+.export-compliance-card__icon { font-size: 1.4rem; margin-top: 0.1rem; }
+
+.export-compliance-card--dama .export-compliance-card__icon { color: #2e7d32; }
+.export-compliance-card--tbs .export-compliance-card__icon { color: #1a2332; }
+.export-compliance-card--lineage .export-compliance-card__icon { color: #7b1fa2; }
+
+.export-compliance-card__title {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #1a2332;
+    margin-bottom: 0.2rem;
+}
+
+.export-compliance-card__desc { font-size: 0.8rem; color: #555; line-height: 1.4; }
+
+/* Export Options */
+.export-options {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.export-options__label {
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #1a2332;
+}
+
+.export-option-check {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.export-option-check input[type="checkbox"] {
+    width: 1rem;
+    height: 1rem;
+    accent-color: #1976d2;
+    cursor: pointer;
+}
+
+/* Download Buttons */
+.export-download-btns {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.btn--export-pdf,
+.btn--export-docx,
+.btn--export-json {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.9rem 1.4rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-align: left;
+    transition: opacity 0.15s, transform 0.1s;
+    width: 100%;
+}
+
+.btn--export-pdf { background: #c62828; color: #fff; }
+.btn--export-docx { background: #1565c0; color: #fff; }
+.btn--export-json { background: transparent; color: #1a2332; border: 2px solid #c7d0dc; }
+
+.btn--export-pdf:hover { opacity: 0.9; }
+.btn--export-docx:hover { opacity: 0.9; }
+.btn--export-json:hover { background: #f0f4fa; }
+
+.btn--export-pdf i,
+.btn--export-docx i,
+.btn--export-json i { font-size: 1.2rem; flex-shrink: 0; }
+
+.btn--export-pdf small,
+.btn--export-docx small,
+.btn--export-json small {
+    font-size: 0.75rem;
+    font-weight: 400;
+    opacity: 0.85;
+    margin-left: auto;
+}
+
+.export-nav-actions {
+    display: flex;
+    justify-content: flex-start;
+    padding-top: 0.5rem;
+}
