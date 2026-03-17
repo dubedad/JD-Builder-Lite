@@ -169,6 +169,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (genContinueBtn) {
         genContinueBtn.addEventListener('click', () => window.jdStepper.goToStep(5));
     }
+    const exportBackBtn = document.getElementById('export-back-generate');
+    if (exportBackBtn) {
+        exportBackBtn.addEventListener('click', () => window.jdStepper.goToStep(4));
+    }
 
     // Initialize filter module
     filterModule.init(function(filteredResults) {
@@ -635,6 +639,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('profile-tabs-container')?.classList.add('hidden');
                     document.getElementById('classify-section')?.classList.add('hidden');
                     document.getElementById('overview-section')?.classList.add('hidden');
+                    document.getElementById('export-section')?.classList.add('hidden');
                     jdSections.innerHTML = '';
                     actionBar.classList.add('hidden');
                     document.getElementById('build-nav-bar')?.classList.add('hidden');
@@ -649,6 +654,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     break;
                 }
                 case 2: { // Build — show profile tabs if profile loaded, else search results
+                    document.getElementById('export-section')?.classList.add('hidden');
                     if (window.currentProfile) {
                         searchResults.classList.add('hidden');
                         document.getElementById('welcome-section')?.classList.add('hidden');
@@ -675,6 +681,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     profileInfo.classList.add('hidden');
                     document.getElementById('profile-tabs-container')?.classList.add('hidden');
                     document.getElementById('overview-section')?.classList.add('hidden');
+                    document.getElementById('export-section')?.classList.add('hidden');
                     jdSections.innerHTML = '';
                     actionBar.classList.add('hidden');
                     document.getElementById('build-nav-bar')?.classList.add('hidden');
@@ -710,6 +717,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         profileInfo.classList.add('hidden');
                         document.getElementById('profile-tabs-container')?.classList.add('hidden');
                         document.getElementById('classify-section')?.classList.add('hidden');
+                        document.getElementById('export-section')?.classList.add('hidden');
                         jdSections.innerHTML = '';
                         actionBar.classList.add('hidden');
                         document.getElementById('build-nav-bar')?.classList.add('hidden');
@@ -717,12 +725,21 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     break;
                 }
-                case 5: { // Export — open sidebar for export
+                case 5: { // Export — show dedicated export page
                     if (window.currentProfile) {
+                        searchResults.classList.add('hidden');
+                        profileInfo.classList.add('hidden');
+                        document.getElementById('profile-tabs-container')?.classList.add('hidden');
+                        document.getElementById('classify-section')?.classList.add('hidden');
+                        document.getElementById('overview-section')?.classList.add('hidden');
                         document.getElementById('build-nav-bar')?.classList.add('hidden');
-                        sidebar.classList.add('open');
-                        sidebar.classList.remove('collapsed');
-                        document.body.classList.add('sidebar-open');
+                        jdSections.innerHTML = '';
+                        actionBar.classList.add('hidden');
+                        const exportSection = document.getElementById('export-section');
+                        if (exportSection) {
+                            exportSection.classList.remove('hidden');
+                            if (typeof initExportPage === 'function') initExportPage();
+                        }
                     }
                     break;
                 }
