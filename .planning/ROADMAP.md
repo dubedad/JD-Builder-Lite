@@ -2,7 +2,7 @@
 
 ## Milestones
 
-- 🚧 **v5.1 UI Overhaul** — Phases 26-30 (in progress, started 2026-03-11)
+- ✅ **v5.1 UI Overhaul** — Phases 26-30 (shipped 2026-03-13; post-UAT hotfixes applied 2026-03-13; awaiting formal GSD milestone verification)
 - ✅ **v5.0 JobForge 2.0 Integration** -- Phases 21-25 (shipped 2026-03-10) — [archive](milestones/v5.0-ROADMAP.md)
 - ✅ **v4.1 Polish** -- Phases 18-20 (shipped 2026-02-07; Phase 20 deferred indefinitely)
 - ✅ **v4.0 Occupational Group Allocation** -- Phases 14-17 (shipped 2026-02-04)
@@ -18,7 +18,7 @@ Evidence highlighting requires LLM returning verbatim quotes (currently paraphra
 
 ---
 
-## 🚧 v5.1 UI Overhaul (In Progress)
+## ✅ v5.1 UI Overhaul (Shipped: 2026-03-13)
 
 **Milestone Goal:** Redesign the entire application UI to match the JobForge reference prototype — new global chrome applied across all pages, redesigned search/build/classify pages, and two new functional pages (Generate, Export) with restructured PDF/DOCX/JSON output.
 
@@ -112,7 +112,7 @@ Plans:
 - [x] 29-01-PLAN.md — Classification page restyle (chrome, badges, TBS card, post-analysis enriched sections)
 - [x] 29-02-PLAN.md — Generate page (new page, DADM card, compliance notice, textarea, Generate with AI button, AI output + Regenerate)
 - [x] 29-03-PLAN.md — Post-analysis rendering + Analyze button wiring (classify.js)
-- [ ] 29-04-PLAN.md — Gap closure: wire additional_context through backend + multi-paragraph system prompt
+- [x] 29-04-PLAN.md — Gap closure: wire additional_context through backend + multi-paragraph system prompt
 
 ---
 
@@ -130,12 +130,12 @@ Plans:
 3. "Download Word" generates a DOCX with equivalent section structure to the new PDF.
 4. "Download Full Audit Trail (JSON)" generates a JSON file containing all session selections, provenance metadata, classification result, and AI-generated content.
 
-**Plans:** TBD
+**Plans:** 3 plans
 
 Plans:
-- [ ] 30-01: Export page (v5.1 chrome, JD preview card, compliance cards, checkboxes, three download buttons)
-- [ ] 30-02: Restructured PDF + DOCX (new section structure: PDF-01 through PDF-04 + Word equivalent)
-- [ ] 30-03: JSON audit trail export
+- [x] 30-01: Export page (v5.1 chrome, JD preview card, compliance cards, checkboxes, three download buttons)
+- [x] 30-02: Restructured PDF + DOCX (new section structure: PDF-01 through PDF-04 + Word equivalent)
+- [x] 30-03: JSON audit trail export
 
 ---
 
@@ -147,7 +147,7 @@ Plans:
 | 27. Build Page Redesign | v5.1 | 2/2 | Complete | 2026-03-12 |
 | 28. Navigation, Preview & Selections | v5.1 | 3/3 | Complete | 2026-03-12 |
 | 29. Classification Restyle + Generate | v5.1 | 4/4 | Complete | 2026-03-13 |
-| 30. Export Page + New PDF/DOCX/JSON | v5.1 | 0/3 | Not started | - |
+| 30. Export Page + New PDF/DOCX/JSON | v5.1 | 3/3 | Complete | 2026-03-13 |
 | 21. Data Exploration | v5.0 | 3/3 | Complete | 2026-03-07 |
 | 22. Profile Service | v5.0 | 2/2 | Complete | 2026-03-08 |
 | 23. Search Service | v5.0 | 2/2 | Complete | 2026-03-09 |
@@ -158,4 +158,4 @@ Plans:
 | 20. Evidence & Provenance Display | v4.1 | 0/2 | Deferred | - |
 
 ---
-*Roadmap updated: 2026-03-13 — Phase 29 complete (4/4 plans)*
+*Roadmap updated: 2026-03-17 — Phase 30 GSD-executed and verified (4/4 must-haves passed); EXP/PDF requirements marked Complete*
