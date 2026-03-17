@@ -226,8 +226,19 @@
 
                     <details class="filter-accordion" id="filter-ochro" open>
                         <summary>OCHRO Job Architecture</summary>
-                        <div class="filter-accordion__body">
-                            <p class="filter-empty">No results</p>
+                        <div class="filter-accordion__body filter-accordion__body--ochro">
+                            <div class="filter-sub-section">
+                                <h4 class="filter-sub-heading">Managerial Level</h4>
+                                <div id="filter-ochro-level-options" class="filter-options">
+                                    <p class="filter-empty">Search to see filter options</p>
+                                </div>
+                            </div>
+                            <div class="filter-sub-section">
+                                <h4 class="filter-sub-heading">Job Function &rarr; Job Family</h4>
+                                <div id="filter-ochro-function-options" class="filter-options">
+                                    <p class="filter-empty">Search to see filter options</p>
+                                </div>
+                            </div>
                         </div>
                     </details>
 
@@ -585,6 +596,100 @@
 
           <!-- Hidden legacy regenerate btn for generate.js compatibility -->
           <button id="regenerate-btn" class="hidden" type="button"></button>
+        </section>
+
+        <!-- Export Page (v5.1 Step 5) -->
+        <section id="export-section" class="export-section hidden">
+          <div class="export-page">
+
+            <!-- Page Title -->
+            <div class="export-page__header">
+              <h2 class="export-page__title">
+                <i class="fas fa-file-export"></i> Export with Full Provenance
+              </h2>
+              <p class="export-page__subtitle">Download your job description with embedded compliance metadata and audit trail.</p>
+            </div>
+
+            <!-- Export Options (ABOVE download buttons per locked decision) -->
+            <div class="export-options">
+              <span class="export-options__label">Export Options</span>
+              <label class="export-option-check">
+                <input type="checkbox" id="export-include-annex" checked>
+                <span>Include provenance annex</span>
+              </label>
+              <label class="export-option-check">
+                <input type="checkbox" id="export-include-audit" checked>
+                <span>Include audit trail</span>
+              </label>
+            </div>
+
+            <!-- Download Buttons (ABOVE preview card per locked decision) -->
+            <div class="export-download-btns">
+              <button id="export-download-pdf" class="btn btn--export-pdf" type="button">
+                <i class="fas fa-file-pdf"></i>
+                <span>Download PDF</span>
+                <small>With embedded provenance</small>
+              </button>
+              <button id="export-download-docx" class="btn btn--export-docx" type="button">
+                <i class="fas fa-file-word"></i>
+                <span>Download Word</span>
+                <small>With audit trail annex</small>
+              </button>
+              <button id="export-download-json" class="btn btn--export-json" type="button">
+                <i class="fas fa-file-code"></i>
+                <span>Download Full Audit Trail (JSON)</span>
+                <small>Complete session data</small>
+              </button>
+            </div>
+
+            <!-- JD Preview Card (BELOW download buttons per locked decision) -->
+            <div class="export-preview-card">
+              <div class="export-preview-card__header">
+                <div>
+                  <h3 id="export-preview-title" class="export-preview-card__title">—</h3>
+                  <span id="export-preview-noc" class="export-preview-card__noc"></span>
+                </div>
+                <div id="export-preview-classification" class="export-preview-card__badges hidden"></div>
+              </div>
+              <div id="export-preview-overview" class="export-preview-card__overview hidden">
+                <p id="export-preview-overview-text"></p>
+              </div>
+              <div id="export-preview-selections" class="export-preview-card__selections"></div>
+            </div>
+
+            <!-- Compliance Summary Cards (BELOW preview card per locked decision) -->
+            <div class="export-compliance-cards">
+              <div class="export-compliance-card export-compliance-card--dama">
+                <div class="export-compliance-card__icon"><i class="fas fa-check-circle"></i></div>
+                <div>
+                  <div class="export-compliance-card__title">DAMA DMBOK 2.0</div>
+                  <div class="export-compliance-card__desc">Data management complies with GC Data Quality Management Framework</div>
+                </div>
+              </div>
+              <div class="export-compliance-card export-compliance-card--tbs">
+                <div class="export-compliance-card__icon"><i class="fas fa-gavel"></i></div>
+                <div>
+                  <div class="export-compliance-card__title">TBS Directives</div>
+                  <div class="export-compliance-card__desc">Compliant with Directive on Automated Decision-Making and Directive on Classification</div>
+                </div>
+              </div>
+              <div class="export-compliance-card export-compliance-card--lineage">
+                <div class="export-compliance-card__icon"><i class="fas fa-link"></i></div>
+                <div>
+                  <div class="export-compliance-card__title">Full Lineage</div>
+                  <div class="export-compliance-card__desc">Every statement traceable to authoritative NOC/JobForge source with timestamps</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Back Navigation -->
+            <div class="export-nav-actions">
+              <button class="btn btn--secondary" id="export-back-generate" type="button">
+                <i class="fas fa-arrow-left"></i> Back to Generate
+              </button>
+            </div>
+
+          </div>
         </section>
 
         <!-- Explore Other JobForge Agents (shown after search results) -->
