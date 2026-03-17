@@ -9,13 +9,13 @@ See: .planning/PROJECT.md (updated 2026-03-11)
 
 ## Current Position
 
-Milestone: v5.1 UI Overhaul — GAP CLOSURE IN PROGRESS
-Phase: 31 of 31 (31-export-completeness-and-reset-fix) — PENDING
-Plan: 0 of 1
-Status: Gap closure phase created — plan with /gsd:plan-phase 31
-Last activity: 2026-03-17 — Phase 31 created from audit gaps (store.reset() + buildExportRequest())
+Milestone: v5.1 UI Overhaul — COMPLETE
+Phase: 31 of 31 (31-export-completeness-and-reset-fix) — COMPLETE
+Plan: 1 of 1
+Status: All 31 phases complete — v5.1 gap closure done
+Last activity: 2026-03-17 — Completed 31-01-PLAN.md (store.reset() fix + buildExportRequest() patch)
 
-Progress: [█████████░] 94% (15/16 plans — 1 gap closure plan pending)
+Progress: [██████████] 100% (16/16 plans complete)
 
 ## Milestone History
 
@@ -28,7 +28,7 @@ Progress: [█████████░] 94% (15/16 plans — 1 gap closure pl
 | v4.0 Occupational Group Allocation | SHIPPED | 2026-02-04 |
 | v4.1 Polish | SHIPPED | 2026-02-07 (Phases 18-19; Phase 20 deferred indefinitely) |
 | v5.0 JobForge 2.0 Integration | SHIPPED | 2026-03-10 |
-| v5.1 UI Overhaul | IN PROGRESS | Gap closure Phase 31 pending (2 audit blockers) |
+| v5.1 UI Overhaul | COMPLETE | 2026-03-17 (Phases 26-31; all audit blockers closed) |
 
 ## Accumulated Context
 
@@ -98,17 +98,19 @@ Progress: [█████████░] 94% (15/16 plans — 1 gap closure pl
 | SOURCE_TAG_MAP at module level in both pdf_generator.py and docx_generator.py | 30-02 | Canonical mapping prevents drift between PDF and DOCX source tags |
 | JSON export always includes full payload regardless of checkboxes | 30-03 | Audit trail is authoritative record; checkbox state captured as export_options metadata only |
 | Filename for JSON follows Audit Trail convention (not Job Description) | 30-03 | Distinguishes audit trail from JD documents at a glance in downloads folder |
+| store.reset() notifies listeners before page reload | 31-01 | Courtesy notification; window.location.reload() fires immediately after so listener errors are harmless |
+| abilities/knowledge jd_element set to 'skills' in export payload | 31-01 | Backend routes by jd_element='skills'; source_attribute='Abilities'/'Knowledge' distinguishes within skills section |
 
 ## Session Continuity
 
 Last session: 2026-03-17
-Stopped at: Completed 30-03-PLAN.md — JSON audit trail export committed; phase 30 COMPLETE
-Resume file: None (all plans complete)
+Stopped at: Completed 31-01-PLAN.md — store.reset() fix + buildExportRequest() patch; ALL PHASES COMPLETE
+Resume file: None
 
 ### For Claude Code — What To Do Next
 
-Phase 31 gap closure is next. 2 critical blockers from audit need fixing.
-Next action: `/gsd:plan-phase 31` (after `/clear`) to plan the fix.
+All 31 phases complete. v5.1 is ready to ship.
+Next action: Verify end-to-end (Reset Session + all 3 export formats) then tag v5.1 if approved.
 
 ## Phase 30 — What Was Built
 
