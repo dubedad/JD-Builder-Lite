@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: CAF Bridge** - Scrape forces.ca, build caf_bridge in JobForge, populate caf_related in careers.sqlite
 - [x] **Phase 4: App Foundation** - FastAPI app, static assets, GC FIP header and footer on all pages
 - [ ] **Phase 5: L1 Card Grid** - Browse page with job family cards matching CAF visual design
-- [ ] **Phase 6: L1 Interactivity** - Job Function filter and real-time search bar on the browse page
+- [x] **Phase 6: L1 Interactivity** - Job Function filter and real-time search bar on the browse page (completed 2026-03-17)
 - [ ] **Phase 7: L2 Job Family Page** - Job title listing within a family with metadata badges and breadcrumb
 - [ ] **Phase 8: L3 Job Title Detail** - Five-tab career profile page with action buttons and breadcrumb
 
@@ -90,7 +90,10 @@ Plans:
   2. Each card shows the job family name, background image, and a "VIEW CAREERS" button styled with Exo 2 23.2px, gradient overlay, and transparent border
   3. The grid is 4 columns at >=1200px, 3 columns at >=768px, and 1 column on mobile
   4. Clicking any card navigates to /careers/{family-slug} without a 404
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 05-01-PLAN.md — GET /careers route, CARD_IMAGE_STATIC mapping, careers.html card grid template
 
 ### Phase 6: L1 Interactivity
 **Goal**: A visitor can narrow the card grid by job function or keyword without a page reload
@@ -100,7 +103,10 @@ Plans:
   1. The Job Function dropdown lists all 22 functions; selecting one hides cards from other functions and shows only matching families
   2. Typing in the search bar filters visible cards in real time by job family name or job title keyword
   3. Clearing the filter/search restores the full grid without a page reload
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 06-01-PLAN.md — Job Function dropdown + keyword search bar with inline JS filtering (no page reload)
 
 ### Phase 7: L2 Job Family Page
 **Goal**: A visitor at /careers/{family-slug} sees every job title in that family with metadata and can navigate deeper
@@ -111,7 +117,10 @@ Plans:
   2. Each listing shows the job title, NOC 2021 code badge, managerial level tag, Digital/Non-Digital indicator, and the first 150 characters of overview
   3. Clicking a job title navigates to /career/{title-slug} without a 404
   4. The page heading shows the job family name and a breadcrumb reading Home > Careers > [Family Name]
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 07-01-PLAN.md — GET /careers/{family_slug} route with 404 guard, family.html listing with metadata badges and breadcrumb
 
 ### Phase 8: L3 Job Title Detail
 **Goal**: A visitor at /career/{title-slug} can read a complete career profile across five tabs and take action
@@ -124,7 +133,10 @@ Plans:
   4. The Related Careers tab shows any linked civilian titles and any CAF equivalent links drawn from caf_related bridge data
   5. The "Discover", "Prepare", and "Apply" action buttons are present — Discover scrolls to Overview, Prepare scrolls to Training, Apply links to jobs.gc.ca
   6. The breadcrumb reads Home > Careers > [Family Name] > [Job Title]
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 08-01-PLAN.md — GET /career/{title_slug} route; career_detail.html with header, breadcrumb, action buttons, sticky tab nav, 5 content sections, CAF bridge links
 
 ## Progress
 
@@ -138,7 +150,7 @@ Note: Phase 3 depends on Phase 1 (not Phase 2); Phase 8 depends on Phases 2, 3, 
 | 2. LLM Enrichment | 1/1 | Complete | 2026-03-15 |
 | 3. CAF Bridge | 1/1 | Complete | 2026-03-16 |
 | 4. App Foundation | 2/2 | Complete | 2026-03-16 |
-| 5. L1 Card Grid | 0/TBD | Not started | - |
-| 6. L1 Interactivity | 0/TBD | Not started | - |
-| 7. L2 Job Family Page | 0/TBD | Not started | - |
-| 8. L3 Job Title Detail | 0/TBD | Not started | - |
+| 5. L1 Card Grid | 0/1 | Not started | - |
+| 6. L1 Interactivity | 1/1 | Complete   | 2026-03-17 |
+| 7. L2 Job Family Page | 0/1 | Not started | - |
+| 8. L3 Job Title Detail | 0/1 | Not started | - |
