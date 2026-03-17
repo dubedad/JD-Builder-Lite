@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-03-11)
 
 **Core value:** Every piece of content in the JD can be traced to its authoritative source (JobForge parquet or OASIS), with clear documentation of human decisions and AI involvement.
-**Current focus:** v5.1 UI Overhaul — Phase 30 (final phase)
+**Current focus:** v5.1 UI Overhaul — Phase 30 in progress (plan 01 complete)
 
 ## Current Position
 
-Milestone: v5.1 UI Overhaul
-Phase: 30 of 30 (Export Page + New PDF/DOCX/JSON) — NOT STARTED
-Plan: None started
-Status: Ready to plan Phase 30
-Last activity: 2026-03-13 — Phase 29 human-verified and approved
+Milestone: v5.1 UI Overhaul — In progress
+Phase: 30 of 30 (30-export-page-pdf-docx-json)
+Plan: 1 of 3 — complete (30-01-SUMMARY.md created)
+Status: In progress — 30-01 done, 30-02 and 30-03 pending
+Last activity: 2026-03-17 — Completed 30-01-PLAN.md (export page Step 5 HTML/CSS/JS)
 
-Progress: [█████████░] 79% (11/14 plans complete)
+Progress: [█████████░] 93% (13/14 plans — excluding 30-02 and 30-03)
 
 ## Milestone History
 
@@ -28,6 +28,7 @@ Progress: [█████████░] 79% (11/14 plans complete)
 | v4.0 Occupational Group Allocation | SHIPPED | 2026-02-04 |
 | v4.1 Polish | SHIPPED | 2026-02-07 (Phases 18-19; Phase 20 deferred indefinitely) |
 | v5.0 JobForge 2.0 Integration | SHIPPED | 2026-03-10 |
+| v5.1 UI Overhaul | SHIPPED | 2026-03-13 (code); formal GSD verification pending |
 
 ## Accumulated Context
 
@@ -41,6 +42,15 @@ Progress: [█████████░] 79% (11/14 plans complete)
 
 - TF-IDF semantic matching fallback active (sentence-transformers incompatible with Python 3.14) — accuracy impact documented in .planning/accuracy-notes/tfidf-fallback-2025-03-05.md
 - element_main_duties.parquet ETL gap: 8 rows / 3 profiles — OASIS fallback unconditional for Main Duties
+
+### Post-v5.1 Hotfixes (UAT — 2026-03-13)
+
+| # | Fix | Files Changed | Status |
+|---|-----|--------------|--------|
+| HF-01 | WeasyPrint missing system deps (pango/cairo) — PDF export 500 error | None (system fix: `brew install pango cairo gdk-pixbuf libffi gobject-introspection`) | RESOLVED |
+| HF-02 | OCHRO Job Architecture filter showing "No results" — initial wiring to `job_architecture.parquet` (flat job function checkboxes) | `src/models/noc.py`, `src/services/search_parquet_reader.py`, `static/js/filters.js` | RESOLVED |
+| HF-03 | OCHRO filter redesigned to two sub-sections: (1) Managerial Level flat checkboxes sorted by seniority; (2) Job Function → Job Family hierarchical with parent select-all. Added `managerial_levels` and `ochro_entries` fields to `EnrichedSearchResult`; updated `_ochro_map` to collect all entries per NOC; HTML split into sub-sections with `filter-ochro-level-options` and `filter-ochro-function-options` | `src/models/noc.py`, `src/services/search_parquet_reader.py`, `templates/index.html`, `static/js/filters.js`, `static/css/filters.css` | RESOLVED |
+| HF-04 | OCHRO filter bugs: (a) parent checkbox selecting children broken — `ochro-function-checkbox` had class `parent-checkbox` which fired generic NOC handler instead of OCHRO handler; fixed by removing `parent-checkbox` class and reordering handler checks; (b) count mismatch — parentheses counts incremented per ochro entry not per unique result; fixed with per-result deduplication using Set | `static/js/filters.js` | RESOLVED |
 
 ## Accumulated Decisions
 
@@ -81,9 +91,23 @@ Progress: [█████████░] 79% (11/14 plans complete)
 | additional_context defaults to empty string in GenerationRequest | 29-04 | Backward compatible; existing requests without field are unaffected |
 | Additional context block inserted after NOC statements, before closing instruction | 29-04 | LLM sees it as final guidance before writing |
 | PROMPT_VERSION bumped to v1.1 after paragraph structure change | 29-04 | Provenance tracking — session metadata records which prompt version generated overview |
+| Export page layout order locked: Options -> Download Buttons -> Preview Card -> Compliance Cards | 30-01 | Matches CONTEXT.md locked decision; prior wrong order (preview above buttons) corrected |
+| initExportPage() called on every navigateToStep(5) | 30-01 | Refreshes preview with latest session data on each visit to export step |
 
 ## Session Continuity
 
-Last session: 2026-03-13
-Stopped at: Phase 29 complete and human-verified — ready to plan Phase 30 (Export Page)
-Resume file: None
+Last session: 2026-03-17
+Stopped at: Completed 30-01-PLAN.md — Export page Step 5 HTML/CSS/JS built and committed
+Resume file: .planning/.continue-here.md
+
+### For Claude Code — What To Do Next
+
+1. Execute 30-02-PLAN.md (PDF template restructure and DOCX generator update)
+2. Execute 30-03-PLAN.md (POST /api/export/json endpoint + downloadJSON())
+3. After all 3 plans: create SUMMARY.md for phase 30, update milestone tracking
+
+## Phase 30 — What Was Built
+
+- **30-01**: Export page (Step 5) added to index.html — "Export with Full Provenance" heading, scrollable JD preview card, 3 compliance summary cards (DAMA/TBS/Lineage), provenance annex + audit trail checkboxes, 3 download buttons (PDF red, Word blue, JSON outline); CSS in main.css; navigateToStep(5) wired; initExportPage() in export.js
+- **30-02**: PDF template (jd_pdf.html) restructured — new section order: Position Overview → Key Duties → Qualifications (Skills/Abilities/Knowledge/Core Competencies) → Effort → Responsibilities → Classification → Appendix A (Data Provenance) → Appendix B (Policy Provenance) → Appendix C (Data Quality); source tags [NOC]/[OaSIS]/[GC] per statement; DOCX generator (docx_generator.py) restructured to match
+- **30-03**: POST /api/export/json endpoint added to api.py; exportModule.downloadJSON() added to export.js
