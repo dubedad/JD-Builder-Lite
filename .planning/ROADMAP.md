@@ -2,7 +2,7 @@
 
 ## Milestones
 
-- 🔧 **v5.1 UI Overhaul** — Phases 26-31 (shipped 2026-03-13; gap closure Phase 31 in progress)
+- ✅ **v5.1 UI Overhaul** — Phases 26-31 (shipped 2026-03-17)
 - ✅ **v5.0 JobForge 2.0 Integration** -- Phases 21-25 (shipped 2026-03-10) — [archive](milestones/v5.0-ROADMAP.md)
 - ✅ **v4.1 Polish** -- Phases 18-20 (shipped 2026-02-07; Phase 20 deferred indefinitely)
 - ✅ **v4.0 Occupational Group Allocation** -- Phases 14-17 (shipped 2026-02-04)
@@ -18,7 +18,7 @@ Evidence highlighting requires LLM returning verbatim quotes (currently paraphra
 
 ---
 
-## 🔧 v5.1 UI Overhaul (Gap closure in progress)
+## ✅ v5.1 UI Overhaul (shipped 2026-03-17)
 
 **Milestone Goal:** Redesign the entire application UI to match the JobForge reference prototype — new global chrome applied across all pages, redesigned search/build/classify pages, and two new functional pages (Generate, Export) with restructured PDF/DOCX/JSON output.
 
@@ -44,7 +44,7 @@ Evidence highlighting requires LLM returning verbatim quotes (currently paraphra
 **Plans:** 1 plan
 
 Plans:
-- [ ] 31-01-PLAN.md — Fix store.reset() crash + buildExportRequest() missing 3 sections
+- [x] 31-01-PLAN.md — Fix store.reset() crash + buildExportRequest() missing 3 sections
 
 ---
 
@@ -169,7 +169,7 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 31. Export Completeness & Reset Fix | v5.1 | 0/1 | Pending | - |
+| 31. Export Completeness & Reset Fix | v5.1 | 1/1 | Complete | 2026-03-17 |
 | 26. Global Chrome & Search | v5.1 | 2/2 | Complete | 2026-03-11 |
 | 27. Build Page Redesign | v5.1 | 2/2 | Complete | 2026-03-12 |
 | 28. Navigation, Preview & Selections | v5.1 | 3/3 | Complete | 2026-03-12 |
@@ -185,4 +185,4 @@ Plans:
 | 20. Evidence & Provenance Display | v4.1 | 0/2 | Deferred | - |
 
 ---
-*Roadmap updated: 2026-03-17 — Phase 31 gap closure added (store.reset() crash + buildExportRequest() data loss from audit)*
+*Roadmap updated: 2026-03-17 — Phase 31 complete; v5.1 milestone shipped*

@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-03-11)
 
 **Core value:** Every piece of content in the JD can be traced to its authoritative source (JobForge parquet or OASIS), with clear documentation of human decisions and AI involvement.
-**Current focus:** v5.1 UI Overhaul — Phase 31 gap closure (store.reset() crash + export data loss)
+**Current focus:** v5.1 UI Overhaul — SHIPPED 2026-03-17 (all phases complete)
 
 ## Current Position
 
