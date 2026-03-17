@@ -448,7 +448,7 @@ def export_pdf():
         export_data = build_export_data(export_request, raw_noc_data)
 
         # Generate PDF
-        pdf_bytes = generate_pdf(export_data, request.url_root)
+        pdf_bytes = generate_pdf(export_data)
 
         # Create filename per CONTEXT.md: {NOC code} - {Title} - {date} - Job Description.pdf
         safe_title = "".join(c for c in export_data.job_title if c.isalnum() or c in " -_")[:50]
@@ -523,6 +523,93 @@ def export_docx():
         current_app.logger.error(f"DOCX export error: {e}")
         return jsonify(ErrorResponse(
             error="Word document generation failed",
+            detail=str(e)
+        ).model_dump()), 500
+
+
+@api_bp.route('/export/json', methods=['POST'])
+def export_json():
+    """Generate and download JSON audit trail.
+
+    Expects JSON body matching ExportRequest schema.
+
+    Returns:
+        JSON file download with Content-Disposition header
+        ErrorResponse with 400/500 on error
+    """
+    import json as json_lib
+
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify(ErrorResponse(
+                error="Request body required"
+            ).model_dump()), 400
+
+        export_request = ExportRequest(**data)
+        export_data = build_export_data(export_request)
+
+        # Build complete audit trail payload
+        audit = {
+            "generated_at": export_data.generated_at.isoformat(),
+            "noc_code": export_data.noc_code,
+            "job_title": export_data.job_title,
+            "general_overview": export_data.general_overview,
+            "source_metadata": {
+                "noc_code": export_data.source_metadata.noc_code,
+                "profile_url": export_data.source_metadata.profile_url,
+                "scraped_at": export_data.source_metadata.scraped_at.isoformat(),
+                "version": export_data.source_metadata.version,
+                "section_sources": export_data.source_metadata.section_sources or {},
+            },
+            "selections": [
+                {
+                    "id": sel.id,
+                    "text": sel.text,
+                    "jd_element": sel.jd_element,
+                    "source_attribute": sel.source_attribute,
+                    "selected_at": sel.selected_at.isoformat(),
+                    "description": sel.description,
+                    "proficiency": sel.proficiency.model_dump() if sel.proficiency else None,
+                    "publication_date": sel.publication_date,
+                    "source_table_url": sel.source_table_url,
+                }
+                for sel in export_data.manager_selections
+            ],
+            "ai_metadata": {
+                "model": export_data.ai_metadata.model,
+                "timestamp": export_data.ai_metadata.timestamp.isoformat(),
+                "prompt_version": export_data.ai_metadata.prompt_version,
+                "input_statement_ids": export_data.ai_metadata.input_statement_ids,
+                "modified": export_data.ai_metadata.modified,
+            } if export_data.ai_metadata else None,
+            "classification_result": export_data.classification_result,
+            "compliance_sections": [
+                {
+                    "section_id": sec.section_id,
+                    "title": sec.title,
+                    "content": sec.content,
+                }
+                for sec in export_data.compliance_sections
+            ],
+        }
+
+        json_bytes = json_lib.dumps(audit, indent=2, default=str).encode('utf-8')
+        today = datetime.utcnow().strftime('%Y-%m-%d')
+        safe_title = "".join(c for c in export_data.job_title if c.isalnum() or c in " -_")[:50]
+        filename = f"{export_data.noc_code} - {safe_title} - {today} - Audit Trail.json"
+
+        return send_file(
+            BytesIO(json_bytes),
+            mimetype='application/json',
+            as_attachment=True,
+            download_name=filename,
+        )
+
+    except Exception as e:
+        current_app.logger.error(f"JSON export error: {e}")
+        return jsonify(ErrorResponse(
+            error="JSON export failed",
             detail=str(e)
         ).model_dump()), 500
 
