@@ -11,20 +11,6 @@ from fastapi.templating import Jinja2Templates
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-CARD_IMAGE_STATIC = {
-    "administrative support.webp": "administrative-support.webp",
-    "Artificial Intelligence Strategy & Integration.webp": "ai-strategy-integration.webp",
-    "Organizational Design and Classification.jpg": "organizational-design-classification.jpg",
-    "Information and Data Architecture.jpg": "information-data-architecture.jpg",
-    "data management.webp": "data-management.webp",
-    "enterprise architecture.png": "enterprise-architecture.png",
-    "innovation and change management.jpg": "innovation-change-management.jpg",
-    "project management.jpg": "project-management.jpg",
-    "database administration.png": "database-administration.png",
-    "electronic engineering.jpg": "electronic-engineering.jpg",
-    "food services.jpg": "food-services.jpg",
-    "nursing.jpg": "nursing.jpg",
-}
 
 app = FastAPI(title="DND Civilian Careers")
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -60,7 +46,7 @@ async def browse_careers(request: Request):
             """
             SELECT DISTINCT job_family, job_family_slug, job_function, card_image_key
             FROM careers
-            WHERE card_image_key IS NOT NULL
+            WHERE job_family != ''
             ORDER BY job_family ASC
             """
         ).fetchall()
@@ -86,12 +72,11 @@ async def browse_careers(request: Request):
 
     families = []
     for row in rows:
-        image_file = CARD_IMAGE_STATIC.get(row["card_image_key"])
         families.append({
             "name": row["job_family"],
             "slug": row["job_family_slug"],
             "function": row["job_function"],
-            "image_file": image_file,
+            "image_file": row["card_image_key"] or None,
             "titles_json": json.dumps(titles_by_slug.get(row["job_family_slug"], [])),
         })
 
