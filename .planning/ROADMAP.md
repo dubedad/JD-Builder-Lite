@@ -18,7 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: App Foundation** - FastAPI app, static assets, GC FIP header and footer on all pages
 - [ ] **Phase 5: L1 Card Grid** - Browse page with job family cards matching CAF visual design
 - [x] **Phase 6: L1 Interactivity** - Job Function filter and real-time search bar on the browse page (completed 2026-03-17)
-- [ ] **Phase 7: L2 Job Family Page** - Job title listing within a family with metadata badges and breadcrumb
+- [x] **Phase 7: L2 Job Family Page** - Job title listing within a family with metadata badges and breadcrumb (completed 2026-03-17)
 - [ ] **Phase 8: L3 Job Title Detail** - Five-tab career profile page with action buttons and breadcrumb
 
 ## Phase Details
@@ -152,5 +152,5 @@ Note: Phase 3 depends on Phase 1 (not Phase 2); Phase 8 depends on Phases 2, 3, 
 | 4. App Foundation | 2/2 | Complete | 2026-03-16 |
 | 5. L1 Card Grid | 0/1 | Not started | - |
 | 6. L1 Interactivity | 1/1 | Complete   | 2026-03-17 |
-| 7. L2 Job Family Page | 0/1 | Not started | - |
+| 7. L2 Job Family Page | 1/1 | Complete   | 2026-03-17 |
 | 8. L3 Job Title Detail | 0/1 | Not started | - |

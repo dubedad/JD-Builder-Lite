@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 06-01-PLAN.md (L1 Interactivity — filter bar + JS)
-last_updated: "2026-03-17T22:08:19.762Z"
+stopped_at: Completed 07-01-PLAN.md (L2 Job Family page)
+last_updated: "2026-03-17T22:13:45.982Z"
 last_activity: "2026-03-16 — Phase 05 complete: careers.html created (L1 card grid, 12 families)"
 progress:
   total_phases: 8
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 9
-  completed_plans: 7
+  completed_plans: 8
   percent: 78
 ---
 
@@ -54,6 +54,7 @@ Progress: [████████░░] 78%
 
 *Updated after each plan completion*
 | Phase 06-l1-interactivity P01 | 12 | 2 tasks | 2 files |
+| Phase 07-l2-job-family P01 | 10 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -68,6 +69,7 @@ Recent decisions affecting current work:
 - [Setup]: Job Function as L1 filter, not L0 page — 22 functions as filter on 209-family grid
 - [Phase 06-l1-interactivity]: Used data-titles attribute (JSON array in HTML) over /api/families endpoint for title keyword search — simpler for v1
 - [Phase 06-l1-interactivity]: Filter intersection logic: matchFn AND matchKw — both dropdown and keyword must match to show a card
+- [Phase 07-l2-job-family]: L2 route was already present in main.py from prior session; committed with cleanup of CARD_IMAGE_STATIC removal and WHERE clause update
 
 ### Pending Todos
 
@@ -82,7 +84,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-17T20:49:05.590Z
-Stopped at: Completed 06-01-PLAN.md (L1 Interactivity — filter bar + JS)
+Last session: 2026-03-17T22:13:45.963Z
+Stopped at: Completed 07-01-PLAN.md (L2 Job Family page)
 Resume file: None
 Next: /gsd execute-phase 6 (L1 interactivity — job function filter + search)

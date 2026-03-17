@@ -32,10 +32,10 @@
 
 ### L2 Job Family Page
 
-- [ ] **L2-01**: Visitor sees a list of all job titles within the selected family at /careers/{family-slug}
-- [ ] **L2-02**: Each listing shows: job title, NOC 2021 code badge, managerial level tag, Digital/Non-Digital indicator, and first 150 characters of overview
-- [ ] **L2-03**: Clicking a job title navigates to the L3 detail page (/career/{title-slug})
-- [ ] **L2-04**: Page shows the job family name as heading with breadcrumb: Home > Careers > [Family Name]
+- [x] **L2-01**: Visitor sees a list of all job titles within the selected family at /careers/{family-slug}
+- [x] **L2-02**: Each listing shows: job title, NOC 2021 code badge, managerial level tag, Digital/Non-Digital indicator, and first 150 characters of overview
+- [x] **L2-03**: Clicking a job title navigates to the L3 detail page (/career/{title-slug})
+- [x] **L2-04**: Page shows the job family name as heading with breadcrumb: Home > Careers > [Family Name]
 
 ### L3 Job Title Detail Page
 
@@ -99,10 +99,10 @@
 | L1-03 | Phase 5 | Pending |
 | L1-04 | Phase 6 | Complete |
 | L1-05 | Phase 6 | Complete |
-| L2-01 | Phase 7 | Pending |
-| L2-02 | Phase 7 | Pending |
-| L2-03 | Phase 7 | Pending |
-| L2-04 | Phase 7 | Pending |
+| L2-01 | Phase 7 | Complete |
+| L2-02 | Phase 7 | Complete |
+| L2-03 | Phase 7 | Complete |
+| L2-04 | Phase 7 | Complete |
 | L3-01 | Phase 8 | Pending |
 | L3-02 | Phase 8 | Pending |
 | L3-03 | Phase 8 | Pending |
