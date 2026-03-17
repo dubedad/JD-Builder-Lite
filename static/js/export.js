@@ -56,27 +56,71 @@ const exportModule = {
     const now = new Date().toISOString();
 
     Object.entries(state.selections).forEach(([sectionId, selectedIds]) => {
-      const sectionData = profile[sectionId];
-      if (!sectionData || !sectionData.statements) return;
+      if (!selectedIds || selectedIds.length === 0) return;
+      const now_ts = state.selectionTimestamps || {};
 
-      selectedIds.forEach(stmtId => {
-        const index = parseInt(stmtId.split('-').pop(), 10);
-        const stmt = sectionData.statements[index];
-        if (stmt) {
-          selections.push({
-            id: stmtId,
-            text: stmt.text,
-            jd_element: sectionId,
-            source_attribute: stmt.source_attribute,
-            source_url: stmt.source_url || null,
-            // Use stored timestamp or current time
-            selected_at: state.selectionTimestamps?.[stmtId] || now,
-            // Include description and proficiency for export display
-            description: stmt.description || null,
-            proficiency: stmt.proficiency || null
-          });
-        }
-      });
+      if (sectionId === 'core_competencies') {
+        // Plain strings at profile.reference_attributes.core_competencies[]
+        const ccItems = profile.reference_attributes?.core_competencies || [];
+        selectedIds.forEach(stmtId => {
+          const index = parseInt(stmtId.split('-').pop(), 10);
+          const text = ccItems[index];
+          if (text !== undefined && text !== '') {
+            selections.push({
+              id: stmtId,
+              text: text,
+              jd_element: 'core_competencies',
+              source_attribute: 'Core Competencies',
+              source_url: null,
+              selected_at: now_ts[stmtId] || now,
+              description: null,
+              proficiency: null
+            });
+          }
+        });
+
+      } else if (sectionId === 'abilities' || sectionId === 'knowledge') {
+        // Filtered sub-array of profile.skills.statements by source_attribute
+        const sourceAttr = sectionId === 'abilities' ? 'Abilities' : 'Knowledge';
+        const filtered = (profile.skills?.statements || []).filter(s => s.source_attribute === sourceAttr);
+        selectedIds.forEach(stmtId => {
+          const index = parseInt(stmtId.split('-').pop(), 10);
+          const stmt = filtered[index];
+          if (stmt) {
+            selections.push({
+              id: stmtId,
+              text: stmt.text,
+              jd_element: 'skills',
+              source_attribute: sourceAttr,
+              source_url: stmt.source_url || null,
+              selected_at: now_ts[stmtId] || now,
+              description: stmt.description || null,
+              proficiency: stmt.proficiency || null
+            });
+          }
+        });
+
+      } else {
+        // Standard path: profile[sectionId].statements[]
+        const sectionData = profile[sectionId];
+        if (!sectionData || !sectionData.statements) return;
+        selectedIds.forEach(stmtId => {
+          const index = parseInt(stmtId.split('-').pop(), 10);
+          const stmt = sectionData.statements[index];
+          if (stmt) {
+            selections.push({
+              id: stmtId,
+              text: stmt.text,
+              jd_element: sectionId,
+              source_attribute: stmt.source_attribute,
+              source_url: stmt.source_url || null,
+              selected_at: now_ts[stmtId] || now,
+              description: stmt.description || null,
+              proficiency: stmt.proficiency || null
+            });
+          }
+        });
+      }
     });
 
     // Build AI metadata from session if available
