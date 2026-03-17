@@ -37,6 +37,16 @@ const createStore = (initialState) => {
             };
             notify();
         },
+        // Reset all state and clear localStorage (called by Reset Session button in main.js)
+        reset: () => {
+            state = { ...defaultState };
+            try {
+                localStorage.removeItem(STORAGE_KEY);
+            } catch (e) {
+                console.warn('localStorage remove failed:', e);
+            }
+            listeners.forEach(fn => fn(state));
+        },
         // Manually trigger notification (for complex updates)
         notify
     };
