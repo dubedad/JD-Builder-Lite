@@ -39,15 +39,15 @@
 
 ### L3 Job Title Detail Page
 
-- [ ] **L3-01**: Visitor sees the job title, NOC code, job family, and managerial level at /career/{title-slug}
-- [ ] **L3-02**: Page has a sticky tab nav bar (Overview, Training, Entry Plans, Part-Time Options, Related Careers) that anchors to page sections on click
-- [ ] **L3-03**: Overview tab shows: role description, responsibilities list, work environment (from overview column)
-- [ ] **L3-04**: Training tab shows: education requirements, certifications, professional development (from training column)
-- [ ] **L3-05**: Entry Plans tab shows: how to enter this career in the federal Public Service (from entry_plans column)
-- [ ] **L3-06**: Part-Time Options tab shows: flexible work, remote, part-time options (from part_time column)
-- [ ] **L3-07**: Related Careers tab shows: related civilian job titles (from related_careers) and linked CAF equivalents (from caf_related bridge data)
-- [ ] **L3-08**: Page has "Discover", "Prepare", and "Apply" action buttons — Discover scrolls to Overview, Prepare scrolls to Training, Apply links to jobs.gc.ca
-- [ ] **L3-09**: Breadcrumb shows: Home > Careers > [Family Name] > [Job Title]
+- [x] **L3-01**: Visitor sees the job title, NOC code, job family, and managerial level at /career/{title-slug}
+- [x] **L3-02**: Page has a sticky tab nav bar (Overview, Training, Entry Plans, Part-Time Options, Related Careers) that anchors to page sections on click
+- [x] **L3-03**: Overview tab shows: role description, responsibilities list, work environment (from overview column)
+- [x] **L3-04**: Training tab shows: education requirements, certifications, professional development (from training column)
+- [x] **L3-05**: Entry Plans tab shows: how to enter this career in the federal Public Service (from entry_plans column)
+- [x] **L3-06**: Part-Time Options tab shows: flexible work, remote, part-time options (from part_time column)
+- [x] **L3-07**: Related Careers tab shows: related civilian job titles (from related_careers) and linked CAF equivalents (from caf_related bridge data)
+- [x] **L3-08**: Page has "Discover", "Prepare", and "Apply" action buttons — Discover scrolls to Overview, Prepare scrolls to Training, Apply links to jobs.gc.ca
+- [x] **L3-09**: Breadcrumb shows: Home > Careers > [Family Name] > [Job Title]
 
 ## v2 Requirements
 
@@ -103,15 +103,15 @@
 | L2-02 | Phase 7 | Complete |
 | L2-03 | Phase 7 | Complete |
 | L2-04 | Phase 7 | Complete |
-| L3-01 | Phase 8 | Pending |
-| L3-02 | Phase 8 | Pending |
-| L3-03 | Phase 8 | Pending |
-| L3-04 | Phase 8 | Pending |
-| L3-05 | Phase 8 | Pending |
-| L3-06 | Phase 8 | Pending |
-| L3-07 | Phase 8 | Pending |
-| L3-08 | Phase 8 | Pending |
-| L3-09 | Phase 8 | Pending |
+| L3-01 | Phase 8 | Complete |
+| L3-02 | Phase 8 | Complete |
+| L3-03 | Phase 8 | Complete |
+| L3-04 | Phase 8 | Complete |
+| L3-05 | Phase 8 | Complete |
+| L3-06 | Phase 8 | Complete |
+| L3-07 | Phase 8 | Complete |
+| L3-08 | Phase 8 | Complete |
+| L3-09 | Phase 8 | Complete |
 
 **Coverage:**
 - v1 requirements: 29 total
