@@ -1,81 +1,81 @@
-"""Careers site routes — DND Civilian Careers browser (employee surface)."""
+"""Careers site routes — DND Civilian Careers browser (employee surface).
 
-import os
+L1/L2: driven by JobForge gold parquet files via CareersParquetReader.
+L3:    parquet for structure + careers.sqlite for enriched content
+       (overview, training, entry_plans) until those fields are promoted
+       into the JobForge gold layer (Step 5).
+"""
+
 import json
-import sqlite3
 import logging
+import os
+import sqlite3
 
 from flask import Blueprint, render_template, abort
+
+from src.services.careers_parquet_reader import careers_parquet_reader
 
 logger = logging.getLogger(__name__)
 
 careers_bp = Blueprint('careers', __name__, url_prefix='/careers')
 
-DB_PATH = os.path.join(os.path.dirname(__file__), '..', '..', 'ps_careers_site', 'careers.sqlite')
-
-CARD_IMAGE_STATIC = {
-    "Artificial Intelligence Strategy & Integration.webp": "ai-strategy-integration.webp",
-    "Information and Data Architecture.jpg": "information-data-architecture.jpg",
-    "Organizational Design and Classification.jpg": "organizational-design-classification.jpg",
-    "administrative support.webp": "administrative-support.webp",
-    "data management.webp": "data-management.webp",
-    "database administration.png": "database-administration.png",
-    "electronic engineering.jpg": "electronic-engineering.jpg",
-    "enterprise architecture.png": "enterprise-architecture.png",
-    "food services.jpg": "food-services.jpg",
-    "innovation and change management.jpg": "innovation-change-management.jpg",
-    "nursing.jpg": "nursing.jpg",
-    "project management.jpg": "project-management.jpg",
-}
+# careers.sqlite is kept for L3 enriched content only.
+_DB_PATH = os.path.join(
+    os.path.dirname(__file__), '..', '..', 'ps_careers_site', 'careers.sqlite'
+)
 
 
-def get_db():
-    conn = sqlite3.connect(DB_PATH)
+def _get_db():
+    conn = sqlite3.connect(_DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
 
-@careers_bp.route('/')
-def browse_careers():
-    conn = get_db()
+def _enrichment_for_slug(title_slug: str) -> dict:
+    """Fetch LLM-enriched fields from careers.sqlite by title slug."""
     try:
-        rows = conn.execute(
+        conn = _get_db()
+        row = conn.execute(
             """
-            SELECT DISTINCT job_family, job_family_slug, job_function, card_image_key
+            SELECT overview, training, entry_plans, part_time,
+                   related_careers, digital
             FROM careers
-            WHERE card_image_key IS NOT NULL AND card_image_key != ''
-            ORDER BY job_family ASC
-            """
-        ).fetchall()
-        jf_rows = conn.execute(
-            "SELECT DISTINCT job_function FROM careers WHERE job_function != '' ORDER BY job_function ASC"
-        ).fetchall()
-        title_rows = conn.execute(
-            """
-            SELECT job_family_slug, GROUP_CONCAT(lower(job_title), '|||') as titles
-            FROM careers
-            GROUP BY job_family_slug
-            """
-        ).fetchall()
-    finally:
+            WHERE job_title_slug = ?
+            """,
+            (title_slug,)
+        ).fetchone()
         conn.close()
+    except Exception as e:
+        logger.warning("careers.sqlite lookup failed for %s: %s", title_slug, e)
+        return {}
 
-    job_functions = [r["job_function"] for r in jf_rows]
-    titles_by_slug = {
-        r["job_family_slug"]: r["titles"].split("|||")
-        for r in title_rows
-        if r["titles"]
+    if not row:
+        return {}
+
+    try:
+        related_raw = json.loads(row["related_careers"] or "[]")
+    except (json.JSONDecodeError, TypeError):
+        related_raw = []
+
+    return {
+        "overview":    row["overview"] or "",
+        "training":    row["training"] or "",
+        "entry_plans": row["entry_plans"] or "",
+        "part_time":   row["part_time"] or "",
+        "digital":     row["digital"],
+        "related_raw": related_raw,
     }
 
-    families = []
-    for row in rows:
-        families.append({
-            "name": row["job_family"],
-            "slug": row["job_family_slug"],
-            "function": row["job_function"],
-            "image_file": CARD_IMAGE_STATIC.get(row["card_image_key"]),
-            "titles_json": json.dumps(titles_by_slug.get(row["job_family_slug"], [])),
-        })
+
+@careers_bp.route('/')
+def browse_careers():
+    families = careers_parquet_reader.get_families()
+    job_functions = careers_parquet_reader.get_job_functions()
+    titles_by_slug = careers_parquet_reader.get_titles_by_family_slug()
+
+    # Inject titles_json into each family record for client-side search
+    for fam in families:
+        fam["titles_json"] = json.dumps(titles_by_slug.get(fam["slug"], []))
 
     return render_template(
         'careers/careers.html',
@@ -86,39 +86,13 @@ def browse_careers():
 
 @careers_bp.route('/<family_slug>')
 def job_family(family_slug):
-    conn = get_db()
-    try:
-        rows = conn.execute(
-            """
-            SELECT jt_id, job_title, job_title_slug, job_family,
-                   noc_2021_uid, noc_2021_title, managerial_level, digital, overview
-            FROM careers
-            WHERE job_family_slug = ?
-            ORDER BY job_title ASC
-            """,
-            (family_slug,)
-        ).fetchall()
-    finally:
-        conn.close()
+    family_name, jobs = careers_parquet_reader.get_jobs_for_family(family_slug)
 
-    if not rows:
+    if not family_name:
         abort(404)
 
-    family_name = rows[0]["job_family"]
-    jobs = []
-    for row in rows:
-        jobs.append({
-            "title": row["job_title"],
-            "slug": row["job_title_slug"],
-            "noc_uid": row["noc_2021_uid"],
-            "noc_title": row["noc_2021_title"],
-            "managerial_level": row["managerial_level"],
-            "digital": row["digital"],
-            "excerpt": (row["overview"] or "")[:150],
-        })
-
     return render_template(
-        'family.html',
+        'careers/family.html',
         family=family_name,
         family_slug=family_slug,
         jobs=jobs
@@ -127,50 +101,13 @@ def job_family(family_slug):
 
 @careers_bp.route('/career/<title_slug>')
 def career_detail(title_slug):
-    conn = get_db()
-    try:
-        row = conn.execute(
-            """
-            SELECT jt_id, job_title, job_title_slug, job_family, job_family_slug,
-                   job_function, managerial_level, noc_2021_uid, noc_2021_title, digital,
-                   overview, training, entry_plans, part_time, related_careers, caf_related
-            FROM careers
-            WHERE job_title_slug = ?
-            """,
-            (title_slug,)
-        ).fetchone()
-    finally:
-        conn.close()
+    job = careers_parquet_reader.get_job_by_title_slug(title_slug)
 
-    if not row:
+    if not job:
         abort(404)
 
-    try:
-        caf_slugs = json.loads(row["caf_related"] or "[]")
-    except (json.JSONDecodeError, TypeError):
-        caf_slugs = []
-
-    try:
-        related_raw = json.loads(row["related_careers"] or "[]")
-    except (json.JSONDecodeError, TypeError):
-        related_raw = []
-
-    job = {
-        "title":            row["job_title"],
-        "slug":             row["job_title_slug"],
-        "family":           row["job_family"],
-        "family_slug":      row["job_family_slug"],
-        "function":         row["job_function"],
-        "managerial_level": row["managerial_level"],
-        "noc_uid":          row["noc_2021_uid"],
-        "noc_title":        row["noc_2021_title"],
-        "digital":          row["digital"],
-        "overview":         row["overview"] or "",
-        "training":         row["training"] or "",
-        "entry_plans":      row["entry_plans"] or "",
-        "part_time":        row["part_time"] or "",
-        "caf_slugs":        caf_slugs,
-        "related_raw":      related_raw,
-    }
+    # Overlay enriched content from careers.sqlite
+    enrichment = _enrichment_for_slug(title_slug)
+    job.update(enrichment)
 
     return render_template('careers/career_detail.html', job=job)
