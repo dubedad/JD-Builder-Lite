@@ -57,6 +57,13 @@ After fixing, commit and test `/careers/` in the browser.
 - `/builder/` → JD Builder (working)
 - `/careers/` → 500 error (fix above)
 - Rob's `.env` is saved at project root with JOBFORGE_GOLD_PATH set
+- Vic's `.env` still needs to be created — same format as Rob's but with Mac paths:
+  ```
+  JOBFORGE_GOLD_PATH=/Users/victornishi/Documents/GitHub/JobForge-2.0/data/gold
+  JOBFORGE_BRONZE_PATH=/Users/victornishi/Documents/GitHub/JobForge-2.0/data/bronze
+  OPENAI_API_KEY=his-actual-key
+  SECRET_KEY=dev-secret-change-in-production
+  ```
 
 ---
 
