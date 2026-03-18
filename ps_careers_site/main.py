@@ -18,6 +18,21 @@ templates = Jinja2Templates(directory="templates")
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "pipeline", "careers.sqlite")
 
+CARD_IMAGE_STATIC = {
+    "Artificial Intelligence Strategy & Integration.webp": "ai-strategy-integration.webp",
+    "Information and Data Architecture.jpg": "information-data-architecture.jpg",
+    "Organizational Design and Classification.jpg": "organizational-design-classification.jpg",
+    "administrative support.webp": "administrative-support.webp",
+    "data management.webp": "data-management.webp",
+    "database administration.png": "database-administration.png",
+    "electronic engineering.jpg": "electronic-engineering.jpg",
+    "enterprise architecture.png": "enterprise-architecture.png",
+    "food services.jpg": "food-services.jpg",
+    "innovation and change management.jpg": "innovation-change-management.jpg",
+    "nursing.jpg": "nursing.jpg",
+    "project management.jpg": "project-management.jpg",
+}
+
 
 def get_db():
     conn = sqlite3.connect(DB_PATH)
@@ -46,7 +61,7 @@ async def browse_careers(request: Request):
             """
             SELECT DISTINCT job_family, job_family_slug, job_function, card_image_key
             FROM careers
-            WHERE job_family != ''
+            WHERE card_image_key IS NOT NULL AND card_image_key != ''
             ORDER BY job_family ASC
             """
         ).fetchall()
@@ -76,7 +91,7 @@ async def browse_careers(request: Request):
             "name": row["job_family"],
             "slug": row["job_family_slug"],
             "function": row["job_function"],
-            "image_file": row["card_image_key"] or None,
+            "image_file": CARD_IMAGE_STATIC.get(row["card_image_key"]),
             "titles_json": json.dumps(titles_by_slug.get(row["job_family_slug"], [])),
         })
 
