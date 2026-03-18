@@ -24,9 +24,9 @@
 
 ### L1 Browse Page
 
-- [ ] **L1-01**: Visitor sees a card grid of all available job families at /careers (full-width, 4-col at >=1200px, 3-col at >=768px, 1-col mobile)
-- [ ] **L1-02**: Each card shows the job family name, background image, and "VIEW CAREERS" button with exact CAF styling (Exo 2 23.2px, gradient overlay, transparent border button)
-- [ ] **L1-03**: Clicking a card navigates to the L2 job family page (/careers/{family-slug})
+- [x] **L1-01**: Visitor sees a card grid of all available job families at /careers (full-width, 4-col at >=1200px, 3-col at >=768px, 1-col mobile)
+- [x] **L1-02**: Each card shows the job family name, background image, and "VIEW CAREERS" button with exact CAF styling (Exo 2 23.2px, gradient overlay, transparent border button)
+- [x] **L1-03**: Clicking a card navigates to the L2 job family page (/careers/{family-slug})
 - [x] **L1-04**: Visitor can filter the card grid by Job Function (22 values) using a dropdown — only families in the selected function are shown
 - [x] **L1-05**: Visitor can type in the search bar to filter cards by job family name or job title keyword — cards update in real time
 
@@ -94,9 +94,9 @@
 | FOUND-02 | Phase 4 | Pending |
 | FOUND-03 | Phase 4 | Pending |
 | FOUND-04 | Phase 4 | Pending |
-| L1-01 | Phase 5 | Pending |
-| L1-02 | Phase 5 | Pending |
-| L1-03 | Phase 5 | Pending |
+| L1-01 | Phase 5 | Complete |
+| L1-02 | Phase 5 | Complete |
+| L1-03 | Phase 5 | Complete |
 | L1-04 | Phase 6 | Complete |
 | L1-05 | Phase 6 | Complete |
 | L2-01 | Phase 7 | Complete |

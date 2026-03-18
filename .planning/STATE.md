@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 08-01-PLAN.md (L3 Job Title detail page)
-last_updated: "2026-03-17T23:54:17.857Z"
+stopped_at: Completed 05-02-PLAN.md (L1 card grid gap closure — CARD_IMAGE_STATIC)
+last_updated: "2026-03-18T00:42:53.385Z"
 last_activity: "2026-03-16 — Phase 05 complete: careers.html created (L1 card grid, 12 families)"
 progress:
   total_phases: 8
   completed_phases: 8
-  total_plans: 9
-  completed_plans: 9
+  total_plans: 10
+  completed_plans: 10
   percent: 78
 ---
 
@@ -56,6 +56,7 @@ Progress: [████████░░] 78%
 | Phase 06-l1-interactivity P01 | 12 | 2 tasks | 2 files |
 | Phase 07-l2-job-family P01 | 10 | 2 tasks | 2 files |
 | Phase 08-l3-job-title P01 | 3 | 2 tasks | 1 files |
+| Phase 05-l1-card-grid P02 | 5 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -72,6 +73,8 @@ Recent decisions affecting current work:
 - [Phase 06-l1-interactivity]: Filter intersection logic: matchFn AND matchKw — both dropdown and keyword must match to show a card
 - [Phase 07-l2-job-family]: L2 route was already present in main.py from prior session; committed with cleanup of CARD_IMAGE_STATIC removal and WHERE clause update
 - [Phase 08-l3-job-title]: Route GET /career/{title_slug} was pre-existing from phase 07 session; verified against plan spec and accepted as-is
+- [Phase 05-l1-card-grid]: CARD_IMAGE_STATIC.get() used over string replacement — explicit mapping prevents accidental normalization errors for edge cases like nursing.jpg
+- [Phase 05-l1-card-grid]: SQL WHERE scoped to card_image_key IS NOT NULL AND card_image_key \!= '' — intent explicit, no silent row drops for 197 non-card families
 
 ### Pending Todos
 
@@ -86,7 +89,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-17T23:54:17.838Z
-Stopped at: Completed 08-01-PLAN.md (L3 Job Title detail page)
+Last session: 2026-03-18T00:42:53.368Z
+Stopped at: Completed 05-02-PLAN.md (L1 card grid gap closure — CARD_IMAGE_STATIC)
 Resume file: None
 Next: /gsd execute-phase 6 (L1 interactivity — job function filter + search)
