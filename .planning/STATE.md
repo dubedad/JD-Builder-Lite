@@ -1,95 +1,55 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: completed
-stopped_at: Completed 05-02-PLAN.md (L1 card grid gap closure — CARD_IMAGE_STATIC)
-last_updated: "2026-03-18T03:26:24.965Z"
-last_activity: "2026-03-16 — Phase 05 complete: careers.html created (L1 card grid, 12 families)"
+milestone: v1.1
+milestone_name: TBD
+status: idle
+stopped_at: v1.0 milestone complete — archived 2026-03-18
+last_updated: "2026-03-18"
+last_activity: "2026-03-18 — v1.0 MVP shipped: 8 phases, 10 plans, 29/29 requirements"
 progress:
-  total_phases: 8
-  completed_phases: 8
-  total_plans: 10
-  completed_plans: 10
-  percent: 78
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-15)
+See: .planning/PROJECT.md (updated 2026-03-18 after v1.0 milestone)
 
 **Core value:** A job seeker can find a DND civilian career, understand it, and know how to enter it — without HR help.
-**Current focus:** Phase 6: L1 Interactivity
+**Current focus:** Planning next milestone (v1.1)
 
 ## Current Position
 
-Phase: 5 of 8 complete (L1 Card Grid)
-Plan: 1 of 1 in phase 05
-Status: Phase 05 complete — ready for Phase 06
-Last activity: 2026-03-16 — Phase 05 complete: careers.html created (L1 card grid, 12 families)
-
-Progress: [████████░░] 78%
-
-## Performance Metrics
-
-**Velocity:**
-- Total plans completed: 1 (phase 05 only; phases 01–04 completed in prior sessions)
-- Average duration: —
-- Total execution time: —
-
-**By Phase:**
-
-| Phase | Plans | Status |
-|-------|-------|--------|
-| 01-tbs-ingest | — | Complete (prior session) |
-| 02-llm-enrichment | — | Complete (prior session) |
-| 03-caf-bridge | — | Complete (prior session) |
-| 04-app-foundation | 2 | Complete (prior session) |
-| 05-l1-card-grid | 1 | Complete 2026-03-16 |
-| 06-l1-interactivity | — | Next |
-| 07-l2-job-family | — | Pending |
-| 08-l3-job-title | — | Pending |
-
-*Updated after each plan completion*
-| Phase 06-l1-interactivity P01 | 12 | 2 tasks | 2 files |
-| Phase 07-l2-job-family P01 | 10 | 2 tasks | 2 files |
-| Phase 08-l3-job-title P01 | 3 | 2 tasks | 1 files |
-| Phase 05-l1-card-grid P02 | 5 | 1 tasks | 1 files |
+v1.0 MVP shipped 2026-03-18. All 8 phases complete.
+Next: `/gsd:new-milestone` to define v1.1 scope.
 
 ## Accumulated Context
 
 ### Decisions
 
-Decisions are logged in PROJECT.md Key Decisions table.
-Recent decisions affecting current work:
+All decisions logged in PROJECT.md Key Decisions table.
 
-- [Setup]: FastAPI + Jinja2, not React — server-rendered matches CAF's own approach
-- [Setup]: Standalone SQLite, not runtime JobForge calls — simpler ops; pipeline runs once
-- [Setup]: L2 as separate URL (/careers/{family-slug}) — better UX for linking/sharing
-- [Setup]: Job Function as L1 filter, not L0 page — 22 functions as filter on 209-family grid
-- [Phase 06-l1-interactivity]: Used data-titles attribute (JSON array in HTML) over /api/families endpoint for title keyword search — simpler for v1
-- [Phase 06-l1-interactivity]: Filter intersection logic: matchFn AND matchKw — both dropdown and keyword must match to show a card
-- [Phase 07-l2-job-family]: L2 route was already present in main.py from prior session; committed with cleanup of CARD_IMAGE_STATIC removal and WHERE clause update
-- [Phase 08-l3-job-title]: Route GET /career/{title_slug} was pre-existing from phase 07 session; verified against plan spec and accepted as-is
-- [Phase 05-l1-card-grid]: CARD_IMAGE_STATIC.get() used over string replacement — explicit mapping prevents accidental normalization errors for edge cases like nursing.jpg
-- [Phase 05-l1-card-grid]: SQL WHERE scoped to card_image_key IS NOT NULL AND card_image_key \!= '' — intent explicit, no silent row drops for 197 non-card families
+### Priority Tech Debt (address before next pipeline re-run)
+
+- **DB_PATH divergence** — `main.py` reads from `pipeline/careers.sqlite`; pipeline scripts write to root `careers.sqlite`. Fix: update `DB_PATH` in main.py line 19. See v1.0-MILESTONE-AUDIT.md for the one-line fix.
+- **Blank Job Function dropdown** — 1 row with `job_function=''`; add `WHERE job_function != ''` to DISTINCT query in `/careers` route.
+- **Footer quick-links** — `/careers?function=digital` etc. are non-functional; remove or implement.
 
 ### Pending Todos
 
-None yet.
+None.
 
 ### Blockers/Concerns
 
-- Phase 2: Anthropic API key required for LLM enrichment — assume available in environment
-- Phase 3: JobForge Phase 15 CAF pipeline already built and tested (bridge_caf_ja = 880 mappings, dim_caf_occupation = 88 records). Phase 3 just runs the existing pipeline and reads from parquets — no re-scraping needed
-- Static prototype exists: ps_careers_site/DND-Civilian-Careers-GC.html — extract CSS values before Phase 4
-- CAF reference doc has exact CSS pixel values — use these, don't guess
+None — site is fully functional for v1.0 scope.
 
 ## Session Continuity
 
-Last session: 2026-03-18T00:42:53.368Z
-Stopped at: Completed 05-02-PLAN.md (L1 card grid gap closure — CARD_IMAGE_STATIC)
-Resume file: None
-Next: /gsd execute-phase 6 (L1 interactivity — job function filter + search)
+Last session: 2026-03-18
+Stopped at: v1.0 milestone archival
+Resume: Start v1.1 planning with `/gsd:new-milestone`
