@@ -42,7 +42,7 @@ All decisions logged in PROJECT.md Key Decisions table.
 
 ### Pending Todos
 
-None.
+- Run `/gsd:validate-phase 1`, `2`, `3`, `4` retroactively — creates VALIDATION.md files for pipeline/foundation phases, closes Nyquist compliance gap flagged in v1.0 audit. Do this before any new feature work in v1.1.
 
 ### Blockers/Concerns
 
