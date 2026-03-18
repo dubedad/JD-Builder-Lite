@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+
+{% block title %}{{ job.title }} — DND Civilian Careers{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* Breadcrumb */
+  .breadcrumb {
+    background: #333;
+    padding: 10px 24px;
+    font-size: 13px;
+    color: #ccc;
+  }
+  .breadcrumb a { color: #ccc; text-decoration: none; }
+  .breadcrumb a:hover { color: #fff; }
+  .breadcrumb span { color: #fff; font-weight: 600; }
+
+  /* Page header */
+  .career-header {
+    background: #222;
+    padding: 32px 24px 24px;
+    color: #fff;
+  }
+  .career-header h1 {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 26px;
+    font-weight: 600;
+    color: #fff;
+    margin: 0 0 12px;
+  }
+  .career-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #fff;
+  }
+  .badge-noc    { background: #444; }
+  .badge-family { background: #1a3a6b; }
+  .badge-level  { background: #1a5276; }
+  .badge-digital    { background: #1e8449; }
+  .badge-nondigital { background: #666; }
+
+  /* Action buttons */
+  .action-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .action-btn {
+    display: inline-block;
+    padding: 10px 24px;
+    font-family: 'Exo 2', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    cursor: pointer;
+    border: none;
+    border-radius: 0;
+    text-decoration: none;
+  }
+  .btn-discover { background: #C8A835; color: #fff; }
+  .btn-prepare  { background: #1a5276; color: #fff; }
+  .btn-apply    { background: #1e8449; color: #fff; }
+  .action-btn:hover { opacity: 0.88; text-decoration: none; }
+
+  /* Sticky tab nav */
+  .tab-nav {
+    background: #333;
+    height: 51px;
+    display: flex;
+    align-items: stretch;
+    position:sticky;
+    top: 64px;
+    z-index: 900;
+    overflow-x: auto;
+  }
+  .tab-nav a {
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    font-family: 'Exo 2', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: #ccc;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-decoration: none;
+    white-space: nowrap;
+    border-bottom: 3px solid transparent;
+  }
+  .tab-nav a:hover {
+    color: #fff;
+    border-bottom-color: #C8A835;
+  }
+
+  /* Content sections */
+  .career-section {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 48px 24px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  .career-section:last-child { border-bottom: none; }
+  .career-section h2 {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: #222;
+    margin: 0 0 24px;
+  }
+  .career-section p,
+  .career-section li { font-size: 15px; line-height: 1.7; color: #444; }
+  .career-section ul { padding-left: 20px; }
+
+  /* Related Careers section */
+  .caf-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .caf-link {
+    display: inline-block;
+    padding: 8px 16px;
+    background: #1a3a6b;
+    color: #fff;
+    font-size: 13px;
+    font-family: 'Exo 2', sans-serif;
+    text-decoration: none;
+    border-radius: 3px;
+    text-transform: capitalize;
+  }
+  .caf-link:hover { background: #1a5276; color: #fff; text-decoration: none; }
+  .empty-section { color: #888; font-style: italic; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Breadcrumb (L3-09) -->
+<nav class="breadcrumb">
+  <a href="/">Home</a> &rsaquo;
+  <a href="/careers">Careers</a> &rsaquo;
+  <a href="/careers/{{ job.family_slug }}">{{ job.family }}</a> &rsaquo;
+  <span>{{ job.title }}</span>
+</nav>
+
+<!-- Page header (L3-01) -->
+<div class="career-header">
+  <h1>{{ job.title }}</h1>
+  <div class="career-meta">
+    {% if job.noc_uid %}
+    <span class="badge badge-noc">NOC {{ job.noc_uid }}</span>
+    {% endif %}
+    <a href="/careers/{{ job.family_slug }}" class="badge badge-family">{{ job.family }}</a>
+    {% if job.managerial_level %}
+    <span class="badge badge-level">{{ job.managerial_level }}</span>
+    {% endif %}
+    {% if job.digital %}
+    <span class="badge {% if job.digital == 'Digital' %}badge-digital{% else %}badge-nondigital{% endif %}">
+      {{ job.digital }}
+    </span>
+    {% endif %}
+  </div>
+  <!-- Action buttons (L3-08) -->
+  <div class="action-buttons">
+    <button class="action-btn btn-discover" onclick="document.getElementById('sec-overview').scrollIntoView({behavior:'smooth'})">Discover</button>
+    <button class="action-btn btn-prepare"  onclick="document.getElementById('sec-training').scrollIntoView({behavior:'smooth'})">Prepare</button>
+    <a href="https://emploisfp-psjobs.cfp-psc.gc.ca/psrs/app/manager?" target="_blank" rel="noopener" class="action-btn btn-apply">Apply</a>
+  </div>
+</div>
+
+<!-- Sticky tab nav (L3-02) -->
+<nav class="tab-nav">
+  <a href="#sec-overview">Overview</a>
+  <a href="#sec-training">Training</a>
+  <a href="#sec-entry">Entry Plans</a>
+  <a href="#sec-parttime">Part-Time Options</a>
+  <a href="#sec-related">Related Careers</a>
+</nav>
+
+<!-- Overview (L3-03) -->
+<section id="sec-overview" class="career-section">
+  <h2>Overview</h2>
+  {% if job.overview %}
+  {{ job.overview | safe }}
+  {% else %}
+  <p class="empty-section">Content coming soon.</p>
+  {% endif %}
+</section>
+
+<!-- Training (L3-04) -->
+<section id="sec-training" class="career-section">
+  <h2>Training</h2>
+  {% if job.training %}
+  {{ job.training | safe }}
+  {% else %}
+  <p class="empty-section">Content coming soon.</p>
+  {% endif %}
+</section>
+
+<!-- Entry Plans (L3-05) -->
+<section id="sec-entry" class="career-section">
+  <h2>Entry Plans</h2>
+  {% if job.entry_plans %}
+  {{ job.entry_plans | safe }}
+  {% else %}
+  <p class="empty-section">Content coming soon.</p>
+  {% endif %}
+</section>
+
+<!-- Part-Time Options (L3-06) -->
+<section id="sec-parttime" class="career-section">
+  <h2>Part-Time Options</h2>
+  {% if job.part_time %}
+  {{ job.part_time | safe }}
+  {% else %}
+  <p class="empty-section">Content coming soon.</p>
+  {% endif %}
+</section>
+
+<!-- Related Careers (L3-07) -->
+<section id="sec-related" class="career-section">
+  <h2>Related Careers</h2>
+  {% if job.caf_slugs %}
+  <h3 style="font-family:'Exo 2',sans-serif; font-size:16px; color:#444; margin:0 0 12px;">
+    Military Equivalents
+  </h3>
+  <div class="caf-links">
+    {% for slug in job.caf_slugs %}
+    <a href="https://forces.ca/en/career/{{ slug }}/"
+       target="_blank" rel="noopener"
+       class="caf-link">{{ slug | replace('-', ' ') | title }}</a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="empty-section">No related military careers on file for this position.</p>
+  {% endif %}
+</section>
+
+{% endblock %}

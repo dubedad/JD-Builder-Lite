@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobForge - Job Description Builder</title>
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/accordion.css">
+    <link rel="stylesheet" href="/static/css/sidebar.css">
+    <link rel="stylesheet" href="/static/css/skeleton.css">
+    <link rel="stylesheet" href="/static/css/overview.css">
+    <link rel="stylesheet" href="/static/css/results-cards.css">
+    <link rel="stylesheet" href="/static/css/classify.css">
+    <link rel="stylesheet" href="/static/css/evidence.css">
+    <link rel="stylesheet" href="/static/css/filters.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <!-- GoC Identity Header (CHROME-01) -->
+    <header class="gc-identity-header">
+        <div class="container gc-identity-header__inner">
+            <div class="gc-identity-header__brand">
+                <div class="gc-flag">
+                    <div class="gc-flag__red"></div>
+                    <div class="gc-flag__white"><span class="gc-flag__leaf">&#127809;</span></div>
+                    <div class="gc-flag__red"></div>
+                </div>
+                <div class="gc-identity-header__titles">
+                    <span class="gc-identity-header__title-en">Government of Canada</span>
+                    <span class="gc-identity-header__title-fr">Gouvernement du Canada</span>
+                </div>
+            </div>
+            <div class="gc-identity-header__actions">
+                <a href="#" class="gc-identity-header__lang" lang="fr" hreflang="fr" onclick="event.preventDefault();">Fran&ccedil;ais</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- App Bar (CHROME-02) -->
+    <div class="app-bar">
+        <div class="container app-bar__inner">
+            <span class="app-bar__badge">JD Builder 1.0</span>
+            <span class="app-bar__session" id="app-bar-session">Session: ...</span>
+            <span class="app-bar__audit" id="app-bar-audit">
+                <i class="fas fa-clipboard-list"></i> Audit Trail <span id="audit-count" class="app-bar__audit-count">0</span>
+            </span>
+            <button class="app-bar__reset" id="app-bar-reset" type="button">
+                <i class="fas fa-redo-alt"></i> Reset
+            </button>
+            <button class="app-bar__provenance" id="provenance-graph-btn" type="button" onclick="event.preventDefault();">
+                <i class="fas fa-project-diagram"></i> View Provenance Graph
+            </button>
+        </div>
+    </div>
+
+    <!-- Data Source Pills (CHROME-03) -->
+    <div class="data-sources-bar">
+        <div class="container data-sources-bar__inner">
+            <a href="https://noc.esdc.gc.ca/" class="data-source-pill data-source-pill--noc" target="_blank" rel="noopener noreferrer">2021 NOC</a>
+            <a href="https://www.canada.ca/en/department-national-defence/services/caf-careers.html" class="data-source-pill data-source-pill--caf" target="_blank" rel="noopener noreferrer">CAF Careers</a>
+            <a href="https://www.canada.ca/en/treasury-board-secretariat/services/collective-agreements/occupational-groups.html" class="data-source-pill data-source-pill--ochro" target="_blank" rel="noopener noreferrer">OCHRO Job Architecture</a>
+            <a href="https://www.onetonline.org/" class="data-source-pill data-source-pill--onet" target="_blank" rel="noopener noreferrer">O*NET SOC</a>
+            <a href="https://noc.esdc.gc.ca/" class="data-source-pill data-source-pill--oasis" target="_blank" rel="noopener noreferrer">OaSIS</a>
+        </div>
+    </div>
+
+    <!-- JD Building Progress Stepper (always visible) -->
+    <nav class="jd-stepper" id="jd-stepper" role="navigation" aria-label="Job Description building progress">
+        <div class="container">
+            <ol class="jd-stepper__steps">
+                <li class="jd-stepper__step jd-stepper__step--active" data-step="1">
+                    <button class="jd-stepper__btn" data-step="1">
+                        <span class="jd-stepper__number">1</span>
+                        <span class="jd-stepper__label">Search</span>
+                    </button>
+                </li>
+                <li class="jd-stepper__step" data-step="2">
+                    <button class="jd-stepper__btn" data-step="2" disabled>
+                        <span class="jd-stepper__number">2</span>
+                        <span class="jd-stepper__label">Build</span>
+                    </button>
+                </li>
+                <li class="jd-stepper__step" data-step="3">
+                    <button class="jd-stepper__btn" data-step="3" disabled>
+                        <span class="jd-stepper__number">3</span>
+                        <span class="jd-stepper__label">Classify</span>
+                    </button>
+                </li>
+                <li class="jd-stepper__step" data-step="4">
+                    <button class="jd-stepper__btn" data-step="4" disabled>
+                        <span class="jd-stepper__number">4</span>
+                        <span class="jd-stepper__label">Generate</span>
+                    </button>
+                </li>
+                <li class="jd-stepper__step" data-step="5">
+                    <button class="jd-stepper__btn" data-step="5" disabled>
+                        <span class="jd-stepper__number">5</span>
+                        <span class="jd-stepper__label">Export</span>
+                    </button>
+                </li>
+            </ol>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- Welcome Section (v5.1 Search Landing) -->
+        <section id="welcome-section" class="welcome-section">
+            <div class="search-landing">
+                <h1 class="search-landing__title">Find your Job</h1>
+                <p class="search-landing__subtitle">Search across all job taxonomies to find the occupation that best matches your position</p>
+
+                <!-- Match Quality Legend (SRCH-01) -->
+                <div class="match-quality-legend">
+                    <span class="match-quality-legend__item match-quality-legend__item--green">
+                        <span class="match-quality-legend__pct">95-100%</span> Title
+                    </span>
+                    <span class="match-quality-legend__item match-quality-legend__item--blue">
+                        <span class="match-quality-legend__pct">85%</span> Description
+                    </span>
+                    <span class="match-quality-legend__item match-quality-legend__item--grey">
+                        <span class="match-quality-legend__pct">75%</span> Related
+                    </span>
+                </div>
+
+                <!-- Search Input (SRCH-01) -->
+                <div class="search-container search-container--centered">
+                    <div class="search-input-row">
+                        <input
+                            type="search"
+                            id="search-input"
+                            placeholder="Search job titles, NOC codes, or keywords..."
+                            aria-label="Search job titles"
+                        >
+                        <button id="search-button" type="button"><i class="fas fa-search"></i> Search</button>
+                    </div>
+                    <div class="search-type-toggle" role="tablist">
+                        <button role="tab" class="pill-btn active" data-search-type="Keyword" aria-selected="true">Keyword</button>
+                        <button role="tab" class="pill-btn" data-search-type="Code" aria-selected="false">Code</button>
+                    </div>
+                </div>
+
+                <p class="search-landing__source">
+                    Source: <a href="https://noc.esdc.gc.ca/" target="_blank" rel="noopener noreferrer">JobForge WiQ</a> | All job taxonomies
+                </p>
+
+                <!-- Empty State (SRCH-02) -->
+                <div id="search-empty-state" class="search-empty-state">
+                    <i class="fas fa-search search-empty-state__icon"></i>
+                    <p class="search-empty-state__text">Start typing to search across all job taxonomies</p>
+                    <p class="search-empty-state__compliance">
+                        Job Description content is traceable to its sources, data stewards, and publishing dates for full medallion provenance.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Profile Header (v5.1 dark navy card, initially hidden) -->
+        <section id="profile-header" class="profile-header profile-header--v51 hidden">
+            <button class="profile-header__close" id="profile-header-close" type="button" aria-label="Close profile and return to search">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="profile-header__content">
+                <div class="profile-header__icon-wrap">
+                    <i id="profile-icon" class="fas fa-cog" aria-hidden="true"></i>
+                </div>
+                <div class="profile-header__text">
+                    <h2 id="profile-title" class="profile-header__title"></h2>
+                    <span id="profile-code-badge" class="profile-header__noc-badge"></span>
+                    <p id="profile-lead-statement" class="profile-header__lead"></p>
+                    <p id="profile-description" class="profile-header__description hidden"></p>
+                </div>
+            </div>
+            <div class="profile-header__meta">
+                <span class="profile-header__meta-item">
+                    <i class="fas fa-code-branch"></i> NOC 2021 v1.0
+                </span>
+                <span class="profile-header__meta-divider">|</span>
+                <span class="profile-header__meta-item" id="profile-timestamp">
+                    <i class="fas fa-clock"></i> Retrieved: ...
+                </span>
+                <span class="profile-header__meta-divider">|</span>
+                <span class="profile-header__meta-item profile-header__meta-item--verified">
+                    <i class="fas fa-check-circle"></i> Quality Verified
+                </span>
+                <span class="profile-header__meta-divider">|</span>
+                <button class="profile-header__provenance-btn" type="button" onclick="event.preventDefault();">
+                    <i class="fas fa-project-diagram"></i> View Provenance Graph
+                </button>
+            </div>
+            <div class="profile-header__links">
+                <a id="profile-link" href="#" target="_blank" rel="noopener noreferrer" class="profile-header__oasis-link">
+                    <i class="fas fa-external-link-alt"></i> View on OASIS
+                </a>
+            </div>
+        </section>
+
+        <!-- Search Results (initially hidden) -->
+        <section id="search-results" class="search-results hidden">
+            <!-- Results Header (SRCH-05) -->
+            <div class="results-header">
+                <div class="results-header__left">
+                    <h2 id="results-count" class="results-header__count">0 results</h2>
+                    <span class="results-header__filter-status hidden" id="filter-status">(filtered)</span>
+                </div>
+                <div class="results-header__right">
+                    <button id="new-search-btn" class="btn btn--secondary btn--sm" type="button">
+                        <i class="fas fa-plus"></i> New Search
+                    </button>
+                    <span class="results-header__meta">
+                        <span>Published: 2024-11-15</span> | <span>Data Steward: ESDC</span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Filter Toggle (mobile) -->
+            <button id="filter-toggle" class="filter-toggle" type="button">
+                <span>Filter Results</span>
+                <span id="filter-active-indicator"></span>
+            </button>
+
+            <!-- Results Layout with Filter Panel -->
+            <div class="results-layout">
+                <!-- Filter Panel (SRCH-03) -->
+                <aside id="filter-panel" class="filter-panel">
+                    <h3>Filters</h3>
+
+                    <details class="filter-accordion" id="filter-ochro" open>
+                        <summary>OCHRO Job Architecture</summary>
+                        <div class="filter-accordion__body filter-accordion__body--ochro">
+                            <div class="filter-sub-section">
+                                <h4 class="filter-sub-heading">Managerial Level</h4>
+                                <div id="filter-ochro-level-options" class="filter-options">
+                                    <p class="filter-empty">Search to see filter options</p>
+                                </div>
+                            </div>
+                            <div class="filter-sub-section">
+                                <h4 class="filter-sub-heading">Job Function &rarr; Job Family</h4>
+                                <div id="filter-ochro-function-options" class="filter-options">
+                                    <p class="filter-empty">Search to see filter options</p>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+
+                    <details class="filter-accordion" id="filter-caf">
+                        <summary>CAF Careers</summary>
+                        <div class="filter-accordion__body">
+                            <p class="filter-empty">No results</p>
+                        </div>
+                    </details>
+
+                    <details class="filter-accordion" id="filter-noc-broad" open>
+                        <summary>2021 NOC Broad &rarr; Major</summary>
+                        <div id="filter-noc-broad-options" class="filter-accordion__body filter-options">
+                            <p class="filter-empty">Search to see filter options</p>
+                        </div>
+                    </details>
+
+                    <details class="filter-accordion" id="filter-noc-teer" open>
+                        <summary>2021 NOC TEER</summary>
+                        <div id="filter-noc-teer-options" class="filter-accordion__body filter-options">
+                            <p class="filter-empty">Search to see filter options</p>
+                        </div>
+                    </details>
+
+                    <details class="filter-accordion" id="filter-occ-groups">
+                        <summary>Occupational Groups</summary>
+                        <div class="filter-accordion__body">
+                            <p class="filter-empty">No results</p>
+                        </div>
+                    </details>
+
+                    <details class="filter-accordion" id="filter-onet-soc">
+                        <summary>O*NET SOC</summary>
+                        <div class="filter-accordion__body">
+                            <p class="filter-empty">No results</p>
+                        </div>
+                    </details>
+
+                    <button id="filter-clear" class="filter-clear" type="button" disabled>
+                        <i class="fas fa-times"></i> Clear All Filters
+                    </button>
+
+                    <!-- Match Confidence Legend -->
+                    <div class="scoring-legend">
+                        <h4 class="scoring-legend__title">Match Confidence</h4>
+                        <ul class="scoring-legend__list">
+                            <li><span class="scoring-legend__pct scoring-legend__pct--green">95-100%</span> Title match</li>
+                            <li><span class="scoring-legend__pct scoring-legend__pct--blue">80-94%</span> Description match</li>
+                            <li><span class="scoring-legend__pct scoring-legend__pct--grey">50-79%</span> Related match</li>
+                        </ul>
+                    </div>
+                </aside>
+
+                <!-- Results Main Content -->
+                <div class="results-main">
+                    <div id="results-list" class="results-cards-container" role="list"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Classification Results Section (initially hidden) -->
+        <section id="classify-section" class="classify-section hidden">
+          <!-- Occupation Header Card -->
+          <div class="classify-header-card">
+            <div class="classify-header-card__left">
+              <i class="fas fa-cog classify-header-card__icon"></i>
+              <div>
+                <h2 class="classify-header-card__title">Occupational Group Allocation</h2>
+                <p class="classify-header-card__subtitle">Classification Step 1 — Per TBS Directive on Classification</p>
+              </div>
+            </div>
+            <div class="classify-header-card__badges">
+              <span class="badge badge--dadm-compliant"><i class="fas fa-check-circle"></i> DADM Compliant</span>
+              <span class="badge badge--full-provenance"><i class="fas fa-link"></i> Full Provenance</span>
+            </div>
+          </div>
+
+          <!-- Position title (populated by JS) -->
+          <p id="classify-position-title" class="classify-position-title"></p>
+
+          <!-- Stale warning banner (existing) -->
+          <div id="classify-stale-warning" class="classify-stale-warning hidden" role="alert">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>JD changed -- re-classify for updated results</span>
+            <button onclick="document.getElementById('classify-stale-warning').classList.add('hidden'); window.jdStepper.goToStep(3);" class="btn btn--sm">Re-classify</button>
+          </div>
+
+          <!-- TBS 3-Step Dark Card -->
+          <div class="classify-tbs-card">
+            <div class="classify-tbs-card__step">
+              <div class="classify-tbs-card__step-label">§4.1.1</div>
+              <div class="classify-tbs-card__step-title">Primary Purpose</div>
+              <p class="classify-tbs-card__step-desc">Identify the primary purpose of the position from duties and responsibilities.</p>
+            </div>
+            <div class="classify-tbs-card__step">
+              <div class="classify-tbs-card__step-label">§4.1.2</div>
+              <div class="classify-tbs-card__step-title">Definition Fit</div>
+              <p class="classify-tbs-card__step-desc">Compare primary purpose against occupational group definitions.</p>
+            </div>
+            <div class="classify-tbs-card__step">
+              <div class="classify-tbs-card__step-label">§4.1.3</div>
+              <div class="classify-tbs-card__step-title">Inclusions / Exclusions</div>
+              <p class="classify-tbs-card__step-desc">Verify inclusion statements and check for exclusion conflicts.</p>
+            </div>
+          </div>
+
+          <!-- Status badge (kept for JS compatibility) -->
+          <span id="classify-status-badge" class="classify-status-badge hidden">Analyzing...</span>
+
+          <!-- Analyze CTA Button (pre-analysis) -->
+          <div id="classify-cta" class="classify-cta">
+            <button id="classify-analyze-btn" class="btn btn--cta-orange" type="button">
+              <i class="fas fa-pencil-alt"></i> Analyze &amp; Recommend Occupational Group
+            </button>
+          </div>
+
+          <!-- Loading state -->
+          <div id="classify-loading" class="classify-loading hidden">
+            <div class="classify-loading-spinner"></div>
+            <p>Analyzing job description against TBS occupational group definitions...</p>
+          </div>
+
+          <!-- Error state -->
+          <div id="classify-error" class="classify-error hidden" role="alert"></div>
+
+          <!-- Results container (populated by JS from plan 29-03) -->
+          <div id="classify-results" class="classify-results hidden">
+            <!-- Top Result Card (populated by classify.js) -->
+            <div id="classify-top-result" class="classify-top-result"></div>
+
+            <!-- Statement Alignment Comparison (CLASS-02) -->
+            <div id="classify-alignment" class="classify-alignment hidden">
+              <h3 class="classify-section-heading">Statement Alignment Comparison</h3>
+              <div class="classify-alignment__columns">
+                <div class="classify-alignment__col">
+                  <h4>Your Selected Statements</h4>
+                  <ul id="classify-alignment-user" class="classify-alignment__list"></ul>
+                </div>
+                <div class="classify-alignment__col">
+                  <h4>OG Definition Statements</h4>
+                  <ul id="classify-alignment-og" class="classify-alignment__list"></ul>
+                </div>
+              </div>
+              <div id="classify-alignment-score" class="classify-alignment__score"></div>
+            </div>
+
+            <!-- Key Evidence (CLASS-03) -->
+            <div id="classify-key-evidence" class="classify-key-evidence hidden">
+              <h3 class="classify-section-heading">Key Evidence</h3>
+              <ul id="classify-evidence-list" class="classify-evidence-bullets"></ul>
+            </div>
+
+            <!-- Caveats (CLASS-03) -->
+            <div id="classify-caveats" class="classify-caveats hidden">
+              <h3 class="classify-section-heading">Caveats</h3>
+              <ul id="classify-caveats-list" class="classify-caveats-bullets"></ul>
+            </div>
+
+            <!-- Alternative Groups Considered -->
+            <div id="classify-alternatives" class="classify-alternatives hidden">
+              <h3 class="classify-section-heading">Alternative Groups Considered</h3>
+              <div id="classify-alternatives-content"></div>
+            </div>
+
+            <!-- Next Step (CLASS-04) -->
+            <div id="classify-next-step" class="classify-next-step hidden">
+              <h3 class="classify-section-heading">Next Step</h3>
+              <div id="classify-next-step-content" class="classify-next-step__box"></div>
+            </div>
+
+            <!-- Legacy panels (kept for JS compatibility) -->
+            <div class="classify-layout hidden">
+              <div id="recommendations-panel" class="recommendations-panel"></div>
+              <div id="evidence-panel" class="evidence-panel hidden">
+                <header class="evidence-panel-header">
+                  <h3>Job Description</h3>
+                  <button id="evidence-close" class="evidence-close" aria-label="Close evidence view"><i class="fas fa-times"></i></button>
+                </header>
+                <div id="jd-text-viewer" class="jd-text-viewer"></div>
+              </div>
+            </div>
+
+            <!-- Complete section (kept for JS compatibility) -->
+            <div id="classify-complete" class="classify-complete hidden">
+              <div class="classify-complete-icon"><i class="fas fa-check-circle"></i></div>
+              <h3>Classification Step 1 Complete</h3>
+              <p>Review the recommendations above. The occupational group allocation is based on your job description content.</p>
+              <!-- Legacy nav buttons (kept for JS compatibility, hidden container) -->
+              <div class="classify-nav-actions hidden">
+                <button class="btn btn--text" id="classify-back-to-edit" type="button">
+                  <i class="fas fa-arrow-left"></i> Back to Edit
+                </button>
+                <button class="btn btn--primary" id="classify-continue-generate" type="button">
+                  Continue to Generate <i class="fas fa-arrow-right"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Always-visible nav actions -->
+            <div class="classify-nav-actions classify-nav-actions--always" id="classify-nav-always">
+              <button class="btn btn--text" id="classify-back-to-edit-2" type="button">
+                <i class="fas fa-arrow-left"></i> Back to Edit
+              </button>
+              <button class="btn btn--primary" id="classify-continue-generate-2" type="button">
+                Continue to Generate <i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Profile Tabs Navigation -->
+        <nav id="profile-tabs-container" class="profile-tabs-container hidden">
+            <ul class="tabs-bar" role="tablist" aria-label="Job description sections">
+                <li role="presentation">
+                    <button role="tab" id="tab-overview" aria-selected="true"
+                            aria-controls="panel-overview" tabindex="0" class="tab-button tab-button-active">
+                        <i class="fas fa-eye tab-icon"></i> Overview
+                    </button>
+                </li>
+                <li role="presentation">
+                    <button role="tab" id="tab-core-competencies" aria-selected="false"
+                            aria-controls="panel-core-competencies" tabindex="-1" class="tab-button">
+                        <i class="fas fa-star tab-icon"></i> Core Competencies
+                    </button>
+                </li>
+                <li role="presentation">
+                    <button role="tab" id="tab-activities" aria-selected="false"
+                            aria-controls="panel-activities" tabindex="-1" class="tab-button">
+                        <i class="fas fa-list-check tab-icon"></i> Key Activities
+                    </button>
+                </li>
+                <li role="presentation">
+                    <button role="tab" id="tab-skills" aria-selected="false"
+                            aria-controls="panel-skills" tabindex="-1" class="tab-button">
+                        <i class="fas fa-lightbulb tab-icon"></i> Skills
+                    </button>
+                </li>
+                <li role="presentation">
+                    <button role="tab" id="tab-abilities" aria-selected="false"
+                            aria-controls="panel-abilities" tabindex="-1" class="tab-button">
+                        <i class="fas fa-brain tab-icon"></i> Abilities
+                    </button>
+                </li>
+                <li role="presentation">
+                    <button role="tab" id="tab-knowledge" aria-selected="false"
+                            aria-controls="panel-knowledge" tabindex="-1" class="tab-button">
+                        <i class="fas fa-book-open tab-icon"></i> Knowledge
+                    </button>
+                </li>
+                <li role="presentation">
+                    <button role="tab" id="tab-effort" aria-selected="false"
+                            aria-controls="panel-effort" tabindex="-1" class="tab-button">
+                        <i class="fas fa-exchange-alt tab-icon"></i> Effort
+                    </button>
+                </li>
+                <li role="presentation">
+                    <button role="tab" id="tab-responsibility" aria-selected="false"
+                            aria-controls="panel-responsibility" tabindex="-1" class="tab-button">
+                        <i class="fas fa-user tab-icon"></i> Responsibility
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Tab Panels -->
+            <div id="panel-overview" role="tabpanel" aria-labelledby="tab-overview" tabindex="0" class="tab-panel">
+                <!-- Overview content rendered by JS -->
+            </div>
+            <div id="panel-core-competencies" role="tabpanel" aria-labelledby="tab-core-competencies" tabindex="0" class="tab-panel" hidden>
+                <!-- Core Competencies content rendered by JS -->
+            </div>
+            <div id="panel-activities" role="tabpanel" aria-labelledby="tab-activities" tabindex="0" class="tab-panel" hidden>
+                <!-- Key Activities content -->
+            </div>
+            <div id="panel-skills" role="tabpanel" aria-labelledby="tab-skills" tabindex="0" class="tab-panel" hidden>
+                <!-- Skills content -->
+            </div>
+            <div id="panel-abilities" role="tabpanel" aria-labelledby="tab-abilities" tabindex="0" class="tab-panel" hidden>
+                <!-- Abilities content -->
+            </div>
+            <div id="panel-knowledge" role="tabpanel" aria-labelledby="tab-knowledge" tabindex="0" class="tab-panel" hidden>
+                <!-- Knowledge content -->
+            </div>
+            <div id="panel-effort" role="tabpanel" aria-labelledby="tab-effort" tabindex="0" class="tab-panel" hidden>
+                <!-- Effort content -->
+            </div>
+            <div id="panel-responsibility" role="tabpanel" aria-labelledby="tab-responsibility" tabindex="0" class="tab-panel" hidden>
+                <!-- Responsibility content -->
+            </div>
+        </nav>
+
+        <!-- JD Sections Accordion Container -->
+        <section class="jd-sections" id="jd-sections">
+            <!-- Accordion content will be populated by JavaScript -->
+        </section>
+
+        <!-- General Overview / Generate Section (v5.1 Generate Page) -->
+        <section id="overview-section" class="overview-section hidden">
+          <div class="generate-card">
+            <!-- Card Header -->
+            <div class="generate-card__header">
+              <div class="generate-card__title-row">
+                <h2 class="generate-card__title">Generate AI Overview</h2>
+                <div class="generate-card__badges">
+                  <span class="badge badge--dadm-level2">DADM Level 2</span>
+                  <span class="badge badge--human-review">Human Review Required</span>
+                </div>
+              </div>
+              <p class="generate-card__subtitle">AI-generated content is logged per TBS Directive on Automated Decision-Making.</p>
+            </div>
+
+            <!-- DADM Compliance Notice (yellow warning) -->
+            <div class="generate-compliance-notice">
+              <i class="fas fa-exclamation-triangle"></i>
+              <div>
+                <strong>DADM Compliance Notice</strong>
+                <p>This AI-generated content has moderate impact. Human review is required before use.</p>
+              </div>
+            </div>
+
+            <!-- Additional Context (optional) -->
+            <div class="generate-context">
+              <label for="additional-context" class="generate-context__label">Additional Context <span class="generate-context__optional">(optional)</span></label>
+              <textarea id="additional-context" class="generate-context__textarea" rows="3" placeholder="Department-specific requirements, organizational context..."></textarea>
+            </div>
+
+            <!-- Generate Button -->
+            <div class="generate-action">
+              <button id="generate-btn" class="btn btn--generate" type="button">
+                <i class="fas fa-pencil-alt"></i> Generate with AI
+              </button>
+            </div>
+
+            <!-- Generated Output (hidden until generation completes) -->
+            <div id="generate-output" class="generate-output hidden">
+              <div class="generate-output__header">
+                <h3>Generated Overview</h3>
+                <span id="ai-badge" class="badge badge--ai-generated">AI Generated</span>
+              </div>
+              <div id="overview-textarea" class="generate-output__prose" contenteditable="true"></div>
+            </div>
+
+            <!-- Error -->
+            <div id="overview-error" class="overview-error hidden" role="alert"></div>
+
+            <!-- Navigation -->
+            <div class="generate-nav-actions">
+              <button class="btn btn--secondary" id="generate-regenerate" type="button">
+                <i class="fas fa-redo"></i> Regenerate
+              </button>
+              <button class="btn btn--primary" id="generate-continue" type="button">
+                Continue <i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Hidden legacy regenerate btn for generate.js compatibility -->
+          <button id="regenerate-btn" class="hidden" type="button"></button>
+        </section>
+
+        <!-- Export Page (v5.1 Step 5) -->
+        <section id="export-section" class="export-section hidden">
+          <div class="export-page">
+
+            <!-- Page Title -->
+            <div class="export-page__header">
+              <h2 class="export-page__title">
+                <i class="fas fa-file-export"></i> Export with Full Provenance
+              </h2>
+              <p class="export-page__subtitle">Download your job description with embedded compliance metadata and audit trail.</p>
+            </div>
+
+            <!-- Export Options (ABOVE download buttons per locked decision) -->
+            <div class="export-options">
+              <span class="export-options__label">Export Options</span>
+              <label class="export-option-check">
+                <input type="checkbox" id="export-include-annex" checked>
+                <span>Include provenance annex</span>
+              </label>
+              <label class="export-option-check">
+                <input type="checkbox" id="export-include-audit" checked>
+                <span>Include audit trail</span>
+              </label>
+            </div>
+
+            <!-- Download Buttons (ABOVE preview card per locked decision) -->
+            <div class="export-download-btns">
+              <button id="export-download-pdf" class="btn btn--export-pdf" type="button">
+                <i class="fas fa-file-pdf"></i>
+                <span>Download PDF</span>
+                <small>With embedded provenance</small>
+              </button>
+              <button id="export-download-docx" class="btn btn--export-docx" type="button">
+                <i class="fas fa-file-word"></i>
+                <span>Download Word</span>
+                <small>With audit trail annex</small>
+              </button>
+              <button id="export-download-json" class="btn btn--export-json" type="button">
+                <i class="fas fa-file-code"></i>
+                <span>Download Full Audit Trail (JSON)</span>
+                <small>Complete session data</small>
+              </button>
+            </div>
+
+            <!-- JD Preview Card (BELOW download buttons per locked decision) -->
+            <div class="export-preview-card">
+              <div class="export-preview-card__header">
+                <div>
+                  <h3 id="export-preview-title" class="export-preview-card__title">—</h3>
+                  <span id="export-preview-noc" class="export-preview-card__noc"></span>
+                </div>
+                <div id="export-preview-classification" class="export-preview-card__badges hidden"></div>
+              </div>
+              <div id="export-preview-overview" class="export-preview-card__overview hidden">
+                <p id="export-preview-overview-text"></p>
+              </div>
+              <div id="export-preview-selections" class="export-preview-card__selections"></div>
+            </div>
+
+            <!-- Compliance Summary Cards (BELOW preview card per locked decision) -->
+            <div class="export-compliance-cards">
+              <div class="export-compliance-card export-compliance-card--dama">
+                <div class="export-compliance-card__icon"><i class="fas fa-check-circle"></i></div>
+                <div>
+                  <div class="export-compliance-card__title">DAMA DMBOK 2.0</div>
+                  <div class="export-compliance-card__desc">Data management complies with GC Data Quality Management Framework</div>
+                </div>
+              </div>
+              <div class="export-compliance-card export-compliance-card--tbs">
+                <div class="export-compliance-card__icon"><i class="fas fa-gavel"></i></div>
+                <div>
+                  <div class="export-compliance-card__title">TBS Directives</div>
+                  <div class="export-compliance-card__desc">Compliant with Directive on Automated Decision-Making and Directive on Classification</div>
+                </div>
+              </div>
+              <div class="export-compliance-card export-compliance-card--lineage">
+                <div class="export-compliance-card__icon"><i class="fas fa-link"></i></div>
+                <div>
+                  <div class="export-compliance-card__title">Full Lineage</div>
+                  <div class="export-compliance-card__desc">Every statement traceable to authoritative NOC/JobForge source with timestamps</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Back Navigation -->
+            <div class="export-nav-actions">
+              <button class="btn btn--secondary" id="export-back-generate" type="button">
+                <i class="fas fa-arrow-left"></i> Back to Generate
+              </button>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Explore Other JobForge Agents (shown after search results) -->
+        <section id="explore-section" class="explore-section hidden">
+            <h2 class="explore-title">Explore other JobForge Agents</h2>
+            <div class="explore-grid">
+                <div class="explore-card" tabindex="0">
+                    <div class="explore-card__icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3 class="explore-card__title">WiQ Workforce Intelligence</h3>
+                    <p class="explore-card__desc">Identify, assess, and mitigate anticipated workforce shortages or surpluses (gaps) using Labor Market Intelligence integrated with internal workforce gaps for improved foresight that informs evidence-based interventions.</p>
+                    <span class="explore-card__badge">Coming Soon</span>
+                </div>
+                <div class="explore-card" tabindex="0">
+                    <div class="explore-card__icon">
+                        <i class="fas fa-shield-halved"></i>
+                    </div>
+                    <h3 class="explore-card__title">Data Governance</h3>
+                    <p class="explore-card__desc">Medallion provenance and Directive on Service and Digital compliance</p>
+                    <span class="explore-card__badge">Coming Soon</span>
+                </div>
+                <div class="explore-card" tabindex="0">
+                    <div class="explore-card__icon">
+                        <i class="fas fa-file-signature"></i>
+                    </div>
+                    <h3 class="explore-card__title">Job Notice Creator</h3>
+                    <p class="explore-card__desc">PSRS format automation for Statement of Merit Criteria</p>
+                    <span class="explore-card__badge">Coming Soon</span>
+                </div>
+                <div class="explore-card" tabindex="0">
+                    <div class="explore-card__icon">
+                        <i class="fas fa-tags"></i>
+                    </div>
+                    <h3 class="explore-card__title">Classification Helper</h3>
+                    <p class="explore-card__desc">Dry classification automation using GC job standards</p>
+                    <span class="explore-card__badge">Coming Soon</span>
+                </div>
+                <div class="explore-card" tabindex="0">
+                    <div class="explore-card__icon">
+                        <i class="fas fa-sitemap"></i>
+                    </div>
+                    <h3 class="explore-card__title">GC Job Architecture</h3>
+                    <p class="explore-card__desc">Government of Canada job titles and organizational structure</p>
+                    <span class="explore-card__badge">Coming Soon</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Collapsible Sidebar -->
+    <aside id="sidebar" class="sidebar collapsed">
+        <button id="sidebar-toggle" class="sidebar-toggle" type="button" aria-label="Toggle selection summary">
+            <span class="toggle-icon"></span>
+        </button>
+        <div class="sidebar-content">
+            <h2>Selection Summary</h2>
+            <div id="selection-summary">
+                <p class="empty-state">No selections yet</p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Sticky Action Bar (Phase 08-D: Single consolidated button) -->
+    <footer id="action-bar" class="action-bar hidden" style="display:none">
+        <button id="create-btn" class="btn btn--primary" disabled onclick="handleCreateClick()">
+            Create Job Description (select statements first)
+        </button>
+    </footer>
+
+    <!-- Build Navigation Bar (NAV-01) -->
+    <footer id="build-nav-bar" class="build-nav-bar hidden">
+        <button id="nav-back-to-search" class="build-nav-bar__btn build-nav-bar__btn--back" type="button">
+            <i class="fas fa-arrow-left"></i> Back to Search
+        </button>
+        <button id="nav-preview-jd" class="build-nav-bar__btn build-nav-bar__btn--preview" type="button">
+            <i class="fas fa-eye"></i> Preview Job Description
+        </button>
+        <button id="nav-continue-classify" class="build-nav-bar__btn build-nav-bar__btn--forward" type="button">
+            Continue to Classification <i class="fas fa-arrow-right"></i>
+        </button>
+    </footer>
+
+    <!-- Toast notification container -->
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+    <!-- JD Preview Modal (PREV-01, PREV-02) -->
+    <div id="jd-preview-modal" class="jd-preview-modal hidden" role="dialog" aria-modal="true" aria-labelledby="preview-modal-title">
+        <div class="jd-preview-modal__overlay"></div>
+        <div class="jd-preview-modal__container">
+            <header class="jd-preview-modal__header">
+                <h2 id="preview-modal-title" class="jd-preview-modal__title">Job Description Preview</h2>
+                <button id="preview-return-btn" class="jd-preview-modal__close" type="button">
+                    <i class="fas fa-arrow-left"></i> Return to Builder
+                </button>
+            </header>
+            <div class="jd-preview-modal__body" id="preview-modal-body">
+                <!-- Assembled JD content rendered by JS -->
+            </div>
+            <footer class="jd-preview-modal__footer">
+                <button id="preview-advance-classify" class="btn btn--primary" type="button">
+                    Advance to Classify <i class="fas fa-arrow-right"></i>
+                </button>
+                <div class="jd-preview-modal__export-btns">
+                    <button id="preview-export-pdf" class="btn btn--secondary" type="button">
+                        <i class="fas fa-file-pdf"></i> Export PDF
+                    </button>
+                    <button id="preview-export-word" class="btn btn--secondary" type="button">
+                        <i class="fas fa-file-word"></i> Export Word
+                    </button>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Selections Tab (CHROME-05) -->
+    <button class="selections-tab" id="selections-tab-btn" type="button">
+        Selections (<span id="selections-tab-count">0</span>)
+    </button>
+
+    <!-- Compliance Framework (CHROME-06) -->
+    <div class="compliance-bar">
+        <div class="container">
+            <p class="compliance-bar__text">
+                Job Description content is traceable to its sources, data stewards, and publishing dates for full medallion provenance that complies with the Directive on Automated Decision Making requirements.
+            </p>
+        </div>
+    </div>
+
+    <!-- App Footer (CHROME-07) -->
+    <footer class="app-footer">
+        <div class="container app-footer__inner">
+            <span class="app-footer__brand">JobForge &mdash; JD Builder 1.0 | Full Audit Trail Provenance</span>
+            <div class="app-footer__wordmark">
+                <span class="gc-wordmark__text">Canada</span>
+                <span class="gc-wordmark__flag">&#127809;</span>
+            </div>
+        </div>
+    </footer>
+    <div class="onet-attribution">
+        <div class="container">
+            <p class="onet-attribution__text">O*NET&trade; is a trademark of the U.S. Department of Labor, Employment and Training Administration (USDOL/ETA).</p>
+        </div>
+    </div>
+
+    <!-- SortableJS CDN for drag-and-drop reordering -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+    <!-- Scripts (loaded in order) -->
+    <script src="/static/js/storage.js"></script>
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/state.js"></script>
+    <script src="/static/js/profile_tabs.js"></script>
+    <script src="/static/js/styling.js"></script>
+    <script src="/static/js/accordion.js"></script>
+    <script src="/static/js/selection.js"></script>
+    <script src="/static/js/search.js"></script>
+    <script src="/static/js/sidebar.js"></script>
+    <script src="/static/js/generate.js"></script>
+    <script src="/static/js/export.js"></script>
+    <script src="/static/js/filters.js"></script>
+    <script src="/static/js/classify.js"></script>
+    <script src="/static/js/evidence.js"></script>
+    <script src="/static/js/main.js"></script>
+</body>
+</html>

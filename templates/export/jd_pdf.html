@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ job_title }} - Job Description</title>
+  <link rel="stylesheet" href="/static/css/export_print.css">
+</head>
+<body>
+  <!-- Running elements for header (must be early in document) -->
+  <div class="running-header">
+    <span class="job-title-value">{{ job_title }}</span>
+    <span class="noc-code-value">{{ noc_code }}</span>
+  </div>
+
+  <!-- Main Document -->
+  <div class="jd-document">
+
+    <!-- Cover / Title Section -->
+    <section class="title-section">
+      <h1 class="jd-title">{{ job_title }}</h1>
+      <p class="jd-noc-code">NOC Code: {{ noc_code }}</p>
+      <p class="jd-generated-date">Generated: {{ generated_at.strftime('%Y-%m-%d') }}</p>
+      {% if include_classification and classification_result and classification_result.recommendations %}
+      <p class="jd-classification-badge">
+        Occupational Group: {{ classification_result.recommendations[0].group_code }} —
+        {{ classification_result.recommendations[0].group_name }}
+        ({{ classification_result.recommendations[0].confidence }}% confidence)
+      </p>
+      {% endif %}
+    </section>
+
+    <!-- 1. Position Overview -->
+    {% if general_overview %}
+    <section class="jd-section">
+      <h2>Position Overview</h2>
+      {% if ai_metadata %}
+      <p class="ai-disclosure-inline">
+        <span class="ai-indicator">AI Generated{% if ai_metadata.modified %} — Modified by User{% endif %}</span>
+        &nbsp;Model: {{ ai_metadata.model }} · Prompt v{{ ai_metadata.prompt_version }}
+      </p>
+      {% endif %}
+      <p class="overview-text">{{ general_overview }}</p>
+    </section>
+    {% endif %}
+
+    <!-- 2. Key Duties and Responsibilities -->
+    {% set key_act = jd_elements | selectattr('key', 'equalto', 'key_activities') | first | default(none) %}
+    {% if key_act and key_act.statements %}
+    <section class="jd-section">
+      <h2>Key Duties and Responsibilities</h2>
+      <ul class="jd-statements">
+        {% for statement in key_act.statements %}
+        <li class="jd-statement">
+          <div class="jd-statement__main">
+            <span class="jd-statement__text">
+              {{ statement.styled_variant.styled_text if statement.styled_variant else statement.text }}
+            </span>
+            <span class="jd-source-tag">
+              {%- if statement.source_attribute == 'Main Duties' %}[NOC]
+              {%- elif statement.source_attribute in ('Work Activities', 'Skills', 'Abilities', 'Knowledge', 'Effort', 'Responsibility') %}[OaSIS]
+              {%- elif statement.source_attribute == 'Core Competencies' %}[GC]
+              {%- else %}[NOC]
+              {%- endif %}
+            </span>
+            {% if statement.proficiency and statement.proficiency.level %}
+            <span class="jd-statement__level">
+              {% for i in range(statement.proficiency.level) %}●{% endfor %}{% for i in range(statement.proficiency.max - statement.proficiency.level) %}○{% endfor %}
+              L{{ statement.proficiency.level }}
+            </span>
+            {% endif %}
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    </section>
+    {% endif %}
+
+    <!-- 3. Qualifications and Requirements -->
+    {% set skills_el = jd_elements | selectattr('key', 'equalto', 'skills') | first | default(none) %}
+    {% set cc_selections = manager_selections | selectattr('jd_element', 'equalto', 'core_competencies') | list %}
+    {% if (skills_el and skills_el.statements) or cc_selections %}
+    <section class="jd-section">
+      <h2>Qualifications and Requirements</h2>
+
+      <!-- Skills -->
+      {% if skills_el %}
+      {% set skill_stmts = skills_el.statements | selectattr('source_attribute', 'ne', 'Abilities') | selectattr('source_attribute', 'ne', 'Knowledge') | list %}
+      {% if skill_stmts %}
+      <h3>Skills</h3>
+      <ul class="jd-statements jd-statements--sub">
+        {% for statement in skill_stmts %}
+        <li class="jd-statement">
+          <div class="jd-statement__main">
+            <span class="jd-statement__text">{{ statement.text }}</span>
+            <span class="jd-source-tag">[OaSIS]</span>
+            {% if statement.proficiency and statement.proficiency.level %}
+            <span class="jd-statement__level">
+              {% for i in range(statement.proficiency.level) %}●{% endfor %}{% for i in range(statement.proficiency.max - statement.proficiency.level) %}○{% endfor %}
+              L{{ statement.proficiency.level }}
+            </span>
+            {% endif %}
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+      <!-- Abilities -->
+      {% set ability_stmts = skills_el.statements | selectattr('source_attribute', 'equalto', 'Abilities') | list %}
+      {% if ability_stmts %}
+      <h3>Abilities</h3>
+      <ul class="jd-statements jd-statements--sub">
+        {% for statement in ability_stmts %}
+        <li class="jd-statement">
+          <div class="jd-statement__main">
+            <span class="jd-statement__text">{{ statement.text }}</span>
+            <span class="jd-source-tag">[OaSIS]</span>
+            {% if statement.proficiency and statement.proficiency.level %}
+            <span class="jd-statement__level">
+              {% for i in range(statement.proficiency.level) %}●{% endfor %}{% for i in range(statement.proficiency.max - statement.proficiency.level) %}○{% endfor %}
+              L{{ statement.proficiency.level }}
+            </span>
+            {% endif %}
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+      <!-- Knowledge -->
+      {% set knowledge_stmts = skills_el.statements | selectattr('source_attribute', 'equalto', 'Knowledge') | list %}
+      {% if knowledge_stmts %}
+      <h3>Knowledge</h3>
+      <ul class="jd-statements jd-statements--sub">
+        {% for statement in knowledge_stmts %}
+        <li class="jd-statement">
+          <div class="jd-statement__main">
+            <span class="jd-statement__text">{{ statement.text }}</span>
+            <span class="jd-source-tag">[OaSIS]</span>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+      {% endif %}
+
+      <!-- Core Competencies -->
+      {% if cc_selections %}
+      <h3>Core Competencies</h3>
+      <ul class="jd-statements jd-statements--sub">
+        {% for sel in cc_selections %}
+        <li class="jd-statement">
+          <div class="jd-statement__main">
+            <span class="jd-statement__text">{{ sel.text }}</span>
+            <span class="jd-source-tag">[GC]</span>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+    </section>
+    {% endif %}
+
+    <!-- 4. Effort & Physical Demands -->
+    {% set effort_el = jd_elements | selectattr('key', 'equalto', 'effort') | first | default(none) %}
+    {% if effort_el and effort_el.statements %}
+    <section class="jd-section">
+      <h2>Effort &amp; Physical Demands</h2>
+      <ul class="jd-statements">
+        {% for statement in effort_el.statements %}
+        <li class="jd-statement">
+          <div class="jd-statement__main">
+            <span class="jd-statement__text">{{ statement.text }}</span>
+            <span class="jd-source-tag">[OaSIS]</span>
+            {% if statement.proficiency and statement.proficiency.level %}
+            <span class="jd-statement__level">
+              {% for i in range(statement.proficiency.level) %}●{% endfor %}{% for i in range(statement.proficiency.max - statement.proficiency.level) %}○{% endfor %}
+              L{{ statement.proficiency.level }}
+            </span>
+            {% endif %}
+          </div>
+          {% if statement.description %}
+          <p class="jd-statement__description">{{ statement.description }}</p>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+    </section>
+    {% endif %}
+
+    <!-- 5. Responsibilities -->
+    {% set resp_el = jd_elements | selectattr('key', 'equalto', 'responsibility') | first | default(none) %}
+    {% if resp_el and resp_el.statements %}
+    <section class="jd-section">
+      <h2>Responsibilities</h2>
+      <ul class="jd-statements">
+        {% for statement in resp_el.statements %}
+        <li class="jd-statement">
+          <div class="jd-statement__main">
+            <span class="jd-statement__text">{{ statement.text }}</span>
+            <span class="jd-source-tag">[OaSIS]</span>
+            {% if statement.proficiency and statement.proficiency.level %}
+            <span class="jd-statement__level">
+              {% for i in range(statement.proficiency.level) %}●{% endfor %}{% for i in range(statement.proficiency.max - statement.proficiency.level) %}○{% endfor %}
+              L{{ statement.proficiency.level }}
+            </span>
+            {% endif %}
+          </div>
+          {% if statement.description %}
+          <p class="jd-statement__description">{{ statement.description }}</p>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+    </section>
+    {% endif %}
+
+    <!-- Classification Results (if included) -->
+    {% if include_classification and classification_result %}
+    <section class="classification-section">
+      <h1>Classification Step 1: Occupational Group Allocation</h1>
+      <table class="compliance-table">
+        <tr><th>Status</th><td>{{ classification_result.status }}</td></tr>
+        <tr><th>Match Context</th><td>{{ classification_result.match_context }}</td></tr>
+      </table>
+      <h2>Recommendations (Ranked by Confidence)</h2>
+      {% for rec in classification_result.recommendations %}
+      <div class="recommendation-export">
+        <h3>{{ rec.group_code }}: {{ rec.group_name }} ({{ rec.confidence }}% confidence)</h3>
+        <h4>Rationale</h4>
+        <p>{{ rec.rationale }}</p>
+        {% if rec.evidence %}
+        <h4>Supporting Evidence</h4>
+        {% for ev in rec.evidence %}
+        <blockquote class="evidence-quote-export">
+          "{{ ev.quote }}"<cite>— {{ ev.source_field }}</cite>
+        </blockquote>
+        {% endfor %}
+        {% endif %}
+        <h4>Authoritative Source</h4>
+        <p>
+          <strong>Source:</strong> {{ rec.provenance.source_type }}<br>
+          <strong>Document:</strong>
+          <a href="{{ rec.provenance.url }}" class="provenance-link-export">
+            TBS Occupational Group {{ rec.group_code }} Definition
+          </a><br>
+          {% if rec.provenance.inclusions_referenced %}
+          <strong>Inclusions Referenced:</strong> {{ rec.provenance.inclusions_referenced | join(', ') }}<br>
+          {% endif %}
+          {% if rec.provenance.exclusions_checked %}
+          <strong>Exclusions Checked:</strong> {{ rec.provenance.exclusions_checked | join(', ') }}<br>
+          {% endif %}
+          <small>Data retrieved: {{ rec.provenance.scraped_at }}</small>
+        </p>
+      </div>
+      {% endfor %}
+      <footer class="classification-audit-footer">
+        <h3>Classification Audit Trail</h3>
+        <table class="compliance-table">
+          <tr><th>Tool</th><td>JobForge Classification Engine</td></tr>
+          <tr><th>Version</th><td>{{ app_version }}</td></tr>
+          <tr><th>Generated</th><td>{{ classification_result.analyzed_at.strftime('%Y-%m-%d %H:%M UTC') if classification_result.analyzed_at else 'N/A' }}</td></tr>
+          <tr><th>Data Sources</th><td>TBS Occupational Group Definitions ({{ tbs_data_version }})</td></tr>
+          <tr><th>Compliance</th><td>TBS Directive 32592 (Automated Decision Making)</td></tr>
+          <tr><th>Constraints</th><td>{{ classification_result.constraints_compliance }}</td></tr>
+        </table>
+      </footer>
+    </section>
+    {% endif %}
+
+    <!-- Appendix A: Data Provenance & Compliance -->
+    <section class="compliance-appendix">
+      <h1>Appendix A: Data Provenance &amp; Compliance</h1>
+      <p class="appendix-intro">
+        This job description was created in compliance with the Treasury Board of Canada's
+        Directive on Automated Decision-Making (TBS Policy ID 32592).
+      </p>
+
+      <!-- Source Information -->
+      <h2>Source Information</h2>
+      <table class="compliance-table">
+        <tr><th>NOC Code</th><td>{{ noc_code }}</td></tr>
+        <tr><th>Data Source</th><td>JobForge 2.0 / OASIS (Occupational and Skills Information System)</td></tr>
+        <tr><th>Source Authority</th><td>Employment and Social Development Canada (ESDC)</td></tr>
+        <tr><th>Generated By</th><td>JobForge JD Builder 1.0</td></tr>
+        <tr><th>Generation Date</th><td>{{ generated_at.strftime('%Y-%m-%d %H:%M UTC') }}</td></tr>
+        <tr><th>NOC Version</th><td>{{ source_metadata.version }}</td></tr>
+        <tr><th>Profile URL</th><td>{{ source_metadata.profile_url }}</td></tr>
+        <tr><th>Retrieved</th><td>{{ source_metadata.scraped_at.strftime('%Y-%m-%d %H:%M UTC') }}</td></tr>
+      </table>
+
+      <!-- DAMA DMBOK Compliance -->
+      <h2>DAMA DMBOK Compliance</h2>
+      <p>Data management complies with the GC Data Quality Management Framework (DAMA DMBOK 2.0). All data sourced from authoritative Government of Canada occupational classification systems with documented lineage and timestamped retrieval.</p>
+
+      <!-- DADM Directive Compliance -->
+      <h2>DADM Directive Compliance (Section 6.2.7)</h2>
+      {% for section in compliance_sections %}
+      {% if section.section_id == "6.2.7" %}
+      <p>{{ section.content.description }}</p>
+      <p><strong>Total selections:</strong> {{ section.content.total_selections }} &nbsp;|&nbsp;
+         <strong>OaSIS Dataset:</strong> {{ section.content.oasis_dataset_url }}</p>
+      {% if section.content.selections %}
+      <table class="compliance-table selections-table provenance-table">
+        <thead>
+          <tr>
+            <th>Job Factor</th>
+            <th>Job Description Statement</th>
+            <th>Source</th>
+            <th>Publication Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for sel in section.content.selections %}
+          <tr>
+            <td>{{ sel.jd_element }}</td>
+            <td class="statement-cell">{{ sel.statement[:80] }}{% if sel.statement|length > 80 %}…{% endif %}</td>
+            <td>{{ sel.source_attribute }}</td>
+            <td>{{ sel.publication_date }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
+      {% endif %}
+      {% endfor %}
+
+      <!-- Directive on Classification Compliance -->
+      <h2>Directive on Classification Compliance (Section 4.1.2)</h2>
+      {% if include_classification and classification_result and classification_result.recommendations %}
+      <p>Occupational group allocation performed per TBS Directive on Classification Section 4.1.2.
+         Recommended group: <strong>{{ classification_result.recommendations[0].group_code }} —
+         {{ classification_result.recommendations[0].group_name }}</strong>
+         ({{ classification_result.recommendations[0].confidence }}% confidence).
+         Full rationale recorded above.</p>
+      {% else %}
+      <p>Classification Step 1 not yet performed for this job description. Proceed to the Classify step to generate an occupational group recommendation per TBS Directive on Classification Section 4.1.2.</p>
+      {% endif %}
+    </section>
+
+    <!-- Appendix B: Policy Provenance -->
+    <section class="compliance-appendix">
+      <h1>Appendix B: Policy Provenance</h1>
+
+      <h2>Authoritative Data Sources</h2>
+      <table class="compliance-table provenance-table">
+        <thead>
+          <tr>
+            <th>Source</th>
+            <th>Data Steward</th>
+            <th>Publication</th>
+            <th>Times Removed</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>2021 NOC (National Occupational Classification)</td>
+            <td>Employment and Social Development Canada (ESDC)</td>
+            <td>{{ source_metadata.scraped_at.strftime('%Y-%m-%d') }}</td>
+            <td>0 — Direct</td>
+          </tr>
+          <tr>
+            <td>OaSIS (Occupational and Skills Information System)</td>
+            <td>ESDC</td>
+            <td>{{ source_metadata.scraped_at.strftime('%Y-%m-%d') }}</td>
+            <td>0 — Direct</td>
+          </tr>
+          <tr>
+            <td>O*NET SOC (US Department of Labor)</td>
+            <td>U.S. Department of Labor / ETA</td>
+            <td>2024</td>
+            <td>1 — Crosswalked via NOC-SOC bridge</td>
+          </tr>
+          {% if source_metadata.section_sources %}
+          {% for section_key, source_val in source_metadata.section_sources.items() %}
+          {% if source_val == 'jobforge' %}
+          <tr>
+            <td>JobForge 2.0 Gold Parquet ({{ section_key }})</td>
+            <td>JobForge Data Pipeline</td>
+            <td>Current</td>
+            <td>1 — Crosswalked from NOC/OaSIS source tables</td>
+          </tr>
+          {% endif %}
+          {% endfor %}
+          {% endif %}
+        </tbody>
+      </table>
+
+      <h3>Degrees of Separation Legend</h3>
+      <table class="compliance-table">
+        <tr><th>0 — Direct</th><td>Data retrieved directly from authoritative source</td></tr>
+        <tr><th>1 — Crosswalked</th><td>Data mapped from one authoritative taxonomy to another (e.g. NOC ↔ SOC)</td></tr>
+        <tr><th>2+ — Derived</th><td>Data computed or inferred from source data</td></tr>
+      </table>
+
+      <!-- AI-Generated Content (if applicable) -->
+      {% if ai_metadata %}
+      <h2>AI-Generated Content</h2>
+      <table class="compliance-table">
+        <tr><th>Content Type</th><td>Position Overview (General Overview)</td></tr>
+        <tr><th>Model</th><td>{{ ai_metadata.model }}</td></tr>
+        <tr><th>Generation Timestamp</th><td>{{ ai_metadata.timestamp.strftime('%Y-%m-%d %H:%M UTC') }}</td></tr>
+        <tr><th>Prompt Version</th><td>{{ ai_metadata.prompt_version }}</td></tr>
+        <tr><th>Input Statements</th><td>{{ ai_metadata.input_statement_ids | length }}</td></tr>
+        <tr><th>Modified by User</th><td>{{ "Yes" if ai_metadata.modified else "No" }}</td></tr>
+        <tr><th>Purpose</th><td>Synthesize selected NOC statements into cohesive position overview prose</td></tr>
+      </table>
+      {% endif %}
+    </section>
+
+    <!-- Appendix C: Data Quality (DAMA DMBOK) -->
+    <section class="compliance-appendix">
+      <h1>Appendix C: Data Quality (DAMA DMBOK)</h1>
+      {% for section in compliance_sections %}
+      {% if section.section_id == "6.3.5" %}
+      <table class="compliance-table">
+        <thead>
+          <tr><th>Dimension</th><th>Requirement</th><th>How Met</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Accuracy</strong></td>
+            <td>{{ section.content.accurate.requirement }}</td>
+            <td>{{ section.content.accurate.how_met }}</td>
+          </tr>
+          <tr>
+            <td><strong>Completeness</strong></td>
+            <td>Data must be complete for its intended purpose</td>
+            <td>All selected JD elements retrieved from authoritative NOC/OaSIS sources with no truncation</td>
+          </tr>
+          <tr>
+            <td><strong>Consistency</strong></td>
+            <td>Data must be consistent across sources</td>
+            <td>NOC 2021 v1.0 used as single authoritative taxonomy; crosswalks documented in provenance chain</td>
+          </tr>
+          <tr>
+            <td><strong>Timeliness</strong></td>
+            <td>{{ section.content.up_to_date.requirement }}</td>
+            <td>{{ section.content.up_to_date.how_met }}</td>
+          </tr>
+        </tbody>
+      </table>
+      {% endif %}
+      {% endfor %}
+    </section>
+
+    <!-- Annex: Additional Job Information (if present) -->
+    {% if annex_data and annex_data.sections %}
+    <section class="annex-section">
+      <h1>Additional Job Information</h1>
+      <p class="annex-intro">
+        Reference information from the National Occupational Classification that may be useful
+        for recruitment, career development, and job analysis.
+      </p>
+      {% for section in annex_data.sections %}
+      <div class="annex-category">
+        <h2>{{ section.title }}</h2>
+        {% if not section.items %}
+        <p class="annex-empty-state">No additional information available.</p>
+        {% else %}
+          {% if section.format_type == 'paragraph' %}
+          {% for item in section.items %}
+          <p class="annex-paragraph">{{ item }}</p>
+          {% endfor %}
+          {% elif section.format_type == 'grouped_list' %}
+          {% for item in section.items %}
+            {% if item.endswith(':') %}
+            <p class="annex-group-header"><strong>{{ item }}</strong></p>
+            {% else %}
+            <p class="annex-mobility-item">{{ item }}</p>
+            {% endif %}
+          {% endfor %}
+          {% else %}
+          <ul class="annex-list">
+            {% for item in section.items %}
+            <li>{{ item }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        {% endif %}
+      </div>
+      {% endfor %}
+      <p class="annex-attribution">
+        Source: NOC {{ annex_data.source_noc_code }}, retrieved {{ annex_data.retrieved_at.strftime('%Y-%m-%d') }}
+      </p>
+    </section>
+    {% endif %}
+
+  </div>
+</body>
+</html>

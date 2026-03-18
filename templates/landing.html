@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DND Civilian Careers</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #f5f5f5;
+      font-family: sans-serif;
+    }
+    .landing-card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.1);
+      padding: 3rem 4rem;
+      text-align: center;
+      max-width: 560px;
+      width: 90%;
+    }
+    .landing-card h1 {
+      font-size: 1.6rem;
+      margin-bottom: 0.5rem;
+      color: #1a1a1a;
+    }
+    .landing-card p {
+      color: #666;
+      margin-bottom: 2.5rem;
+    }
+    .route-options {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+    }
+    .route-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1.5rem 2rem;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      text-decoration: none;
+      color: #1a1a1a;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      min-width: 160px;
+    }
+    .route-btn:hover {
+      border-color: #c00;
+      box-shadow: 0 2px 8px rgba(200,0,0,0.1);
+    }
+    .route-btn .icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .route-btn .label {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+    .route-btn .sub {
+      font-size: 0.8rem;
+      color: #888;
+      margin-top: 0.25rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="landing-card">
+    <h1>DND Civilian Careers</h1>
+    <p>How are you using this today?</p>
+    <div class="route-options">
+      <a href="/careers/" class="route-btn">
+        <span class="icon">🔍</span>
+        <span class="label">I'm job seeking</span>
+        <span class="sub">Browse careers</span>
+      </a>
+      <a href="/builder/" class="route-btn">
+        <span class="icon">📋</span>
+        <span class="label">I'm a manager</span>
+        <span class="sub">Build a job description</span>
+      </a>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,298 @@
+/* Sidebar Styles */
+
+.sidebar {
+    position: fixed;
+    right: 0;
+    top: 0;
+    height: 100vh;
+    width: 300px;
+    background: var(--bg);
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    z-index: 50;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar.open {
+    transform: translateX(0);
+}
+
+/* Toggle button */
+.sidebar-toggle {
+    position: absolute;
+    left: -40px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 4px 0 0 4px;
+    padding: 0.75rem 0.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.sidebar-toggle:hover {
+    background: var(--secondary);
+}
+
+.toggle-icon {
+    display: block;
+    width: 1.25rem;
+    height: 1.25rem;
+    position: relative;
+}
+
+/* Chevron icon pointing left (to expand) */
+.toggle-icon::before,
+.toggle-icon::after {
+    content: '';
+    position: absolute;
+    width: 0.5rem;
+    height: 2px;
+    background: white;
+    left: 50%;
+    transform-origin: left center;
+}
+
+.toggle-icon::before {
+    top: 40%;
+    transform: translateX(-50%) rotate(-45deg);
+}
+
+.toggle-icon::after {
+    top: 60%;
+    transform: translateX(-50%) rotate(45deg);
+}
+
+/* Chevron pointing right when open */
+.sidebar.open .toggle-icon::before {
+    transform: translateX(-50%) rotate(45deg);
+}
+
+.sidebar.open .toggle-icon::after {
+    transform: translateX(-50%) rotate(-45deg);
+}
+
+/* Sidebar content */
+.sidebar-content {
+    padding: 1rem;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.sidebar-content h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+/* Selection summary groups */
+.selection-group {
+    margin-bottom: 1.5rem;
+}
+
+.selection-group-header {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+}
+
+.selection-group-items {
+    list-style: none;
+}
+
+.selection-group-item {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.875rem;
+    color: var(--text);
+    line-height: 1.4;
+}
+
+.selection-group-item:last-child {
+    border-bottom: none;
+}
+
+/* Empty state */
+.empty-state {
+    color: var(--text-light);
+    font-style: italic;
+    text-align: center;
+    padding: 2rem 1rem;
+}
+
+/* Selection count badge */
+.selection-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #f5f5f5;
+    border-top: 1px solid var(--border);
+    margin-top: auto;
+}
+
+.selection-total-label {
+    font-weight: 500;
+    color: var(--text);
+}
+
+.selection-total-count {
+    font-weight: 600;
+    color: var(--accent);
+}
+
+/* Remove selection button */
+.remove-selection {
+    background: none;
+    border: none;
+    color: var(--error);
+    cursor: pointer;
+    padding: 0.25rem;
+    margin-left: 0.5rem;
+    font-size: 0.75rem;
+    opacity: 0.7;
+    transition: opacity 0.15s;
+}
+
+.remove-selection:hover {
+    opacity: 1;
+}
+
+/* Drawer title bar */
+.sidebar__title-bar {
+    padding: 0 0 0.75rem 0;
+    border-bottom: 1px solid var(--border, #e0e0e0);
+    margin-bottom: 0.75rem;
+}
+
+.sidebar__title-bar h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text, #333);
+    margin: 0 0 0.25rem 0;
+}
+
+.sidebar__subtitle {
+    font-size: 0.8rem;
+    color: var(--text-light, #666);
+}
+
+/* Section groups */
+.sidebar__section {
+    margin-bottom: 1rem;
+}
+
+.sidebar__section-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--primary, #1a3a5c);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 0.4rem;
+}
+
+.sidebar__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar__item {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.82rem;
+    line-height: 1.4;
+    color: var(--text, #333);
+}
+
+.sidebar__item:last-child {
+    border-bottom: none;
+}
+
+.sidebar__item-text {
+    flex: 1;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+/* Deselect x button (SEL-02) */
+.sidebar__deselect {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    color: var(--error, #dc3545);
+    cursor: pointer;
+    padding: 0.15rem 0.3rem;
+    font-size: 0.7rem;
+    opacity: 0.6;
+    transition: opacity 0.15s;
+    border-radius: 3px;
+}
+
+.sidebar__deselect:hover {
+    opacity: 1;
+    background: rgba(220, 53, 69, 0.08);
+}
+
+/* Empty state */
+.sidebar__empty {
+    color: var(--text-light, #666);
+    font-style: italic;
+    text-align: center;
+    padding: 2rem 1rem;
+    font-size: 0.85rem;
+}
+
+/* Footer with total count and Clear All (SEL-03) */
+.sidebar__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    margin-top: 0.75rem;
+    border-top: 2px solid var(--border, #e0e0e0);
+}
+
+.sidebar__total {
+    font-size: 0.85rem;
+    color: var(--text, #333);
+}
+
+.sidebar__clear-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.75rem;
+    background: var(--error, #dc3545);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.sidebar__clear-all:hover {
+    background: #c82333;
+}

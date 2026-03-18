@@ -1,0 +1,322 @@
+/* Filter Panel Styles — v5.1 with accordion sections (SRCH-03) */
+
+/* Results Layout with Filter Panel */
+.results-layout {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+}
+
+.results-main {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Filter Panel */
+.filter-panel {
+    width: 280px;
+    flex-shrink: 0;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1rem;
+}
+
+.filter-panel h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+/* Filter Groups (collapsible details and hierarchy containers) */
+.filter-group {
+    margin-bottom: 0.75rem;
+}
+
+.filter-group summary {
+    padding: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    background: var(--highlight);
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.filter-group summary::-webkit-details-marker {
+    display: none;
+}
+
+.filter-group summary::after {
+    content: '+';
+    font-weight: bold;
+    font-size: 1.25rem;
+    color: var(--text-light);
+}
+
+.filter-group[open] summary::after {
+    content: '-';
+}
+
+.filter-group summary:hover {
+    background: var(--border-light, #f0f0f0);
+}
+
+.filter-group summary:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+}
+
+/* Filter Fieldset */
+.filter-group fieldset {
+    border: none;
+    margin: 0;
+    padding: 0.5rem 0.75rem;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.filter-group legend {
+    display: none;
+}
+
+/* Filter Checkboxes */
+.filter-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.25rem 0;
+    font-size: 0.875rem;
+    cursor: pointer;
+}
+
+.filter-checkbox input[type="checkbox"] {
+    margin-top: 0.25rem;
+    flex-shrink: 0;
+}
+
+.filter-checkbox-label {
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.filter-checkbox-count {
+    color: var(--text-light);
+    font-size: 0.75rem;
+    margin-left: 0.25rem;
+}
+
+/* Hierarchical Filter Checkboxes */
+.filter-checkbox--parent {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.filter-group__children {
+    margin-left: 1.5rem;
+    border-left: 2px solid #e0e0e0;
+    padding-left: 0.75rem;
+    margin-top: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.filter-checkbox--child {
+    font-weight: 400;
+    font-size: 0.875rem;
+}
+
+.filter-checkbox--child .filter-checkbox-label {
+    font-size: 0.8125rem;
+}
+
+/* Clear Filters Button */
+.filter-clear {
+    width: 100%;
+    padding: 0.5rem;
+    margin-top: 1rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.875rem;
+}
+
+.filter-clear:hover {
+    background: var(--highlight);
+}
+
+.filter-clear:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Active Filter Badge */
+.filter-active-count {
+    background: var(--accent);
+    color: white;
+    font-size: 0.75rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: 10px;
+    margin-left: 0.5rem;
+}
+
+/* Empty Filter State */
+.filter-empty {
+    padding: 0.75rem;
+    color: var(--text-light);
+    font-size: 0.875rem;
+    font-style: italic;
+    text-align: center;
+}
+
+/* Scoring Legend (S1-16) */
+.scoring-legend {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+.scoring-legend__title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.scoring-legend__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.scoring-legend__list li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.78rem;
+    color: var(--text);
+    padding: 0.2rem 0;
+    line-height: 1.3;
+}
+
+.scoring-legend__pct {
+    display: inline-block;
+    min-width: 2.8rem;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.7rem;
+    padding: 0.1rem 0.35rem;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.scoring-legend__pct--100 { background: #c8e6c9; color: #1b5e20; }
+.scoring-legend__pct--95  { background: #d4edda; color: #155724; }
+.scoring-legend__pct--85  { background: #d4edda; color: #155724; }
+.scoring-legend__pct--60  { background: #fff3cd; color: #856404; }
+.scoring-legend__pct--50  { background: #fff3cd; color: #856404; }
+
+/* v5.1 scoring legend color classes */
+.scoring-legend__pct--green { background: #d4edda; color: #155724; }
+.scoring-legend__pct--blue  { background: #cce5ff; color: #004085; }
+.scoring-legend__pct--grey  { background: #e2e3e5; color: #383d41; }
+
+/* v5.1 Filter Accordion (SRCH-03) */
+.filter-accordion {
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+}
+.filter-accordion > summary {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    background: #f8f9fa;
+    list-style: none;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.filter-accordion > summary::-webkit-details-marker {
+    display: none;
+}
+.filter-accordion > summary::before {
+    content: '\25B6';
+    font-size: 0.6rem;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+}
+.filter-accordion[open] > summary::before {
+    transform: rotate(90deg);
+}
+.filter-accordion__body {
+    padding: 0.75rem 1rem;
+}
+.filter-accordion__body--ochro {
+    padding: 0;
+}
+.filter-sub-section {
+    padding: 0.5rem 1rem 0.75rem;
+}
+.filter-sub-section + .filter-sub-section {
+    border-top: 1px solid var(--border-subtle, #e5e7eb);
+}
+.filter-sub-heading {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted, #6b7280);
+    margin: 0 0 0.5rem;
+}
+.filter-accordion .filter-empty {
+    margin: 0;
+}
+
+/* Responsive: Hide filter panel on mobile */
+@media (max-width: 768px) {
+    .results-layout {
+        flex-direction: column;
+    }
+
+    .filter-panel {
+        width: 100%;
+        order: -1; /* Filters above results on mobile */
+    }
+
+    /* Collapse all filter groups by default on mobile */
+    .filter-group:not([open]) {
+        /* Default closed on mobile for space */
+    }
+}
+
+/* Filter Panel Toggle (for mobile) */
+.filter-toggle {
+    display: none;
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+    .filter-toggle {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .filter-panel.collapsed {
+        display: none;
+    }
+}

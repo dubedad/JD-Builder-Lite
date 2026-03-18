@@ -1,0 +1,544 @@
+/* Accordion Styles using <details>/<summary> */
+
+:root {
+    --oasis-blue: #0066cc;
+    --oasis-blue-light: #4d94d9;
+    --circle-empty: #b0b0b0;
+}
+
+details.accordion-section {
+    border: 1px solid var(--border);
+    margin-bottom: 0.5rem;
+    border-radius: 4px;
+    background: var(--bg);
+    overflow: hidden;
+}
+
+details.accordion-section summary {
+    padding: 1rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    color: var(--text);
+    list-style: none;
+    user-select: none;
+    transition: background 0.15s;
+}
+
+/* Remove default marker */
+details.accordion-section summary::-webkit-details-marker {
+    display: none;
+}
+
+details.accordion-section summary::marker {
+    display: none;
+}
+
+details.accordion-section summary:hover {
+    background: #fafafa;
+}
+
+/* Custom expand icon */
+details.accordion-section summary::after {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    border-right: 2px solid var(--text-light);
+    border-bottom: 2px solid var(--text-light);
+    transform: rotate(-45deg);
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+    margin-left: 1rem;
+}
+
+details.accordion-section[open] summary::after {
+    transform: rotate(45deg);
+}
+
+/* Open state border */
+details.accordion-section[open] summary {
+    border-bottom: 1px solid var(--border);
+}
+
+/* Section content */
+.accordion-content {
+    padding: 1rem;
+}
+
+/* Section header with title and count */
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.section-title {
+    font-weight: 600;
+}
+
+.section-count {
+    color: var(--text-light);
+    font-weight: normal;
+    font-size: 0.875rem;
+}
+
+/* Statement items within accordion */
+.statement-list {
+    list-style: none;
+}
+
+.statement-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.statement-item:last-child {
+    border-bottom: none;
+}
+
+.statement-checkbox {
+    margin-top: 0.25rem;
+    width: 1rem;
+    height: 1rem;
+    cursor: pointer;
+    accent-color: var(--accent);
+}
+
+.statement-content {
+    flex: 1;
+}
+
+.statement-text {
+    color: var(--text);
+    line-height: 1.5;
+}
+
+.statement-source {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin-top: 0.25rem;
+}
+
+/* Selected state */
+.statement-item.selected {
+    background: var(--highlight);
+    margin: 0 -1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+/* Empty section state */
+.section-empty {
+    color: var(--text-light);
+    font-style: italic;
+    padding: 1rem 0;
+}
+
+/* Section filter/search */
+.section-filter {
+    margin-bottom: 1rem;
+}
+
+.section-filter input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+.section-filter input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+/* ============================================
+   JD Section Accordion (Plan 02)
+   ============================================ */
+
+details.jd-section {
+    border: 1px solid var(--border);
+    margin-bottom: 0.5rem;
+    border-radius: 4px;
+    background: var(--bg);
+    overflow: hidden;
+}
+
+details.jd-section summary.jd-section__header {
+    padding: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: var(--text);
+    list-style: none;
+    user-select: none;
+    transition: background 0.15s;
+}
+
+/* Remove default marker */
+details.jd-section summary.jd-section__header::-webkit-details-marker {
+    display: none;
+}
+
+details.jd-section summary.jd-section__header::marker {
+    display: none;
+}
+
+details.jd-section summary.jd-section__header:hover {
+    background: #fafafa;
+}
+
+/* Custom expand icon */
+details.jd-section summary.jd-section__header::after {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    border-right: 2px solid var(--text-light);
+    border-bottom: 2px solid var(--text-light);
+    transform: rotate(-45deg);
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+details.jd-section[open] summary.jd-section__header::after {
+    transform: rotate(45deg);
+}
+
+/* Open state border */
+details.jd-section[open] summary.jd-section__header {
+    border-bottom: 1px solid var(--border);
+}
+
+/* Drag handle */
+.jd-section__drag-handle {
+    cursor: grab;
+    padding: 0 0.25rem;
+    color: var(--text-light);
+    font-size: 1rem;
+}
+
+.jd-section__drag-handle:active {
+    cursor: grabbing;
+}
+
+/* Dragging state */
+.jd-section--dragging {
+    opacity: 0.5;
+    background: var(--highlight);
+}
+
+/* Section title and count */
+.jd-section__title {
+    font-weight: 600;
+}
+
+.jd-section__count {
+    color: var(--text-light);
+    font-weight: normal;
+    font-size: 0.875rem;
+}
+
+/* Section content */
+.jd-section__content {
+    padding: 1rem;
+}
+
+/* Section search filter */
+.jd-section__search {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+}
+
+.jd-section__search:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+/* Statement list */
+.jd-section__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Statement styling */
+.statement {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border);
+    transition: background-color 0.2s ease;
+}
+
+.statement:last-child {
+    border-bottom: none;
+}
+
+.statement--selected {
+    background-color: var(--highlight);
+    border-left: 3px solid var(--accent);
+    margin-left: -3px;
+}
+
+.statement__label {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    width: 100%;
+    cursor: pointer;
+}
+
+.statement__checkbox {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+    margin-top: 0.125rem;
+}
+
+.statement__content {
+    flex: 1;
+    min-width: 0;
+}
+
+.statement__text {
+    display: block;
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+.statement__description {
+    display: block;
+    font-size: 0.8125rem;
+    color: #555;
+    margin-top: 0.375rem;
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-left: 2px solid var(--gc-blue, #26374a);
+    border-radius: 0 4px 4px 0;
+    line-height: 1.4;
+}
+
+.statement__source {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin-top: 0.25rem;
+}
+
+.statement.hidden {
+    display: none;
+}
+
+/* Proficiency Rating */
+.proficiency-rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+    margin-left: auto;
+    padding-left: 1rem;
+    flex-shrink: 0;
+}
+
+.proficiency-rating .rating-circles {
+    color: var(--oasis-blue);
+    letter-spacing: 0.125rem;
+    font-size: 0.875rem;
+}
+
+.proficiency-rating .rating-circles .empty {
+    color: var(--circle-empty);
+}
+
+.proficiency-rating .rating-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-light);
+    min-width: 1.5rem;
+}
+
+/* Tooltip on hover/focus */
+.proficiency-rating::after {
+    content: attr(data-full-label);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--text);
+    color: white;
+    padding: 0.375rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    z-index: 10;
+}
+
+.proficiency-rating:hover::after,
+.proficiency-rating:focus-within::after {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.proficiency-rating.no-rating .rating-circles {
+    display: none;
+}
+
+.proficiency-rating.no-rating .rating-label {
+    font-style: italic;
+    color: var(--text-light);
+}
+
+/* Dimension Type Badge (Work Context) */
+.dimension-badge {
+    display: inline-block;
+    background: var(--highlight);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0.125rem 0.375rem;
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-left: 0.5rem;
+    vertical-align: middle;
+}
+
+/* Sidebar styling additions */
+.sidebar__section {
+    margin-bottom: 1.5rem;
+}
+
+.sidebar__section-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.sidebar__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar__item {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.875rem;
+}
+
+.sidebar__item:last-child {
+    border-bottom: none;
+}
+
+.sidebar__item-text {
+    display: block;
+    line-height: 1.4;
+}
+
+.sidebar__item-source {
+    color: var(--text-light);
+    font-size: 0.75rem;
+    font-style: italic;
+}
+
+.sidebar__empty {
+    color: var(--text-light);
+    font-style: italic;
+}
+
+/* ============================================
+   Statement Description Tooltips (Phase 08-D)
+   WCAG 2.1 SC 1.4.13 compliant
+   ============================================ */
+
+/* Make statement text with tooltip focusable and indicate help cursor */
+.statement__text[data-tooltip] {
+    position: relative;
+    cursor: help;
+    display: inline-block;
+    outline-offset: 2px;
+}
+
+/* Tooltip content using ::after pseudo-element */
+.statement__text[data-tooltip]::after {
+    content: attr(data-tooltip);
+
+    /* Positioning - above element */
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 0;
+
+    /* Box model */
+    padding: 0.5rem 0.75rem;
+    max-width: 320px;
+    min-width: 200px;
+    width: max-content;
+
+    /* Typography */
+    font-size: 0.75rem;
+    font-weight: normal;
+    line-height: 1.5;
+    white-space: normal;
+    text-align: left;
+
+    /* Styling */
+    background: #333;
+    color: white;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+
+    /* Hidden by default */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 100;
+}
+
+/* Tooltip arrow */
+.statement__text[data-tooltip]::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% + 2px);
+    left: 16px;
+    border: 6px solid transparent;
+    border-top-color: #333;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 101;
+}
+
+/* Show tooltip on hover AND focus (WCAG 2.1 keyboard accessibility) */
+.statement__text[data-tooltip]:hover::after,
+.statement__text[data-tooltip]:hover::before,
+.statement__text[data-tooltip]:focus::after,
+.statement__text[data-tooltip]:focus::before {
+    opacity: 1;
+}
+
+/* Ensure provenance label is always visible (verify existing styles) */
+.statement__source {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-light);
+    font-style: italic;
+    margin-top: 0.25rem;
+}
