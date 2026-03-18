@@ -22,38 +22,48 @@ Reconcile GitHub so all work is safe and the codebase is unified. ✅ Done.
 - `src/services/careers_parquet_reader.py` reads `job_architecture.parquet`
   and `bridge_caf_ja.parquet` from JOBFORGE_GOLD_PATH
 - L1/L2 browse driven by parquet (209 families, 1,987 titles)
-- L3 still overlays enriched content from `ps_careers_site/careers.sqlite`
+- L3 overlays enriched content from `ps_careers_site/careers.sqlite`
 
 ---
 
-## Known Bug (Next Session Priority 1)
+## Known Bug — `/careers/` returns 500
 
-**`/careers/` returns 500 Internal Server Error**
+**Status:** Not resolved. All tests pass (200) but the running server returns 500.
+The error is being swallowed — no traceback visible in terminal or browser.
 
-The template fix was applied (`{% extends "careers/base.html" %}`) and committed,
-but the error persists. Root cause not yet confirmed — needs debug mode to see
-the actual traceback.
+**What has been tried:**
+- Fixed `{% extends "base.html" %}` → `{% extends "careers/base.html" %}` ✅
+- Fixed Jinja2 quote conflict in card image url_for ✅
+- Added try/except with print() to route — still no visible error
+- Cleared __pycache__ — no change
+- Debug mode — generic 500 still shown, no Werkzeug traceback in browser
 
-**To diagnose:** run with `--debug` flag and click the employee button:
+**Most likely remaining causes to investigate next session:**
+1. Run `python -m flask --app src/app.py run --debug` and visit `/careers/`
+   — browser should show Werkzeug debugger with full traceback
+2. If still generic 500, something is intercepting before Flask error handler
+3. Check if `pandas` or `pyarrow` is causing a non-Exception crash at render time
+
+**Quick workaround to run original careers site while debugging:**
 ```
-python -m flask --app src/app.py run --debug
+cd C:\Users\Administrator\Projects\jd-builder\ps_careers_site
+python main.py
 ```
-Paste the terminal output to identify the real error.
+Then visit `http://localhost:8000/careers`
+(Note: must cd INTO ps_careers_site folder first, not run from root)
 
 ---
 
 ## App Setup
 
-**To run:**
+**To run the merged app:**
 ```
 cd C:\Users\Administrator\Projects\jd-builder
 python -m flask --app src/app.py run
 ```
 
-**Rob's `.env`** — saved at project root. Contains:
-- `JOBFORGE_GOLD_PATH=C:/Users/Administrator/Projects/jobforge/data/gold`
-- `JOBFORGE_BRONZE_PATH=C:/Users/Administrator/Projects/jobforge/data/bronze`
-- `OPENAI_API_KEY` and `SECRET_KEY`
+**Rob's `.env`** — saved at `C:\Users\Administrator\Projects\jd-builder\.env`
+Contains JOBFORGE_GOLD_PATH, JOBFORGE_BRONZE_PATH, OPENAI_API_KEY, SECRET_KEY
 
 **Vic's `.env`** — still needs to be created at his project root:
 ```
@@ -63,13 +73,21 @@ OPENAI_API_KEY=key-here
 SECRET_KEY=dev-secret-change-in-production
 ```
 
+**Vic sync instructions** (not yet done — do this next session):
+```
+git pull origin master
+pip install -r requirements.txt
+# create .env as above
+python -m flask --app src/app.py run
+```
+
 ---
 
 ## Remaining Steps
 
 | Step | What | Status |
 |------|------|--------|
-| Bug | `/careers/` 500 error | Fix first |
+| Bug | `/careers/` 500 error | Unresolved — investigate first |
 | 4 | CAF pixel-parity audit — live verify forces.ca | Not started |
 | 5 | Unified taxonomy in JobForge 2.0 | Not started |
 

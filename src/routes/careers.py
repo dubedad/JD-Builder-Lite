@@ -84,8 +84,9 @@ def browse_careers():
         )
     except Exception as e:
         import traceback
-        logger.error("browse_careers error: %s\n%s", e, traceback.format_exc())
-        raise
+        tb = traceback.format_exc()
+        print("CAREERS ERROR:", tb)
+        return f"<pre>{tb}</pre>", 500
 
 
 @careers_bp.route('/<family_slug>')
