@@ -2,7 +2,7 @@
 
 from enum import Enum
 from pydantic import BaseModel, Field, ConfigDict
-from typing import List, Optional
+from typing import Dict, List, Optional
 from datetime import datetime
 
 
@@ -67,6 +67,12 @@ class EnrichedSearchResult(BaseModel):
     minor_group: Optional[str] = None     # First 3 digits (legacy name, same as sub_major_group)
     minor_group_name: Optional[str] = None  # Not available from search HTML
     unit_group: Optional[str] = None      # First 4 digits
+
+    # OCHRO Job Architecture fields (from job_architecture.parquet)
+    job_function: Optional[str] = None    # primary job function (first match, kept for compat)
+    job_family: Optional[str] = None      # primary job family (first match, kept for compat)
+    managerial_levels: Optional[List[str]] = None   # all unique managerial levels for this NOC
+    ochro_entries: Optional[List[Dict[str, str]]] = None  # all unique [{function, family}] pairs
 
     # For Grid View (DISP-21) - requires profile fetch
     top_skills: Optional[List[str]] = None

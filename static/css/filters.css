@@ -259,6 +259,23 @@
 .filter-accordion__body {
     padding: 0.75rem 1rem;
 }
+.filter-accordion__body--ochro {
+    padding: 0;
+}
+.filter-sub-section {
+    padding: 0.5rem 1rem 0.75rem;
+}
+.filter-sub-section + .filter-sub-section {
+    border-top: 1px solid var(--border-subtle, #e5e7eb);
+}
+.filter-sub-heading {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted, #6b7280);
+    margin: 0 0 0.5rem;
+}
 .filter-accordion .filter-empty {
     margin: 0;
 }

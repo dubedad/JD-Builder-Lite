@@ -3,8 +3,14 @@
 import os
 from typing import Set
 
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
+try:
+    from watchdog.observers import Observer
+    from watchdog.events import FileSystemEventHandler
+    HAS_WATCHDOG = True
+except ImportError:
+    HAS_WATCHDOG = False
+    Observer = object
+    FileSystemEventHandler = object
 
 from src.vocabulary.index import VocabularyIndex
 
@@ -59,7 +65,7 @@ class VocabularyFileHandler(FileSystemEventHandler):
                 print(f"[Vocabulary] Reload failed: {e}")
 
 
-def start_vocabulary_watcher(vocab_index: VocabularyIndex, bronze_path: str) -> Observer:
+def start_vocabulary_watcher(vocab_index: VocabularyIndex, bronze_path: str):
     """Start file watcher for vocabulary hot-reload.
 
     Creates an Observer that monitors the bronze directory for changes
@@ -70,8 +76,12 @@ def start_vocabulary_watcher(vocab_index: VocabularyIndex, bronze_path: str) -> 
         bronze_path: Path to JobForge bronze data directory
 
     Returns:
-        Observer instance (call observer.stop() to cleanup)
+        Observer instance (call observer.stop() to cleanup), or None if watchdog unavailable
     """
+    if not HAS_WATCHDOG:
+        print("[Vocabulary] watchdog not available — hot-reload disabled")
+        return None
+
     handler = VocabularyFileHandler(vocab_index)
     observer = Observer()
     observer.schedule(handler, bronze_path, recursive=False)

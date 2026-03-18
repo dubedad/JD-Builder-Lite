@@ -6,6 +6,52 @@ expensive LLM classification.
 
 Per CONTEXT.md: "Hybrid approach - match all groups but boost confidence if labels.csv
 supports the match"
+
+--- FILTER CONDITION CHANGE (2025-03-05) ---
+
+Original filter condition:
+    if semantic_similarity >= min_similarity or best_inclusion_sim >= min_similarity
+
+Updated filter condition (this file):
+    if semantic_similarity >= min_similarity
+       or best_inclusion_sim >= min_similarity
+       or keyword_boost > 0                    ← NEW
+
+Why added:
+  When sentence-transformers is unavailable, SemanticMatcher falls back to TF-IDF
+  cosine similarity. TF-IDF scores are typically in the 0.05–0.20 range for
+  semantically related but lexically distinct texts (e.g. JD says "software developer",
+  definition says "information technology systems"). This means TF-IDF may return 0.0
+  for groups that are clearly the right match, causing them to be filtered out before
+  the LLM ever sees them.
+
+  The `keyword_boost > 0` condition ensures that any group whose TITLE_KEYWORD_GROUPS
+  keywords appear in the JD text is always included as a candidate, regardless of
+  TF-IDF score. This is a safety net for the most common and obvious title-based
+  matches (e.g. "engineer" → EN, "software" → IT, "nurse" → NU).
+
+Accuracy implications:
+  Under neural embeddings (normal operation): no change — keyword_boost only adds
+  an entry that would typically already pass the semantic threshold.
+
+  Under TF-IDF fallback: groups that match via keywords but score 0.0 on TF-IDF
+  ARE now included. Their combined_score will be 0.0 + labels_boost + 0.15
+  (keyword_boost). They will rank below any group with non-zero TF-IDF score but
+  above unmatched groups. The LLM receives them and can make the final call.
+
+Remaining risk:
+  Groups with no keyword in TITLE_KEYWORD_GROUPS and low TF-IDF overlap are still
+  filtered out under the TF-IDF fallback. These are edge cases where the JD describes
+  a role using vocabulary very different from both the group definition and the keyword
+  list. Example: a "Welfare Officer" → WP might not be caught if neither TF-IDF
+  overlap nor a keyword match exists.
+
+  Mitigation for future work: expand TITLE_KEYWORD_GROUPS, or lower min_similarity
+  dynamically when TF-IDF fallback is active (check matcher._use_neural).
+
+See also:
+  src/matching/shortlisting/semantic_matcher.py — full accuracy analysis
+  .planning/accuracy-notes/tfidf-fallback-2025-03-05.md — evaluation checklist
 """
 
 from typing import List, Dict
@@ -15,8 +61,10 @@ import re
 _semantic_matcher = None
 _labels_booster = None
 
-# Keyword-based group code matching for obvious job titles
-# This helps when semantic matching fails due to definition preamble
+# Keyword-based group code matching for obvious job titles.
+# Primary purpose: ranking boost for title-obvious matches.
+# Secondary purpose (2025-03-05): safety net to include candidates in shortlist
+#   even when TF-IDF semantic similarity is 0 due to vocabulary mismatch.
 # Format: { 'group_code': ['keyword1', 'keyword2', ...] }
 TITLE_KEYWORD_GROUPS = {
     'AS': ['administrative', 'admin assistant', 'administrative assistant', 'executive assistant', 'clerical'],
@@ -41,6 +89,8 @@ def _get_keyword_boost(group_code: str, jd_text: str) -> float:
 
     This helps with obvious matches where semantic similarity fails due to
     bureaucratic definition text.
+
+    Also serves as a filter safety net under TF-IDF fallback — see module docstring.
 
     Args:
         group_code: TBS group code
@@ -96,11 +146,17 @@ def shortlist_with_all_signals(
     2. Semantic similarity to INCLUSIONS - used for RANKING when inclusions match better
        than definitions (e.g., IT group has legal preamble in definition but clear inclusions)
     3. Labels.csv boost - additive boost for ordering
+    4. Keyword boost - title-based signal, also a safety net under TF-IDF fallback
+
+    NOTE ON THRESHOLD: min_similarity was calibrated for neural embeddings (0.2–0.3 meaningful).
+    Under TF-IDF fallback (Python 3.14+, torch unavailable), meaningful scores are lower
+    (0.05–0.20). The keyword_boost safety net in the filter condition partially compensates.
+    See module docstring and semantic_matcher.py for full accuracy analysis.
 
     Args:
         jd_text: Combined Client-Service Results + Key Activities
         groups: List of group dicts from repository (with inclusions)
-        min_similarity: Threshold (default 0.3 per CONTEXT.md)
+        min_similarity: Threshold (default 0.3 per CONTEXT.md, calibrated for neural)
         max_candidates: Max candidates to return (default 10)
 
     Returns:
@@ -111,7 +167,7 @@ def shortlist_with_all_signals(
             'inclusion_match': bool,       # True if inclusions helped shortlist
             'best_inclusion_sim': float,   # best inclusion similarity (for ranking)
             'labels_boost': float,
-            'combined_score': float        # max(definition, inclusion) + labels_boost
+            'combined_score': float        # max(definition, inclusion) + labels_boost + keyword_boost
         }
     """
     matcher = _get_semantic_matcher()
@@ -159,10 +215,15 @@ def shortlist_with_all_signals(
         # Keyword boost helps obvious matches like "Administrative Assistant" -> AS
         combined_score = effective_similarity + labels_boost + keyword_boost
 
-        # Include candidate if:
-        # 1. Definition similarity >= min_similarity, OR
-        # 2. Best inclusion similarity >= min_similarity (helps IT, etc.)
-        if semantic_similarity >= min_similarity or best_inclusion_sim >= min_similarity:
+        # Include candidate if any of these conditions hold:
+        # 1. Definition similarity >= min_similarity (primary — neural: 0.2+, TF-IDF: less reliable)
+        # 2. Best inclusion similarity >= min_similarity (secondary — helps IT group etc.)
+        # 3. Keyword boost matched (2025-03-05 safety net for TF-IDF fallback — see module
+        #    docstring; ensures title-obvious groups are never wrongly excluded when TF-IDF
+        #    scores 0.0 due to vocabulary mismatch between JD and definition)
+        if (semantic_similarity >= min_similarity
+                or best_inclusion_sim >= min_similarity
+                or keyword_boost > 0):
             candidates.append({
                 'group': group,
                 'semantic_similarity': semantic_similarity,  # Definition sim for LLM

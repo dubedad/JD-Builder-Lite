@@ -30,6 +30,7 @@ logger = logging.getLogger(__name__)
 _LABELS_FILE = "element_labels.parquet"
 _LEAD_FILE = "element_lead_statement.parquet"
 _TITLES_FILE = "element_example_titles.parquet"
+_JOB_ARCH_FILE = "job_architecture.parquet"
 
 
 def _stem_word(word: str) -> str:
@@ -85,6 +86,7 @@ class SearchParquetReader:
         self._labels_df: Optional[pd.DataFrame] = None
         self._lead_df: Optional[pd.DataFrame] = None
         self._titles_df: Optional[pd.DataFrame] = None
+        self._ochro_map: dict[str, dict] = {}  # noc_code -> {job_function, job_family}
         self._loaded: bool = False
         self._load_failed: bool = False
 
@@ -138,6 +140,49 @@ class SearchParquetReader:
         self._labels_df = labels_result.data
         self._lead_df = lead_result.data
         self._titles_df = titles_result.data
+
+        # Load OCHRO job architecture (optional — missing file does not block search)
+        arch_result = read_parquet_safe(gold / _JOB_ARCH_FILE)
+        if arch_result.status != CoverageStatus.LOAD_ERROR and arch_result.data is not None:
+            arch_df = arch_result.data
+            # Collect all entries per NOC code (one NOC may have many OCHRO roles)
+            ochro_map: dict[str, dict] = {}
+            for _, row in arch_df.iterrows():
+                raw_uid = row.get("noc_2021_uid")
+                if pd.isna(raw_uid):
+                    continue
+                noc_key = str(int(float(raw_uid))).zfill(5)
+                fn = str(row.get("job_function_en") or "").strip()
+                fam = str(row.get("job_family_en") or "").strip()
+                level = str(row.get("managerial_level_en") or "").strip()
+
+                if noc_key not in ochro_map:
+                    ochro_map[noc_key] = {
+                        "job_function": fn,   # primary (first seen)
+                        "job_family": fam,
+                        "levels": set(),
+                        "entries": [],        # unique {function, family} pairs
+                        "entries_seen": set(),
+                    }
+
+                entry = ochro_map[noc_key]
+                if level:
+                    entry["levels"].add(level)
+                pair_key = f"{fn}|{fam}"
+                if pair_key not in entry["entries_seen"] and fn:
+                    entry["entries"].append({"function": fn, "family": fam})
+                    entry["entries_seen"].add(pair_key)
+
+            # Convert sets to sorted lists for JSON serialisation
+            for data in ochro_map.values():
+                data["levels"] = sorted(data["levels"])
+                del data["entries_seen"]
+
+            self._ochro_map = ochro_map
+            logger.info("SearchParquetReader: loaded OCHRO map for %d NOC codes", len(ochro_map))
+        else:
+            logger.warning("SearchParquetReader: %s unavailable — OCHRO filters disabled", _JOB_ARCH_FILE)
+
         self._loaded = True
         return True
 
@@ -181,6 +226,8 @@ class SearchParquetReader:
                 if titles_list:
                     example_titles_str = "; ".join(str(t) for t in titles_list[:5])
 
+        ochro = self._ochro_map.get(noc_code, {})
+
         return EnrichedSearchResult(
             noc_code=noc_code,
             title=title,
@@ -194,6 +241,10 @@ class SearchParquetReader:
             match_reason=reason,
             source_label="O*NET SOC",
             example_titles=example_titles_str,
+            job_function=ochro.get("job_function") or None,
+            job_family=ochro.get("job_family") or None,
+            managerial_levels=ochro.get("levels") or None,
+            ochro_entries=ochro.get("entries") or None,
         )
 
     # ------------------------------------------------------------------

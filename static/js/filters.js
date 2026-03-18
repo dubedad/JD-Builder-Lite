@@ -11,7 +11,9 @@
 
     // Filter state
     const filters = {
-        minorGroup: new Set()
+        minorGroup: new Set(),
+        ochroLevel: new Set(),    // Managerial Level
+        ochroFunction: new Set()  // Job Function (parent; selecting function matches any of its families)
     };
 
     // Store all results for filtering
@@ -20,6 +22,8 @@
 
     // DOM references
     let minorGroupOptions = null;
+    let ochroLevelOptions = null;
+    let ochroFunctionOptions = null;
     let clearButton = null;
     let filterToggle = null;
     let filterPanel = null;
@@ -32,8 +36,10 @@
     function initFilters(onFilterChange) {
         renderCallback = onFilterChange;
 
-        // Cache DOM references (v5.1: updated to filter-noc-broad-options)
+        // Cache DOM references
         minorGroupOptions = document.getElementById('filter-noc-broad-options');
+        ochroLevelOptions = document.getElementById('filter-ochro-level-options');
+        ochroFunctionOptions = document.getElementById('filter-ochro-function-options');
         clearButton = document.getElementById('filter-clear');
         filterToggle = document.getElementById('filter-toggle');
         filterPanel = document.getElementById('filter-panel');
@@ -153,18 +159,133 @@
             }
         }
 
-        // Clear existing filters that no longer apply
+        // --- OCHRO: Managerial Level (flat checkboxes) ---
+        if (ochroLevelOptions) {
+            // Count unique results per level (a result can have multiple levels)
+            const levelCounts = new Map();
+            results.forEach(r => {
+                if (!r.managerial_levels || !r.managerial_levels.length) return;
+                // Use a Set to avoid counting the same result twice for the same level
+                new Set(r.managerial_levels).forEach(lv => {
+                    levelCounts.set(lv, (levelCounts.get(lv) || 0) + 1);
+                });
+            });
+
+            if (levelCounts.size === 0) {
+                ochroLevelOptions.innerHTML = '<p class="filter-empty">No OCHRO data in results</p>';
+            } else {
+                // Sort by seniority order
+                const levelOrder = [
+                    'Employee', 'Supervisor', 'Manager', 'Director or equivalent',
+                    'Director General, Executive Director or equivalent',
+                    'Assistant Deputy Minister or equivalent',
+                    'Deputy Minister, Associate Deputy Minister or equivalent'
+                ];
+                const sortedLevels = Array.from(levelCounts.entries()).sort((a, b) => {
+                    const ia = levelOrder.indexOf(a[0]);
+                    const ib = levelOrder.indexOf(b[0]);
+                    if (ia === -1 && ib === -1) return a[0].localeCompare(b[0]);
+                    if (ia === -1) return 1;
+                    if (ib === -1) return -1;
+                    return ia - ib;
+                });
+
+                ochroLevelOptions.innerHTML = sortedLevels.map(([lv, count]) => `
+                    <label class="filter-checkbox">
+                        <input type="checkbox" class="ochro-level-checkbox"
+                               name="ochroLevel" value="${escapeHtml(lv)}"
+                               ${filters.ochroLevel.has(lv) ? 'checked' : ''}>
+                        <span class="filter-checkbox-label">
+                            ${escapeHtml(lv)}
+                            <span class="filter-checkbox-count">(${count})</span>
+                        </span>
+                    </label>
+                `).join('');
+            }
+        }
+
+        // --- OCHRO: Job Function → Job Family (hierarchical) ---
+        if (ochroFunctionOptions) {
+            // Count unique RESULTS per function/family (not entries — one result can have many)
+            const funcMap = new Map();
+            results.forEach(r => {
+                if (!r.ochro_entries || !r.ochro_entries.length) return;
+                // Track which functions/families this result has already been counted in
+                const seenFn = new Set();
+                const seenFnFam = new Set();
+                r.ochro_entries.forEach(entry => {
+                    const fn = entry.function || '';
+                    const fam = entry.family || '';
+                    if (!fn) return;
+                    if (!funcMap.has(fn)) {
+                        funcMap.set(fn, { families: new Map(), resultCount: 0 });
+                    }
+                    const fnData = funcMap.get(fn);
+                    // Count result once per function
+                    if (!seenFn.has(fn)) {
+                        fnData.resultCount++;
+                        seenFn.add(fn);
+                    }
+                    // Count result once per function+family
+                    if (fam) {
+                        const famKey = fn + '||' + fam;
+                        if (!seenFnFam.has(famKey)) {
+                            fnData.families.set(fam, (fnData.families.get(fam) || 0) + 1);
+                            seenFnFam.add(famKey);
+                        }
+                    }
+                });
+            });
+
+            if (funcMap.size === 0) {
+                ochroFunctionOptions.innerHTML = '<p class="filter-empty">No OCHRO data in results</p>';
+            } else {
+                const sortedFunctions = Array.from(funcMap.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+                ochroFunctionOptions.innerHTML = sortedFunctions.map(([fn, fnData]) => {
+                    const sortedFamilies = Array.from(fnData.families.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+                    const childrenHtml = sortedFamilies.map(([fam, count]) => `
+                        <label class="filter-checkbox filter-checkbox--child">
+                            <input type="checkbox" class="ochro-family-checkbox"
+                                   name="ochroFunction" value="${escapeHtml(fn + '||' + fam)}"
+                                   data-function="${escapeHtml(fn)}"
+                                   ${filters.ochroFunction.has(fn + '||' + fam) ? 'checked' : ''}>
+                            <span class="filter-checkbox-label">
+                                ${escapeHtml(fam)}
+                                <span class="filter-checkbox-count">(${count})</span>
+                            </span>
+                        </label>
+                    `).join('');
+
+                    return `
+                        <div class="filter-group">
+                            <label class="filter-checkbox filter-checkbox--parent">
+                                <input type="checkbox" class="ochro-function-checkbox"
+                                       data-group="${escapeHtml(fn)}">
+                                <strong>${escapeHtml(fn)}</strong>
+                                <span class="filter-checkbox-count">(${fnData.resultCount})</span>
+                            </label>
+                            <div class="filter-group__children">${childrenHtml}</div>
+                        </div>
+                    `;
+                }).join('');
+
+                // Restore parent indeterminate states
+                updateOchroParentStates();
+            }
+        }
+
+        // Clear filters that no longer apply
         const validUnitGroups = new Set();
+        const validLevels = new Set();
+        const validFunctionFamilies = new Set();
         results.forEach(r => {
-            if (r.unit_group) {
-                validUnitGroups.add(r.unit_group);
-            }
+            if (r.unit_group) validUnitGroups.add(r.unit_group);
+            if (r.managerial_levels) r.managerial_levels.forEach(lv => validLevels.add(lv));
+            if (r.ochro_entries) r.ochro_entries.forEach(e => validFunctionFamilies.add((e.function || '') + '||' + (e.family || '')));
         });
-        filters.minorGroup.forEach(code => {
-            if (!validUnitGroups.has(code)) {
-                filters.minorGroup.delete(code);
-            }
-        });
+        filters.minorGroup.forEach(code => { if (!validUnitGroups.has(code)) filters.minorGroup.delete(code); });
+        filters.ochroLevel.forEach(lv => { if (!validLevels.has(lv)) filters.ochroLevel.delete(lv); });
+        filters.ochroFunction.forEach(ff => { if (!validFunctionFamilies.has(ff)) filters.ochroFunction.delete(ff); });
 
         updateClearButton();
     }
@@ -177,19 +298,65 @@
         const checkbox = e.target;
         if (checkbox.type !== 'checkbox') return;
 
-        // Handle parent checkbox
+        // OCHRO checks must come before generic parent-checkbox to avoid misfiring
+
+        // Handle OCHRO Managerial Level checkbox
+        if (checkbox.classList.contains('ochro-level-checkbox')) {
+            if (checkbox.checked) {
+                filters.ochroLevel.add(checkbox.value);
+            } else {
+                filters.ochroLevel.delete(checkbox.value);
+            }
+            applyFilters();
+            updateClearButton();
+            return;
+        }
+
+        // Handle OCHRO Job Function checkbox (parent — select/deselect all families)
+        if (checkbox.classList.contains('ochro-function-checkbox')) {
+            const fn = checkbox.dataset.group;
+            const children = document.querySelectorAll(
+                `input.ochro-family-checkbox[data-function="${CSS.escape(fn)}"]`
+            );
+            children.forEach(child => {
+                child.checked = checkbox.checked;
+                if (checkbox.checked) {
+                    filters.ochroFunction.add(child.value);
+                } else {
+                    filters.ochroFunction.delete(child.value);
+                }
+            });
+            applyFilters();
+            updateClearButton();
+            return;
+        }
+
+        // Handle OCHRO Job Family checkbox (child)
+        if (checkbox.classList.contains('ochro-family-checkbox')) {
+            if (checkbox.checked) {
+                filters.ochroFunction.add(checkbox.value);
+            } else {
+                filters.ochroFunction.delete(checkbox.value);
+            }
+            updateOchroParentStates();
+            applyFilters();
+            updateClearButton();
+            return;
+        }
+
+        // Handle NOC parent checkbox
         if (checkbox.classList.contains('parent-checkbox')) {
             handleParentCheckboxChange(checkbox);
             return;
         }
 
-        // Handle child checkbox
+        // Handle NOC child checkbox
         if (checkbox.classList.contains('child-checkbox')) {
             handleChildCheckboxChange(checkbox);
             return;
         }
 
-        // Fallback for legacy checkboxes (non-hierarchical)
+        // Fallback for any remaining named checkboxes
         const filterType = checkbox.name;
         const value = checkbox.value;
 
@@ -262,6 +429,21 @@
     }
 
     /**
+     * Update OCHRO function (parent) checkbox states based on selected families (children)
+     */
+    function updateOchroParentStates() {
+        const parents = document.querySelectorAll('input.ochro-function-checkbox');
+        parents.forEach(parent => {
+            const fn = parent.dataset.group;
+            const children = document.querySelectorAll(`input.ochro-family-checkbox[data-function="${fn}"]`);
+            if (!children.length) return;
+            const checkedCount = Array.from(children).filter(c => c.checked).length;
+            parent.checked = checkedCount === children.length;
+            parent.indeterminate = checkedCount > 0 && checkedCount < children.length;
+        });
+    }
+
+    /**
      * Update parent checkbox states (checked/indeterminate) based on children
      */
     function updateParentStates() {
@@ -286,18 +468,28 @@
      */
     function applyFilters() {
         const filtered = allResults.filter(result => {
-            // Check unit group filter (OR logic - any checked unit group matches)
+            // OCHRO Managerial Level filter — result passes if any of its levels is checked
+            if (filters.ochroLevel.size > 0) {
+                const hasLevel = result.managerial_levels &&
+                    result.managerial_levels.some(lv => filters.ochroLevel.has(lv));
+                if (!hasLevel) return false;
+            }
+
+            // OCHRO Job Family filter — result passes if any of its function||family pairs is checked
+            if (filters.ochroFunction.size > 0) {
+                const hasFamily = result.ochro_entries &&
+                    result.ochro_entries.some(e =>
+                        filters.ochroFunction.has((e.function || '') + '||' + (e.family || ''))
+                    );
+                if (!hasFamily) return false;
+            }
+
+            // NOC unit group filter
             if (filters.minorGroup.size > 0) {
                 if (!result.unit_group || !filters.minorGroup.has(result.unit_group)) {
                     return false;
                 }
             }
-
-            // Feeder mobility filter: placeholder, not functional
-            // Full implementation requires profile data (Phase 08-C or future)
-
-            // Career progression filter: placeholder, not functional
-            // Full implementation requires profile data (Phase 08-C or future)
 
             return true;
         });
@@ -312,6 +504,8 @@
      */
     function clearAllFilters() {
         filters.minorGroup.clear();
+        filters.ochroLevel.clear();
+        filters.ochroFunction.clear();
 
         // Uncheck all checkboxes and reset indeterminate states
         const checkboxes = document.querySelectorAll('#filter-panel input[type="checkbox"]');
@@ -328,7 +522,7 @@
      * Update clear button state
      */
     function updateClearButton() {
-        const activeCount = filters.minorGroup.size;
+        const activeCount = filters.minorGroup.size + filters.ochroLevel.size + filters.ochroFunction.size;
 
         if (clearButton) {
             clearButton.disabled = activeCount === 0;
@@ -349,7 +543,9 @@
      */
     function getFilterState() {
         return {
-            minorGroup: Array.from(filters.minorGroup)
+            minorGroup: Array.from(filters.minorGroup),
+            ochroLevel: Array.from(filters.ochroLevel),
+            ochroFunction: Array.from(filters.ochroFunction)
         };
     }
 

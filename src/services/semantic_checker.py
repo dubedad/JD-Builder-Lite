@@ -13,7 +13,13 @@ Used by: GenerationService for post-generation validation (Phase 12)
 
 from typing import Dict, Optional
 
-from sentence_transformers import SentenceTransformer, util
+try:
+    from sentence_transformers import SentenceTransformer, util
+    HAS_SENTENCE_TRANSFORMERS = True
+except ImportError:
+    HAS_SENTENCE_TRANSFORMERS = False
+    SentenceTransformer = None
+    util = None
 
 
 # Threshold per research: 0.75-0.85 range, use 0.75 for conservative acceptance

@@ -22,7 +22,7 @@ Redesign the Build page UI to match the JobForge v5.1 reference prototype. Cover
 ### Core Competencies selection behavior
 - Select All control: Match screenshots to determine if present and its placement
 - Row highlight on selection: Checkbox state only — no background tint on the row when checked
-- Inline sub-descriptions: Yes — each competency shows a brief description below its label (label + sub-description layout)
+- Inline sub-descriptions: Label-only — research confirmed the data model is `List[str]` with no description field, and screenshot 2.1 shows no sub-descriptions. Sub-descriptions for Core Competencies would require a backend data model change (deferred).
 - Selection storage: Claude's discretion — integrate competency selections into the existing selections architecture in whatever way makes the most sense architecturally
 
 ### Level badge color scheme (Abilities, Effort, Responsibility tabs)
@@ -35,7 +35,7 @@ Redesign the Build page UI to match the JobForge v5.1 reference prototype. Cover
 - Visual separator between Main Duties and Work Activities: Bold section headers (e.g., "Main Duties" heading above first list, "Work Activities" heading above second list), possibly with a horizontal rule
 - Selectability: Both Main Duties and Work Activities items are selectable — users can pick individual items from both lists
 - Item inline sub-descriptions: Yes — each item shows a brief description below its text (same pattern as other tabs)
-- Select All: Per section — separate Select All toggle for Main Duties and a separate one for Work Activities
+- Select All: Single combined Select All for all items — research confirmed screenshot 2.2 shows ONE "Select All (13)" for the combined list. Screenshots are authoritative; per-section Select All is not implemented.
 
 ### Claude's Discretion
 - Icon selection (which specific icon per tab) — use semantically appropriate icons from the app's existing library

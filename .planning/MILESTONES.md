@@ -165,3 +165,30 @@
 ---
 
 *Milestone record created: 2026-01-22*
+
+---
+
+## v5.1 UI Overhaul (Shipped: 2026-03-13)
+
+**Delivered:** Complete visual and UX overhaul of the JD Builder interface across all 5 steps — Search, Build, Classify, Generate, and Export. Implemented 30 phases covering new navigation stepper, card-based search results, tabbed profile view, selections drawer, preview modal, classify page with TBS alignment scores, generate page with additional context input, and a new Export page with PDF/Word/JSON download capabilities and embedded compliance metadata.
+
+**Key accomplishments:**
+- 5-step linear workflow with persistent stepper nav and step gating
+- Tabbed Build step (Key Activities, Skills, Abilities, Knowledge, Effort, Responsibilities, Core Competencies)
+- Selections sidebar drawer with live JD preview
+- Classify step with occupation group recommendations and TBS alignment scoring
+- Generate step with AI-written position overview and provenance tracking
+- Export step with full provenance annex, audit trail, compliance cards (DAMA/TBS/Lineage)
+- PDF/Word exports restructured: Position Overview → Key Duties → Qualifications → Effort → Responsibilities → Classification → Appendix A/B/C
+- New JSON audit trail export endpoint (`POST /api/export/json`)
+- WeasyPrint system dependency fix documented (requires `brew install pango cairo gdk-pixbuf`)
+
+**Phases completed:** 26 through 30 (Plans 26-01 through 30-03, 14 plans total; Plan 29-04 confirmed implemented)
+
+**Post-shipment UAT fixes (2026-03-13):**
+- HF-01: WeasyPrint system dependency fix (`brew install pango cairo gdk-pixbuf`)
+- HF-02/03/04: OCHRO Job Architecture filter fully implemented — Managerial Level + hierarchical Job Function → Job Family; parent checkbox and count-mismatch bugs resolved
+
+**Note:** Formal GSD milestone verification not yet run as of 2026-03-16. Informal browser UAT confirmed core workflow and all three exports (PDF/Word/JSON) working.
+
+*Milestone record updated: 2026-03-16*
