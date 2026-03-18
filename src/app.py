@@ -21,18 +21,20 @@ def initialize_vocabulary():
 
     Loads NOC vocabulary from JobForge parquet files and starts
     file watcher for automatic hot-reload on changes.
+    Logs a warning and continues if parquet files are unavailable
+    (e.g. running careers-only without full JobForge bronze layer).
     """
     global vocab_index, vocab_observer, generation_service
 
-    vocab_index = VocabularyIndex(JOBFORGE_BRONZE_PATH)
-    vocab_observer = start_vocabulary_watcher(vocab_index, JOBFORGE_BRONZE_PATH)
-
-    print(f"[Vocabulary] Loaded: {vocab_index.get_term_count()} terms")
-
-    # Initialize generation service with vocabulary index (for styled statement generation)
-    # Uses lazy initialization - actual model loading happens on first generation request
-    generation_service = get_generation_service(vocab_index)
-    print("[Generation] Service initialized (lazy loading enabled)")
+    try:
+        vocab_index = VocabularyIndex(JOBFORGE_BRONZE_PATH)
+        vocab_observer = start_vocabulary_watcher(vocab_index, JOBFORGE_BRONZE_PATH)
+        print(f"[Vocabulary] Loaded: {vocab_index.get_term_count()} terms")
+        generation_service = get_generation_service(vocab_index)
+        print("[Generation] Service initialized (lazy loading enabled)")
+    except FileNotFoundError as e:
+        print(f"[Vocabulary] WARNING: {e}")
+        print("[Vocabulary] JD Builder search features unavailable — careers site will still work.")
 
 
 def create_app():
