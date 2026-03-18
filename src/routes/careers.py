@@ -69,19 +69,23 @@ def _enrichment_for_slug(title_slug: str) -> dict:
 
 @careers_bp.route('/')
 def browse_careers():
-    families = careers_parquet_reader.get_families()
-    job_functions = careers_parquet_reader.get_job_functions()
-    titles_by_slug = careers_parquet_reader.get_titles_by_family_slug()
+    try:
+        families = careers_parquet_reader.get_families()
+        job_functions = careers_parquet_reader.get_job_functions()
+        titles_by_slug = careers_parquet_reader.get_titles_by_family_slug()
 
-    # Inject titles_json into each family record for client-side search
-    for fam in families:
-        fam["titles_json"] = json.dumps(titles_by_slug.get(fam["slug"], []))
+        for fam in families:
+            fam["titles_json"] = json.dumps(titles_by_slug.get(fam["slug"], []))
 
-    return render_template(
-        'careers/careers.html',
-        families=families,
-        job_functions=job_functions
-    )
+        return render_template(
+            'careers/careers.html',
+            families=families,
+            job_functions=job_functions
+        )
+    except Exception as e:
+        import traceback
+        logger.error("browse_careers error: %s\n%s", e, traceback.format_exc())
+        raise
 
 
 @careers_bp.route('/<family_slug>')
