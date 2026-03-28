@@ -25,7 +25,7 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
 
 ### v1.1 Full Browse Experience
 
-- [ ] **Phase 9: Data Migration** — Extend DB schema and import all enriched CSV content
+- [x] **Phase 9: Data Migration** — Extend DB schema and import all enriched CSV content (completed 2026-03-28)
 - [ ] **Phase 10: Image Pipeline** — Fetch ~2,200 Unsplash images for all functions, families, and titles
 - [ ] **Phase 11: Navigation Restructure** — 4-level browse hierarchy with image card grids at every level
 - [ ] **Phase 12: Enhanced Detail Page** — Add Key Responsibilities, Required Skills, Typical Education sections
@@ -41,9 +41,9 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
   2. `careers.sqlite` contains a `job_families` table with 210 rows, each linked to a function via FK
   3. Every row in the `careers` table has non-null `key_responsibilities`, `required_skills`, `typical_education`, and `job_title_description` values sourced from the CSV
   4. Running the migration script a second time produces no duplicates and no errors (idempotent)
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
-- [ ] 09-01-PLAN.md — TDD migration script: tests, implementation, production run
+- [x] 09-01-PLAN.md — TDD migration script: tests, implementation, production run
 
 ### Phase 10: Image Pipeline
 **Goal**: Every function, family, and job title has a matched Unsplash image stored locally and referenced in the DB
@@ -95,7 +95,7 @@ Plans:
 | 6. L1 Interactivity | v1.0 | 1/1 | Complete | 2026-03-17 |
 | 7. L2 Job Family Page | v1.0 | 1/1 | Complete | 2026-03-17 |
 | 8. L3 Job Title Detail | v1.0 | 1/1 | Complete | 2026-03-17 |
-| 9. Data Migration | v1.1 | 0/1 | Planning complete | - |
+| 9. Data Migration | v1.1 | 1/1 | Complete   | 2026-03-28 |
 | 10. Image Pipeline | v1.1 | 0/? | Not started | - |
 | 11. Navigation Restructure | v1.1 | 0/? | Not started | - |
 | 12. Enhanced Detail Page | v1.1 | 0/? | Not started | - |

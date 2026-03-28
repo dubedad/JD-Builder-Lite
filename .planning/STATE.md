@@ -1,32 +1,40 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.1
-milestone_name: TBD
-status: idle
-stopped_at: v1.0 milestone complete — archived 2026-03-18
-last_updated: "2026-03-18"
-last_activity: "2026-03-18 — v1.0 MVP shipped: 8 phases, 10 plans, 29/29 requirements"
+milestone_name: Full Browse Experience
+status: verifying
+stopped_at: Completed 09-data-migration 09-01-PLAN.md
+last_updated: "2026-03-28T22:29:40.339Z"
+last_activity: 2026-03-28
 progress:
-  total_phases: 0
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_phases: 4
+  completed_phases: 1
+  total_plans: 1
+  completed_plans: 1
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-18 after v1.0 milestone)
+See: .planning/PROJECT.md (updated 2026-03-28 for v1.1 milestone)
 
 **Core value:** A job seeker can find a DND civilian career, understand it, and know how to enter it — without HR help.
-**Current focus:** Planning next milestone (v1.1)
+**Current focus:** Phase 09 — data-migration
 
 ## Current Position
 
-v1.0 MVP shipped 2026-03-18. All 8 phases complete.
-Next: `/gsd:new-milestone` to define v1.1 scope.
+Phase: 09 (data-migration) — EXECUTING
+Plan: 1 of 1
+Status: Phase complete — ready for verification
+Last activity: 2026-03-28
+
+## Progress Bar
+
+```
+v1.1: [ ] Phase 9  [ ] Phase 10  [ ] Phase 11  [ ] Phase 12
+       0/4 phases complete
+```
 
 ## Accumulated Context
 
@@ -34,22 +42,44 @@ Next: `/gsd:new-milestone` to define v1.1 scope.
 
 All decisions logged in PROJECT.md Key Decisions table.
 
-### Priority Tech Debt (address before next pipeline re-run)
+- [Phase 09-data-migration]: Actual CSV has 22 job functions and 209 job families (research stated 23/210) — tests corrected to match reality
+- [Phase 09-data-migration]: Unconditional UPDATE from CSV for enrichment columns ensures CSV is authoritative on every migration run
+- [Phase 09-data-migration]: Lazy import inside pytest fixture enables TDD RED phase collection before implementation exists
 
-- **DB_PATH divergence** — `main.py` reads from `pipeline/careers.sqlite`; pipeline scripts write to root `careers.sqlite`. Fix: update `DB_PATH` in main.py line 19. See v1.0-MILESTONE-AUDIT.md for the one-line fix.
-- **Blank Job Function dropdown** — 1 row with `job_function=''`; add `WHERE job_function != ''` to DISTINCT query in `/careers` route.
-- **Footer quick-links** — `/careers?function=digital` etc. are non-functional; remove or implement.
+### Design Principle (established v1.1)
 
-### Pending Todos
+**CAF format parity:** Whatever the CAF Careers website shows, the civilian site shows the same format. Same CSS values, card dimensions, card grid layouts, overlay gradients, typography. Only images and words differ. This is a binding constraint on all UI phases in v1.1+.
 
-- Run `/gsd:validate-phase 1`, `2`, `3`, `4` retroactively — creates VALIDATION.md files for pipeline/foundation phases, closes Nyquist compliance gap flagged in v1.0 audit. Do this before any new feature work in v1.1.
+Reference: `ps_careers_site/CAF-CAREERS-SITE-REFERENCE.md`
+
+### Data Source (v1.1)
+
+**`enriched_job_architecture.csv`** at `C:\Users\Administrator\Projects\jobforge\data\reference\enriched_job_architecture.csv`
+
+- 1,989 rows, canonical source for all job architecture data
+- Contains: `Job_Function_Description`, `Job_Family_Description`, `Job_Title_Description`, `Key_Responsibilities`, `Required_Skills`, `Typical_Education`
+- These fields do NOT exist in the current `careers.sqlite` schema — Phase 9 migrates them in
+
+### Phase Dependency Chain
+
+```
+Phase 9 (Data Migration)
+  → Phase 10 (Image Pipeline) — needs job_functions/job_families tables
+  → Phase 11 (Navigation Restructure) — needs data; image fallback allows partial overlap with Phase 10
+  → Phase 12 (Enhanced Detail Page) — needs Phase 9 columns and Phase 11 breadcrumb hierarchy
+```
+
+### Priority Tech Debt
+
+- **DB_PATH divergence** — `main.py` reads from `pipeline/careers.sqlite`; pipeline scripts write to root `careers.sqlite`. Resolve in Phase 9 data migration.
+- **Horticulture Specialist orphaned row** — no `job_family` assigned; does not surface in navigation. Resolve in Phase 9 or data quality audit.
 
 ### Blockers/Concerns
 
-None — site is fully functional for v1.0 scope.
+None — v1.0 site is fully functional. v1.1 is additive restructure.
 
 ## Session Continuity
 
-Last session: 2026-03-18
-Stopped at: v1.0 milestone archival
-Resume: Start v1.1 planning with `/gsd:new-milestone`
+Last session: 2026-03-28T22:29:40.290Z
+Stopped at: Completed 09-data-migration 09-01-PLAN.md
+Resume: Run `/gsd:plan-phase 9` to begin planning Phase 9 (Data Migration)
