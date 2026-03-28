@@ -2,7 +2,19 @@
 
 ## What This Is
 
-A public-facing careers discovery website for DND's civilian workforce, modelled on the Canadian Armed Forces careers site (forces.ca/en/careers/). Job seekers can browse civilian Public Service job families, view job titles within each family, and read detailed career profiles covering overview, training, entry paths, flexible work options, and related CAF military careers. The site is powered by the TBS Job Architecture table (1,989 job titles, 210 job families, 23 job functions) with all content AI-enriched via Claude Haiku.
+A public-facing careers discovery website for DND's civilian workforce, structured as a full mirror of the Canadian Armed Forces careers site (forces.ca/en/careers/). The civilian site uses the same format, card dimensions, CSS values, and layouts as the CAF site — only the images and words differ. Job seekers browse through 22 job functions → 209 job families → 1,989 job titles → career detail pages. Powered by the TBS Job Architecture table enriched via `enriched_job_architecture.csv`.
+
+Note: Research docs cited 23 functions/210 families from the xlsx; direct CSV inspection confirmed 22/209 distinct non-blank values.
+
+## Current Milestone: v1.1 — Full Browse Experience
+
+**Goal:** Restructure the site to mirror the CAF careers site format across all 3 taxonomy levels — every level uses the same image card grid. Content differs, format is identical.
+
+**Target features:**
+- 4-level navigation: Function → Family → Title → Detail (image cards at every browse level)
+- Data migration from `enriched_job_architecture.csv`: function descriptions, family descriptions, title enrichments (Key Responsibilities, Required Skills, Typical Education)
+- Image pipeline: ~2,200 images sourced via Unsplash API for all functions, families, and job titles
+- Enhanced detail page: Key Responsibilities, Required Skills, Typical Education sections
 
 ## Core Value
 
@@ -52,9 +64,24 @@ A job seeker can land on the site, find a civilian DND career that fits them, an
 
 ### Active
 
-- [ ] Fix DB_PATH divergence (main.py reads pipeline/careers.sqlite; pipeline writes root careers.sqlite)
-- [ ] Fix blank Job Function dropdown option (1 row with empty job_function)
-- [ ] Remove or implement non-functional footer quick-links (/careers?function=...)
+- [x] Fix DB_PATH divergence (main.py reads pipeline/careers.sqlite; pipeline writes root careers.sqlite) — fixed 2026-03-18
+- [x] Fix blank Job Function dropdown option — Horticulture Specialist assigned to Environmental Services 2026-03-18
+- [x] Remove non-functional footer quick-links (/careers?function=...) — removed 2026-03-18
+- [ ] Data quality audit: review job_function assignments across all 1,989 titles for purpose-vs-function misclassification (job_function must reflect work performed, not organizational purpose of the role within DND)
+- [ ] Horticulture Specialist missing job_family — orphaned row; does not surface in card grid
+- [ ] **v1.1: Navigation restructure** — 4-level hierarchy (Function → Family → Title → Detail); `/careers` shows 23 Function cards; `/careers/{function-slug}` shows Family cards; `/careers/{function-slug}/{family-slug}` shows Title cards; `/career/{title-slug}` is detail
+- [x] **v1.1: Data migration** — import `enriched_job_architecture.csv` into new `job_functions` and `job_families` tables; add `key_responsibilities`, `required_skills`, `typical_education`, `job_title_description` columns to `careers` table — Validated in Phase 09: data-migration
+- [ ] **v1.1: Image pipeline** — ~2,200 images via Unsplash API (23 functions + 198 new families + 1,989 titles); concurrent, resumable pipeline; images stored in `/static/images/`
+- [ ] **v1.1: Enhanced detail page** — add Key Responsibilities, Required Skills, Typical Education tabs/sections to L4 career detail
+- [ ] **CAF pixel-parity audit** — re-analyze forces.ca live site (L1, L2/filter, L3) in real-time; update CAF-CAREERS-SITE-REFERENCE.md with any deltas; treat every measurable value (spacing, font sizes, card dimensions, gap between images, border radii, colours) as a binding constraint that must persist across both sites
+- [ ] **Unified Job Taxonomy** — build a single normalized table combining CAF Careers taxonomy + TBS Job Architecture; requirements:
+  - Contains all existing Job Architecture fields (jt_id, job_title, job_family, job_function, noc_2021_uid, managerial_level, digital, etc.)
+  - Contains all existing CAF Careers site fields (CAF title, CAF slug, CAF category, CAF description fields, etc.)
+  - Job Architecture rows enriched via LLM to fill in CAF-style fields where absent
+  - CAF rows enriched via LLM to fill in Job Architecture-style fields where absent
+  - Bridge columns capturing CAF↔civilian connections: sourced from "Related Civilian..." fields on CAF site + semantic/ontological mapping pipeline (embeddings + similarity scoring) to match CAF occupations to Job Architecture titles
+  - Semantic mapping pipeline likely requires ChromaDB embeddings (already in JobForge 2.0) + Claude scoring pass
+  - **Architectural note:** This unified taxonomy is canonical data — belongs in JobForge 2.0, not ps_careers_site; ps_careers_site pipeline reads from it
 - [ ] Bilingual support (EN/FR toggle, French job titles, /fr/carrieres routing)
 - [ ] Managerial Level and Digital flag filters on L1
 - [ ] Full-text search across LLM-generated content
@@ -70,6 +97,27 @@ A job seeker can land on the site, find a civilian DND career that fits them, an
 | React / SPA frontend | Spec calls for FastAPI + Jinja2 |
 | Protected B data | Only open occupational data (NOC, TBS Job Architecture) |
 | Full bilingual v1 | TBS table has French fields but full bilingual deferred to v2 |
+
+## Product Vision — Manager vs Employee Routing
+
+The careers site is **Step 0** of a two-surface product. On entry, users are asked:
+> "Are you a manager or an employee?"
+
+**Employee path:** Browse careers site as a job seeker — current experience, Job Architecture only.
+
+**Manager path — two entry points into JD Builder Step 1:**
+1. **Via careers site (Step 0):** Browse Job Architecture card grid → select job title → title passed into JD Builder Step 1. Image-driven UI, Job Architecture universe only.
+2. **Via JD Builder direct search:** Open text search spanning MULTIPLE taxonomies — NOC 2021, O*NET, CAF Careers, Job Descriptions, TBS OG. Broader universe, different UX.
+
+Both paths converge at **JD Builder Step 1** with a selected job title. Integration point: passing selected title + source taxonomy metadata from either entry into the JD Builder workflow.
+
+**Critical constraint:** The careers site does NOT cover the full manager search universe. The JD Builder's multi-taxonomy search is NOT replaced by the careers site — it remains essential. The careers site is an additional softer entry point only.
+
+**Required integration work (future milestone):**
+- "Manager or employee?" routing gate at careers site entry
+- "Use this title / Build JD" CTA on L3 page (manager context only)
+- JD Builder must accept a pre-selected job title passed from careers site (with source taxonomy metadata)
+- Both entry paths (careers site browse + JD Builder open text search) must coexist in the UX
 
 ## Context
 
@@ -95,11 +143,30 @@ A job seeker can land on the site, find a civilian DND career that fits them, an
 | FastAPI + Jinja2, not React | Spec decision; server-rendered matches CAF's own approach | ✓ Good — simpler ops, fast to build |
 | Standalone SQLite, not runtime JobForge calls | Simpler ops; pipeline runs once, site reads local DB | ✓ Good — fast queries, no dependency at runtime |
 | L2 as separate URL (`/careers/{family-slug}`) | Better UX for linking/sharing | ✓ Good — clean navigation hierarchy |
-| Job Function as L1 filter, not L0 page | 22 functions as filter on 209-family grid; no extra page layer | ✓ Good — avoids dead-end pages |
+| Job Function as L1 filter, not L0 page | 22 functions as filter on 209-family grid; no extra page layer | Superseded by v1.1 — functions become L1 browse pages |
 | CARD_IMAGE_STATIC dict in route handler | Explicit mapping prevents normalization edge cases | ✓ Good — prevents subtle 404 bugs |
 | data-titles attribute over `/api/families` endpoint | Simpler for v1, no extra HTTP round-trip | ✓ Good for v1 — revisit if title count grows |
 | Confidence threshold ≥ 0.70 for CAF bridge | Drops 54 low-confidence mappings from 880 total | ✓ Good — avoids false CAF career links |
 | Claude Haiku for LLM enrichment | Cost-effective at ~2,000 calls, sufficient quality | ✓ Good — 0 empty rows, quality acceptable |
+| CAF format parity as design principle | "Whatever CAF shows, civilian site shows the same format" | Established v1.1 — all levels use same card grid CSS as CAF |
+| Unsplash API for image pipeline | Free, keyword-searchable, high-quality stock matching existing 12 card images | v1.1 decision — 2,200 images, concurrent/resumable pipeline |
+
+## Evolution
+
+This document evolves at phase transitions and milestone boundaries.
+
+**After each phase transition** (via `/gsd:transition`):
+1. Requirements invalidated? → Move to Out of Scope with reason
+2. Requirements validated? → Move to Validated with phase reference
+3. New requirements emerged? → Add to Active
+4. Decisions to log? → Add to Key Decisions
+5. "What This Is" still accurate? → Update if drifted
+
+**After each milestone** (via `/gsd:complete-milestone`):
+1. Full review of all sections
+2. Core Value check — still the right priority?
+3. Audit Out of Scope — reasons still valid?
+4. Update Context with current state
 
 ---
-*Last updated: 2026-03-18 after v1.0 milestone*
+*Last updated: 2026-03-28 — Phase 09 complete: careers.sqlite extended with job_functions (22 rows), job_families (209 rows), 5 enrichment columns on careers (all 1,989 rows populated)*
