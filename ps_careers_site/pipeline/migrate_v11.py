@@ -120,13 +120,22 @@ def run_migration(db_path: Path, csv_path: Path) -> None:
         conn.execute(DDL_JOB_FUNCTIONS)
         conn.execute(DDL_JOB_FAMILIES)
 
-        # 2. Add new columns to careers (guard prevents re-add on idempotent run)
+        # 2. Guard: careers table must exist (populated by ingest.py)
+        if not conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='careers'"
+        ).fetchone():
+            raise RuntimeError(
+                f"\nERROR: 'careers' table not found in {db_path.resolve()}\n"
+                "       Run pipeline/ingest.py first to initialize the database."
+            )
+
+        # 3. Add new columns to careers (guard prevents re-add on idempotent run)
         for col_name, col_type in NEW_CAREERS_COLUMNS:
             if not column_exists(conn, "careers", col_name):
                 conn.execute(f"ALTER TABLE careers ADD COLUMN {col_name} {col_type}")
                 print(f"  Added column: careers.{col_name}")
 
-        # 3. INSERT OR IGNORE into job_functions (idempotent)
+        # 4. INSERT OR IGNORE into job_functions (idempotent)
         for fn_slug, (fn_name, fn_desc) in functions.items():
             conn.execute(
                 "INSERT OR IGNORE INTO job_functions "
@@ -134,7 +143,7 @@ def run_migration(db_path: Path, csv_path: Path) -> None:
                 (fn_slug, fn_name, fn_desc),
             )
 
-        # 4. INSERT OR IGNORE into job_families (idempotent)
+        # 5. INSERT OR IGNORE into job_families (idempotent)
         for fam_slug, (fam_name, fn_slug, fam_desc) in families.items():
             conn.execute(
                 "INSERT OR IGNORE INTO job_families "
@@ -142,7 +151,7 @@ def run_migration(db_path: Path, csv_path: Path) -> None:
                 (fam_slug, fam_name, fn_slug, fam_desc),
             )
 
-        # 5. UPDATE careers rows — unconditional (CSV is source of truth, makes run idempotent)
+        # 6. UPDATE careers rows — unconditional (CSV is source of truth, makes run idempotent)
         for row in rows:
             jt_id = int(row["JT_ID"])
             conn.execute(
