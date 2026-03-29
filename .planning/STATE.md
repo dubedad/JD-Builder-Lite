@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Full Browse Experience
 status: executing
-stopped_at: Completed 10-image-pipeline 10-02-PLAN.md
-last_updated: "2026-03-29T01:36:48.383Z"
+stopped_at: Completed 10-image-pipeline — both plans (10-01 and 10-02)
+last_updated: "2026-03-29T01:56:56.803Z"
 last_activity: 2026-03-29
 progress:
   total_phases: 4
@@ -47,6 +47,8 @@ All decisions logged in PROJECT.md Key Decisions table.
 - [Phase 09-data-migration]: Lazy import inside pytest fixture enables TDD RED phase collection before implementation exists
 - [Phase 10-image-pipeline]: Used 160deg gradient angle matching existing .card-no-image for visual consistency across card types
 - [Phase 10-image-pipeline]: Unsplash attribution placed in footer-bottom flex row between social icons and terms links (D-04 compliance)
+- [Phase 10-image-pipeline]: WorkItem._subdir uses explicit dict mapping for correct plural subdirs (families not familys)
+- [Phase 10-image-pipeline]: fetch_images.py: 429 not marked done (retry on next run), zero-result marked done (no infinite retry)
 
 ### Design Principle (established v1.1)
 
@@ -82,6 +84,6 @@ None — v1.0 site is fully functional. v1.1 is additive restructure.
 
 ## Session Continuity
 
-Last session: 2026-03-29T01:36:48.361Z
-Stopped at: Completed 10-image-pipeline 10-02-PLAN.md
+Last session: 2026-03-29T01:56:56.784Z
+Stopped at: Completed 10-image-pipeline — both plans (10-01 and 10-02)
 Resume: Run `/gsd:plan-phase 9` to begin planning Phase 9 (Data Migration)
