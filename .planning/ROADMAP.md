@@ -26,9 +26,15 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
 ### v1.1 Full Browse Experience
 
 - [x] **Phase 9: Data Migration** — Extend DB schema and import all enriched CSV content (completed 2026-03-28)
-- [x] **Phase 10: Image Pipeline** — Fetch ~2,200 Unsplash images for all functions, families, and titles (completed 2026-03-29)
-- [x] **Phase 11: Navigation Restructure** — 4-level browse hierarchy with image card grids at every level (completed 2026-03-29)
-- [x] **Phase 12: Enhanced Detail Page** — Add Key Responsibilities, Required Skills, Typical Education sections (completed 2026-03-29)
+- [x] **Phase 10: Image Pipeline** — Fetch ~2,200 Unsplash images for all functions, families, and titles
+ (completed 2026-03-29)
+- [x] **Phase 11: Navigation Restructure** — 4-level browse hierarchy with image card grids at every level
+ (completed 2026-03-29)
+- [x] **Phase 12: Enhanced Detail Page** — Add Key Responsibilities, Required Skills, Typical Education sections
+ (completed 2026-03-29)
+- [ ] **Phase 13: Fix Image URL Wiring** — Correct url_for path prefix in all 3 browse templates so Unsplash photos resolve correctly (gap closure)
+- [ ] **Phase 14: Complete Image Pipeline** — Run fetch_images.py for families (209) and titles (1,989) to populate L2/L3 images (gap closure)
+- [ ] **Phase 15: Fix Detail Breadcrumb Fallback** — Patch latent 404 in career_detail.html fallback breadcrumb href (gap closure)
 
 ## Phase Details
 
@@ -85,6 +91,41 @@ Plans:
 **Plans**: TBD
 **UI hint**: yes
 
+### Phase 13: Fix Image URL Wiring
+**Goal**: All Unsplash photos display correctly across all 3 browse levels (L1, L2, L3)
+**Depends on**: Nothing (template-only fix)
+**Gap Closure**: Closes IMG-03-WIRING; resolves IMG-05 gradient-always-active side effect
+**Requirements**: IMG-03, IMG-05
+**Success Criteria** (what must be TRUE):
+  1. Function cards on /careers display Unsplash photos, not gradient fallback
+  2. Family cards on /careers/{fn-slug} display Unsplash photos
+  3. Title cards on /careers/{fn-slug}/{fam-slug} display Unsplash photos
+  4. No 404s in browser console for image requests
+**Plans**: TBD
+
+### Phase 14: Complete Image Pipeline
+**Goal**: L2 and L3 cards display Unsplash photos (families and titles image dirs populated)
+**Depends on**: Phase 13 (path wiring must be correct before verifying downloads)
+**Gap Closure**: Closes IMG-02-PARTIAL
+**Requirements**: IMG-02
+**Success Criteria** (what must be TRUE):
+  1. static/images/families/ contains images for all 209 job families
+  2. static/images/titles/ contains images for all 1,989 job titles
+  3. DB image_path column populated for families and titles records
+  4. Pipeline is resumable (re-run skips already-fetched files)
+**Plans**: TBD
+
+### Phase 15: Fix Detail Breadcrumb Fallback
+**Goal**: The career detail page fallback breadcrumb links to a valid URL in all edge cases
+**Depends on**: Nothing (independent template fix)
+**Gap Closure**: Closes DETAIL-04-FALLBACK
+**Requirements**: DETAIL-04
+**Success Criteria** (what must be TRUE):
+  1. career_detail.html fallback else-branch href is /careers (not /careers/{family_slug})
+  2. No 404 possible from the detail page breadcrumb under any DB state
+**Plans**: TBD
+
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -101,3 +142,6 @@ Plans:
 | 10. Image Pipeline | v1.1 | 2/2 | Complete    | 2026-03-29 |
 | 11. Navigation Restructure | v1.1 | 1/1 | Complete    | 2026-03-29 |
 | 12. Enhanced Detail Page | v1.1 | 1/1 | Complete    | 2026-03-29 |
+| 13. Fix Image URL Wiring | v1.1 (gap) | 0/1 | Pending | — |
+| 14. Complete Image Pipeline | v1.1 (gap) | 0/1 | Pending | — |
+| 15. Fix Detail Breadcrumb Fallback | v1.1 (gap) | 0/1 | Pending | — |
