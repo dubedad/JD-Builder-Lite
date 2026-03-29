@@ -41,7 +41,7 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
   2. `careers.sqlite` contains a `job_families` table with 210 rows, each linked to a function via FK
   3. Every row in the `careers` table has non-null `key_responsibilities`, `required_skills`, `typical_education`, and `job_title_description` values sourced from the CSV
   4. Running the migration script a second time produces no duplicates and no errors (idempotent)
-**Plans:** 1/1 plans complete
+**Plans:** 2/2 plans complete
 Plans:
 - [x] 09-01-PLAN.md — TDD migration script: tests, implementation, production run
 
@@ -97,7 +97,7 @@ Plans:
 | 6. L1 Interactivity | v1.0 | 1/1 | Complete | 2026-03-17 |
 | 7. L2 Job Family Page | v1.0 | 1/1 | Complete | 2026-03-17 |
 | 8. L3 Job Title Detail | v1.0 | 1/1 | Complete | 2026-03-17 |
-| 9. Data Migration | v1.1 | 1/1 | Complete   | 2026-03-28 |
+| 9. Data Migration | v1.1 | 2/2 | Complete   | 2026-03-29 |
 | 10. Image Pipeline | v1.1 | 2/2 | Complete    | 2026-03-29 |
 | 11. Navigation Restructure | v1.1 | 1/1 | Complete    | 2026-03-29 |
 | 12. Enhanced Detail Page | v1.1 | 1/1 | Complete    | 2026-03-29 |
