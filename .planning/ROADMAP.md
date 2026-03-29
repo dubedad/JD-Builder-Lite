@@ -144,6 +144,6 @@ Plans:
 | 10. Image Pipeline | v1.1 | 2/2 | Complete    | 2026-03-29 |
 | 11. Navigation Restructure | v1.1 | 1/1 | Complete    | 2026-03-29 |
 | 12. Enhanced Detail Page | v1.1 | 1/1 | Complete    | 2026-03-29 |
-| 13. Fix Image URL Wiring | v1.1 (gap) | 1/1 | Complete   | 2026-03-29 |
+| 13. Fix Image URL Wiring | v1.1 (gap) | 1/1 | Complete    | 2026-03-29 |
 | 14. Complete Image Pipeline | v1.1 (gap) | 0/1 | Pending | — |
 | 15. Fix Detail Breadcrumb Fallback | v1.1 (gap) | 0/1 | Pending | — |
