@@ -54,7 +54,7 @@ Plans:
   2. After a full run, `image_path` is populated in the DB for all records that received a successful Unsplash result
   3. Re-running the pipeline skips records that already have a local image file (resumable; no duplicate downloads)
   4. A card for a record with a null `image_path` still renders — it shows a styled gradient fallback, not a broken image
-**Plans:** 2 plans
+**Plans:** 0/2 plans executed
 Plans:
 - [ ] 10-01-PLAN.md — TDD rewrite of fetch_images.py: async Unsplash pipeline with concurrency and resume
 - [ ] 10-02-PLAN.md — Per-function gradient fallback CSS and Unsplash attribution in footer
@@ -98,6 +98,6 @@ Plans:
 | 7. L2 Job Family Page | v1.0 | 1/1 | Complete | 2026-03-17 |
 | 8. L3 Job Title Detail | v1.0 | 1/1 | Complete | 2026-03-17 |
 | 9. Data Migration | v1.1 | 1/1 | Complete   | 2026-03-28 |
-| 10. Image Pipeline | v1.1 | 0/2 | Planning complete | - |
+| 10. Image Pipeline | v1.1 | 0/2 | Planned    |  |
 | 11. Navigation Restructure | v1.1 | 0/? | Not started | - |
 | 12. Enhanced Detail Page | v1.1 | 0/? | Not started | - |

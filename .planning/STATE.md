@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Full Browse Experience
 status: verifying
-stopped_at: Completed 09-data-migration 09-01-PLAN.md
-last_updated: "2026-03-28T22:36:48.378Z"
+stopped_at: Completed 10-image-pipeline 10-01-PLAN.md
+last_updated: "2026-03-29T01:56:56.803Z"
 last_activity: 2026-03-28
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 1
+  total_plans: 3
   completed_plans: 1
 ---
 
@@ -45,6 +45,8 @@ All decisions logged in PROJECT.md Key Decisions table.
 - [Phase 09-data-migration]: Actual CSV has 22 job functions and 209 job families (research stated 23/210) — tests corrected to match reality
 - [Phase 09-data-migration]: Unconditional UPDATE from CSV for enrichment columns ensures CSV is authoritative on every migration run
 - [Phase 09-data-migration]: Lazy import inside pytest fixture enables TDD RED phase collection before implementation exists
+- [Phase 10-image-pipeline]: WorkItem._subdir uses explicit dict mapping for correct plural subdirs (families not familys)
+- [Phase 10-image-pipeline]: fetch_images.py: 429 not marked done (retry on next run), zero-result marked done (no infinite retry)
 
 ### Design Principle (established v1.1)
 
@@ -80,6 +82,6 @@ None — v1.0 site is fully functional. v1.1 is additive restructure.
 
 ## Session Continuity
 
-Last session: 2026-03-28T22:29:40.290Z
-Stopped at: Completed 09-data-migration 09-01-PLAN.md
+Last session: 2026-03-29T01:56:56.784Z
+Stopped at: Completed 10-image-pipeline 10-01-PLAN.md
 Resume: Run `/gsd:plan-phase 9` to begin planning Phase 9 (Data Migration)

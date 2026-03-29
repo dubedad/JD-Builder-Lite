@@ -29,10 +29,10 @@
 
 ### IMG — Image pipeline
 
-- [ ] **IMG-01**: Pipeline script queries Unsplash API with job-relevant keyword per function/family/title
-- [ ] **IMG-02**: Images downloaded to `/static/images/functions/`, `/static/images/families/`, `/static/images/titles/`
-- [ ] **IMG-03**: `image_path` updated in DB for each record after successful download
-- [ ] **IMG-04**: Pipeline is concurrent (5 workers) and resumable (skips already-fetched images)
+- [x] **IMG-01**: Pipeline script queries Unsplash API with job-relevant keyword per function/family/title
+- [x] **IMG-02**: Images downloaded to `/static/images/functions/`, `/static/images/families/`, `/static/images/titles/`
+- [x] **IMG-03**: `image_path` updated in DB for each record after successful download
+- [x] **IMG-04**: Pipeline is concurrent (5 workers) and resumable (skips already-fetched images)
 - [ ] **IMG-05**: Cards display a styled fallback (gradient, no photo) when `image_path` is null
 
 ### DETAIL — Enhanced career detail page
@@ -77,10 +77,10 @@
 | DATA-04 | Phase 9 — Data Migration | Complete |
 | DATA-05 | Phase 9 — Data Migration | Complete |
 | DATA-06 | Phase 9 — Data Migration | Complete |
-| IMG-01 | Phase 10 — Image Pipeline | Pending |
-| IMG-02 | Phase 10 — Image Pipeline | Pending |
-| IMG-03 | Phase 10 — Image Pipeline | Pending |
-| IMG-04 | Phase 10 — Image Pipeline | Pending |
+| IMG-01 | Phase 10 — Image Pipeline | Complete |
+| IMG-02 | Phase 10 — Image Pipeline | Complete |
+| IMG-03 | Phase 10 — Image Pipeline | Complete |
+| IMG-04 | Phase 10 — Image Pipeline | Complete |
 | IMG-05 | Phase 10 — Image Pipeline | Pending |
 | NAV-01 | Phase 11 — Navigation Restructure | Pending |
 | NAV-02 | Phase 11 — Navigation Restructure | Pending |
