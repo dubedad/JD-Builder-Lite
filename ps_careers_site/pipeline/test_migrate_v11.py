@@ -210,3 +210,32 @@ def test_horticulture_specialist(db_conn):
         "SELECT COUNT(*) FROM job_families WHERE job_function_slug IS NULL OR job_function_slug = ''"
     ).fetchone()[0]
     assert fam_blank_fk == 0, f"Found {fam_blank_fk} job_families rows with blank function FK"
+
+
+# ---------------------------------------------------------------------------
+# Guard clause tests (UAT gap closure — 09-02)
+# ---------------------------------------------------------------------------
+
+def test_guard_missing_db(tmp_path):
+    """Guard must fire when careers.sqlite does not exist at the given path."""
+    from pipeline.migrate_v11 import run_migration  # noqa: PLC0415
+
+    missing_db = tmp_path / "nonexistent.sqlite"
+    # DB path does not exist — guard must sys.exit(1), not raise OperationalError
+    with pytest.raises(SystemExit) as exc_info:
+        run_migration(db_path=missing_db, csv_path=CSV_PATH)
+    assert exc_info.value.code == 1, f"Expected exit code 1, got {exc_info.value.code}"
+
+
+def test_guard_empty_db(tmp_path):
+    """Guard must fire when careers.sqlite exists but has no careers table."""
+    from pipeline.migrate_v11 import run_migration  # noqa: PLC0415
+
+    empty_db = tmp_path / "empty.sqlite"
+    # Create an empty SQLite file with no tables
+    conn = sqlite3.connect(str(empty_db))
+    conn.close()
+
+    with pytest.raises(SystemExit) as exc_info:
+        run_migration(db_path=empty_db, csv_path=CSV_PATH)
+    assert exc_info.value.code == 1, f"Expected exit code 1, got {exc_info.value.code}"
