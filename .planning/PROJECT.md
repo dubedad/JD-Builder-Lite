@@ -71,7 +71,7 @@ A job seeker can land on the site, find a civilian DND career that fits them, an
 - [ ] Horticulture Specialist missing job_family — orphaned row; does not surface in card grid
 - [ ] **v1.1: Navigation restructure** — 4-level hierarchy (Function → Family → Title → Detail); `/careers` shows 23 Function cards; `/careers/{function-slug}` shows Family cards; `/careers/{function-slug}/{family-slug}` shows Title cards; `/career/{title-slug}` is detail
 - [x] **v1.1: Data migration** — import `enriched_job_architecture.csv` into new `job_functions` and `job_families` tables; add `key_responsibilities`, `required_skills`, `typical_education`, `job_title_description` columns to `careers` table — Validated in Phase 09: data-migration
-- [ ] **v1.1: Image pipeline** — ~2,200 images via Unsplash API (23 functions + 198 new families + 1,989 titles); concurrent, resumable pipeline; images stored in `/static/images/`
+- [x] **v1.1: Image pipeline** — async Unsplash pipeline with 5-worker concurrency, resume logic, 22 per-function gradient CSS fallbacks, and attribution footer — Validated in Phase 10: image-pipeline
 - [ ] **v1.1: Enhanced detail page** — add Key Responsibilities, Required Skills, Typical Education tabs/sections to L4 career detail
 - [ ] **CAF pixel-parity audit** — re-analyze forces.ca live site (L1, L2/filter, L3) in real-time; update CAF-CAREERS-SITE-REFERENCE.md with any deltas; treat every measurable value (spacing, font sizes, card dimensions, gap between images, border radii, colours) as a binding constraint that must persist across both sites
 - [ ] **Unified Job Taxonomy** — build a single normalized table combining CAF Careers taxonomy + TBS Job Architecture; requirements:
@@ -169,4 +169,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-28 — Phase 09 complete: careers.sqlite extended with job_functions (22 rows), job_families (209 rows), 5 enrichment columns on careers (all 1,989 rows populated)*
+*Last updated: 2026-03-29 — Phase 10 complete: async Unsplash image pipeline (fetch_images.py, 15-test TDD suite), 22 per-function gradient CSS fallback classes, Unsplash attribution in footer*
