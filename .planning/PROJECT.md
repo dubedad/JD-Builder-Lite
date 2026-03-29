@@ -69,7 +69,7 @@ A job seeker can land on the site, find a civilian DND career that fits them, an
 - [x] Remove non-functional footer quick-links (/careers?function=...) — removed 2026-03-18
 - [ ] Data quality audit: review job_function assignments across all 1,989 titles for purpose-vs-function misclassification (job_function must reflect work performed, not organizational purpose of the role within DND)
 - [ ] Horticulture Specialist missing job_family — orphaned row; does not surface in card grid
-- [ ] **v1.1: Navigation restructure** — 4-level hierarchy (Function → Family → Title → Detail); `/careers` shows 23 Function cards; `/careers/{function-slug}` shows Family cards; `/careers/{function-slug}/{family-slug}` shows Title cards; `/career/{title-slug}` is detail
+- [x] **v1.1: Navigation restructure** — 4-level hierarchy (Function → Family → Title → Detail); `/careers` shows 22 Function cards; `/careers/{function-slug}` shows Family cards; `/careers/{function-slug}/{family-slug}` shows Title cards; `/career/{title-slug}` is detail — Validated in Phase 11: navigation-restructure
 - [x] **v1.1: Data migration** — import `enriched_job_architecture.csv` into new `job_functions` and `job_families` tables; add `key_responsibilities`, `required_skills`, `typical_education`, `job_title_description` columns to `careers` table — Validated in Phase 09: data-migration
 - [x] **v1.1: Image pipeline** — async Unsplash pipeline with 5-worker concurrency, resume logic, 22 per-function gradient CSS fallbacks, and attribution footer — Validated in Phase 10: image-pipeline
 - [ ] **v1.1: Enhanced detail page** — add Key Responsibilities, Required Skills, Typical Education tabs/sections to L4 career detail
