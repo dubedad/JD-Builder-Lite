@@ -1,9 +1,9 @@
 ---
-status: diagnosed
+status: resolved
 phase: 09-data-migration
 source: [09-01-SUMMARY.md]
 started: 2026-03-28T22:35:00Z
-updated: 2026-03-28T22:40:00Z
+updated: 2026-03-29T00:00:00Z
 ---
 
 ## Current Test
@@ -50,9 +50,9 @@ blocked: 0
 ## Gaps
 
 - truth: "Running migrate_v11.py on a fresh system (no pre-existing careers.sqlite) should either succeed or give a clear actionable error message"
-  status: failed
+  status: resolved
   reason: "User reported: sqlite3.OperationalError: no such table: careers — script crashes when careers.sqlite does not exist"
   severity: major
   test: 1
   artifacts: [ps_careers_site/pipeline/migrate_v11.py]
-  missing: ["Guard clause or clear error message when careers table is absent — e.g. 'careers.sqlite not found or careers table missing — run ingest.py first'"]
+  resolved_by: "09-02 gap closure — pre-flight sys.exit(1) guard added before sqlite3.connect"
