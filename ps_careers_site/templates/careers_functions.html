@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Civilian Careers — DND{% endblock %}
+
+{% block extra_head %}
+{% include "partials/card_styles.html" %}
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero banner -->
+<div class="browse-hero">
+  <p class="hero-subtitle">Department of National Defence — Civilian Workforce</p>
+  <h1 class="hero-title">Civilian Careers</h1>
+</div>
+
+<!-- Breadcrumb -->
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  <a href="/">Home</a> &rsaquo; <span>Careers</span>
+</nav>
+
+<!-- Search bar -->
+<div class="search-bar">
+  <label for="career-search">Search:</label>
+  <input type="text" id="career-search" placeholder="Search by job function…">
+</div>
+
+<!-- Card grid: 22 Job Function cards -->
+<div class="card-grid" id="function-grid">
+  {% for fn in functions %}
+  <div class="card-col" data-name="{{ fn.job_function | lower }}">
+    {% if fn.image_path %}
+    <a href="/careers/{{ fn.job_function_slug }}"
+       class="career-card"
+       style="background-image:
+           linear-gradient(rgba(0,0,0,0.25)),
+           linear-gradient(rgba(0,0,0,0) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.5) 65%, rgba(0,0,0,0.9) 100%),
+           url('{{ url_for('static', path=fn.image_path) }}');">
+    {% else %}
+    <a href="/careers/{{ fn.job_function_slug }}"
+       class="career-card card-no-image gradient-{{ fn.job_function_slug }}">
+    {% endif %}
+      <div class="card-overlay">
+        <h3 class="card-title">{{ fn.job_function }}</h3>
+        <span class="view-btn">View Careers</span>
+      </div>
+    </a>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="no-results" id="no-results">No job functions match your search.</div>
+
+<script>
+(function() {
+  var search  = document.getElementById('career-search');
+  var noRes   = document.getElementById('no-results');
+
+  function applyFilter() {
+    var kw = search.value.trim().toLowerCase();
+    var cols = document.querySelectorAll('#function-grid .card-col');
+    var visible = 0;
+    cols.forEach(function(col) {
+      var name = col.dataset.name || '';
+      var show = !kw || name.indexOf(kw) !== -1;
+      col.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    noRes.style.display = visible === 0 ? 'block' : 'none';
+  }
+
+  search.addEventListener('input', applyFilter);
+})();
+</script>
+
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}{{ family.job_family }} — DND Civilian Careers{% endblock %}
+
+{% block extra_head %}
+{% include "partials/card_styles.html" %}
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero banner -->
+<div class="browse-hero">
+  <p class="hero-subtitle">{{ function.job_function }}</p>
+  <h1 class="hero-title">{{ family.job_family }}</h1>
+</div>
+
+<!-- Breadcrumb -->
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  <a href="/">Home</a> &rsaquo;
+  <a href="/careers">Careers</a> &rsaquo;
+  <a href="/careers/{{ function.job_function_slug }}">{{ function.job_function }}</a> &rsaquo;
+  <span>{{ family.job_family }}</span>
+</nav>
+
+{% if family.job_family_description %}
+<div style="padding: 16px 24px; background: #fff; border-bottom: 1px solid #ddd; font-size: 15px; color: #495057; font-family: Roboto, sans-serif; line-height: 1.6;">
+  {{ family.job_family_description }}
+</div>
+{% endif %}
+
+<!-- Card grid: Job Title cards within this family -->
+<div class="card-grid">
+  {% for title in titles %}
+  <div class="card-col">
+    {% if title.image_path %}
+    <a href="/career/{{ title.job_title_slug }}"
+       class="career-card"
+       style="background-image:
+           linear-gradient(rgba(0,0,0,0.25)),
+           linear-gradient(rgba(0,0,0,0) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.5) 65%, rgba(0,0,0,0.9) 100%),
+           url('{{ url_for('static', path=title.image_path) }}');">
+    {% else %}
+    <a href="/career/{{ title.job_title_slug }}"
+       class="career-card card-no-image gradient-{{ function.job_function_slug }}">
+    {% endif %}
+      <div class="card-overlay">
+        <h3 class="card-title">{{ title.job_title }}</h3>
+        <span class="view-btn">View Careers</span>
+      </div>
+    </a>
+  </div>
+  {% endfor %}
+</div>
+
+{% if not titles %}
+<div style="padding: 48px 24px; text-align: center; font-size: 16px; color: #666;">
+  No job titles found for this family.
+</div>
+{% endif %}
+
+{% endblock %}

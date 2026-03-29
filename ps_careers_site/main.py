@@ -16,7 +16,7 @@ app = FastAPI(title="DND Civilian Careers")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "pipeline", "careers.sqlite")
+DB_PATH = os.path.join(os.path.dirname(__file__), "careers.sqlite")
 
 CARD_IMAGE_STATIC = {
     "Artificial Intelligence Strategy & Integration.webp": "ai-strategy-integration.webp",
@@ -53,96 +53,83 @@ async def index(request: Request):
     return templates.TemplateResponse("base.html", {"request": request})
 
 
+# L1: Function browse — shows 22 Job Function cards
 @app.get("/careers")
-async def browse_careers(request: Request):
+async def careers_functions(request: Request):
+    """Show 22 Job Function cards."""
     conn = get_db()
     try:
-        rows = conn.execute(
-            """
-            SELECT DISTINCT job_family, job_family_slug, job_function, card_image_key
-            FROM careers
-            WHERE card_image_key IS NOT NULL AND card_image_key != ''
-            ORDER BY job_family ASC
-            """
-        ).fetchall()
-        jf_rows = conn.execute(
-            "SELECT DISTINCT job_function FROM careers ORDER BY job_function ASC"
-        ).fetchall()
-        title_rows = conn.execute(
-            """
-            SELECT job_family_slug, GROUP_CONCAT(lower(job_title), '|||') as titles
-            FROM careers
-            GROUP BY job_family_slug
-            """
-        ).fetchall()
+        functions = conn.execute("""
+            SELECT job_function_slug, job_function, job_function_description, image_path
+            FROM job_functions
+            ORDER BY job_function
+        """).fetchall()
     finally:
         conn.close()
-
-    job_functions = [r["job_function"] for r in jf_rows]
-    titles_by_slug = {
-        r["job_family_slug"]: r["titles"].split("|||")
-        for r in title_rows
-        if r["titles"]
-    }
-
-    families = []
-    for row in rows:
-        families.append({
-            "name": row["job_family"],
-            "slug": row["job_family_slug"],
-            "function": row["job_function"],
-            "image_file": CARD_IMAGE_STATIC.get(row["card_image_key"]),
-            "titles_json": json.dumps(titles_by_slug.get(row["job_family_slug"], [])),
-        })
-
-    return templates.TemplateResponse(
-        "careers.html",
-        {"request": request, "families": families, "job_functions": job_functions}
-    )
+    return templates.TemplateResponse("careers_functions.html", {
+        "request": request,
+        "functions": functions,
+    })
 
 
-@app.get("/careers/{family_slug}")
-async def job_family(request: Request, family_slug: str):
+# L2: Family browse within a function
+@app.get("/careers/{function_slug}/{family_slug}")
+async def careers_titles(request: Request, function_slug: str, family_slug: str):
+    """Show Title cards for a specific family."""
     conn = get_db()
     try:
-        rows = conn.execute(
-            """
-            SELECT jt_id, job_title, job_title_slug, job_family,
-                   noc_2021_uid, noc_2021_title, managerial_level, digital, overview
+        function = conn.execute(
+            "SELECT * FROM job_functions WHERE job_function_slug = ?", (function_slug,)
+        ).fetchone()
+        if not function:
+            raise HTTPException(status_code=404, detail="Job function not found")
+        family = conn.execute(
+            "SELECT * FROM job_families WHERE job_family_slug = ? AND job_function_slug = ?",
+            (family_slug, function_slug)
+        ).fetchone()
+        if not family:
+            raise HTTPException(status_code=404, detail="Job family not found")
+        titles = conn.execute("""
+            SELECT jt_id, job_title, job_title_slug, job_title_description, image_path
             FROM careers
             WHERE job_family_slug = ?
-            ORDER BY job_title ASC
-            """,
-            (family_slug,)
-        ).fetchall()
+            ORDER BY job_title
+        """, (family_slug,)).fetchall()
     finally:
         conn.close()
+    return templates.TemplateResponse("careers_titles.html", {
+        "request": request,
+        "function": function,
+        "family": family,
+        "titles": titles,
+    })
 
-    if not rows:
-        raise HTTPException(status_code=404, detail="Job family not found")
 
-    family_name = rows[0]["job_family"]
-    jobs = []
-    for row in rows:
-        jobs.append({
-            "title": row["job_title"],
-            "slug": row["job_title_slug"],
-            "noc_uid": row["noc_2021_uid"],
-            "noc_title": row["noc_2021_title"],
-            "managerial_level": row["managerial_level"],
-            "digital": row["digital"],
-            "excerpt": (row["overview"] or "")[:150],
-        })
-
-    return templates.TemplateResponse(
-        "family.html",
-        {
-            "request": request,
-            "family": family_name,
-            "family_slug": family_slug,
-            "jobs": jobs,
-        }
-    )
+# L2 (must be declared AFTER /{function_slug}/{family_slug} to avoid shadowing)
+@app.get("/careers/{function_slug}")
+async def careers_families(request: Request, function_slug: str):
+    """Show Family cards for a specific function."""
+    conn = get_db()
+    try:
+        function = conn.execute(
+            "SELECT * FROM job_functions WHERE job_function_slug = ?", (function_slug,)
+        ).fetchone()
+        if not function:
+            raise HTTPException(status_code=404, detail="Job function not found")
+        families = conn.execute("""
+            SELECT job_family_slug, job_family, job_function_slug,
+                   job_family_description, image_path
+            FROM job_families
+            WHERE job_function_slug = ?
+            ORDER BY job_family
+        """, (function_slug,)).fetchall()
+    finally:
+        conn.close()
+    return templates.TemplateResponse("careers_families.html", {
+        "request": request,
+        "function": function,
+        "families": families,
+    })
 
 
 @app.get("/career/{title_slug}")

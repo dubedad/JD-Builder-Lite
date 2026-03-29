@@ -1,0 +1,155 @@
+{# Shared CAF card grid CSS — included in all 3 browse templates #}
+<style>
+  /* Hero banner */
+  .browse-hero {
+    height: 306px;
+    background-image: url("{{ url_for('static', path='images/public-service-hero.png') }}");
+    background-size: cover;
+    background-position: center 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 0 24px 24px;
+  }
+  .browse-hero .hero-subtitle {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 16px;
+    font-weight: 100;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.64px;
+    margin: 0 0 8px;
+  }
+  .browse-hero .hero-title {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 42px;
+    font-weight: 600;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 2.4px;
+    margin: 0;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    padding: 12px 24px;
+    background: #f0f0f0;
+    font-size: 13px;
+    font-family: Roboto, sans-serif;
+    color: #495057;
+  }
+  .breadcrumb a {
+    color: #1a5276;
+    text-decoration: none;
+  }
+  .breadcrumb a:hover { text-decoration: underline; }
+  .breadcrumb span { color: #495057; }
+
+  /* Search bar (L1 only) */
+  .search-bar {
+    background: #e8e8e8;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .search-bar input[type="text"] {
+    height: 40px;
+    padding: 0 12px;
+    font-size: 14px;
+    font-family: Roboto, sans-serif;
+    border: 1px solid #ccc;
+    background: #fff;
+    color: #495057;
+    flex: 1;
+    min-width: 200px;
+    max-width: 520px;
+  }
+  .search-bar label {
+    font-size: 14px;
+    font-family: 'Exo 2', sans-serif;
+    color: #333;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .no-results {
+    padding: 48px 24px;
+    text-align: center;
+    font-size: 16px;
+    color: #666;
+    width: 100%;
+    display: none;
+  }
+
+  /* CAF card grid — identical at all browse levels */
+  .card-grid {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    margin: 0;
+    padding: 0 0 24px;
+  }
+  .card-col {
+    width: 25%;
+    padding-left: 0;
+    padding-bottom: 16px;
+    box-sizing: border-box;
+  }
+  @media (max-width: 1199px) {
+    .card-col { width: 33.333%; }
+  }
+  @media (max-width: 767px) {
+    .card-col { width: 100%; }
+  }
+  .career-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 16px;
+    border-radius: 0;
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 3px 5px -1px rgba(0,0,0,.1),
+                0 6px 10px 0 rgba(0,0,0,.07),
+                0 1px 18px 0 rgba(0,0,0,.08);
+  }
+  .career-card:hover { opacity: 0.92; }
+  .career-card.card-no-image {
+    background: linear-gradient(160deg, #1a3a5c 0%, #26374a 60%, #1c2e40 100%);
+  }
+  .card-overlay {}
+  .card-title {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 23.2px;
+    font-weight: 600;
+    color: rgb(245,245,245);
+    line-height: 27.84px;
+    margin: 0 0 16px;
+  }
+  .view-btn {
+    display: inline-block;
+    font-family: Roboto, sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    color: rgb(245,245,245);
+    background: transparent;
+    border: 1.33px solid rgb(245,245,245);
+    padding: 6.53px 30.4px;
+    text-transform: uppercase;
+    letter-spacing: 2.4px;
+    border-radius: 0;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .view-btn:hover {
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    text-decoration: none;
+  }
+</style>
