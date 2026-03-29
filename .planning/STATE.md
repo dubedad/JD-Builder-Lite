@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Full Browse Experience
-status: verifying
-stopped_at: Completed 09-data-migration 09-01-PLAN.md
-last_updated: "2026-03-28T22:36:48.378Z"
-last_activity: 2026-03-28
+status: executing
+stopped_at: Completed 10-image-pipeline 10-02-PLAN.md
+last_updated: "2026-03-29T01:36:48.383Z"
+last_activity: 2026-03-29
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 1
-  completed_plans: 1
+  total_plans: 3
+  completed_plans: 2
 ---
 
 # Project State
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-28 for v1.1 milestone)
 
 **Core value:** A job seeker can find a DND civilian career, understand it, and know how to enter it — without HR help.
-**Current focus:** Phase 09 — data-migration
+**Current focus:** Phase 10 — image-pipeline
 
 ## Current Position
 
-Phase: 10
-Plan: Not started
-Status: Phase complete — ready for verification
-Last activity: 2026-03-28
+Phase: 10 (image-pipeline) — EXECUTING
+Plan: 2 of 2
+Status: Ready to execute
+Last activity: 2026-03-29
 
 ## Progress Bar
 
@@ -45,6 +45,8 @@ All decisions logged in PROJECT.md Key Decisions table.
 - [Phase 09-data-migration]: Actual CSV has 22 job functions and 209 job families (research stated 23/210) — tests corrected to match reality
 - [Phase 09-data-migration]: Unconditional UPDATE from CSV for enrichment columns ensures CSV is authoritative on every migration run
 - [Phase 09-data-migration]: Lazy import inside pytest fixture enables TDD RED phase collection before implementation exists
+- [Phase 10-image-pipeline]: Used 160deg gradient angle matching existing .card-no-image for visual consistency across card types
+- [Phase 10-image-pipeline]: Unsplash attribution placed in footer-bottom flex row between social icons and terms links (D-04 compliance)
 
 ### Design Principle (established v1.1)
 
@@ -80,6 +82,6 @@ None — v1.0 site is fully functional. v1.1 is additive restructure.
 
 ## Session Continuity
 
-Last session: 2026-03-28T22:29:40.290Z
-Stopped at: Completed 09-data-migration 09-01-PLAN.md
+Last session: 2026-03-29T01:36:48.361Z
+Stopped at: Completed 10-image-pipeline 10-02-PLAN.md
 Resume: Run `/gsd:plan-phase 9` to begin planning Phase 9 (Data Migration)

@@ -33,7 +33,7 @@
 - [ ] **IMG-02**: Images downloaded to `/static/images/functions/`, `/static/images/families/`, `/static/images/titles/`
 - [ ] **IMG-03**: `image_path` updated in DB for each record after successful download
 - [ ] **IMG-04**: Pipeline is concurrent (5 workers) and resumable (skips already-fetched images)
-- [ ] **IMG-05**: Cards display a styled fallback (gradient, no photo) when `image_path` is null
+- [x] **IMG-05**: Cards display a styled fallback (gradient, no photo) when `image_path` is null
 
 ### DETAIL — Enhanced career detail page
 
@@ -81,7 +81,7 @@
 | IMG-02 | Phase 10 — Image Pipeline | Pending |
 | IMG-03 | Phase 10 — Image Pipeline | Pending |
 | IMG-04 | Phase 10 — Image Pipeline | Pending |
-| IMG-05 | Phase 10 — Image Pipeline | Pending |
+| IMG-05 | Phase 10 — Image Pipeline | Complete |
 | NAV-01 | Phase 11 — Navigation Restructure | Pending |
 | NAV-02 | Phase 11 — Navigation Restructure | Pending |
 | NAV-03 | Phase 11 — Navigation Restructure | Pending |
