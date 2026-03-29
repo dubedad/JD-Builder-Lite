@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Full Browse Experience
 status: verifying
-stopped_at: Completed 11-01-PLAN.md — 4-level browse hierarchy
-last_updated: "2026-03-29T04:01:19.030Z"
+stopped_at: Completed 12-01-PLAN.md — enhanced detail page
+last_updated: "2026-03-29T04:31:47.696Z"
 last_activity: 2026-03-29
 progress:
   total_phases: 4
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 5
-  completed_plans: 4
+  completed_plans: 5
 ---
 
 # Project State
@@ -20,12 +20,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-28 for v1.1 milestone)
 
 **Core value:** A job seeker can find a DND civilian career, understand it, and know how to enter it — without HR help.
-**Current focus:** Phase 11 — navigation-restructure
+**Current focus:** Phase 12 — enhanced-detail-page
 
 ## Current Position
 
-Phase: 12
-Plan: Not started
+Phase: 12 (enhanced-detail-page) — EXECUTING
+Plan: 1 of 1
 Status: Phase complete — ready for verification
 Last activity: 2026-03-29
 
@@ -51,6 +51,8 @@ All decisions logged in PROJECT.md Key Decisions table.
 - [Phase 10-image-pipeline]: fetch_images.py: 429 not marked done (retry on next run), zero-result marked done (no infinite retry)
 - [Phase 11]: Route ordering: /careers/{function_slug}/{family_slug} declared BEFORE /careers/{function_slug} to prevent FastAPI path shadowing
 - [Phase 11]: Gradient fallback at L2/L3: family/title cards inherit per-function gradient since images not yet fetched for sub-levels
+- [Phase 12]: LEFT JOIN job_families + job_functions in career_detail route provides function_slug/function_name for 4-level breadcrumb with orphan fallback
+- [Phase 12]: Family badge link updated to /careers/{function_slug}/{family_slug} to match v1.1 navigation structure
 
 ### Design Principle (established v1.1)
 
@@ -86,6 +88,6 @@ None — v1.0 site is fully functional. v1.1 is additive restructure.
 
 ## Session Continuity
 
-Last session: 2026-03-29T03:47:40.778Z
-Stopped at: Completed 11-01-PLAN.md — 4-level browse hierarchy
+Last session: 2026-03-29T04:31:47.676Z
+Stopped at: Completed 12-01-PLAN.md — enhanced detail page
 Resume: Run `/gsd:plan-phase 9` to begin planning Phase 9 (Data Migration)

@@ -37,10 +37,10 @@
 
 ### DETAIL — Enhanced career detail page
 
-- [ ] **DETAIL-01**: Key Responsibilities section added to career detail page
-- [ ] **DETAIL-02**: Required Skills section added to career detail page
-- [ ] **DETAIL-03**: Typical Education section added to career detail page
-- [ ] **DETAIL-04**: Breadcrumb updated to reflect full path: Home > Careers > [Function] > [Family] > [Title]
+- [x] **DETAIL-01**: Key Responsibilities section added to career detail page
+- [x] **DETAIL-02**: Required Skills section added to career detail page
+- [x] **DETAIL-03**: Typical Education section added to career detail page
+- [x] **DETAIL-04**: Breadcrumb updated to reflect full path: Home > Careers > [Function] > [Family] > [Title]
 
 ---
 
@@ -89,7 +89,7 @@
 | NAV-05 | Phase 11 — Navigation Restructure | Complete |
 | NAV-06 | Phase 11 — Navigation Restructure | Complete |
 | NAV-07 | Phase 11 — Navigation Restructure | Complete |
-| DETAIL-01 | Phase 12 — Enhanced Detail Page | Pending |
-| DETAIL-02 | Phase 12 — Enhanced Detail Page | Pending |
-| DETAIL-03 | Phase 12 — Enhanced Detail Page | Pending |
-| DETAIL-04 | Phase 12 — Enhanced Detail Page | Pending |
+| DETAIL-01 | Phase 12 — Enhanced Detail Page | Complete |
+| DETAIL-02 | Phase 12 — Enhanced Detail Page | Complete |
+| DETAIL-03 | Phase 12 — Enhanced Detail Page | Complete |
+| DETAIL-04 | Phase 12 — Enhanced Detail Page | Complete |

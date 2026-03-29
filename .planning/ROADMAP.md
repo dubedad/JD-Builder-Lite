@@ -28,7 +28,7 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
 - [x] **Phase 9: Data Migration** — Extend DB schema and import all enriched CSV content (completed 2026-03-28)
 - [x] **Phase 10: Image Pipeline** — Fetch ~2,200 Unsplash images for all functions, families, and titles (completed 2026-03-29)
 - [x] **Phase 11: Navigation Restructure** — 4-level browse hierarchy with image card grids at every level (completed 2026-03-29)
-- [ ] **Phase 12: Enhanced Detail Page** — Add Key Responsibilities, Required Skills, Typical Education sections
+- [x] **Phase 12: Enhanced Detail Page** — Add Key Responsibilities, Required Skills, Typical Education sections (completed 2026-03-29)
 
 ## Phase Details
 
@@ -100,4 +100,4 @@ Plans:
 | 9. Data Migration | v1.1 | 1/1 | Complete   | 2026-03-28 |
 | 10. Image Pipeline | v1.1 | 2/2 | Complete    | 2026-03-29 |
 | 11. Navigation Restructure | v1.1 | 1/1 | Complete    | 2026-03-29 |
-| 12. Enhanced Detail Page | v1.1 | 0/? | Not started | - |
+| 12. Enhanced Detail Page | v1.1 | 1/1 | Complete   | 2026-03-29 |
