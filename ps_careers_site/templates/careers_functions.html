@@ -35,7 +35,7 @@
        style="background-image:
            linear-gradient(rgba(0,0,0,0.25)),
            linear-gradient(rgba(0,0,0,0) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.5) 65%, rgba(0,0,0,0.9) 100%),
-           url('{{ url_for('static', path=fn.image_path) }}');">
+           url('{{ url_for('static', path='images/' + fn.image_path) }}');">
     {% else %}
     <a href="/careers/{{ fn.job_function_slug }}"
        class="career-card card-no-image gradient-{{ fn.job_function_slug }}">
