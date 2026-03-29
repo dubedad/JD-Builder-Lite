@@ -99,5 +99,5 @@ Plans:
 | 8. L3 Job Title Detail | v1.0 | 1/1 | Complete | 2026-03-17 |
 | 9. Data Migration | v1.1 | 1/1 | Complete   | 2026-03-28 |
 | 10. Image Pipeline | v1.1 | 2/2 | Complete    | 2026-03-29 |
-| 11. Navigation Restructure | v1.1 | 1/1 | Complete   | 2026-03-29 |
+| 11. Navigation Restructure | v1.1 | 1/1 | Complete    | 2026-03-29 |
 | 12. Enhanced Detail Page | v1.1 | 0/? | Not started | - |
