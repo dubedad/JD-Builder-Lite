@@ -19,13 +19,13 @@
 
 ### NAV — Navigation restructure
 
-- [ ] **NAV-01**: `/careers` serves 23 Job Function image cards (4-col → 3-col → 1-col, CAF card format)
-- [ ] **NAV-02**: `/careers/{function-slug}` serves Job Family image cards for that function (same card format)
-- [ ] **NAV-03**: `/careers/{function-slug}/{family-slug}` serves Job Title image cards for that family (same card format)
-- [ ] **NAV-04**: All 3 browse levels use identical card CSS from `CAF-CAREERS-SITE-REFERENCE.md` (300px height, 3-layer gradient overlay, Exo 2 title font, VIEW CAREERS button)
-- [ ] **NAV-05**: Hero banner on each browse page showing the current level name and description
-- [ ] **NAV-06**: Breadcrumb on every page: Home > Careers > [Function] > [Family] > [Title]
-- [ ] **NAV-07**: Keyword search on L1 (`/careers`) searches across function names
+- [x] **NAV-01**: `/careers` serves 23 Job Function image cards (4-col → 3-col → 1-col, CAF card format)
+- [x] **NAV-02**: `/careers/{function-slug}` serves Job Family image cards for that function (same card format)
+- [x] **NAV-03**: `/careers/{function-slug}/{family-slug}` serves Job Title image cards for that family (same card format)
+- [x] **NAV-04**: All 3 browse levels use identical card CSS from `CAF-CAREERS-SITE-REFERENCE.md` (300px height, 3-layer gradient overlay, Exo 2 title font, VIEW CAREERS button)
+- [x] **NAV-05**: Hero banner on each browse page showing the current level name and description
+- [x] **NAV-06**: Breadcrumb on every page: Home > Careers > [Function] > [Family] > [Title]
+- [x] **NAV-07**: Keyword search on L1 (`/careers`) searches across function names
 
 ### IMG — Image pipeline
 
@@ -82,13 +82,13 @@
 | IMG-03 | Phase 10 — Image Pipeline | Complete |
 | IMG-04 | Phase 10 — Image Pipeline | Complete |
 | IMG-05 | Phase 10 — Image Pipeline | Complete |
-| NAV-01 | Phase 11 — Navigation Restructure | Pending |
-| NAV-02 | Phase 11 — Navigation Restructure | Pending |
-| NAV-03 | Phase 11 — Navigation Restructure | Pending |
-| NAV-04 | Phase 11 — Navigation Restructure | Pending |
-| NAV-05 | Phase 11 — Navigation Restructure | Pending |
-| NAV-06 | Phase 11 — Navigation Restructure | Pending |
-| NAV-07 | Phase 11 — Navigation Restructure | Pending |
+| NAV-01 | Phase 11 — Navigation Restructure | Complete |
+| NAV-02 | Phase 11 — Navigation Restructure | Complete |
+| NAV-03 | Phase 11 — Navigation Restructure | Complete |
+| NAV-04 | Phase 11 — Navigation Restructure | Complete |
+| NAV-05 | Phase 11 — Navigation Restructure | Complete |
+| NAV-06 | Phase 11 — Navigation Restructure | Complete |
+| NAV-07 | Phase 11 — Navigation Restructure | Complete |
 | DETAIL-01 | Phase 12 — Enhanced Detail Page | Pending |
 | DETAIL-02 | Phase 12 — Enhanced Detail Page | Pending |
 | DETAIL-03 | Phase 12 — Enhanced Detail Page | Pending |

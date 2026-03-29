@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Full Browse Experience
-status: executing
-stopped_at: Completed 10-image-pipeline — both plans (10-01 and 10-02)
-last_updated: "2026-03-29T02:27:52.355Z"
+status: verifying
+stopped_at: Completed 11-01-PLAN.md — 4-level browse hierarchy
+last_updated: "2026-03-29T03:47:40.796Z"
 last_activity: 2026-03-29
 progress:
   total_phases: 4
-  completed_phases: 2
-  total_plans: 3
-  completed_plans: 3
+  completed_phases: 3
+  total_plans: 5
+  completed_plans: 4
 ---
 
 # Project State
@@ -20,13 +20,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-28 for v1.1 milestone)
 
 **Core value:** A job seeker can find a DND civilian career, understand it, and know how to enter it — without HR help.
-**Current focus:** Phase 10 — image-pipeline
+**Current focus:** Phase 11 — navigation-restructure
 
 ## Current Position
 
-Phase: 11
-Plan: Not started
-Status: Ready to execute
+Phase: 11 (navigation-restructure) — EXECUTING
+Plan: 1 of 1
+Status: Phase complete — ready for verification
 Last activity: 2026-03-29
 
 ## Progress Bar
@@ -49,6 +49,8 @@ All decisions logged in PROJECT.md Key Decisions table.
 - [Phase 10-image-pipeline]: Unsplash attribution placed in footer-bottom flex row between social icons and terms links (D-04 compliance)
 - [Phase 10-image-pipeline]: WorkItem._subdir uses explicit dict mapping for correct plural subdirs (families not familys)
 - [Phase 10-image-pipeline]: fetch_images.py: 429 not marked done (retry on next run), zero-result marked done (no infinite retry)
+- [Phase 11]: Route ordering: /careers/{function_slug}/{family_slug} declared BEFORE /careers/{function_slug} to prevent FastAPI path shadowing
+- [Phase 11]: Gradient fallback at L2/L3: family/title cards inherit per-function gradient since images not yet fetched for sub-levels
 
 ### Design Principle (established v1.1)
 
@@ -84,6 +86,6 @@ None — v1.0 site is fully functional. v1.1 is additive restructure.
 
 ## Session Continuity
 
-Last session: 2026-03-29T01:56:56.784Z
-Stopped at: Completed 10-image-pipeline — both plans (10-01 and 10-02)
+Last session: 2026-03-29T03:47:40.778Z
+Stopped at: Completed 11-01-PLAN.md — 4-level browse hierarchy
 Resume: Run `/gsd:plan-phase 9` to begin planning Phase 9 (Data Migration)
