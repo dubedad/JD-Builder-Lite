@@ -11,6 +11,7 @@ import argparse
 import csv
 import re
 import sqlite3
+import sys
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
@@ -88,6 +89,28 @@ def run_migration(db_path: Path, csv_path: Path) -> None:
     print(f"DB  : {db_path.resolve()}")
     print(f"CSV : {csv_path.resolve()}")
 
+    # Pre-flight: DB file and careers table must exist (populated by ingest.py)
+    if not db_path.exists():
+        print(
+            f"\nERROR: Database file not found: {db_path.resolve()}\n"
+            "       Run pipeline/ingest.py first to create and populate careers.sqlite.",
+            flush=True,
+        )
+        sys.exit(1)
+
+    _check = sqlite3.connect(str(db_path))
+    _has_careers = _check.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='careers'"
+    ).fetchone()
+    _check.close()
+    if not _has_careers:
+        print(
+            f"\nERROR: 'careers' table not found in {db_path.resolve()}\n"
+            "       Run pipeline/ingest.py first to initialize the database.",
+            flush=True,
+        )
+        sys.exit(1)
+
     # --- Read CSV (utf-8-sig handles Excel BOM) ---
     with open(csv_path, encoding="utf-8-sig", newline="") as f:
         rows = list(csv.DictReader(f))
@@ -120,16 +143,7 @@ def run_migration(db_path: Path, csv_path: Path) -> None:
         conn.execute(DDL_JOB_FUNCTIONS)
         conn.execute(DDL_JOB_FAMILIES)
 
-        # 2. Guard: careers table must exist (populated by ingest.py)
-        if not conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' AND name='careers'"
-        ).fetchone():
-            raise RuntimeError(
-                f"\nERROR: 'careers' table not found in {db_path.resolve()}\n"
-                "       Run pipeline/ingest.py first to initialize the database."
-            )
-
-        # 3. Add new columns to careers (guard prevents re-add on idempotent run)
+        # 2. Add new columns to careers (guard prevents re-add on idempotent run)
         for col_name, col_type in NEW_CAREERS_COLUMNS:
             if not column_exists(conn, "careers", col_name):
                 conn.execute(f"ALTER TABLE careers ADD COLUMN {col_name} {col_type}")
