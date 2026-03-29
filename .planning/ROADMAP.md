@@ -32,7 +32,7 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
  (completed 2026-03-29)
 - [x] **Phase 12: Enhanced Detail Page** — Add Key Responsibilities, Required Skills, Typical Education sections
  (completed 2026-03-29)
-- [ ] **Phase 13: Fix Image URL Wiring** — Correct url_for path prefix in all 3 browse templates so Unsplash photos resolve correctly (gap closure)
+- [x] **Phase 13: Fix Image URL Wiring** — Correct url_for path prefix in all 3 browse templates so Unsplash photos resolve correctly (gap closure) (completed 2026-03-29)
 - [ ] **Phase 14: Complete Image Pipeline** — Run fetch_images.py for families (209) and titles (1,989) to populate L2/L3 images (gap closure)
 - [ ] **Phase 15: Fix Detail Breadcrumb Fallback** — Patch latent 404 in career_detail.html fallback breadcrumb href (gap closure)
 
@@ -101,7 +101,9 @@ Plans:
   2. Family cards on /careers/{fn-slug} display Unsplash photos
   3. Title cards on /careers/{fn-slug}/{fam-slug} display Unsplash photos
   4. No 404s in browser console for image requests
-**Plans**: TBD
+**Plans:** 1/1 plans complete
+Plans:
+- [x] 13-01-PLAN.md — Fix url_for path prefix in 3 browse templates (prepend images/)
 
 ### Phase 14: Complete Image Pipeline
 **Goal**: L2 and L3 cards display Unsplash photos (families and titles image dirs populated)
@@ -142,6 +144,6 @@ Plans:
 | 10. Image Pipeline | v1.1 | 2/2 | Complete    | 2026-03-29 |
 | 11. Navigation Restructure | v1.1 | 1/1 | Complete    | 2026-03-29 |
 | 12. Enhanced Detail Page | v1.1 | 1/1 | Complete    | 2026-03-29 |
-| 13. Fix Image URL Wiring | v1.1 (gap) | 0/1 | Pending | — |
+| 13. Fix Image URL Wiring | v1.1 (gap) | 1/1 | Complete   | 2026-03-29 |
 | 14. Complete Image Pipeline | v1.1 (gap) | 0/1 | Pending | — |
 | 15. Fix Detail Breadcrumb Fallback | v1.1 (gap) | 0/1 | Pending | — |

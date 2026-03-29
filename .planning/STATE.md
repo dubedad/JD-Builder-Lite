@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Full Browse Experience
-status: executing
-stopped_at: Completed 09-02-PLAN.md — migrate_v11 guard clause gap closure
-last_updated: "2026-03-29T06:15:00.423Z"
+status: verifying
+stopped_at: Completed 13-01-PLAN.md — fix image URL wiring in all 3 browse templates
+last_updated: "2026-03-29T15:05:55.156Z"
 last_activity: 2026-03-29
 progress:
-  total_phases: 4
-  completed_phases: 4
-  total_plans: 6
-  completed_plans: 6
+  total_phases: 7
+  completed_phases: 5
+  total_plans: 7
+  completed_plans: 7
 ---
 
 # Project State
@@ -20,13 +20,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-28 for v1.1 milestone)
 
 **Core value:** A job seeker can find a DND civilian career, understand it, and know how to enter it — without HR help.
-**Current focus:** Phase 09 — data-migration
+**Current focus:** Phase 13 — fix-image-url-wiring
 
 ## Current Position
 
-Phase: 10
-Plan: Not started
-Status: Ready to execute
+Phase: 13 (fix-image-url-wiring) — EXECUTING
+Plan: 1 of 1
+Status: Phase complete — ready for verification
 Last activity: 2026-03-29
 
 ## Progress Bar
@@ -55,6 +55,7 @@ All decisions logged in PROJECT.md Key Decisions table.
 - [Phase 12]: Family badge link updated to /careers/{function_slug}/{family_slug} to match v1.1 navigation structure
 - [Phase 09-data-migration]: Pre-flight guard placed before sqlite3.connect in migrate_v11.py so missing-file case never opens a DB connection
 - [Phase 09-data-migration]: RuntimeError guard removed from migrate_v11.py try block — superseded by pre-flight sys.exit(1) check
+- [Phase 13-fix-image-url-wiring]: DB image_path is relative to static/images/ not static/; url_for must prepend 'images/' to resolve to correct file path
 
 ### Design Principle (established v1.1)
 
@@ -90,6 +91,6 @@ None — v1.0 site is fully functional. v1.1 is additive restructure.
 
 ## Session Continuity
 
-Last session: 2026-03-29T06:06:15.294Z
-Stopped at: Completed 09-02-PLAN.md — migrate_v11 guard clause gap closure
+Last session: 2026-03-29T15:05:54.919Z
+Stopped at: Completed 13-01-PLAN.md — fix image URL wiring in all 3 browse templates
 Resume: Run `/gsd:plan-phase 9` to begin planning Phase 9 (Data Migration)
