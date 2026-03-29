@@ -149,11 +149,16 @@
 
 {% block content %}
 
-<!-- Breadcrumb (L3-09) -->
+<!-- Breadcrumb (L3-09) — 4-level: Home > Careers > Function > Family > Title -->
 <nav class="breadcrumb">
   <a href="/">Home</a> &rsaquo;
   <a href="/careers">Careers</a> &rsaquo;
+  {% if job.function_slug %}
+  <a href="/careers/{{ job.function_slug }}">{{ job.function_name }}</a> &rsaquo;
+  <a href="/careers/{{ job.function_slug }}/{{ job.family_slug }}">{{ job.family }}</a> &rsaquo;
+  {% else %}
   <a href="/careers/{{ job.family_slug }}">{{ job.family }}</a> &rsaquo;
+  {% endif %}
   <span>{{ job.title }}</span>
 </nav>
 
@@ -164,7 +169,7 @@
     {% if job.noc_uid %}
     <span class="badge badge-noc">NOC {{ job.noc_uid }}</span>
     {% endif %}
-    <a href="/careers/{{ job.family_slug }}" class="badge badge-family">{{ job.family }}</a>
+    <a href="/careers/{{ job.function_slug }}/{{ job.family_slug }}" class="badge badge-family">{{ job.family }}</a>
     {% if job.managerial_level %}
     <span class="badge badge-level">{{ job.managerial_level }}</span>
     {% endif %}
@@ -182,9 +187,12 @@
   </div>
 </div>
 
-<!-- Sticky tab nav (L3-02) -->
+<!-- Sticky tab nav (L3-02) — 8 tabs including new content sections -->
 <nav class="tab-nav">
   <a href="#sec-overview">Overview</a>
+  <a href="#sec-key-responsibilities">Key Responsibilities</a>
+  <a href="#sec-required-skills">Required Skills</a>
+  <a href="#sec-typical-education">Typical Education</a>
   <a href="#sec-training">Training</a>
   <a href="#sec-entry">Entry Plans</a>
   <a href="#sec-parttime">Part-Time Options</a>
@@ -198,6 +206,36 @@
   {{ job.overview | safe }}
   {% else %}
   <p class="empty-section">Content coming soon.</p>
+  {% endif %}
+</section>
+
+<!-- Key Responsibilities (L3-10) -->
+<section id="sec-key-responsibilities" class="career-section">
+  <h2>Key Responsibilities</h2>
+  {% if job.key_responsibilities %}
+  {{ job.key_responsibilities | safe }}
+  {% else %}
+  <p class="empty-section">Content is being developed for this section.</p>
+  {% endif %}
+</section>
+
+<!-- Required Skills (L3-11) -->
+<section id="sec-required-skills" class="career-section">
+  <h2>Required Skills</h2>
+  {% if job.required_skills %}
+  {{ job.required_skills | safe }}
+  {% else %}
+  <p class="empty-section">Content is being developed for this section.</p>
+  {% endif %}
+</section>
+
+<!-- Typical Education (L3-12) -->
+<section id="sec-typical-education" class="career-section">
+  <h2>Typical Education</h2>
+  {% if job.typical_education %}
+  {{ job.typical_education | safe }}
+  {% else %}
+  <p class="empty-section">Content is being developed for this section.</p>
   {% endif %}
 </section>
 

@@ -138,11 +138,17 @@ async def career_detail(request: Request, title_slug: str):
     try:
         row = conn.execute(
             """
-            SELECT jt_id, job_title, job_title_slug, job_family, job_family_slug,
-                   job_function, managerial_level, noc_2021_uid, noc_2021_title, digital,
-                   overview, training, entry_plans, part_time, related_careers, caf_related
-            FROM careers
-            WHERE job_title_slug = ?
+            SELECT c.jt_id, c.job_title, c.job_title_slug, c.job_family, c.job_family_slug,
+                   c.job_function, c.managerial_level, c.noc_2021_uid, c.noc_2021_title,
+                   c.digital, c.overview, c.training, c.entry_plans, c.part_time,
+                   c.related_careers, c.caf_related,
+                   c.key_responsibilities, c.required_skills, c.typical_education,
+                   jfam.job_function_slug,
+                   jf.job_function AS function_name
+            FROM careers c
+            LEFT JOIN job_families jfam ON c.job_family_slug = jfam.job_family_slug
+            LEFT JOIN job_functions jf ON jfam.job_function_slug = jf.job_function_slug
+            WHERE c.job_title_slug = ?
             """,
             (title_slug,)
         ).fetchone()
@@ -163,21 +169,26 @@ async def career_detail(request: Request, title_slug: str):
         related_raw = []
 
     job = {
-        "title":            row["job_title"],
-        "slug":             row["job_title_slug"],
-        "family":           row["job_family"],
-        "family_slug":      row["job_family_slug"],
-        "function":         row["job_function"],
-        "managerial_level": row["managerial_level"],
-        "noc_uid":          row["noc_2021_uid"],
-        "noc_title":        row["noc_2021_title"],
-        "digital":          row["digital"],
-        "overview":         row["overview"] or "",
-        "training":         row["training"] or "",
-        "entry_plans":      row["entry_plans"] or "",
-        "part_time":        row["part_time"] or "",
-        "caf_slugs":        caf_slugs,
-        "related_raw":      related_raw,
+        "title":                row["job_title"],
+        "slug":                 row["job_title_slug"],
+        "family":               row["job_family"],
+        "family_slug":          row["job_family_slug"],
+        "function":             row["job_function"],
+        "function_name":        row["function_name"] or row["job_function"],
+        "function_slug":        row["job_function_slug"] or "",
+        "managerial_level":     row["managerial_level"],
+        "noc_uid":              row["noc_2021_uid"],
+        "noc_title":            row["noc_2021_title"],
+        "digital":              row["digital"],
+        "overview":             row["overview"] or "",
+        "training":             row["training"] or "",
+        "entry_plans":          row["entry_plans"] or "",
+        "part_time":            row["part_time"] or "",
+        "caf_slugs":            caf_slugs,
+        "related_raw":          related_raw,
+        "key_responsibilities": row["key_responsibilities"] or "",
+        "required_skills":      row["required_skills"] or "",
+        "typical_education":    row["typical_education"] or "",
     }
 
     return templates.TemplateResponse(
