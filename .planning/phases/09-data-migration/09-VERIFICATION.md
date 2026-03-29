@@ -1,24 +1,35 @@
 ---
 phase: 09-data-migration
-verified: 2026-03-28T22:45:00Z
+verified: 2026-03-29T06:30:00Z
 status: passed
-score: 5/5 must-haves verified
+score: 7/7 must-haves verified
+re_verification:
+  previous_status: passed
+  previous_score: 5/5
+  previous_verified: 2026-03-28T22:45:00Z
+  note: "Prior verification (09-01 only) predated gap-closure plan 09-02 (guard clause). Re-verification covers both plans."
+  gaps_closed:
+    - "migrate_v11.py exits cleanly with code 1 when DB file is absent — no traceback"
+    - "migrate_v11.py exits cleanly with code 1 when careers table is missing — no traceback"
+    - "test_guard_missing_db and test_guard_empty_db exist and pass"
+  gaps_remaining: []
+  regressions: []
 gaps: []
 human_verification: []
 ---
 
 # Phase 9: Data Migration Verification Report
 
-**Phase Goal:** Extend careers.sqlite with job_functions and job_families tables and enrich all careers rows with v1.1 data from enriched_job_architecture.csv
-**Verified:** 2026-03-28T22:45:00Z
+**Phase Goal:** Idempotent migration script (migrate_v11.py) that extends careers.sqlite with job_functions and job_families tables, adds 5 new columns to careers, populates all rows from CSV — plus a pre-flight guard that exits cleanly with code 1 when DB is absent or has no careers table.
+**Verified:** 2026-03-29T06:30:00Z
 **Status:** passed
-**Re-verification:** No — initial verification
+**Re-verification:** Yes — after 09-02 gap closure (guard clause). Prior verification 2026-03-28T22:45:00Z covered only 09-01.
 
 ---
 
 ## Count Discrepancy: PLAN vs Reality
 
-The PLAN frontmatter and REQUIREMENTS.md describe 23 job functions and 210 job families. The SUMMARY documents this as a data discovery correction: direct CSV inspection revealed 22 distinct non-blank Job_Function values and 209 distinct job families. The research document contained inaccurate estimates. The implementation, tests, and production DB all use the correct counts (22/209). REQUIREMENTS.md DATA-04 and DATA-05 text still references the incorrect 23/210 counts — this is a documentation artifact only, not a functional gap. The actual CSV data is the authoritative source and the implementation matches it.
+REQUIREMENTS.md and the 09-01 PLAN frontmatter specify 23 job functions and 210 job families. Direct CSV inspection during execution confirmed 22 distinct non-blank Job_Function values and 209 distinct job families. The research document contained overestimates. The implementation, tests, and production DB all use the correct counts (22/209). This was documented and accepted in the 09-01-SUMMARY.md and the prior VERIFICATION.md.
 
 ---
 
@@ -26,108 +37,120 @@ The PLAN frontmatter and REQUIREMENTS.md describe 23 job functions and 210 job f
 
 ### Observable Truths
 
-| #  | Truth                                                                                          | Status     | Evidence                                                                      |
-|----|------------------------------------------------------------------------------------------------|------------|-------------------------------------------------------------------------------|
-| 1  | careers.sqlite contains a job_functions table with non-blank slugs and descriptions            | VERIFIED   | 22 rows, 0 null/blank slugs confirmed in production DB and test suite         |
-| 2  | careers.sqlite contains a job_families table linked to job_functions via FK                    | VERIFIED   | 209 rows, 0 FK orphans confirmed in production DB and test suite              |
-| 3  | Every careers row has non-null key_responsibilities, required_skills, typical_education, and job_title_description | VERIFIED | All four columns: 0 NULLs across 1,989 rows                     |
-| 4  | Running the migration a second time produces no duplicates and no errors                       | VERIFIED   | test_idempotent passes: fn2==fn1==22, fam2==fam1==209, enriched2==enriched1==1989 |
-| 5  | Horticulture Specialist (JT_ID=1933) receives enrichment columns but blank-function rows do not inflate function/family counts | VERIFIED | Row has key_responsibilities; blank-slug guards pass; count tests enforce 22/209 |
+| #  | Truth                                                                                                                    | Status   | Evidence                                                                                                       |
+|----|--------------------------------------------------------------------------------------------------------------------------|----------|----------------------------------------------------------------------------------------------------------------|
+| 1  | careers.sqlite contains a job_functions table with non-blank slugs and descriptions                                      | VERIFIED | 22 rows, 0 null/blank slugs — test_job_functions_count and test_job_functions_have_slugs pass                 |
+| 2  | careers.sqlite contains a job_families table with 209 rows, each linked to a function via FK                             | VERIFIED | 209 rows, 0 FK orphans — test_job_families_count and test_job_families_fk_integrity pass                      |
+| 3  | Every careers row has non-null key_responsibilities, required_skills, typical_education, and job_title_description       | VERIFIED | All four columns: 0 NULLs across 1,989 rows — test_careers_enriched passes                                   |
+| 4  | Running the migration a second time produces no duplicates and no errors                                                  | VERIFIED | test_idempotent passes: fn2==fn1==22, fam2==fam1==209, enriched2==enriched1==1989                             |
+| 5  | Horticulture Specialist (JT_ID=1933) receives enrichment columns but blank-function rows do not inflate function/family counts | VERIFIED | test_horticulture_specialist passes; count tests enforce 22/209 ceiling                                  |
+| 6  | Running migrate_v11.py with no careers.sqlite present prints a clear actionable message and exits with code 1 — no traceback | VERIFIED | Smoke test: `python pipeline/migrate_v11.py --db /tmp/does_not_exist.sqlite` exits 1 with clean message; test_guard_missing_db passes |
+| 7  | Running migrate_v11.py with a careers.sqlite that has no careers table also exits with code 1 — no traceback             | VERIFIED | test_guard_empty_db passes; guard checks sqlite_master before any migration logic executes                    |
 
-**Score:** 5/5 truths verified
+**Score:** 7/7 truths verified
 
 ---
 
 ### Required Artifacts
 
-| Artifact                                          | Expected                                                 | Status   | Details                                                                     |
-|---------------------------------------------------|----------------------------------------------------------|----------|-----------------------------------------------------------------------------|
-| `ps_careers_site/pipeline/migrate_v11.py`         | v1.1 migration script; exports run_migration, make_slug  | VERIFIED | 216 lines; exports run_migration, make_slug, column_exists; all patterns present |
-| `ps_careers_site/pipeline/test_migrate_v11.py`    | 10 tests covering all DATA-* requirements + idempotency  | VERIFIED | 213 lines; 10 test functions collected and passing                          |
-| `ps_careers_site/pytest.ini`                      | Pytest configuration with testpaths = pipeline            | VERIFIED | 5 lines; contains testpaths = pipeline, python_files, python_functions      |
+| Artifact                                       | Expected                                                              | Status   | Details                                                                                       |
+|------------------------------------------------|-----------------------------------------------------------------------|----------|-----------------------------------------------------------------------------------------------|
+| `ps_careers_site/pipeline/migrate_v11.py`      | Migration script; exports run_migration, make_slug; sys.exit(1) guard | VERIFIED | 239 lines; imports sys; pre-flight guard at lines 93-112; all key patterns present           |
+| `ps_careers_site/pipeline/test_migrate_v11.py` | 12 tests: 10 DATA-* + 2 guard tests                                   | VERIFIED | 242 lines; 12 test functions; test_guard_missing_db at line 219; test_guard_empty_db at line 230 |
+| `ps_careers_site/pytest.ini`                   | Pytest configuration with testpaths = pipeline                        | VERIFIED | Contains testpaths = pipeline, python_files, python_functions                                 |
 
 ---
 
 ### Key Link Verification
 
-| From                                        | To                            | Via                            | Status  | Details                                                           |
-|---------------------------------------------|-------------------------------|--------------------------------|---------|-------------------------------------------------------------------|
-| `pipeline/migrate_v11.py`                   | `careers.sqlite`              | sqlite3.connect on root DB path| WIRED   | `sqlite3.connect(str(db_path))` present; `DEFAULT_DB = _HERE / "careers.sqlite"` |
-| `pipeline/migrate_v11.py`                   | `enriched_job_architecture.csv` | csv.DictReader utf-8-sig     | WIRED   | `open(csv_path, encoding="utf-8-sig", newline="")` confirmed      |
-| `pipeline/test_migrate_v11.py`              | `pipeline/migrate_v11.py`     | lazy import inside fixture body| WIRED   | `from pipeline.migrate_v11 import run_migration` inside migrated_db fixture |
+| From                              | To                             | Via                               | Status | Details                                                                    |
+|-----------------------------------|--------------------------------|-----------------------------------|--------|----------------------------------------------------------------------------|
+| `pipeline/migrate_v11.py`         | `careers.sqlite`               | sqlite3.connect on root DB path   | WIRED  | `sqlite3.connect(str(db_path))` present; `DEFAULT_DB = _HERE / "careers.sqlite"` |
+| `pipeline/migrate_v11.py`         | `enriched_job_architecture.csv`| csv.DictReader with utf-8-sig     | WIRED  | `open(csv_path, encoding="utf-8-sig", newline="")` confirmed at line 115  |
+| `pipeline/test_migrate_v11.py`    | `pipeline/migrate_v11.py`      | lazy import inside fixture body   | WIRED  | `from pipeline.migrate_v11 import run_migration` inside migrated_db fixture (line 35) |
+| `pipeline/migrate_v11.py`         | `sys.exit`                     | guard clause before sqlite3.connect | WIRED | `sys.exit(1)` at lines 99 and 112; fires before any DB connection opened  |
 
 ---
 
 ### Data-Flow Trace (Level 4)
 
-This phase produces data artifacts (SQLite tables and columns), not rendered components. Data-flow is verified by querying the production database directly.
+This phase produces data artifacts (SQLite tables and columns), not rendered UI components. Data-flow is verified by test suite and production DB state.
 
-| Data Target                     | Source                              | Produces Real Data | Status   |
-|---------------------------------|-------------------------------------|--------------------|----------|
-| `job_functions` table (22 rows) | CSV Job_Function column (deduplicated) | Yes              | FLOWING  |
-| `job_families` table (209 rows) | CSV Job_Family + FK to functions    | Yes                | FLOWING  |
-| `careers` enrichment columns    | CSV Job_Title_Description, Key_Responsibilities, Required_Skills, Typical_Education | Yes | FLOWING |
-
-Production DB query confirmed: `functions=22 families=209 null_kr=0 enriched=1989`
+| Data Target                     | Source                                                                   | Produces Real Data | Status  |
+|---------------------------------|--------------------------------------------------------------------------|--------------------|---------|
+| `job_functions` table (22 rows) | CSV Job_Function column, deduplicated via `functions` dict               | Yes                | FLOWING |
+| `job_families` table (209 rows) | CSV Job_Family + FK slug derived from Job_Function                       | Yes                | FLOWING |
+| `careers` enrichment columns    | CSV Job_Title_Description, Key_Responsibilities, Required_Skills, Typical_Education | Yes     | FLOWING |
 
 ---
 
 ### Behavioral Spot-Checks
 
-| Behavior                                    | Command                                                   | Result                                        | Status |
-|---------------------------------------------|-----------------------------------------------------------|-----------------------------------------------|--------|
-| Test suite passes (10 tests)                | `python -m pytest pipeline/test_migrate_v11.py -v`       | 10 passed in 1.75s                            | PASS   |
-| Production DB: function/family/null counts  | `python -c "... SELECT COUNT(*) ..."` (4 queries)         | functions=22, families=209, null_kr=0, enriched=1989 | PASS |
-| Schema columns present on all 3 tables      | PRAGMA table_info on job_functions, job_families, careers | All expected columns present                  | PASS   |
-| FK integrity (zero orphaned families)       | LEFT JOIN job_families to job_functions                   | orphans=0                                     | PASS   |
-| Horticulture Specialist (JT_ID=1933)        | SELECT key_responsibilities FROM careers WHERE jt_id=1933 | has_kr=1                                     | PASS   |
-| All 4 enrichment columns non-null           | SELECT COUNT(*) WHERE col IS NULL (×4)                   | 0, 0, 0, 0                                   | PASS   |
+| Behavior                                      | Command / Method                                                      | Result                                                     | Status |
+|-----------------------------------------------|-----------------------------------------------------------------------|------------------------------------------------------------|--------|
+| Full test suite (12 tests)                    | `python -m pytest pipeline/test_migrate_v11.py -v -q`                | 12 passed in 7.35s                                         | PASS   |
+| Guard: missing DB file exits 1 cleanly        | `python pipeline/migrate_v11.py --db /tmp/does_not_exist.sqlite`      | Prints error message, exit code 1, no traceback            | PASS   |
+| Guard: test_guard_missing_db collected+passes | `python -m pytest pipeline/test_migrate_v11.py -v -q`                | Passes as part of 12-test suite                            | PASS   |
+| Guard: test_guard_empty_db collected+passes   | `python -m pytest pipeline/test_migrate_v11.py -v -q`                | Passes as part of 12-test suite                            | PASS   |
+| 09-01-SUMMARY.md exists                       | File existence check                                                  | Present at .planning/phases/09-data-migration/09-01-SUMMARY.md | PASS |
+| 09-02-SUMMARY.md exists                       | File existence check                                                  | Present at .planning/phases/09-data-migration/09-02-SUMMARY.md | PASS |
 
 ---
 
 ### Requirements Coverage
 
-| Requirement | Description (REQUIREMENTS.md)                                                                                    | Status    | Evidence                                                                 |
-|-------------|------------------------------------------------------------------------------------------------------------------|-----------|--------------------------------------------------------------------------|
-| DATA-01     | careers.sqlite extended with job_functions table (job_function, job_function_slug, job_function_description, image_path) | SATISFIED | Table exists; all 4 columns confirmed via PRAGMA table_info              |
-| DATA-02     | careers.sqlite extended with job_families table (job_family, job_family_slug, job_function FK, job_family_description, image_path) | SATISFIED | Table exists; all 5 columns confirmed; FK integrity 0 orphans           |
-| DATA-03     | careers table extended with job_title_description, key_responsibilities, required_skills, typical_education, image_path | SATISFIED | All 5 columns present in careers table                                  |
-| DATA-04     | All job functions imported from CSV with descriptions and slugs (REQUIREMENTS.md says 23; actual CSV yields 22)  | SATISFIED | 22 rows in production, 0 null slugs, test_job_functions_count passes. Count discrepancy is a documentation artifact — CSV is authoritative. |
-| DATA-05     | All job families imported from CSV with descriptions, function relationships, and slugs (REQUIREMENTS.md says 210; actual CSV yields 209) | SATISFIED | 209 rows in production, 0 FK orphans, test_job_families_count passes. Same documentation discrepancy as DATA-04. |
-| DATA-06     | All 1,989 job titles updated with job_title_description, key_responsibilities, required_skills, typical_education from CSV | SATISFIED | enriched=1989, all four columns have 0 NULLs                           |
+| Requirement | Source Plan       | Description                                                                                              | Status    | Evidence                                                                                          |
+|-------------|-------------------|----------------------------------------------------------------------------------------------------------|-----------|---------------------------------------------------------------------------------------------------|
+| DATA-01     | 09-01-PLAN, 09-02-PLAN | careers.sqlite extended with job_functions table; pre-flight guard exits cleanly                    | SATISFIED | Table exists with all columns; guard fires on missing DB/table; test_guard_missing_db + test_guard_empty_db pass |
+| DATA-02     | 09-01-PLAN        | careers.sqlite extended with job_families table with FK to job_functions                                 | SATISFIED | 209 rows, 0 FK orphans, test_job_families_fk_integrity passes                                    |
+| DATA-03     | 09-01-PLAN        | careers table extended with 5 new columns                                                                | SATISFIED | All 5 columns confirmed via PRAGMA table_info and test_careers_new_columns                       |
+| DATA-04     | 09-01-PLAN        | All job functions imported with descriptions and slugs (REQUIREMENTS.md says 23; actual CSV yields 22)  | SATISFIED | 22 rows, 0 null slugs; count discrepancy is documentation inaccuracy — CSV is authoritative      |
+| DATA-05     | 09-01-PLAN        | All job families imported with descriptions, FK relationships, and slugs (REQUIREMENTS.md says 210; actual CSV yields 209) | SATISFIED | 209 rows, 0 FK orphans; same documentation discrepancy as DATA-04                    |
+| DATA-06     | 09-01-PLAN        | All 1,989 job titles updated with enrichment columns                                                     | SATISFIED | enriched=1989; all four columns have 0 NULLs; test_careers_enriched passes                       |
 
-**Orphaned requirements check:** No requirements assigned to Phase 9 in REQUIREMENTS.md beyond DATA-01 through DATA-06. None orphaned.
+**Orphaned requirements check:** REQUIREMENTS.md assigns DATA-01 through DATA-06 to Phase 9. All six are accounted for in the plan frontmatter and verified above. None orphaned.
+
+**Note on 09-02-PLAN requirements field:** Plan 09-02 lists `requirements: [DATA-01]` only. DATA-01 in REQUIREMENTS.md describes the job_functions table structure; the guard clause is part of DATA-01's full contract (the migration script must be operationally safe). This mapping is reasonable.
 
 ---
 
 ### Anti-Patterns Found
 
-| File                              | Line | Pattern                        | Severity | Impact |
-|-----------------------------------|------|--------------------------------|----------|--------|
-| No blocker anti-patterns found    | —    | —                              | —        | —      |
+| File | Line | Pattern | Severity | Impact |
+|------|------|---------|----------|--------|
+| No blocker anti-patterns found | — | — | — | — |
 
 Scan notes:
 - No TODO/FIXME/placeholder comments in either Python file
-- No empty return statements or stub implementations
-- `INSERT OR IGNORE` is the correct idempotency pattern, not a stub
+- `sys.exit(1)` guard is correct usage — not a stub
+- `INSERT OR IGNORE` is the correct idempotency pattern
 - `encoding="utf-8-sig"` correctly handles Excel BOM on the CSV input
-- `PRAGMA foreign_keys = ON` enabled; referential integrity enforced at write time
+- `PRAGMA foreign_keys = ON` enabled before any inserts
+- Pre-flight guard opens a temporary check connection, closes it, then opens the main connection — no resource leak
+
+One observation: `migrate_v11.py` lines 200-208 print verification messages with hardcoded expected values of 22 and 209, which differ from the PLAN frontmatter values of 23/210. This is cosmetically inconsistent with the plan but matches the actual data. The tests enforce the correct counts (22/209) so this is an info-only item.
 
 ---
 
 ### Human Verification Required
 
-None. All acceptance criteria are programmatically verifiable via SQL queries and pytest. No visual rendering, external services, or real-time behavior involved in this phase.
+None. All acceptance criteria are programmatically verifiable via SQL queries, pytest, and CLI exit code inspection.
 
 ---
 
 ### Gaps Summary
 
-No gaps. All five must-have truths are verified. All three artifacts exist, are substantive, and are wired. All six DATA-* requirements are satisfied. The test suite runs clean (10/10 passing). Production database matches expected state.
+No gaps. All seven must-have truths are verified across both plans:
 
-The only notable item is the count discrepancy between REQUIREMENTS.md (23 functions, 210 families) and the actual CSV data (22 functions, 209 families). This is a documentation inaccuracy in the requirements file — the research phase overestimated counts. The implementation correctly reflects the actual CSV contents. REQUIREMENTS.md DATA-04 and DATA-05 descriptions should be updated to say 22 and 209 respectively, but this does not block phase completion.
+- 09-01 delivered the core migration (tables, columns, enrichment, idempotency)
+- 09-02 delivered the pre-flight guard (sys.exit(1) on missing DB or missing careers table)
+- The full 12-test suite passes (7.35s runtime)
+- Both SUMMARY files exist
+- Smoke test confirms clean exit with no traceback on missing DB
+
+The phase goal is fully achieved.
 
 ---
 
-_Verified: 2026-03-28T22:45:00Z_
+_Verified: 2026-03-29T06:30:00Z_
 _Verifier: Claude (gsd-verifier)_
