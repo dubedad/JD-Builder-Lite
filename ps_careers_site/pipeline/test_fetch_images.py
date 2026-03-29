@@ -176,38 +176,35 @@ def test_build_query_strips_parens(fetch_mod):
 @pytest.mark.asyncio
 async def test_fallback_query(fetch_mod, tmp_path):
     """When primary search returns empty results, a second search is attempted with bare name."""
-    # Mock httpx.AsyncClient to return empty results on first call, then a result on second
-    empty_response = mock.MagicMock()
-    empty_response.status_code = 200
-    empty_response.json.return_value = {"results": []}
-
-    result_response = mock.MagicMock()
-    result_response.status_code = 200
-    result_response.json.return_value = {
-        "results": [{
-            "urls": {"regular": "https://example.com/photo.jpg"},
-            "links": {"download_location": "https://api.unsplash.com/photos/abc/download"}
-        }]
+    search_call_count = 0
+    photo = {
+        "urls": {"regular": "https://example.com/photo.jpg"},
+        "links": {"download_location": "https://api.unsplash.com/photos/abc/download"}
     }
 
-    # Stream response mock for image download
-    stream_response = mock.AsyncMock()
-    stream_response.__aenter__ = mock.AsyncMock(return_value=stream_response)
-    stream_response.__aexit__ = mock.AsyncMock(return_value=False)
-    stream_response.raise_for_status = mock.MagicMock()
-    stream_response.aiter_bytes = mock.AsyncMock(return_value=aiter_bytes_helper(b"fake-image-data"))
+    async def mock_search(client, query, access_key):
+        nonlocal search_call_count
+        search_call_count += 1
+        if search_call_count == 1:
+            return None  # Primary query returns nothing
+        return photo  # Fallback returns a result
 
-    call_count = 0
+    async def mock_trigger(client, download_location, access_key):
+        pass  # no-op
 
-    async def mock_get(url, **kwargs):
-        nonlocal call_count
-        # Return empty on first search call, result on second
-        if "search/photos" in url:
-            call_count += 1
-            if call_count == 1:
-                return empty_response
-            return result_response
-        return result_response
+    # Async stream context for image download
+    stream_ctx = mock.MagicMock()
+    stream_ctx.__aenter__ = mock.AsyncMock(return_value=stream_ctx)
+    stream_ctx.__aexit__ = mock.AsyncMock(return_value=False)
+    stream_ctx.raise_for_status = mock.MagicMock()
+
+    async def async_iter_bytes(chunk_size=8192):
+        yield b"fake-image-data"
+
+    stream_ctx.aiter_bytes = async_iter_bytes
+
+    client = mock.MagicMock()
+    client.stream = mock.MagicMock(return_value=stream_ctx)
 
     conn = sqlite3.connect(":memory:")
     conn.executescript("""
@@ -221,42 +218,19 @@ async def test_fallback_query(fetch_mod, tmp_path):
 
     done = set()
     sem = asyncio.Semaphore(5)
+    images_base = tmp_path / "static" / "images"
 
-    from dataclasses import dataclass
-
-    @dataclass
-    class MockWorkItem:
-        entity_type: str = "function"
-        slug: str = "test-slug"
-        name: str = "Test Name (Abbreviated)"
-        table: str = "job_functions"
-        pk_col: str = "job_function_slug"
-        pk_val: str = "test-slug"
-
-        @property
-        def key(self):
-            return f"{self.entity_type}:{self.slug}"
-
-        @property
-        def dest(self):
-            return tmp_path / "static" / "images" / f"{self.entity_type}s" / f"{self.slug}.jpg"
-
-        @property
-        def image_rel(self):
-            return f"{self.entity_type}s/{self.slug}.jpg"
-
-    item = MockWorkItem()
-    item.dest.parent.mkdir(parents=True, exist_ok=True)
-
-    with mock.patch("httpx.AsyncClient.get", side_effect=mock_get), \
-         mock.patch("httpx.AsyncClient.stream", return_value=stream_response):
-        await fetch_mod.fetch_and_save(
-            mock.AsyncMock(get=mock_get, stream=mock.MagicMock(return_value=stream_response)),
-            sem, item, "fake-key", conn, done
-        )
+    with mock.patch.object(fetch_mod, "search_unsplash", side_effect=mock_search), \
+         mock.patch.object(fetch_mod, "trigger_download", side_effect=mock_trigger), \
+         mock.patch.object(fetch_mod, "IMAGES_DIR", images_base):
+        item = fetch_mod.WorkItem("function", "test-slug", "Test Name (Abbreviated)",
+                                  "job_functions", "job_function_slug", "test-slug")
+        await fetch_mod.fetch_and_save(client, sem, item, "fake-key", conn, done)
 
     # Two search calls were made (primary empty → fallback)
-    assert call_count == 2
+    assert search_call_count == 2, \
+        f"Expected 2 search calls (primary + fallback), got {search_call_count}"
+    conn.close()
 
 
 # ---------------------------------------------------------------------------
@@ -267,9 +241,6 @@ async def test_fallback_query(fetch_mod, tmp_path):
 @pytest.mark.asyncio
 async def test_image_stored_in_correct_subdir(fetch_mod, tmp_path, mem_db):
     """Images are saved to the correct subdirectory based on entity type."""
-    from dataclasses import dataclass
-    from pathlib import Path
-
     images_base = tmp_path / "static" / "images"
 
     # Patch IMAGES_DIR to use tmp_path
@@ -282,22 +253,40 @@ async def test_image_stored_in_correct_subdir(fetch_mod, tmp_path, mem_db):
         item_title = fetch_mod.WorkItem("title", "senior-analyst", "Senior Analyst",
                                         "careers", "job_title_slug", "senior-analyst")
 
-        assert str(item_fn.dest).endswith("functions/administration.jpg"), \
-            f"Expected functions subdir, got: {item_fn.dest}"
-        assert str(item_fam.dest).endswith("families/accounting.jpg"), \
-            f"Expected families subdir, got: {item_fam.dest}"
-        assert str(item_title.dest).endswith("titles/senior-analyst.jpg"), \
-            f"Expected titles subdir, got: {item_title.dest}"
+        # dest.parts checks are path-separator-agnostic (Windows or Unix)
+        assert "functions" in item_fn.dest.parts, \
+            f"Expected 'functions' subdir in path, got: {item_fn.dest}"
+        assert item_fn.dest.name == "administration.jpg", \
+            f"Expected administration.jpg, got: {item_fn.dest.name}"
+
+        assert "families" in item_fam.dest.parts, \
+            f"Expected 'families' subdir in path, got: {item_fam.dest}"
+        assert item_fam.dest.name == "accounting.jpg", \
+            f"Expected accounting.jpg, got: {item_fam.dest.name}"
+
+        assert "titles" in item_title.dest.parts, \
+            f"Expected 'titles' subdir in path, got: {item_title.dest}"
+        assert item_title.dest.name == "senior-analyst.jpg", \
+            f"Expected senior-analyst.jpg, got: {item_title.dest.name}"
 
 
 def test_image_path_is_relative(fetch_mod):
     """DB image_path value is a relative path, not absolute."""
-    item = fetch_mod.WorkItem("function", "administration", "Administration",
-                              "job_functions", "job_function_slug", "administration")
+    item_fn = fetch_mod.WorkItem("function", "administration", "Administration",
+                                 "job_functions", "job_function_slug", "administration")
+    item_fam = fetch_mod.WorkItem("family", "accounting", "Accounting",
+                                  "job_families", "job_family_slug", "accounting")
+    item_title = fetch_mod.WorkItem("title", "senior-analyst", "Senior Analyst",
+                                    "careers", "job_title_slug", "senior-analyst")
+
     # image_rel must be relative (no leading slash, no absolute path components)
-    assert item.image_rel == "functions/administration.jpg"
-    assert not item.image_rel.startswith("/")
-    assert ":" not in item.image_rel  # no Windows drive letters
+    assert item_fn.image_rel == "functions/administration.jpg"
+    assert item_fam.image_rel == "families/accounting.jpg"
+    assert item_title.image_rel == "titles/senior-analyst.jpg"
+
+    for item in [item_fn, item_fam, item_title]:
+        assert not item.image_rel.startswith("/")
+        assert ":" not in item.image_rel  # no Windows drive letters
 
 
 # ---------------------------------------------------------------------------
@@ -319,37 +308,36 @@ async def test_db_updated_after_download(fetch_mod, tmp_path):
 
     images_base = tmp_path / "static" / "images"
 
-    photo_response = mock.MagicMock()
-    photo_response.status_code = 200
-    photo_response.json.return_value = {
-        "results": [{
-            "urls": {"regular": "https://example.com/photo.jpg"},
-            "links": {"download_location": "https://api.unsplash.com/photos/abc/download"}
-        }]
+    photo = {
+        "urls": {"regular": "https://example.com/photo.jpg"},
+        "links": {"download_location": "https://api.unsplash.com/photos/abc/download"}
     }
 
-    download_trigger_response = mock.MagicMock()
-    download_trigger_response.status_code = 200
+    async def mock_search(client, query, access_key):
+        return photo
+
+    async def mock_trigger(client, download_location, access_key):
+        pass
 
     stream_ctx = mock.MagicMock()
     stream_ctx.__aenter__ = mock.AsyncMock(return_value=stream_ctx)
     stream_ctx.__aexit__ = mock.AsyncMock(return_value=False)
     stream_ctx.raise_for_status = mock.MagicMock()
-    stream_ctx.status_code = 200
 
     async def aiter_bytes_gen(chunk_size=8192):
         yield b"fake-jpeg-data"
 
     stream_ctx.aiter_bytes = aiter_bytes_gen
 
-    client = mock.AsyncMock()
-    client.get = mock.AsyncMock(return_value=photo_response)
+    client = mock.MagicMock()
     client.stream = mock.MagicMock(return_value=stream_ctx)
 
     done = set()
     sem = asyncio.Semaphore(5)
 
-    with mock.patch.object(fetch_mod, "IMAGES_DIR", images_base):
+    with mock.patch.object(fetch_mod, "search_unsplash", side_effect=mock_search), \
+         mock.patch.object(fetch_mod, "trigger_download", side_effect=mock_trigger), \
+         mock.patch.object(fetch_mod, "IMAGES_DIR", images_base):
         item = fetch_mod.WorkItem("function", "test-slug", "Test Function",
                                   "job_functions", "job_function_slug", "test-slug")
         await fetch_mod.fetch_and_save(client, sem, item, "fake-key", conn, done)
@@ -499,18 +487,21 @@ async def test_rate_limit_429_handled(fetch_mod, tmp_path):
     conn.execute("INSERT INTO job_functions VALUES ('test-slug', 'Test', NULL)")
     conn.commit()
 
+    # Return a mock 429 response object from search_unsplash
     rate_limited_response = mock.MagicMock()
     rate_limited_response.status_code = 429
     rate_limited_response.headers = {"Retry-After": "60"}
 
-    client = mock.AsyncMock()
-    client.get = mock.AsyncMock(return_value=rate_limited_response)
+    async def mock_search_429(client, query, access_key):
+        return rate_limited_response  # Return response object with status_code attribute
 
+    client = mock.MagicMock()
     done = set()
     sem = asyncio.Semaphore(5)
     images_base = tmp_path / "static" / "images"
 
-    with mock.patch.object(fetch_mod, "IMAGES_DIR", images_base):
+    with mock.patch.object(fetch_mod, "search_unsplash", side_effect=mock_search_429), \
+         mock.patch.object(fetch_mod, "IMAGES_DIR", images_base):
         item = fetch_mod.WorkItem("function", "test-slug", "Test",
                                   "job_functions", "job_function_slug", "test-slug")
         await fetch_mod.fetch_and_save(client, sem, item, "fake-key", conn, done)
@@ -538,18 +529,17 @@ async def test_no_result_marked_done(fetch_mod, tmp_path):
     conn.execute("INSERT INTO job_functions VALUES ('obscure-job', 'Obscure Job Title', NULL)")
     conn.commit()
 
-    empty_response = mock.MagicMock()
-    empty_response.status_code = 200
-    empty_response.json.return_value = {"results": []}
+    # search_unsplash returns None for both primary and fallback
+    async def mock_search_empty(client, query, access_key):
+        return None  # No results found
 
-    client = mock.AsyncMock()
-    client.get = mock.AsyncMock(return_value=empty_response)
-
+    client = mock.MagicMock()
     done = set()
     sem = asyncio.Semaphore(5)
     images_base = tmp_path / "static" / "images"
 
-    with mock.patch.object(fetch_mod, "IMAGES_DIR", images_base):
+    with mock.patch.object(fetch_mod, "search_unsplash", side_effect=mock_search_empty), \
+         mock.patch.object(fetch_mod, "IMAGES_DIR", images_base):
         item = fetch_mod.WorkItem("function", "obscure-job", "Obscure Job Title",
                                   "job_functions", "job_function_slug", "obscure-job")
         await fetch_mod.fetch_and_save(client, sem, item, "fake-key", conn, done)
