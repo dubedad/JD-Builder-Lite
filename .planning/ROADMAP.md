@@ -26,7 +26,7 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
 ### v1.1 Full Browse Experience
 
 - [x] **Phase 9: Data Migration** — Extend DB schema and import all enriched CSV content (completed 2026-03-28)
-- [ ] **Phase 10: Image Pipeline** — Fetch ~2,200 Unsplash images for all functions, families, and titles
+- [x] **Phase 10: Image Pipeline** — Fetch ~2,200 Unsplash images for all functions, families, and titles (completed 2026-03-29)
 - [ ] **Phase 11: Navigation Restructure** — 4-level browse hierarchy with image card grids at every level
 - [ ] **Phase 12: Enhanced Detail Page** — Add Key Responsibilities, Required Skills, Typical Education sections
 
@@ -54,7 +54,7 @@ Plans:
   2. After a full run, `image_path` is populated in the DB for all records that received a successful Unsplash result
   3. Re-running the pipeline skips records that already have a local image file (resumable; no duplicate downloads)
   4. A card for a record with a null `image_path` still renders — it shows a styled gradient fallback, not a broken image
-**Plans:** 2/2 plans executed
+**Plans:** 2/2 plans complete
 Plans:
 - [x] 10-01-PLAN.md — TDD rewrite of fetch_images.py: async Unsplash pipeline with concurrency and resume
 - [x] 10-02-PLAN.md — Per-function gradient fallback CSS and Unsplash attribution in footer
@@ -98,6 +98,6 @@ Plans:
 | 7. L2 Job Family Page | v1.0 | 1/1 | Complete | 2026-03-17 |
 | 8. L3 Job Title Detail | v1.0 | 1/1 | Complete | 2026-03-17 |
 | 9. Data Migration | v1.1 | 1/1 | Complete   | 2026-03-28 |
-| 10. Image Pipeline | v1.1 | 2/2 | In Progress|  |
+| 10. Image Pipeline | v1.1 | 2/2 | Complete    | 2026-03-29 |
 | 11. Navigation Restructure | v1.1 | 0/? | Not started | - |
 | 12. Enhanced Detail Page | v1.1 | 0/? | Not started | - |
