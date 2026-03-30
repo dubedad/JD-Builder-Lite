@@ -137,8 +137,10 @@ class JDMapper:
                 other_work_context=work_context_classified.get('other_work_context', [])
             ),
 
-            # Reference attributes (from parser)
-            'reference_attributes': noc_data.get('reference_attributes'),
+            # Reference attributes (from parser, enriched with parquet lead statement)
+            'reference_attributes': self._enrich_reference_attributes(
+                noc_data.get('reference_attributes'), noc_code
+            ),
 
             # Other Job Info (for "Other" tab)
             'other_job_info': self._build_other_job_info(noc_code),
@@ -154,6 +156,19 @@ class JDMapper:
             'csv_loaded_at': guide_csv.get_loaded_at(),
             'enrichment_stats': guide_csv.get_stats()
         }
+
+    def _enrich_reference_attributes(
+        self, ref_attrs: Optional[ReferenceAttributes], noc_code: str
+    ) -> Optional[ReferenceAttributes]:
+        """Inject parquet lead statement into reference_attributes if missing."""
+        parquet_lead = labels_loader.get_lead_statement(noc_code)
+        if not parquet_lead:
+            return ref_attrs
+        if ref_attrs is None:
+            return ReferenceAttributes(lead_statement=parquet_lead)
+        if not ref_attrs.lead_statement:
+            return ref_attrs.model_copy(update={'lead_statement': parquet_lead})
+        return ref_attrs
 
     def _map_key_activities_enriched(
         self,
@@ -266,8 +281,9 @@ class JDMapper:
 
     def _map_effort_enriched(self, noc_code: str, url: str, parquet_tabs: Optional[dict] = None) -> EnrichedJDElementData:
         """Map Work Context items to Effort - ALL items NOT in Responsibility."""
-        # Get effort items from parquet via labels_loader (reads oasis_workcontext.parquet)
-        effort_items = labels_loader.get_work_context_filtered(noc_code, 'effort')
+        # get_work_context_filtered uses oasis_code format (e.g. '12100.00'), not bare noc_code
+        oasis_code = noc_code if '.' in noc_code else f"{noc_code}.00"
+        effort_items = labels_loader.get_work_context_filtered(oasis_code, 'effort')
 
         # data_source: "jobforge" if work_context parquet lookup succeeded, else "oasis"
         _, wc_source = (parquet_tabs or {}).get("work_context", ([], "oasis"))
@@ -297,8 +313,9 @@ class JDMapper:
 
     def _map_responsibility_enriched(self, noc_code: str, url: str, parquet_tabs: Optional[dict] = None) -> EnrichedJDElementData:
         """Map Work Context items containing 'decision' or 'responsib' to Responsibility."""
-        # Get responsibility items from parquet via labels_loader (reads oasis_workcontext.parquet)
-        resp_items = labels_loader.get_work_context_filtered(noc_code, 'responsibility')
+        # get_work_context_filtered uses oasis_code format (e.g. '12100.00'), not bare noc_code
+        oasis_code = noc_code if '.' in noc_code else f"{noc_code}.00"
+        resp_items = labels_loader.get_work_context_filtered(oasis_code, 'responsibility')
 
         # data_source: "jobforge" if work_context parquet lookup succeeded, else "oasis"
         _, wc_source = (parquet_tabs or {}).get("work_context", ([], "oasis"))

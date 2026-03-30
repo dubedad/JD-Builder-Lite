@@ -105,6 +105,8 @@ const classifyModule = (function() {
 
     // Current allocation response (for evidence highlighting)
     let currentAllocation = null;
+    // JD data used for the last allocation (needed to re-render on Switch)
+    let currentJdData = null;
 
     /**
      * Initialize the module - cache DOM references and bind events
@@ -132,6 +134,7 @@ const classifyModule = (function() {
             currentAllocation = cachedResponse;
             // Re-render from cache. We need jdData but can reconstruct minimally.
             const jdData = buildJdDataFromProfile(window.currentProfile, store.getState().selections);
+            currentJdData = jdData;
             renderResults(cachedResponse, jdData);
         });
 
@@ -201,6 +204,7 @@ const classifyModule = (function() {
             );
 
             currentAllocation = response;
+            currentJdData = jdData;
             renderResults(response, jdData);
             document.dispatchEvent(new CustomEvent('classify-complete', { detail: response }));
 
@@ -327,7 +331,7 @@ const classifyModule = (function() {
      * @param {Object} response - AllocationResponse from API
      * @param {Object} jdData - Original JD data sent to API
      */
-    function renderResults(response, jdData) {
+    function renderResults(response, jdData, forcedTopCode) {
         console.log('[classify.js] renderResults called with:', {
             status: response.status,
             recommendationsCount: response.recommendations?.length || 0,
@@ -365,7 +369,17 @@ const classifyModule = (function() {
                 renderRecommendationCards(response.recommendations, response.provenance_map);
 
                 // v5.1 post-analysis sections
-                const sorted = [...response.recommendations].sort(function(a, b) { return b.confidence - a.confidence; });
+                // If a group was manually switched, honour that choice; otherwise sort by confidence.
+                var sorted;
+                if (forcedTopCode) {
+                    sorted = [...response.recommendations].sort(function(a, b) {
+                        if (a.group_code === forcedTopCode) return -1;
+                        if (b.group_code === forcedTopCode) return 1;
+                        return b.confidence - a.confidence;
+                    });
+                } else {
+                    sorted = [...response.recommendations].sort(function(a, b) { return b.confidence - a.confidence; });
+                }
                 const topRec = sorted[0];
                 renderTopResultCard(topRec, response.provenance_map);
                 renderStatementAlignment(topRec, jdData);
@@ -373,6 +387,12 @@ const classifyModule = (function() {
                 renderCaveats(topRec.caveats);
                 renderAlternatives(sorted, topRec.group_code);
                 renderNextStep(topRec.group_code);
+
+                // Scroll top result into view when user manually switches groups
+                if (forcedTopCode) {
+                    const topResultEl = document.getElementById('classify-top-result');
+                    if (topResultEl) topResultEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
             } else {
                 // Create no-recommendations message dynamically
                 const noRecsMsg = document.createElement('p');
@@ -591,6 +611,11 @@ const classifyModule = (function() {
      * @param {Object} jdData - JD data sent to API
      */
     function renderStatementAlignment(topRec, jdData) {
+        console.log('[classify.js] renderStatementAlignment:', {
+            groupCode: topRec.group_code,
+            ogStatementsCount: topRec.og_definition_statements ? topRec.og_definition_statements.length : 0,
+            evidenceSpansCount: topRec.evidence_spans ? topRec.evidence_spans.length : 0
+        });
         const container = document.getElementById('classify-alignment');
         if (!container) return;
 
@@ -627,6 +652,7 @@ const classifyModule = (function() {
      * @param {Array} evidenceSpans - EvidenceSpan objects from top recommendation
      */
     function renderKeyEvidence(evidenceSpans) {
+        console.log('[classify.js] renderKeyEvidence:', evidenceSpans ? evidenceSpans.map(function(s) { return s.text ? s.text.substring(0, 60) : ''; }) : []);
         const container = document.getElementById('classify-key-evidence');
         const list = document.getElementById('classify-evidence-list');
         if (!container || !list || !evidenceSpans || evidenceSpans.length === 0) return;
@@ -644,6 +670,7 @@ const classifyModule = (function() {
      * @param {Array} caveats - Array of caveat strings from top recommendation
      */
     function renderCaveats(caveats) {
+        console.log('[classify.js] renderCaveats:', caveats);
         const container = document.getElementById('classify-caveats');
         const list = document.getElementById('classify-caveats-list');
         if (!container || !list || !caveats || caveats.length === 0) return;
@@ -668,8 +695,21 @@ const classifyModule = (function() {
         content.innerHTML = alternatives.map(function(rec) {
             var pct = Math.round(rec.confidence * 100);
             var name = OCCUPATIONAL_GROUP_NAMES[rec.group_code] || rec.group_code;
-            return '<p><strong>' + escapeHtml(rec.group_code) + '</strong> \u2013 ' + escapeHtml(name) + ': ' + pct + '% confidence</p>';
+            return '<div class="classify-alternative-row">' +
+                '<button class="btn-switch-group" data-group-code="' + escapeHtml(rec.group_code) + '">Switch</button>' +
+                '<span><strong>' + escapeHtml(rec.group_code) + '</strong> \u2013 ' +
+                escapeHtml(name) + ': ' + pct + '% confidence</span>' +
+                '</div>';
         }).join('');
+
+        // Attach Switch button handlers
+        content.querySelectorAll('.btn-switch-group').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var targetCode = btn.getAttribute('data-group-code');
+                if (!currentAllocation || !currentJdData) return;
+                renderResults(currentAllocation, currentJdData, targetCode);
+            });
+        });
 
         container.classList.remove('hidden');
     }

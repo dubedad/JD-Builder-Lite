@@ -101,16 +101,43 @@ Progress: [██████████] 100% (16/16 plans complete)
 | store.reset() notifies listeners before page reload | 31-01 | Courtesy notification; window.location.reload() fires immediately after so listener errors are harmless |
 | abilities/knowledge jd_element set to 'skills' in export payload | 31-01 | Backend routes by jd_element='skills'; source_attribute='Abilities'/'Knowledge' distinguishes within skills section |
 
+## Post-v5.1 Classification Engine Improvements (2026-03-26)
+
+UAT on the Classify step revealed data and scoring issues; the following
+changes were applied directly (no formal phase):
+
+| # | Fix | Files | Status |
+|---|-----|-------|--------|
+| C-01 | Lead statement "No lead statement available" — parquet data not injected into profile API | `src/models/noc.py`, `src/services/labels_loader.py`, `src/services/mapper.py` | RESOLVED |
+| C-02 | Definition box stuck "Loading definition..." — async race condition | `static/js/accordion.js` | RESOLVED |
+| C-03 | Effort tab empty — NOC code '12100' vs OASIS code '12100.00' mismatch | `src/services/mapper.py` | RESOLVED |
+| C-04 | Duplicate effort entries with trailing number suffix (e.g. 'Indoors5') — parquet wide-format disambiguation columns | `src/services/labels_loader.py` | RESOLVED |
+| C-05 | Switch button on Alternative Groups — added per-group Switch button to swap top recommendation | `static/js/classify.js`, `static/css/classify.css` | RESOLVED |
+| C-06 | Inclusion/exclusion statements added to classification scoring and OG Definition display — see CLASSIFICATION-ENGINE.md | `src/matching/confidence.py`, `src/matching/models.py`, `src/matching/prompts.py`, `src/matching/allocator.py` | RESOLVED |
+
+See `.planning/CLASSIFICATION-ENGINE.md` for full documentation of the
+classification engine design, including the inclusion/exclusion scoring
+decision.
+
 ## Session Continuity
 
-Last session: 2026-03-17
-Stopped at: Completed 31-01-PLAN.md — store.reset() fix + buildExportRequest() patch; ALL PHASES COMPLETE
+Last session: 2026-03-26 (evening)
+Stopped at: UAT confirmed C-01 through C-06 all working. Pausing for the night.
 Resume file: None
+
+### API Cache Gotcha (important for future debugging)
+
+`src/routes/api.py` has a module-level `_allocation_cache` (dict keyed by SHA-256 of request data).
+- Cache clears on server restart
+- Same JD content after restart → first run executes fresh (new code runs), result then re-cached
+- Symptom of cache hit: classification completes in < 1 second (vs 10–30s for real LLM call)
+- To force a fresh run: change any JD field (Client-Service Results, Key Activities, etc.) to get a new cache key
+- Do NOT mistake a cache hit for "the fix isn't working"
 
 ### For Claude Code — What To Do Next
 
-All 31 phases complete. v5.1 is ready to ship.
-Next action: Verify end-to-end (Reset Session + all 3 export formats) then tag v5.1 if approved.
+v5.1 shipped. Post-ship UAT fixes applied (C-01 to C-06) and confirmed working 2026-03-26.
+Next action: Continue UAT testing, then `/gsd:complete-milestone` to archive v5.1 and plan v6.0.
 
 ## Phase 30 — What Was Built
 

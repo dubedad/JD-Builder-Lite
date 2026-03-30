@@ -189,6 +189,17 @@
 - HF-01: WeasyPrint system dependency fix (`brew install pango cairo gdk-pixbuf`)
 - HF-02/03/04: OCHRO Job Architecture filter fully implemented — Managerial Level + hierarchical Job Function → Job Family; parent checkbox and count-mismatch bugs resolved
 
-**Note:** Formal GSD milestone verification not yet run as of 2026-03-16. Informal browser UAT confirmed core workflow and all three exports (PDF/Word/JSON) working.
+**Post-shipment classification engine improvements (2026-03-26):**
+Applied directly during UAT — no formal phase. See `.planning/CLASSIFICATION-ENGINE.md` for full design documentation.
+- C-01: Lead statement "No lead statement available" — parquet data not injected into profile API (`src/models/noc.py`, `src/services/labels_loader.py`, `src/services/mapper.py`)
+- C-02: Definition box stuck "Loading definition..." — async race condition (`static/js/accordion.js`)
+- C-03: Effort tab empty — NOC code '12100' vs OASIS code '12100.00' mismatch (`src/services/mapper.py`)
+- C-04: Duplicate effort entries with trailing number suffix (e.g. 'Indoors5') — parquet wide-format disambiguation columns (`src/services/labels_loader.py`)
+- C-05: Switch button added to Alternative Groups section — allows promoting any alternative group to primary recommendation (`static/js/classify.js`, `static/css/classify.css`)
+- C-06: Inclusion/exclusion statements surfaced into classification scoring and OG Definition display — confidence weights rebalanced 50/25/15/10 (added 15% inclusion_match); `_fill_missing_og_statements()` now always rebuilds from DB using definition + inclusions + exclusions; PA sub-groups (AS, CR, PM, etc.) now show distinct content (`src/matching/confidence.py`, `src/matching/models.py`, `src/matching/prompts.py`, `src/matching/allocator.py`)
 
-*Milestone record updated: 2026-03-16*
+All C-01 through C-06 fixes confirmed working via UAT on 2026-03-26.
+
+**Note:** Formal GSD milestone verification not yet run. Informal browser UAT confirmed core workflow and all three exports (PDF/Word/JSON) working. Classification engine improvements confirmed 2026-03-26.
+
+*Milestone record updated: 2026-03-26*

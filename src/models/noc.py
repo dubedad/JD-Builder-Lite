@@ -202,6 +202,7 @@ class JobRequirements(BaseModel):
 
 class ReferenceAttributes(BaseModel):
     """Reference NOC attributes for Annex section."""
+    lead_statement: Optional[str] = None
     example_titles: List[str] = Field(default_factory=list)
     interests: List[Interest] = Field(default_factory=list)
     career_mobility: List[CareerMobilityPath] = Field(default_factory=list)

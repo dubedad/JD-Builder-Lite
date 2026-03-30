@@ -66,6 +66,12 @@ class GroupRecommendation(BaseModel):
     inclusion_check: str = Field(
         description="Which inclusion statements support this match, or 'none applies'"
     )
+    inclusion_match_score: float = Field(
+        default=0.0,
+        ge=0.0,
+        le=1.0,
+        description="Inclusion match strength 0.0-1.0: fraction of inclusion statements that apply to this JD"
+    )
     exclusion_check: str = Field(
         description="Confirmation that exclusion statements do not match"
     )

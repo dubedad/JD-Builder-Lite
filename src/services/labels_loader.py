@@ -2,6 +2,7 @@
 
 import logging
 import os
+import re
 from typing import List, Optional, Dict, Any
 from pathlib import Path
 
@@ -116,6 +117,7 @@ class LabelsLoader:
     EMPLOYMENT_REQS_FILE = GOLD_DATA_PATH / "element_employment_requirements.parquet"
     WORKPLACES_FILE = GOLD_DATA_PATH / "element_workplaces_employers.parquet"
     WORK_CONTEXT_FILE = GOLD_DATA_PATH / "oasis_workcontext.parquet"
+    LEAD_STATEMENT_FILE = GOLD_DATA_PATH / "element_lead_statement.parquet"
 
     # CSV files (source)
     INTERESTS_FILE = SOURCE_DATA_PATH / "interests_oasis_2023_v1.0.csv"
@@ -130,6 +132,7 @@ class LabelsLoader:
         self._interests_df = None
         self._personal_attrs_df = None
         self._work_context_df = None
+        self._lead_statement_df = None
 
         # Caches
         self._labels_cache = {}
@@ -140,6 +143,7 @@ class LabelsLoader:
         self._interests_cache = {}
         self._personal_attrs_cache = {}
         self._work_context_cache = {}
+        self._lead_statement_cache = {}
 
         self._load_error = None
 
@@ -574,20 +578,31 @@ class LabelsLoader:
             else:
                 target_cols = all_wc_cols
 
+            # Deduplicate: parquet has numbered duplicate columns (e.g. "Indoors, Environmentally
+            # Controlled5" is a second scale for "Indoors, Environmentally Controlled"). Strip
+            # trailing digits to get canonical name and keep the max level seen.
+            seen: dict[str, int] = {}
             for col in target_cols:
-                if col in row.index:
-                    val = row[col]
-                    if pd.notna(val):
-                        try:
-                            level = int(val)
-                            if level > 0:  # Only include non-zero values
-                                results.append({
-                                    'name': col.strip(),
-                                    'level': level,
-                                    'description': WORK_CONTEXT_DESCRIPTIONS.get(col.strip(), '')
-                                })
-                        except (ValueError, TypeError):
-                            pass
+                if col not in row.index:
+                    continue
+                val = row[col]
+                if pd.isna(val):
+                    continue
+                try:
+                    level = int(val)
+                except (ValueError, TypeError):
+                    continue
+                if level <= 0:
+                    continue
+                canonical = re.sub(r'\d+$', '', col).strip()
+                seen[canonical] = max(seen.get(canonical, 0), level)
+
+            for name, level in seen.items():
+                results.append({
+                    'name': name,
+                    'level': level,
+                    'description': WORK_CONTEXT_DESCRIPTIONS.get(name, '')
+                })
 
             # Sort by level descending
             results.sort(key=lambda x: x['level'], reverse=True)
@@ -596,6 +611,53 @@ class LabelsLoader:
         except Exception as e:
             logger.warning("LabelsLoader: error querying work context for %s (filter=%s): %s", oasis_profile_code, filter_type, e)
             return []
+
+    def _load_lead_statement(self) -> bool:
+        """Load the lead statement parquet file if not already loaded."""
+        if self._lead_statement_df is not None:
+            return True
+
+        if not HAS_PANDAS:
+            logger.warning("Lead statement load skipped: pandas/pyarrow not installed")
+            return False
+
+        if not self.LEAD_STATEMENT_FILE.exists():
+            logger.warning("Lead statement file not found: %s", self.LEAD_STATEMENT_FILE)
+            return False
+
+        try:
+            self._lead_statement_df = pd.read_parquet(self.LEAD_STATEMENT_FILE)
+            self._lead_statement_df.columns = self._lead_statement_df.columns.str.strip()
+            logger.info("LabelsLoader: loaded %d lead statements from parquet", len(self._lead_statement_df))
+            return True
+        except Exception as e:
+            logger.warning("Failed to load lead statements from %s: %s", self.LEAD_STATEMENT_FILE, e)
+            return False
+
+    def get_lead_statement(self, noc_code: str) -> Optional[str]:
+        """Get the lead statement for a given NOC unit group code.
+
+        Args:
+            noc_code: 5-digit NOC code like '12100'
+
+        Returns:
+            Lead statement string, or None if not found
+        """
+        if noc_code in self._lead_statement_cache:
+            return self._lead_statement_cache[noc_code]
+
+        if not self._load_lead_statement():
+            return None
+
+        try:
+            df = self._lead_statement_df
+            matches = df[df["unit_group_id"].astype(str).str.strip() == str(noc_code).strip()]
+            result = str(matches.iloc[0]["Lead statement"]) if not matches.empty else None
+            self._lead_statement_cache[noc_code] = result
+            return result
+        except Exception as e:
+            logger.warning("LabelsLoader: error querying lead statement for %s: %s", noc_code, e)
+            return None
 
     def get_error(self) -> Optional[str]:
         """Get any loading error message."""

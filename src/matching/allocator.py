@@ -100,6 +100,9 @@ class OccupationalGroupAllocator:
         # Step 8: Filter by confidence threshold and limit to top 3
         enhanced = self._apply_threshold_and_limit(enhanced)
 
+        # Step 9: Fill missing og_definition_statements from group definition text
+        enhanced = self._fill_missing_og_statements(enhanced, groups)
+
         return enhanced
 
     def _load_groups_with_statements(self) -> List[Dict]:
@@ -170,13 +173,12 @@ class OccupationalGroupAllocator:
         for rec in llm_result.top_recommendations:
             cand = candidate_scores.get(rec.group_code, {})
 
-            # Recalculate with multi-factor
-            # NOTE: No inclusion_match parameter - inclusions used for shortlisting only
             new_conf, breakdown = self.confidence_calc.calculate_confidence(
                 definition_fit_score=rec.confidence,  # LLM's score as definition fit
                 semantic_similarity=cand.get('semantic_similarity', 0.5),
                 exclusion_conflict='conflict' in rec.exclusion_check.lower(),
-                labels_boost=cand.get('labels_boost', 0.0)
+                labels_boost=cand.get('labels_boost', 0.0),
+                inclusion_match_score=getattr(rec, 'inclusion_match_score', 0.0),
             )
 
             rec.confidence = new_conf
@@ -292,6 +294,68 @@ class OccupationalGroupAllocator:
                 f"No recommendations above {CONFIDENCE_THRESHOLD} confidence threshold. "
                 "Job description may need clarification or may not match standard occupational groups."
             )
+
+        return result
+
+    def _fill_missing_og_statements(
+        self,
+        result: AllocationResult,
+        groups: List[Dict]
+    ) -> AllocationResult:
+        """
+        Build og_definition_statements from the authoritative DB data:
+        definition text + inclusion statements + exclusion statements.
+
+        The LLM cross-contaminates this field (putting one group's text into
+        another). We always rebuild from the DB to guarantee correctness.
+
+        For groups that share a parent definition (e.g., PA sub-groups AS, CR,
+        PM, DA, etc.), the inclusion and exclusion statements are the PRIMARY
+        differentiator. This method ensures each group shows its own distinct
+        statements regardless of shared definition text.
+
+        Structure of output statements:
+        - Up to 2 sentences from the group's own definition
+        - Each inclusion statement prefixed with "Included: "
+        - Each exclusion statement prefixed with "Not included: "
+
+        Args:
+            result: AllocationResult with top_recommendations
+            groups: Full group list from _load_groups_with_statements()
+                    (each dict has 'definition', 'inclusions', 'exclusions')
+
+        Returns:
+            AllocationResult with og_definition_statements sourced from DB
+        """
+        import re
+
+        group_by_code = {g['group_code']: g for g in groups}
+
+        for rec in result.top_recommendations:
+            group = group_by_code.get(rec.group_code)
+            if not group:
+                continue
+
+            statements = []
+
+            # 1. Up to 2 sentences from the definition (for context)
+            definition = group.get('definition', '').strip()
+            if definition:
+                sentences = re.split(r'(?<=[.!?])\s+', definition)
+                statements.extend([s for s in sentences if s][:2])
+
+            # 2. All inclusion statements (these differentiate sub-groups)
+            for inc in group.get('inclusions', []):
+                if inc and inc.strip():
+                    statements.append(f"Included: {inc.strip()}")
+
+            # 3. Exclusion statements (hard gates — equally important to show)
+            for exc in group.get('exclusions', []):
+                if exc and exc.strip():
+                    statements.append(f"Not included: {exc.strip()}")
+
+            if statements:
+                rec.og_definition_statements = statements
 
         return result
 

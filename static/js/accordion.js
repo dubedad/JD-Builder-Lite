@@ -212,6 +212,9 @@ const renderProfileHeader = async (profile) => {
         .then(descResult => {
             if (descResult.description) {
                 descEl.textContent = descResult.description;
+                // Also update the Overview tab's rendered definition box if visible
+                const overviewDefEl = document.getElementById('overview-definition-display');
+                if (overviewDefEl) overviewDefEl.textContent = descResult.description;
                 console.log('[DEBUG] Description generated, length:', descResult.description.length);
             }
         })
@@ -320,7 +323,7 @@ const renderOverviewContent = (profile) => {
             </div>
             <div class="overview-two-col__panel">
                 <h4 class="overview-two-col__heading">Definition</h4>
-                <p class="overview-two-col__text">${definition ? escapeHtml(definition) : '<em>Loading definition...</em>'}</p>
+                <p id="overview-definition-display" class="overview-two-col__text">${definition ? escapeHtml(definition) : '<em>Loading definition...</em>'}</p>
             </div>
         </div>
     `;

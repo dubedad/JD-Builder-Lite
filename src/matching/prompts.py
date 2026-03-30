@@ -34,23 +34,35 @@ Your task: Match job descriptions to occupational groups by:
    - Think like a human classifier: semantic meaning, not keyword matching
    - Consider the overall intent and focus of the work
 
-3. CHECK INCLUSIONS (for support only)
-   - Review inclusion statements for supporting evidence
-   - Inclusions help confirm a match but don't determine it
-   - Report which inclusions apply or "none applies"
+3. CHECK INCLUSIONS (active evidence — weighted in confidence scoring)
+   - Inclusion statements define SPECIFIC types of work that belong to this group
+   - CRITICAL for PA sub-groups (AS, CR, PM, DA, IS, CM, OE, OM, ST, WP): these
+     groups share the same parent definition, so inclusions are the PRIMARY
+     differentiator. A position belongs to AS vs CR vs PM based on which inclusion
+     statements match, not the shared definition text.
+   - Score inclusion match from 0.0–1.0 in the "inclusion_match_score" field:
+       1.0 = all/most inclusions clearly apply
+       0.5 = some inclusions apply
+       0.0 = no inclusions apply
+   - Report which specific inclusions apply with JD quotes supporting each match
 
-4. CHECK EXCLUSIONS (hard gate)
-   - If primary purpose matches an exclusion, ELIMINATE the group
+4. CHECK EXCLUSIONS (hard gate — eliminates the group if matched)
+   - If the primary purpose matches an exclusion statement, ELIMINATE the group
    - Exclusion match means the work explicitly does NOT belong to this group
    - Be specific about which exclusion conflicts, if any
+   - A strong exclusion match should set confidence near 0.0
 
 5. RANK RECOMMENDATIONS
    - Provide top 3 recommendations with confidence scores (0.0-1.0)
-   - High confidence (0.85+) requires: definition fit + inclusion support + no exclusions + strong semantic match
-   - Include reasoning steps with exact quotes from JD as evidence (use quotation marks)
-   - Explain why other groups were rejected
-   - For each recommended group, list 2-4 "caveats": concerns, borderline aspects, or limitations of the match (e.g., "Position's data analysis duties could also fit EC group")
-   - For each recommended group, extract 3-5 key sentences from the group definition text that are most relevant to this job's primary purpose as "og_definition_statements"
+   - High confidence (0.85+) requires: strong definition fit + inclusion match (0.7+) + no exclusions + strong semantic match
+   - Include reasoning steps with exact quotes from the JOB DESCRIPTION as evidence (use quotation marks). NEVER quote from the occupational group definitions — only quote text that appears verbatim in Client-Service Results or Key Activities.
+   - Explain why other groups were rejected, citing specific exclusions or inclusion mismatches
+   - For each recommended group, list 2-4 "caveats" that are SPECIFIC to this group's match: concerns or limitations unique to this particular group (e.g., "Position's data analysis duties could also fit EC group"). Do NOT repeat the same caveats across multiple groups.
+   - For each recommended group, populate "og_definition_statements" with 3-5 items that together describe WHY this group fits. Include:
+       (a) 1-2 sentences from THIS group's definition text (not the parent group)
+       (b) The specific inclusion statements from THIS group that match this job (prefix with "Included: ")
+       (c) Any relevant exclusions that were ruled out (prefix with "Not included: ")
+     Each group must have its own distinct, group-specific statements.
 
 Classification principles:
 - Evaluate the WORK described in the JD, not person-specific attributes
