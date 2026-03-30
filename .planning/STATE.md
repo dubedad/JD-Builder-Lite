@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-03-11)
 
 **Core value:** Every piece of content in the JD can be traced to its authoritative source (JobForge parquet or OASIS), with clear documentation of human decisions and AI involvement.
-**Current focus:** v5.1 UI Overhaul — SHIPPED 2026-03-17 (all phases complete)
+**Current focus:** v5.1 complete + post-ship classification fixes committed — UAT in progress, careers integration pending PR review
 
 ## Current Position
 
@@ -121,9 +121,30 @@ decision.
 
 ## Session Continuity
 
-Last session: 2026-03-26 (evening)
-Stopped at: UAT confirmed C-01 through C-06 all working. Pausing for the night.
+Last session: 2026-03-30
+Stopped at: C-01 to C-06 fixes committed to vic/jd-builder-work and pushed to GitHub. UAT in progress. Careers integration reviewed (Rob's branch rob/careers-integration has one bug — broken /career/ links in family page templates, needs fix before PR to master).
 Resume file: None
+
+## Branch Workflow (established 2026-03-30)
+
+| Branch | Owner | Purpose |
+|--------|-------|---------|
+| `master` | shared | Stable, production-ready code — merge via PR only |
+| `vic/jd-builder-work` | Vic | Vic's active development branch |
+| `rob/careers-integration` | Rob | Rob's careers site integration — PR to master pending bug fix |
+| `rob/careers-site` | Rob | Archive of original careers site work — do not develop on |
+
+**Workflow:** Each person works in their own branch → PR → master. Never push directly to master.
+
+## Careers Integration Status (2026-03-30)
+
+Rob has ported the DND Careers Site into the Flask app on `rob/careers-integration`:
+- Landing page at `/` routes to careers or JD Builder
+- JD Builder moved to `/builder/`
+- Careers site at `/careers/`, family pages at `/careers/<slug>`, detail at `/careers/career/<slug>`
+- CAF bridge parquet missing (non-fatal, gracefully handled)
+- **Known bug:** Family page links point to `/career/<slug>` instead of `/careers/career/<slug>` — all career detail links 404
+- Rob must fix this bug before opening PR to master
 
 ### API Cache Gotcha (important for future debugging)
 
