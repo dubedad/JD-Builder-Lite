@@ -1,0 +1,134 @@
+{% extends "careers/base.html" %}
+
+{% block title %}{{ family }} — DND Civilian Careers{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* Breadcrumb */
+  .breadcrumb {
+    background: #333;
+    padding: 10px 24px;
+    font-size: 13px;
+    color: #ccc;
+  }
+  .breadcrumb a {
+    color: #ccc;
+    text-decoration: none;
+  }
+  .breadcrumb a:hover { color: #fff; }
+  .breadcrumb span { color: #fff; font-weight: 600; }
+
+  /* Page header */
+  .family-header {
+    background: #222;
+    padding: 32px 24px 24px;
+    color: #fff;
+  }
+  .family-header h1 {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 32px;
+    font-weight: 600;
+    color: #fff;
+    margin: 0;
+  }
+
+  /* Job list */
+  .job-list {
+    max-width: 960px;
+    margin: 32px auto;
+    padding: 0 24px;
+  }
+  .job-item {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    transition: box-shadow 0.15s;
+  }
+  .job-item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    text-decoration: none;
+    color: inherit;
+  }
+  .job-item-title {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1a237e;
+    margin: 0 0 8px;
+  }
+  .job-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #fff;
+    white-space: nowrap;
+  }
+  .badge-noc    { background: #333; }
+  .badge-level  { background: #1a5276; }
+  .badge-digital     { background: #1e8449; }
+  .badge-nondigital  { background: #666; }
+  .job-excerpt {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.5;
+    margin: 0;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Breadcrumb -->
+<nav class="breadcrumb">
+  <a href="/">Home</a> &rsaquo;
+  <a href="/careers">Careers</a> &rsaquo;
+  <span>{{ family }}</span>
+</nav>
+
+<!-- Page header -->
+<div class="family-header">
+  <h1>{{ family }}</h1>
+</div>
+
+<!-- Job title listing -->
+<div class="job-list">
+  {% for job in jobs %}
+  <a href="/career/{{ job.slug }}" class="job-item">
+    <div class="job-item-title">{{ job.title }}</div>
+    <div class="job-badges">
+      {% if job.noc_uid %}
+      <span class="badge badge-noc">NOC {{ job.noc_uid }}</span>
+      {% endif %}
+      {% if job.managerial_level %}
+      <span class="badge badge-level">{{ job.managerial_level }}</span>
+      {% endif %}
+      {% if job.digital %}
+      <span class="badge {% if job.digital == 'Digital' %}badge-digital{% else %}badge-nondigital{% endif %}">
+        {{ job.digital }}
+      </span>
+      {% endif %}
+    </div>
+    {% if job.excerpt %}
+    <p class="job-excerpt">{{ job.excerpt }}{% if job.excerpt | length == 150 %}…{% endif %}</p>
+    {% endif %}
+  </a>
+  {% endfor %}
+</div>
+
+{% endblock %}

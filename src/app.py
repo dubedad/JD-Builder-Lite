@@ -3,6 +3,7 @@
 from flask import Flask, render_template
 from flask_cors import CORS
 from src.routes.api import api_bp
+from src.routes.careers import careers_bp
 from src.config import SECRET_KEY, JOBFORGE_BRONZE_PATH
 from src.vocabulary import VocabularyIndex, start_vocabulary_watcher
 from src.services.generation_service import GenerationService, get_generation_service
@@ -51,7 +52,11 @@ def create_app():
     CORS(app)
 
     # Initialize vocabulary index and watcher
-    initialize_vocabulary()
+    try:
+        initialize_vocabulary()
+    except FileNotFoundError as e:
+        print(f"[Vocabulary] WARNING: Could not load vocabulary — {e}")
+        print("[Vocabulary] Continuing without vocabulary index.")
 
     # Disable caching for static files in development
     @app.after_request
@@ -64,10 +69,16 @@ def create_app():
 
     # Register API blueprint
     app.register_blueprint(api_bp)
+    app.register_blueprint(careers_bp)
 
-    # Root route to serve the frontend
+    # Root route serves landing page (Step 0 routing gate)
     @app.route('/')
     def index():
+        return render_template('landing.html')
+
+    # JD Builder at /builder/
+    @app.route('/builder/')
+    def builder():
         return render_template('index.html')
 
     return app

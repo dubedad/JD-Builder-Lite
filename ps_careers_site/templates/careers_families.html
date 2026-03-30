@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}{{ function.job_function }} — DND Civilian Careers{% endblock %}
+
+{% block extra_head %}
+{% include "partials/card_styles.html" %}
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero banner -->
+<div class="browse-hero">
+  <p class="hero-subtitle">Department of National Defence — Civilian Workforce</p>
+  <h1 class="hero-title">{{ function.job_function }}</h1>
+</div>
+
+<!-- Breadcrumb -->
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  <a href="/">Home</a> &rsaquo;
+  <a href="/careers">Careers</a> &rsaquo;
+  <span>{{ function.job_function }}</span>
+</nav>
+
+{% if function.job_function_description %}
+<div style="padding: 16px 24px; background: #fff; border-bottom: 1px solid #ddd; font-size: 15px; color: #495057; font-family: Roboto, sans-serif; line-height: 1.6;">
+  {{ function.job_function_description }}
+</div>
+{% endif %}
+
+<!-- Card grid: Job Family cards within this function -->
+<div class="card-grid">
+  {% for fam in families %}
+  <div class="card-col">
+    {% if fam.image_path %}
+    <a href="/careers/{{ function.job_function_slug }}/{{ fam.job_family_slug }}"
+       class="career-card"
+       style="background-image:
+           linear-gradient(rgba(0,0,0,0.25)),
+           linear-gradient(rgba(0,0,0,0) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.5) 65%, rgba(0,0,0,0.9) 100%),
+           url('{{ url_for('static', path='images/' + fam.image_path) }}');">
+    {% else %}
+    <a href="/careers/{{ function.job_function_slug }}/{{ fam.job_family_slug }}"
+       class="career-card card-no-image gradient-{{ function.job_function_slug }}">
+    {% endif %}
+      <div class="card-overlay">
+        <h3 class="card-title">{{ fam.job_family }}</h3>
+        <span class="view-btn">View Careers</span>
+      </div>
+    </a>
+  </div>
+  {% endfor %}
+</div>
+
+{% if not families %}
+<div style="padding: 48px 24px; text-align: center; font-size: 16px; color: #666;">
+  No job families found for this function.
+</div>
+{% endif %}
+
+{% endblock %}

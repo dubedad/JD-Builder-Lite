@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}DND Civilian Careers{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@100;400;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', path='css/gradients.css') }}">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: 'Roboto', sans-serif; margin: 0; background: #f5f5f5; }
+    h1, h2, h3, h4, nav { font-family: 'Exo 2', sans-serif; }
+    a { color: inherit; }
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+  <header class="gc-header" style="background:#222; height:64px; display:flex; align-items:center; justify-content:space-between; padding:0 24px; position:sticky; top:0; z-index:1020;">
+    <a href="/" style="display:flex; align-items:center;">
+      <img src="{{ url_for('static', path='images/gc-canada-logo.png') }}"
+           alt="Government of Canada / Gouvernement du Canada"
+           style="height:30px; width:auto;">
+    </a>
+    <nav style="display:flex; gap:24px; align-items:center;">
+      <a href="/careers" style="color:#f5f5f5; text-decoration:none; font-family:'Exo 2',sans-serif; font-size:14px; text-transform:uppercase; letter-spacing:1.4px;">Browse Careers</a>
+      <a href="https://emploisfp-psjobs.cfp-psc.gc.ca/" style="color:#f5f5f5; text-decoration:none; font-family:'Exo 2',sans-serif; font-size:14px; text-transform:uppercase; letter-spacing:1.4px;">Apply Now</a>
+      <a href="/fr" style="color:#f5f5f5; text-decoration:none; font-family:'Exo 2',sans-serif; font-size:14px; font-weight:600;">FR</a>
+    </nav>
+  </header>
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer>
+    <div class="footer-grid" style="background:#2a2a2a; padding:48px 24px 32px; display:grid; grid-template-columns:repeat(5,1fr); gap:24px;">
+      <div>
+        <h4 style="color:#f5f5f5; font-family:'Exo 2',sans-serif; font-size:14px; text-transform:uppercase; letter-spacing:1.4px; margin-bottom:16px;">Browse Careers</h4>
+        <ul style="list-style:none; padding:0; margin:0;">
+          <li><a href="/careers" style="color:#aaa; text-decoration:none; font-size:14px; line-height:2;">All Careers</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 style="color:#f5f5f5; font-family:'Exo 2',sans-serif; font-size:14px; text-transform:uppercase; letter-spacing:1.4px; margin-bottom:16px;">Joining the Public Service</h4>
+        <ul style="list-style:none; padding:0; margin:0;">
+          <li><a href="https://emploisfp-psjobs.cfp-psc.gc.ca/" style="color:#aaa; text-decoration:none; font-size:14px; line-height:2;">Job Postings</a></li>
+          <li><a href="https://www.canada.ca/en/public-service-commission/jobs/services/gc-jobs.html" style="color:#aaa; text-decoration:none; font-size:14px; line-height:2;">How to Apply</a></li>
+          <li><a href="https://www.canada.ca/en/government/publicservice/staffing/student-employment.html" style="color:#aaa; text-decoration:none; font-size:14px; line-height:2;">Student Programs</a></li>
+          <li><a href="https://www.canada.ca/en/public-service-commission/jobs/services/recruitment/graduates/fswep.html" style="color:#aaa; text-decoration:none; font-size:14px; line-height:2;">FSWEP</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 style="color:#f5f5f5; font-family:'Exo 2',sans-serif; font-size:14px; text-transform:uppercase; letter-spacing:1.4px; margin-bottom:16px;">Life in DND</h4>
+        <ul style="list-style:none; padding:0; margin:0;">
+          <li><a href="https://www.canada.ca/en/department-national-defence/corporate/policies-standards/pay-benefits.html" style="color:#aaa; text-decoration:none; font-size:14px; line-height:2;">Pay &amp; Benefits</a></li>
+          <li><a href="https://www.canada.ca/en/department-national-defence/services/benefits-military/diversity-inclusion.html" style="color:#aaa; text-decoration:none; font-size:14px; line-height:2;">Diversity &amp; Inclusion</a></li>
+          <li><a href="https://www.canada.ca/en/department-national-defence/services/benefits-military/career-development.html" style="color:#aaa; text-decoration:none; font-size:14px; line-height:2;">Career Development</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 style="color:#f5f5f5; font-family:'Exo 2',sans-serif; font-size:14px; text-transform:uppercase; letter-spacing:1.4px; margin-bottom:16px;">About DND</h4>
+        <ul style="list-style:none; padding:0; margin:0;">
+          <li><a href="https://www.canada.ca/en/department-national-defence/corporate/organizational-structure.html" style="color:#aaa; text-decoration:none; font-size:14px; line-height:2;">Organization</a></li>
+          <li><a href="https://www.canada.ca/en/department-national-defence/corporate/policies-standards/defence-administrative-orders-directives.html" style="color:#aaa; text-decoration:none; font-size:14px; line-height:2;">Policies &amp; Orders</a></li>
+          <li><a href="https://www.canada.ca/en/department-national-defence/services/contact-us.html" style="color:#aaa; text-decoration:none; font-size:14px; line-height:2;">Contact Us</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 style="color:#f5f5f5; font-family:'Exo 2',sans-serif; font-size:14px; text-transform:uppercase; letter-spacing:1.4px; margin-bottom:16px;">Get in Touch</h4>
+        <ul style="list-style:none; padding:0; margin:0;">
+          <li><a href="https://www.canada.ca/en/department-national-defence/services/contact-us.html" style="color:#aaa; text-decoration:none; font-size:14px; line-height:2;">Help Centre</a></li>
+          <li><a href="https://www.canada.ca/en/department-national-defence/services/contact-us/civilian-hr-contacts.html" style="color:#aaa; text-decoration:none; font-size:14px; line-height:2;">HR Contacts</a></li>
+          <li><a href="mailto:dnd.civilian-careers@forces.gc.ca" style="color:#aaa; text-decoration:none; font-size:14px; line-height:2;">Email Us</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom" style="background:#1a1a1a; padding:16px 24px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;">
+      <img src="{{ url_for('static', path='images/gc-canada-logo.png') }}"
+           alt="Government of Canada / Gouvernement du Canada"
+           style="height:26px; width:auto;">
+      <div style="display:flex; gap:16px; align-items:center;">
+        <!-- Facebook -->
+        <a href="https://www.facebook.com/NationalDefence.DefenseNationale" style="color:#aaa;" aria-label="Facebook">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+        </a>
+        <!-- X / Twitter -->
+        <a href="https://twitter.com/Canada_DND" style="color:#aaa;" aria-label="X (Twitter)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+        <!-- LinkedIn -->
+        <a href="https://www.linkedin.com/company/national-defence-canada" style="color:#aaa;" aria-label="LinkedIn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
+        </a>
+        <!-- Instagram -->
+        <a href="https://www.instagram.com/canadianforces/" style="color:#aaa;" aria-label="Instagram">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        </a>
+        <!-- YouTube -->
+        <a href="https://www.youtube.com/@NationalDefenceCanada" style="color:#aaa;" aria-label="YouTube">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M22.54 6.42a2.78 2.78 0 00-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 001.46 6.42 29 29 0 001 12a29 29 0 00.46 5.58A2.78 2.78 0 003.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.4a2.78 2.78 0 001.95-1.95A29 29 0 0023 12a29 29 0 00-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="#2a2a2a"/></svg>
+        </a>
+      </div>
+      <span style="color:#666; font-size:11px; font-family:Roboto,sans-serif;">Photos by <a href="https://unsplash.com/?utm_source=dnd_civilian_careers&utm_medium=referral" style="color:#888; text-decoration:underline;">Unsplash</a></span>
+      <div style="display:flex; gap:24px;">
+        <a href="/terms" style="color:#aaa; text-decoration:none; font-size:12px;">Terms and Conditions</a>
+        <a href="/fr" style="color:#aaa; text-decoration:none; font-size:12px;">Français</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
