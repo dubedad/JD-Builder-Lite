@@ -322,8 +322,8 @@
           <!-- Stale warning banner (existing) -->
           <div id="classify-stale-warning" class="classify-stale-warning hidden" role="alert">
             <i class="fas fa-exclamation-triangle"></i>
-            <span>JD changed -- re-classify for updated results</span>
-            <button onclick="document.getElementById('classify-stale-warning').classList.add('hidden'); window.jdStepper.goToStep(3);" class="btn btn--sm">Re-classify</button>
+            <span>JD changed -- must re-classify for updated results</span>
+            <button id="classify-stale-reclassify-btn" onclick="document.getElementById('classify-stale-warning').classList.add('hidden'); window.jdStepper.goToStep(3);" class="btn btn--sm">Re-classify</button>
           </div>
 
           <!-- TBS 3-Step Dark Card -->

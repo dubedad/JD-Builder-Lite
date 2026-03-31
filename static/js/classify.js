@@ -14,6 +14,7 @@ const classifyModule = (function() {
     // Source: https://www.canada.ca/en/treasury-board-secretariat/services/collective-agreements/occupational-groups/definitions.html
     const OCCUPATIONAL_GROUP_NAMES = {
         'AC': 'Actuarial Science',
+        'AG': 'Agriculture',
         'AI': 'Air Traffic Control',
         'AO': 'Aircraft Operations',
         'AR': 'Architecture and Town Planning',
@@ -23,6 +24,8 @@ const classifyModule = (function() {
         'CH': 'Chemistry',
         'CM': 'Communications',
         'CO': 'Commerce',
+        'CP': 'Commerce and Purchasing',
+        'CT': 'Computer Technology',
         'CR': 'Clerical and Regulatory',
         'CS': 'Computer Systems',
         'CX': 'Correctional Services',
@@ -31,6 +34,7 @@ const classifyModule = (function() {
         'DE': 'Dentistry',
         'DS': 'Defence Scientific Services',
         'EC': 'Economics and Social Science Services',
+        'EB': 'Education and Library Science',
         'ED': 'Education',
         'EG': 'Engineering and Scientific Support',
         'EL': 'Electronics',
@@ -46,19 +50,28 @@ const classifyModule = (function() {
         'GL': 'General Labour and Trades',
         'GS': 'General Services',
         'GT': 'General Technical',
+        'HM': 'General Services',
         'HP': 'Heating, Power and Stationary Plant Operations',
         'HR': 'Historical Research',
         'HS': 'Health Services',
+        'IS': 'Information Services',
         'IT': 'Information Technology',
         'LA': 'Law',
+        'LC': 'Law Clerks',
+        'LI': 'Lightkeepers',
+        'LP': 'Law Practitioner',
         'LS': 'Library Science',
         'MA': 'Mathematics',
         'MD': 'Medicine',
         'MT': 'Meteorology',
         'ND': 'Nutrition and Dietetics',
+        'NR': 'Applied Science and Engineering',
         'NU': 'Nursing',
+        'OE': 'Office Equipment',
         'OM': 'Organization and Methods',
+        'OM2': 'Organization and Methods',
         'OP': 'Occupational and Physical Therapy',
+        'PA': 'Programme and Administrative Services',
         'PC': 'Physical Sciences',
         'PE': 'Personnel Administration',
         'PG': 'Purchasing and Supply',
@@ -67,17 +80,26 @@ const classifyModule = (function() {
         'PM': 'Programme Administration',
         'PO': 'Police Operations Support',
         'PR': 'Printing Operations',
+        'PR2': 'Non-Supervisory Printing Services',
         'PS': 'Psychology',
+        'PY': 'Photography',
         'RE': 'Research',
         'RO': 'Radio Operations',
         'SC': 'Ships\' Crews',
         'SE': 'Scientific Research',
         'SG': 'Scientific Regulation',
+        'SH': 'Health Services',
         'SI': 'Social Work',
         'SO': 'Ships\' Officers',
+        'SP': 'Applied Science and Engineering',
         'SR': 'Scientific Research',
+        'SRC': 'Scientific Research (C)',
+        'SRE': 'Scientific Research (E)',
+        'SRW': 'Scientific Research (W)',
         'ST': 'Secretarial, Stenographic and Typing',
+        'SV': 'Operational Services',
         'SW': 'Social Work',
+        'TC': 'Technical Services',
         'TI': 'Technical Inspection',
         'TR': 'Translation',
         'UT': 'University Teaching',
@@ -297,6 +319,9 @@ const classifyModule = (function() {
         // Hide the v5.1 Analyze CTA when analysis begins
         const ctaDiv = document.getElementById('classify-cta');
         if (ctaDiv) ctaDiv.classList.add('hidden');
+        // Hide Re-classify button while loading (keep message visible so user knows why)
+        const reclassifyBtn = document.getElementById('classify-stale-reclassify-btn');
+        if (reclassifyBtn) reclassifyBtn.classList.add('hidden');
         if (elements.loading) elements.loading.classList.remove('hidden');
         if (elements.results) elements.results.classList.add('hidden');
         if (elements.error) elements.error.classList.add('hidden');
@@ -338,6 +363,10 @@ const classifyModule = (function() {
             borderlineFlag: response.borderline_flag,
             hasProvenanceMap: !!response.provenance_map
         });
+
+        // Dismiss stale warning banner now that fresh results are in
+        const staleBanner = document.getElementById('classify-stale-warning');
+        if (staleBanner) staleBanner.classList.add('hidden');
 
         // Reset v5.1 post-analysis sections before re-render
         ['classify-alignment', 'classify-key-evidence', 'classify-caveats', 'classify-alternatives', 'classify-next-step'].forEach(function(id) {

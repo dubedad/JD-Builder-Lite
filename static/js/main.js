@@ -866,10 +866,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 const parsed = JSON.parse(cache);
                 const currentHash = btoa(JSON.stringify(state.selections));
                 if (parsed.jdHash !== currentHash) {
-                    // Mark stale - show banner on classify section
+                    // Mark stale - show banner on classify section (restore button visibility too)
                     const banner = document.getElementById('classify-stale-warning');
                     if (banner) {
                         banner.classList.remove('hidden');
+                        const btn = document.getElementById('classify-stale-reclassify-btn');
+                        if (btn) btn.classList.remove('hidden');
                     }
                 }
             } catch (e) {
